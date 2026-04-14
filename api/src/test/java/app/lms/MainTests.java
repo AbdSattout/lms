@@ -1,13 +1,13 @@
-package com.koyeb.examplespringboot;
+package app.lms;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class ExampleSpringBootApplicationTests {
+class MainTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
