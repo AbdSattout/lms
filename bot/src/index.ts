@@ -17,13 +17,14 @@ type SyncResult =
 			sha: string;
 		}
 	| {
-			kind: "updated";
+			kind: "merged";
 			sha: string;
 			message: string;
 		}
 	| {
-			kind: "not_fast_forwardable";
-			status: string;
+			kind: "not_mergeable";
+			status: number;
+			reason: string;
 			releaseSha: string;
 			devSha: string;
 		};
@@ -133,50 +134,40 @@ async function syncReleaseBranch(env: Env): Promise<SyncResult> {
 		return { kind: "up_to_date", sha: devSha };
 	}
 
-	const compare = await octokit.request(
-		"GET /repos/{owner}/{repo}/compare/{basehead}",
-		{
-			owner: env.GITHUB_OWNER,
-			repo: env.GITHUB_REPO,
-			basehead: `${env.RELEASE_BRANCH}...${env.DEV_BRANCH}`,
-		},
-	);
+	try {
+		const mergeResponse = await octokit.request(
+			"POST /repos/{owner}/{repo}/merges",
+			{
+				owner: env.GITHUB_OWNER,
+				repo: env.GITHUB_REPO,
+				base: env.RELEASE_BRANCH,
+				head: env.DEV_BRANCH,
+				commit_message: `Merge ${env.DEV_BRANCH} into ${env.RELEASE_BRANCH} via Telegram bot`,
+			},
+		);
 
-	const status = compare.data.status;
-	if (status !== "ahead") {
+		const commitMessage =
+			mergeResponse.data.commit.message.split("\n")[0]?.trim() ||
+			"No commit message";
+
 		return {
-			kind: "not_fast_forwardable",
-			status,
-			releaseSha,
-			devSha,
+			kind: "merged",
+			sha: mergeResponse.data.sha,
+			message: commitMessage,
 		};
+	} catch (error) {
+		if (isGitHubApiError(error)) {
+			return {
+				kind: "not_mergeable",
+				status: error.status,
+				reason: error.message,
+				releaseSha,
+				devSha,
+			};
+		}
+
+		throw error;
 	}
-
-	await octokit.request("PATCH /repos/{owner}/{repo}/git/refs/{ref}", {
-		owner: env.GITHUB_OWNER,
-		repo: env.GITHUB_REPO,
-		ref: `heads/${env.RELEASE_BRANCH}`,
-		sha: devSha,
-		force: false,
-	});
-
-	const devCommit = await octokit.request(
-		"GET /repos/{owner}/{repo}/commits/{ref}",
-		{
-			owner: env.GITHUB_OWNER,
-			repo: env.GITHUB_REPO,
-			ref: devSha,
-		},
-	);
-
-	const commitMessage =
-		devCommit.data.commit.message.split("\n")[0]?.trim() || "No commit message";
-
-	return {
-		kind: "updated",
-		sha: devSha,
-		message: commitMessage,
-	};
 }
 
 function formatResultMessage(env: Env, result: SyncResult): string {
@@ -184,20 +175,39 @@ function formatResultMessage(env: Env, result: SyncResult): string {
 		return `${env.RELEASE_BRANCH} is already up to date with ${env.DEV_BRANCH} (${shortSha(result.sha)}).`;
 	}
 
-	if (result.kind === "not_fast_forwardable") {
+	if (result.kind === "not_mergeable") {
 		return [
-			`Cannot fast-forward ${env.RELEASE_BRANCH} to ${env.DEV_BRANCH}.`,
-			`Comparison status: ${result.status}.`,
+			`Cannot merge ${env.DEV_BRANCH} into ${env.RELEASE_BRANCH}.`,
+			`GitHub API status: ${result.status}.`,
+			`Reason: ${result.reason}`,
 			`${env.RELEASE_BRANCH}: ${shortSha(result.releaseSha)}`,
 			`${env.DEV_BRANCH}: ${shortSha(result.devSha)}`,
 		].join("\n");
 	}
 
 	return [
-		`${env.RELEASE_BRANCH} was fast-forwarded to ${env.DEV_BRANCH}.`,
-		`Commit: ${shortSha(result.sha)} - ${result.message}`,
+		`${env.RELEASE_BRANCH} was merged with ${env.DEV_BRANCH}.`,
+		`Merge commit: ${shortSha(result.sha)} - ${result.message}`,
 		"Successfully merged. Apps will be deployed shortly.",
 	].join("\n");
+}
+
+function isGitHubApiError(error: unknown): error is {
+	status: number;
+	message: string;
+} {
+	if (!error || typeof error !== "object") {
+		return false;
+	}
+
+	if (!("status" in error) || !("message" in error)) {
+		return false;
+	}
+
+	return (
+		typeof (error as { status: unknown }).status === "number" &&
+		typeof (error as { message: unknown }).message === "string"
+	);
 }
 
 async function sendTelegramMessage(

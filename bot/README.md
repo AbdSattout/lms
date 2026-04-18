@@ -8,8 +8,8 @@ This Worker handles Telegram webhook updates and only responds to a single comma
 When `/build` is received from the allowed chat, it compares `release` vs `dev` on GitHub and:
 
 - replies that release is already up to date, or
-- fast-forwards `release` to `dev` and replies with commit hash/message, or
-- replies that fast-forward is not possible.
+- merges `dev` into `release` with a merge commit and replies with merge commit hash/message, or
+- replies that merge is not possible (conflict/protection/permission issue).
 
 ## Setup
 
