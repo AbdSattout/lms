@@ -1,0 +1,16 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "telegram-build-bot",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-04-18",
+	"compatibility_flags": ["nodejs_compat"],
+	"vars": {
+		"GITHUB_OWNER": "AbdSattout",
+		"GITHUB_REPO": "lms",
+		"DEV_BRANCH": "dev",
+		"RELEASE_BRANCH": "release"
+	},
+	"observability": {
+		"enabled": true,
+	},
+}
