@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class AuthService {
 
 
@@ -35,7 +34,7 @@ public class AuthService {
         Jwt telegramJwt =
                 telegramJwtDecoder
                         .decode(loginRequest.getIdToken());
-        String telegramId = telegramJwt.getSubject();
+        String telegramId = telegramJwt.getClaim("id");
         String name = telegramJwt.getClaim("name");
         String picture = telegramJwt.getClaim("picture");
         User user = userRepository.findByTelegramId(telegramId)
