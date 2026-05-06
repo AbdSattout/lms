@@ -1,4 +1,4 @@
-package app.lms.Security;
+package app.lms.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

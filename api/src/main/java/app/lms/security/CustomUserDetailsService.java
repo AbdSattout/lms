@@ -1,4 +1,4 @@
-package app.lms.Security;
+package app.lms.security;
 
 import app.lms.model.User;
 import app.lms.repository.UserRepository;
