@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_bWAR5f44nm
+createdAt: 2026-05-06T14:57:32.465785900
+updatedAt: 2026-05-06T16:40:33.831055400
+workspaceId: wk_LvqrSfWmRY
+folderId: null
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3NTUwNTMyNjkiLCJpYXQiOjE3NzgwNzAyNjAsImV4cCI6MTc3ODY3NTA2MH0.cykolKO-2KXtS12Jj6-4515ASuwf7Lb1V-axLwZ06UQ
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: HTTP Request
+sortPriority: -1778079184181.0
+url: http://localhost:8080/2
+urlParameters: []
