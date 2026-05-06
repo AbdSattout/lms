@@ -1,7 +1,7 @@
 package app.lms.service;
 
-import app.lms.Security.JwtService;
-import app.lms.Security.UserPrincipal;
+import app.lms.security.JwtService;
+import app.lms.security.UserPrincipal;
 import app.lms.dto.AuthResponse;
 import app.lms.dto.LoginRequest;
 import app.lms.model.User;

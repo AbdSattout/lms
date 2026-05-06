@@ -3,6 +3,7 @@ package app.lms.controller;
 import app.lms.dto.AuthResponse;
 import app.lms.dto.LoginRequest;
 import app.lms.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +20,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest loginRequest){
        AuthResponse response = authService.login(loginRequest);
         return ResponseEntity.ok(response);
     }
