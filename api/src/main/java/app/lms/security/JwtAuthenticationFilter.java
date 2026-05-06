@@ -1,4 +1,4 @@
-package app.lms.Security;
+package app.lms.security;
 
 
 import jakarta.servlet.FilterChain;
@@ -42,12 +42,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             username = jwtService.extractUsername(jwt);
 
-        } catch (Exception e) {
+        }catch (Exception e) {
+            SecurityContextHolder.clearContext();
 
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Invalid JWT"
-            );
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+
+            response.getWriter().write("""
+        {
+            "status": 401,
+            "error": "Invalid JWT"
+        }
+    """);
 
             return;
         }
