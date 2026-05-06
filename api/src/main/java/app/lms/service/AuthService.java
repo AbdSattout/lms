@@ -7,6 +7,7 @@ import app.lms.dto.LoginRequest;
 import app.lms.model.User;
 import app.lms.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.stereotype.Service;
@@ -31,9 +32,20 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest loginRequest) {
-        Jwt telegramJwt =
-                telegramJwtDecoder
-                        .decode(loginRequest.getIdToken());
+        Jwt telegramJwt;
+
+        try {
+
+            telegramJwt =
+                    telegramJwtDecoder
+                            .decode(loginRequest.getIdToken());
+
+        } catch (Exception e) {
+
+            throw new BadCredentialsException(
+                    "Invalid Telegram idToken"
+            );
+        }
         String telegramId = telegramJwt.getClaim("id");
         String name = telegramJwt.getClaim("name");
         String picture = telegramJwt.getClaim("picture");
