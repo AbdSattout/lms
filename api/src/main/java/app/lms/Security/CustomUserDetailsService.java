@@ -3,6 +3,7 @@ package app.lms.Security;
 import app.lms.model.User;
 import app.lms.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +16,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
+    @NullMarked
     public UserDetails loadUserByUsername(String telegramId) throws UsernameNotFoundException {
         User user = userRepository.findByTelegramId(telegramId)
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
