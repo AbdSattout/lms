@@ -55,8 +55,14 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
-}
 
+}
+configurations.all {
+    exclude(group = "androidx.profileinstaller", module = "profileinstaller")
+}
 flutter {
     source = "../.."
+}
+dependencies {
+    implementation(files("libs/profileinstaller-1.3.1.aar"))
 }
