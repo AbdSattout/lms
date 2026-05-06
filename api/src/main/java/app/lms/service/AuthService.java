@@ -20,12 +20,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public AuthService(
-            @Qualifier("telegramJwtDecoder")
-            JwtDecoder telegramJwtDecoder,
-            UserRepository userRepository,
-            JwtService jwtService
-    ) {
+    public AuthService(@Qualifier("telegramJwtDecoder") JwtDecoder telegramJwtDecoder, UserRepository userRepository, JwtService jwtService) {
         this.telegramJwtDecoder = telegramJwtDecoder;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
@@ -36,28 +31,23 @@ public class AuthService {
 
         try {
 
-            telegramJwt =
-                    telegramJwtDecoder
-                            .decode(loginRequest.getIdToken());
+            telegramJwt = telegramJwtDecoder.decode(loginRequest.getIdToken());
 
         } catch (Exception e) {
 
-            throw new BadCredentialsException(
-                    "Invalid Telegram idToken"
-            );
+            throw new BadCredentialsException("Invalid Telegram idToken");
         }
         String telegramId = telegramJwt.getClaim("id");
         String name = telegramJwt.getClaim("name");
         String picture = telegramJwt.getClaim("picture");
-        User user = userRepository.findByTelegramId(telegramId)
-                .orElseGet(()->{
-                    User newUser = new User();
-                    newUser.setTelegramId(telegramId);
-                    newUser.setName(name);
-                    newUser.setPicture(picture);
-                    return userRepository.save(newUser);
-                });
+        User user = userRepository.findByTelegramId(telegramId).orElseGet(() -> {
+            User newUser = new User();
+            newUser.setTelegramId(telegramId);
+            newUser.setName(name);
+            newUser.setPicture(picture);
+            return userRepository.save(newUser);
+        });
         String token = jwtService.generateToken(new UserPrincipal(user));
-        return new AuthResponse(token , user);
+        return new AuthResponse(token, user);
     }
 }
