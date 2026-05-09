@@ -47,8 +47,8 @@ class NotFoundException extends ServerException {
   NotFoundException(super.errorModel);
 }
 
-class CofficientException extends ServerException {
-  CofficientException(super.errorModel);
+class ConflictException extends ServerException {
+  ConflictException(super.errorModel);
 }
 
 class CancelException extends ServerException {
@@ -62,49 +62,63 @@ class UnknownException extends ServerException {
 handleDioException(DioException e) {
   switch (e.type) {
     case DioExceptionType.connectionError:
-      throw ConnectionErrorException(ErrorModel.fromJson(e.response!.data));
+      throw ConnectionErrorException(_extractError(e));
     case DioExceptionType.badCertificate:
-      throw BadCertificateException(ErrorModel.fromJson(e.response!.data));
+      throw BadCertificateException(_extractError(e));
     case DioExceptionType.connectionTimeout:
-      throw ConnectionTimeoutException(ErrorModel.fromJson(e.response!.data));
+      throw ConnectionTimeoutException(_extractError(e));
 
     case DioExceptionType.receiveTimeout:
-      throw ReceiveTimeoutException(ErrorModel.fromJson(e.response!.data));
+      throw ReceiveTimeoutException(_extractError(e));
 
     case DioExceptionType.sendTimeout:
-      throw SendTimeoutException(ErrorModel.fromJson(e.response!.data));
+      throw SendTimeoutException(_extractError(e));
 
     case DioExceptionType.badResponse:
-      switch (e.response?.statusCode) {
-        case 400: // Bad request
-
-          throw BadResponseException(ErrorModel.fromJson(e.response!.data));
-
-        case 401: //unauthorized
-          throw UnauthorizedException(ErrorModel.fromJson(e.response!.data));
-
-        case 403: //forbidden
-          throw ForbiddenException(ErrorModel.fromJson(e.response!.data));
-
-        case 404: //not found
-          throw NotFoundException(ErrorModel.fromJson(e.response!.data));
-
-        case 409: //cofficient
-
-          throw CofficientException(ErrorModel.fromJson(e.response!.data));
-
-        case 504: // Bad request
-
-          throw BadResponseException(
-              ErrorModel(status: 504, errorMessage: e.response!.data));
-      }
+      _handleBadResponse(e);
+      break;
 
     case DioExceptionType.cancel:
-      throw CancelException(
-          ErrorModel(errorMessage: e.toString(), status: 500));
+      throw CancelException(_extractError(e));
 
     case DioExceptionType.unknown:
-      throw UnknownException(
-          ErrorModel(errorMessage: e.toString(), status: 500));
+      throw UnknownException(_extractError(e));
   }
+}
+
+void _handleBadResponse(DioException e) {
+  final response = e.response;
+  if (response == null) {
+    throw UnknownException(ErrorModel(status: 500, errorMessage: 'استجابة غير معروفة من السيرفر'));
+  }
+
+  switch (response.statusCode) {
+    case 400: // Bad response
+      throw BadResponseException(ErrorModel.fromJson(response.data));
+    case 401: // Unauthorized
+      throw UnauthorizedException(ErrorModel.fromJson(response.data));
+    case 403: // Forbidden
+      throw ForbiddenException(ErrorModel.fromJson(response.data));
+    case 404: // Not found
+      throw NotFoundException(ErrorModel.fromJson(response.data));
+    case 409: // Conflict
+      throw ConflictException(ErrorModel.fromJson(response.data));
+    case 504: // Bad reponse
+      throw BadResponseException(
+        ErrorModel(status: 504, errorMessage: 'استغراق الاتصال بالسيرفر وقت طويلاً')
+      );
+    default:
+      throw UnknownException(ErrorModel.fromJson(response.data));
+  }
+}
+
+ErrorModel _extractError(DioException e) {
+  if(e.response != null && e.response!.data != null) {
+    try {
+      return ErrorModel.fromJson(e.response!.data);
+    } catch(_) {
+      return ErrorModel(status: 0, errorMessage: "حدث خطأ أثناء معالجة البيانات");
+    }
+  }
+  return ErrorModel(status: 0, errorMessage: "لا يوجد اتصال بالانترنت أو السيرفر لا يستجيب");
 }

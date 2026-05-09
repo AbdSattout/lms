@@ -5,7 +5,7 @@ class EndPoints {
     defaultValue: 'http://localhost:8080',
   );
 
-  // Telegram Client ID provided by the team lead
+  // Telegram Client ID
   static const String telegramClientId = String.fromEnvironment(
     'TELEGRAM_CLIENT_ID',
     defaultValue: '8641099953',
