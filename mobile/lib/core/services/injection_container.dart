@@ -5,6 +5,7 @@ import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Import Core
+import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
 import '../databases/api/dio_consumer.dart';
@@ -33,6 +34,9 @@ Future<void> init() async {
       localDataSource: sl(),
       networkInfo: sl(),
     ),
+  );
+  sl.registerFactory(
+        () => AuthBloc(sl()),
   );
 
   // Data sources
