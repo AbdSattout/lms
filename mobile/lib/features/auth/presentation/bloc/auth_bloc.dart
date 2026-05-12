@@ -20,7 +20,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         },
             (authEntity) {
           emit(AuthSuccess(
-            'تم تسجيل الدخول بنجاح',
+            message: 'تم تسجيل الدخول بنجاح',
+            authEntity: authEntity,  // Edited
           ));
         },
       );

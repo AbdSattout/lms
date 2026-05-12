@@ -4,6 +4,11 @@ import 'package:lottie/lottie.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import 'package:lms/features/home/presentation/pages/main_home_screen.dart';
+
+// ألوان الثيم التي زودتني بها
+Color kLightPrimaryColor = const Color(0xffff8900);
+Color kLightSecondaryColor = const Color(0xff040415);
 
 class TelegramLoginPage extends StatelessWidget {
   const TelegramLoginPage({super.key});
@@ -12,184 +17,96 @@ class TelegramLoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-
       child: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Text(
-            'تسجيل الدخول',
-          ),
-        ),
-
+        backgroundColor: Colors.white,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-
             if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                ),
+                SnackBar(content: Text(state.message), backgroundColor: Colors.red),
               );
             }
-
             if (state is AuthSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                ),
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => MainHomeScreen(userAuthData: state.authEntity)),
               );
             }
           },
-
           builder: (context, state) {
-
             final isLoading = state is AuthLoading;
-
-            return Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFFEAF4FF),
-                    Colors.white,
-                  ],
+            return Stack(
+              children: [
+                // خلفية علوية منحنية بلون خفيف
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  decoration: BoxDecoration(
+                    color: kLightPrimaryColor.withOpacity(0.1),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(50)),
+                  ),
                 ),
-              ),
-
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-
-                    child: Container(
-                      padding: const EdgeInsets.all(28),
-
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(32),
-
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 30,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-
+                SafeArea(
+                  child: Center(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
-
-                          SizedBox(
-                            height: 240,
-                            child: Lottie.asset(
-                              'assets/lotties/book_loading.json',
-                              fit: BoxFit.contain,
-                            ),
+                          Lottie.asset(
+                            'assets/lotties/book_loading.json',
+                            height: 280,
                           ),
-
-                          const SizedBox(height: 16),
-
-                          const Text(
-                            'مرحباً بك في منصة التعلم',
-                            textAlign: TextAlign.center,
-
+                          const SizedBox(height: 20),
+                          Text(
+                            'مرحباً بك مجدداً',
                             style: TextStyle(
-                              fontSize: 30,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF1B2B48),
-                              height: 1.3,
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: kLightSecondaryColor,
                             ),
                           ),
-
-                          const SizedBox(height: 14),
-
+                          const SizedBox(height: 10),
                           const Text(
-                            'ابدأ رحلتك التعليمية وسجل الدخول عبر تيليجرام للوصول إلى الدورات والمحتوى التعليمي',
+                            'سجل دخولك عبر تيليجرام لتبدأ رحلة التعلم',
                             textAlign: TextAlign.center,
-
-                            style: TextStyle(
-                              fontSize: 15,
-                              color: Color(0xFF6B7A90),
-                              height: 1.7,
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
-
-                          const SizedBox(height: 36),
-
+                          const SizedBox(height: 40),
+                          
+                          // زر تسجيل الدخول المصمم بشكل عصري
                           SizedBox(
                             width: double.infinity,
-                            height: 58,
-
+                            height: 60,
                             child: ElevatedButton(
-                              onPressed: isLoading
-                                  ? null
-                                  : () {
-                                context.read<AuthBloc>().add(
-                                  LoginWithTelegramRequested(),
-                                );
+                              onPressed: isLoading ? null : () {
+                                context.read<AuthBloc>().add(LoginWithTelegramRequested());
                               },
-
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4A90E2),
-
-                                elevation: 0,
-
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
+                                backgroundColor: kLightPrimaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                elevation: 8,
+                                shadowColor: kLightPrimaryColor.withOpacity(0.4),
                               ),
-
                               child: isLoading
-                                  ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: Colors.white,
-                                ),
-                              )
+                                  ? const CircularProgressIndicator(color: Colors.white)
                                   : Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-
-                                  Icon(
-                                    Icons.telegram,
-                                    color: Colors.white,
-                                  ),
-
-                                  SizedBox(width: 10),
-
-                                  Text(
-                                    'تسجيل الدخول عبر تيليجرام',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: const [
+                                        Icon(Icons.telegram_rounded, size: 28),
+                                        SizedBox(width: 12),
+                                        Text('الدخول بواسطة تيليجرام', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                      ],
                                     ),
-                                  ),
-                                ],
-                              ),
                             ),
                           ),
-
                           const SizedBox(height: 20),
-
-                          const Text(
-                            'تسجيل آمن وسريع',
-                            style: TextStyle(
-                              color: Color(0xFF9AA7B8),
-                              fontSize: 14,
-                            ),
-                          ),
+                          const Text('دخول آمن ومشفر 100%', style: TextStyle(color: Colors.black26, fontSize: 12)),
                         ],
                       ),
                     ),
                   ),
                 ),
-              ),
+              ],
             );
           },
         ),
