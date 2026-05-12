@@ -35,17 +35,32 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
+  
   sl.registerFactory(
-        () => AuthBloc(sl()),
+    () => AuthBloc(sl()),
   );
 
   // Data sources
-  sl.registerLazySingleton(() => AuthRemoteDataSource(appAuth: sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(appAuth: sl(), apiConsumer: sl()),
+  );
   sl.registerLazySingleton(() => AuthLocalDataSource(cache: sl()));
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
+  
+
   sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(dio: sl()));
+  
+  
+  sl.registerLazySingleton(() => Dio(
+    BaseOptions(
+      // (Emulator):10.0.2.2  
+      baseUrl: 'http://10.0.2.2:8080/',
+      receiveDataWhenStatusError: true,
+    ),
+  ));
+  
   sl.registerLazySingleton(() => CacheHelper());
 
   //! External
@@ -54,7 +69,7 @@ Future<void> init() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  sl.registerLazySingleton(() => Dio());
+  
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton(() => DataConnectionChecker());
 }
