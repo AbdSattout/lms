@@ -1,4 +1,3 @@
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheHelper {
@@ -9,7 +8,7 @@ class CacheHelper {
     sharedPreferences = await SharedPreferences.getInstance();
   }
 
-//! this method to put data in local database using key
+//! this method to get data from local database using key
 
   String? getDataString({
     required String key,
@@ -47,7 +46,7 @@ class CacheHelper {
   }
 
 //! this method to check if local database contains {key}
-  Future<bool> containsKey({required String key}) async {
+  bool containsKey({required String key}) {
     return sharedPreferences.containsKey(key);
   }
 
@@ -57,7 +56,7 @@ class CacheHelper {
   }
 
 //! this method to put data in local database using key
-  Future<dynamic> put({
+  Future<bool> put({
     required String key,
     required dynamic value,
   }) async {
@@ -65,6 +64,8 @@ class CacheHelper {
       return await sharedPreferences.setString(key, value);
     } else if (value is bool) {
       return await sharedPreferences.setBool(key, value);
+    } else if (value is double) {
+      return await sharedPreferences.setDouble(key, value);
     } else {
       return await sharedPreferences.setInt(key, value);
     }

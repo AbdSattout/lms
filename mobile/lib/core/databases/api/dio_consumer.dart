@@ -17,11 +17,12 @@ class DioConsumer extends ApiConsumer {
       Map<String, dynamic>? queryParameters,
       bool isFormData = false}) async {
     try {
-      dio.post(
+      var res = await dio.post(
         path,
         data: isFormData ? FormData.fromMap(data) : data,
         queryParameters: queryParameters,
       );
+      return res.data;
     } on DioException catch (e) {
       handleDioException(e);
     }
@@ -74,4 +75,3 @@ class DioConsumer extends ApiConsumer {
     }
   }
 }
-

@@ -1,6 +1,12 @@
-class AuthEntity {
-  final String idToken;
-  final String? accessToken;
+import 'package:equatable/equatable.dart';
+import 'user_entity.dart';
 
-  AuthEntity({required this.idToken, this.accessToken});
+class AuthEntity extends Equatable {
+  final String token;
+  final UserEntity user;
+
+  const AuthEntity({required this.token, required this.user});
+
+  @override
+  List<Object?> get props => [token, user];
 }

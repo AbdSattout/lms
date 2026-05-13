@@ -48,3 +48,4 @@ app.*.map.json
 **/android/app/*.jks
 **/android/app/*.keystore
 **/android/key.properties
+.vscode/
