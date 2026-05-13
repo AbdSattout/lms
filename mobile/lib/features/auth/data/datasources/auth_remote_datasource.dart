@@ -1,16 +1,21 @@
 import 'package:flutter_appauth/flutter_appauth.dart';
-import '../../../../core/errors/exceptions.dart';
-import '../../../../core/errors/error_model.dart';
 import 'package:lms/core/databases/api/end_points.dart';
+import '../../../../core/databases/api/api_consumer.dart';
 import '../models/auth_model.dart';
 
-class AuthRemoteDataSource {
+abstract class AuthRemoteDataSource {
+  Future<AuthModel> loginWithTelegram();
+}
+
+class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FlutterAppAuth appAuth;
+  final ApiConsumer apiConsumer;
 
-  AuthRemoteDataSource({required this.appAuth});
+  AuthRemoteDataSourceImpl({required this.appAuth, required this.apiConsumer});
 
+  @override
   Future<AuthModel> loginWithTelegram() async {
-    try {
+    // Step 1: Authenticate with Telegram OIDC to get idToken
       final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
           EndPoints.telegramClientId,
@@ -21,15 +26,19 @@ class AuthRemoteDataSource {
         ),
       );
 
-      if (result != null && result.idToken != null) {
-        return AuthModel(idToken: result.idToken!);
-      } else {
-        // Connection success but failed to get token
-        throw ServerException(ErrorModel(status: 500, errorMessage: "Failed to get token from Telegram"));
-      }
-    } catch (e) {
-      // Catch errors from Appauth library
-      throw ServerException(ErrorModel(status: 500, errorMessage: e.toString()));
+    if (result != null && result.idToken != null) {
+      // Step 2: Send idToken to Spring Boot Backend
+      // http://10.0.2.2:8080 for Android Emulator
+      final response = await apiConsumer.post(
+        'auth/login', 
+        data: {
+          "idToken": result.idToken,
+        },
+      );
+      // Step 3: Parse the backend response (Token + User Info)
+      return AuthModel.fromJson(response);
+    } else {
+      throw Exception("Failed to obtain idToken from Telegram");
     }
   }
 }
