@@ -78,6 +78,7 @@ class TelegramLoginPage extends StatelessWidget {
                             height: 60,
                             child: ElevatedButton(
                               onPressed: isLoading ? null : () {
+                                print("BUTTON PRESSED");
                                 context.read<AuthBloc>().add(LoginWithTelegramRequested());
                               },
                               style: ElevatedButton.styleFrom(

@@ -10,10 +10,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this.loginWithTelegram) : super(AuthInitial()) {
 
     on<LoginWithTelegramRequested>((event, emit) async {
+      print("EVENT RECEIVED");
       emit(AuthLoading());
-
+      print("BEFORE LOGIN LOADING");
       final result = await loginWithTelegram();
-
+      print("AFTER LOGIN");
       result.fold(
             (failure) {
           emit(AuthError(failure.errMessage));
