@@ -21,25 +21,67 @@ class AuthRepositoryImpl extends AuthRepository {
 
   @override
   Future<Either<Failure, AuthEntity>> loginWithTelegram() async {
-    // 1. Internet connection
+
+    print("REPOSITORY START");
+
     if (await networkInfo.isConnected!) {
+
+      print("INTERNET OK");
+
       try {
-        // 2. trying login by external server (telegram server)
-        final remoteAuthData = await remoteDataSource.loginWithTelegram();
-        
-        // 3. Success: saved token in local cache
-        localDataSource.cacheAuthData(remoteAuthData);
-        
-        // 4. Return data
+
+        print("CALLING REMOTE DATASOURCE");
+
+        final remoteAuthData =
+        await remoteDataSource.loginWithTelegram();
+
+        print("REMOTE DATASOURCE FINISHED");
+
+        print(remoteAuthData);
+
+        print("CACHING DATA");
+
+        await localDataSource.cacheAuthData(remoteAuthData);
+
+        print("CACHE FINISHED");
+
         return Right(remoteAuthData);
+
       } on ServerException catch (e) {
-        // Catch server errors (login errors)
-        return Left(Failure(errMessage: e.errorModel.errorMessage));
+
+        print("SERVER EXCEPTION");
+
+        print(e);
+
+        return Left(
+          Failure(
+            errMessage: e.errorModel.errorMessage,
+          ),
+        );
+
+      } catch (e) {
+
+        print("GENERAL EXCEPTION");
+
+        print(e);
+
+        return Left(
+          Failure(
+            errMessage: e.toString(),
+          ),
+        );
       }
+
     } else {
-      // Login needs internet
-      // We do not return cache data here, but rather give the user an error to allow internet access
-      return Left(Failure(errMessage: "No Internet Connection. Please check your network and try again."));
+
+      print("NO INTERNET");
+
+      return Left(
+        Failure(
+          errMessage:
+          "No Internet Connection. Please check your network and try again.",
+        ),
+      );
     }
   }
 }
