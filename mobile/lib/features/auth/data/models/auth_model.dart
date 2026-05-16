@@ -6,8 +6,7 @@ class AuthModel extends AuthEntity {
 
   factory AuthModel.fromJson(Map<String, dynamic> json) {
     return AuthModel(
-      token: json['token'] ?? '', 
-      
+      token: json['token'] ?? '',
       user: json['user'] != null 
           ? UserModel.fromJson(json['user']) 
           : const UserModel(id: 0, name: '', picture: '', idTelegram: ''),
