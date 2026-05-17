@@ -39,9 +39,17 @@ public class ProfileService {
                 .findByUserId(user.getId())
                 .orElseGet(() -> createEmptyProfile(user));
 
-        profile.setEmail(request.getEmail());
-        profile.setPhone(request.getPhone());
-        profile.setUniversity(request.getUniversity());
+        if (request.getEmail() != null) {
+            profile.setEmail(request.getEmail());
+        }
+
+        if (request.getPhone() != null) {
+            profile.setPhone(request.getPhone());
+        }
+
+        if (request.getUniversity() != null) {
+            profile.setUniversity(request.getUniversity());
+        }
 
         profileRepository.save(profile);
 
