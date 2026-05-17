@@ -22,7 +22,7 @@ public class ProfileController {
         );
     }
 
-    @PutMapping("/me")
+    @PatchMapping("/me")
     public ResponseEntity<ProfileResponse> updateProfile(
             @RequestBody UpdateProfile request
     ) {
