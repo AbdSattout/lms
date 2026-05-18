@@ -9,6 +9,7 @@ import app.lms.repository.UserRepository;
 import app.lms.security.SecurityUtility;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +38,7 @@ public class ProfileService {
 
         Profile profile = profileRepository
                 .findByUserId(user.getId())
-                .orElseGet(() -> createEmptyProfile(user));
+                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
 
         if (request.getEmail() != null) {
             profile.setEmail(request.getEmail());
