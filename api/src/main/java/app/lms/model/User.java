@@ -18,6 +18,7 @@ public class User {
     private Long id;
     private String name;
     private String picture;
+    private String pictureFileId;
     @Column(unique = true, nullable = false)
     private String telegramId;
 
