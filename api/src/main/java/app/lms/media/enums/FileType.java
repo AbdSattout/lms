@@ -1,4 +1,4 @@
-package app.lms.enums;
+package app.lms.media.enums;
 
 public enum FileType {
     IMAGE,

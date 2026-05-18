@@ -1,5 +1,7 @@
-package app.lms.exception;
+package app.lms.common.exception;
 
+import app.lms.media.exception.ImageDeleteException;
+import app.lms.media.exception.ImageUploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;

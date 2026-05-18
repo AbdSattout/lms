@@ -1,9 +1,9 @@
-package app.lms.service;
+package app.lms.media.service;
 
-import app.lms.dto.UploadedFile;
-import app.lms.enums.FileType;
-import app.lms.exception.ImageDeleteException;
-import app.lms.exception.ImageUploadException;
+import app.lms.media.dto.UploadedFile;
+import app.lms.media.enums.FileType;
+import app.lms.media.exception.ImageDeleteException;
+import app.lms.media.exception.ImageUploadException;
 import io.imagekit.client.ImageKitClient;
 import io.imagekit.models.files.FileDeleteParams;
 import io.imagekit.models.files.FileUploadParams;

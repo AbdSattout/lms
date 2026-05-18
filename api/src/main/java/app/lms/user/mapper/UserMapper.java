@@ -1,7 +1,7 @@
-package app.lms.mapper;
+package app.lms.user.mapper;
 
-import app.lms.dto.UserResponse;
-import app.lms.model.User;
+import app.lms.user.dto.UserResponse;
+import app.lms.user.model.User;
 import org.springframework.stereotype.Component;
 
 @Component

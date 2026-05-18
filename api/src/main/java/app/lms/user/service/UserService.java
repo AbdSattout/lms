@@ -1,11 +1,12 @@
-package app.lms.service;
+package app.lms.user.service;
 
-import app.lms.dto.UpdateUserRequest;
-import app.lms.dto.UserResponse;
-import app.lms.enums.FileType;
-import app.lms.mapper.UserMapper;
-import app.lms.model.User;
-import app.lms.repository.UserRepository;
+import app.lms.user.dto.UpdateUserRequest;
+import app.lms.user.dto.UserResponse;
+import app.lms.media.enums.FileType;
+import app.lms.user.mapper.UserMapper;
+import app.lms.user.model.User;
+import app.lms.user.repository.UserRepository;
+import app.lms.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import app.lms.dto.UploadedFile;
+import app.lms.media.dto.UploadedFile;
 @Service
 @RequiredArgsConstructor
 public class UserService {
