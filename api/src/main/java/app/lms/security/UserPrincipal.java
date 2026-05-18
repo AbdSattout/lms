@@ -52,4 +52,11 @@ public record UserPrincipal(User user) implements UserDetails {
         return true;
     }
 
+    public static UserPrincipal from(
+            User user
+    ) {
+
+        return new UserPrincipal(user);
+    }
+
 }
