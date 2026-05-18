@@ -1,7 +1,7 @@
 package app.lms.security;
 
-import app.lms.model.User;
-import app.lms.repository.UserRepository;
+import app.lms.user.model.User;
+import app.lms.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.security.core.userdetails.UserDetails;

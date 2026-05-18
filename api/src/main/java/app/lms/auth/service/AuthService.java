@@ -1,11 +1,12 @@
-package app.lms.service;
+package app.lms.auth.service;
 
-import app.lms.mapper.UserMapper;
+import app.lms.user.mapper.UserMapper;
 import app.lms.security.JwtService;
 import app.lms.security.UserPrincipal;
-import app.lms.dto.AuthResponse;
-import app.lms.dto.LoginRequest;
-import app.lms.model.User;
+import app.lms.auth.dto.AuthResponse;
+import app.lms.auth.dto.LoginRequest;
+import app.lms.user.model.User;
+import app.lms.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.oauth2.jwt.Jwt;

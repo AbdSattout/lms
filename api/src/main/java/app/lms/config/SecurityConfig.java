@@ -1,7 +1,7 @@
 package app.lms.config;
 
 import app.lms.security.JwtAuthenticationFilter;
-import app.lms.exception.CustomAuthenticationEntryPoint;
+import app.lms.common.exception.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,10 +1,10 @@
-package app.lms.controller;
+package app.lms.user.controller;
 
 
-import app.lms.dto.UpdateUserRequest;
-import app.lms.dto.UserResponse;
+import app.lms.user.dto.UpdateUserRequest;
+import app.lms.user.dto.UserResponse;
 import app.lms.security.UserPrincipal;
-import app.lms.service.UserService;
+import app.lms.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

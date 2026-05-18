@@ -1,4 +1,4 @@
-package app.lms.dto;
+package app.lms.media.dto;
 
 public record UploadedFile(
         String url,

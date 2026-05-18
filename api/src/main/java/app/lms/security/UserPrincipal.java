@@ -1,6 +1,6 @@
 package app.lms.security;
 
-import app.lms.model.User;
+import app.lms.user.model.User;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;

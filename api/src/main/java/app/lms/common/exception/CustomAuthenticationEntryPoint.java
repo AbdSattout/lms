@@ -1,4 +1,4 @@
-package app.lms.exception;
+package app.lms.common.exception;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
