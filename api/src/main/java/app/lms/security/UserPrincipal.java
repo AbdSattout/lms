@@ -59,4 +59,9 @@ public record UserPrincipal(User user) implements UserDetails {
         return new UserPrincipal(user);
     }
 
+    public Long getId() {
+
+        return user.getId();
+    }
+
 }
