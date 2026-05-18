@@ -25,7 +25,7 @@ public record UserPrincipal(User user) implements UserDetails {
     @Override
     @NullMarked
     public String getUsername() {
-        return user.getTelegramId();
+        return user.getId().toString();
     }
 
     @Override

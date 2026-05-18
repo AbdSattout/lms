@@ -17,8 +17,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @NullMarked
-    public UserDetails loadUserByUsername(String telegramId) throws UsernameNotFoundException {
-        User user = userRepository.findByTelegramId(telegramId)
+    public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        User user = userRepository.findById(Long.parseLong(userId))
                 .orElseThrow(()-> new UsernameNotFoundException("User not found"));
 
         return new UserPrincipal(user);
