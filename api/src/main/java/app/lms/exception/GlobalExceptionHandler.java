@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 Map.of(
                         "status", 404,
-                        "error", "Not Found"
+                        "error", ex.getMessage()
                 )
         );
     }

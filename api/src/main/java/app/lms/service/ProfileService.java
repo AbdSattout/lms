@@ -5,9 +5,6 @@ import app.lms.dto.UpdateProfile;
 import app.lms.model.Profile;
 import app.lms.model.User;
 import app.lms.repository.ProfileRepositry;
-import app.lms.repository.UserRepository;
-import app.lms.security.SecurityUtility;
-import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -18,11 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProfileService {
 
     private final ProfileRepositry profileRepository;
-    private final UserRepository userRepository;
 
-    public ProfileResponse getMyProfile() {
-
-        User user = getCurrentUser();
+    public ProfileResponse getMyProfile(User user) {
 
         Profile profile = profileRepository
                 .findByUserId(user.getId())
@@ -32,13 +26,12 @@ public class ProfileService {
     }
 
     @Transactional
-    public ProfileResponse updateProfile(UpdateProfile request) {
+    public ProfileResponse updateProfile(UpdateProfile request , User user) {
 
-        User user = getCurrentUser();
 
         Profile profile = profileRepository
                 .findByUserId(user.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("user not found"));
+                .orElseThrow(() -> new UsernameNotFoundException("Profile Not Found"));
 
         if (request.getEmail() != null) {
             profile.setEmail(request.getEmail());
@@ -58,21 +51,12 @@ public class ProfileService {
     }
 
     @Transactional
-    public void deleteProfile() {
-
-        User user = getCurrentUser();
+    public void deleteProfile(User user ) {
 
         profileRepository.findByUserId(user.getId())
                 .ifPresent(profileRepository::delete);
     }
 
-    private User getCurrentUser() {
-
-        UserPrincipal principal = SecurityUtility.getCurrentUser();
-
-        return userRepository.findByTelegramId(principal.getUsername())
-                .orElseThrow();
-    }
 
     private Profile createEmptyProfile(User user) {
 
