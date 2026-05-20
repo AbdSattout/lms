@@ -2,6 +2,7 @@ package app.lms.user.service;
 
 import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UpdateProfile;
+import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.Profile;
 import app.lms.user.model.User;
 import app.lms.user.repository.ProfileRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
+    private final UserMapper userMapper;
 
     public ProfileResponse getMyProfile(User user) {
 
@@ -22,7 +24,7 @@ public class ProfileService {
                 .findByUserId(user.getId())
                 .orElseGet(() -> createEmptyProfile(user));
 
-        return mapToResponse(user, profile);
+        return userMapper.toProfileResponse(user, profile);
     }
 
     @Transactional
@@ -47,7 +49,7 @@ public class ProfileService {
 
         profileRepository.save(profile);
 
-        return mapToResponse(user, profile);
+        return userMapper.toProfileResponse(user, profile);
     }
 
     @Transactional
@@ -67,14 +69,6 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
-    private ProfileResponse mapToResponse(User user, Profile profile) {
 
-        return ProfileResponse.builder()
-                .name(user.getName())
-                .email(profile.getEmail())
-                .phone(profile.getPhone())
-                .university(profile.getUniversity())
-                .build();
-    }
 
 }
