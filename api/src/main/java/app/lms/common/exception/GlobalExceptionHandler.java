@@ -1,5 +1,7 @@
-package app.lms.exception;
+package app.lms.common.exception;
 
+import app.lms.media.exception.ImageDeleteException;
+import app.lms.media.exception.ImageUploadException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -8,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.HashMap;
@@ -75,7 +78,9 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<?> handleUsernameNotFound(UsernameNotFoundException ex) {
+    public ResponseEntity<?> handleUsernameNotFound(
+            UsernameNotFoundException ex
+    ) {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 Map.of(
@@ -84,4 +89,48 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<?> handleMaxSize(
+            MaxUploadSizeExceededException ex
+    ) {
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of(
+                        "status", 400,
+                        "error", ex.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<?> handleImageUpload(
+            ImageUploadException ex
+    ) {
+
+        return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
+        ).body(
+                Map.of(
+                        "status", 500,
+                        "error", ex.getMessage()
+                )
+        );
+    }
+    @ExceptionHandler(ImageDeleteException.class)
+    public ResponseEntity<?> handleImageDelete(
+            ImageDeleteException ex
+    ) {
+
+        return ResponseEntity.status(
+                HttpStatus.INTERNAL_SERVER_ERROR
+        ).body(
+                Map.of(
+                        "status", 500,
+                        "error", ex.getMessage()
+                )
+        );
+    }
+
+
+
 }

@@ -1,4 +1,4 @@
-package app.lms.model;
+package app.lms.user.model;
 
 
 import jakarta.persistence.*;
