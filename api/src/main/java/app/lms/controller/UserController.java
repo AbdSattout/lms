@@ -5,7 +5,7 @@ import app.lms.dto.UpdateUserRequest;
 import app.lms.dto.UserResponse;
 import app.lms.security.UserPrincipal;
 import app.lms.service.UserService;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
@@ -27,7 +27,7 @@ public class UserController {
     ) {
 
         UserResponse updatedUser = userService.updateUser(
-                userPrincipal.user().getId(),
+                userPrincipal.getId(),
                 request
         );
 
@@ -44,7 +44,7 @@ public class UserController {
 
         UserResponse updatedUser =
                 userService.updatePicture(
-                        userPrincipal.user().getId(),
+                        userPrincipal.getId(),
                         image
                 );
 
@@ -60,7 +60,7 @@ public class UserController {
 
         UserResponse user =
                 userService.getCurrentUser(
-                        userPrincipal.user().getId()
+                        userPrincipal.getId()
                 );
 
         return ResponseEntity.ok(user);
