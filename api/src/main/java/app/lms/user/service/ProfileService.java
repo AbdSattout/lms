@@ -1,10 +1,10 @@
-package app.lms.service;
+package app.lms.user.service;
 
-import app.lms.dto.ProfileResponse;
-import app.lms.dto.UpdateProfile;
-import app.lms.model.Profile;
-import app.lms.model.User;
-import app.lms.repository.ProfileRepositry;
+import app.lms.user.dto.ProfileResponse;
+import app.lms.user.dto.UpdateProfile;
+import app.lms.user.model.Profile;
+import app.lms.user.model.User;
+import app.lms.user.repository.ProfileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ProfileService {
 
-    private final ProfileRepositry profileRepository;
+    private final ProfileRepository profileRepository;
 
     public ProfileResponse getMyProfile(User user) {
 

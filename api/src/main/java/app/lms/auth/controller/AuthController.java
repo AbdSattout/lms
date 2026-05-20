@@ -1,8 +1,8 @@
-package app.lms.controller;
+package app.lms.auth.controller;
 
-import app.lms.dto.AuthResponse;
-import app.lms.dto.LoginRequest;
-import app.lms.service.AuthService;
+import app.lms.auth.dto.AuthResponse;
+import app.lms.auth.dto.LoginRequest;
+import app.lms.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

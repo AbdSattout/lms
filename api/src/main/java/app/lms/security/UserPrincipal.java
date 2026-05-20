@@ -1,6 +1,6 @@
 package app.lms.security;
 
-import app.lms.model.User;
+import app.lms.user.model.User;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +25,7 @@ public record UserPrincipal(User user) implements UserDetails {
     @Override
     @NullMarked
     public String getUsername() {
-        return user.getTelegramId();
+        return user.getId().toString();
     }
 
     @Override
@@ -50,6 +50,18 @@ public record UserPrincipal(User user) implements UserDetails {
     @NullMarked
     public boolean isEnabled() {
         return true;
+    }
+
+    public static UserPrincipal from(
+            User user
+    ) {
+
+        return new UserPrincipal(user);
+    }
+
+    public Long getId() {
+
+        return user.getId();
     }
 
 }
