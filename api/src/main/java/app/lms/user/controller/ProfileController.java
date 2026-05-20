@@ -1,10 +1,10 @@
-package app.lms.controller;
+package app.lms.user.controller;
 
 
-import app.lms.dto.ProfileResponse;
-import app.lms.dto.UpdateProfile;
+import app.lms.user.dto.ProfileResponse;
+import app.lms.user.dto.UpdateProfile;
 import app.lms.security.UserPrincipal;
-import app.lms.service.ProfileService;
+import app.lms.user.service.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
