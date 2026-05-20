@@ -28,7 +28,7 @@ public class ProfileController {
 
     @PatchMapping("/me")
     public ResponseEntity<ProfileResponse> updateProfile(
-            @RequestBody UpdateProfile request , @AuthenticationPrincipal UserPrincipal userPrincipal
+            @AuthenticationPrincipal UserPrincipal userPrincipal,  @RequestBody UpdateProfile request
     ) {
 
         return ResponseEntity.ok(
