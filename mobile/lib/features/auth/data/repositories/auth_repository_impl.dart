@@ -22,24 +22,31 @@ class AuthRepositoryImpl extends AuthRepository {
   @override
   Future<Either<Failure, AuthEntity>> loginWithTelegram() async {
     // 1. Internet connection
-    if (await networkInfo.isConnected!) {
+    if (await networkInfo.isConnected) {
       try {
         // 2. trying login by external server (telegram server)
         final remoteAuthData = await remoteDataSource.loginWithTelegram();
-        
+
         // 3. Success: saved token in local cache
-        localDataSource.cacheAuthData(remoteAuthData);
-        
+        await localDataSource.cacheAuthData(remoteAuthData);
+
         // 4. Return data
         return Right(remoteAuthData);
       } on ServerException catch (e) {
         // Catch server errors (login errors)
         return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } on CacheException catch (e) {
+        return Left(Failure(errMessage: e.errorMessage));
       }
     } else {
       // Login needs internet
       // We do not return cache data here, but rather give the user an error to allow internet access
-      return Left(Failure(errMessage: "No Internet Connection. Please check your network and try again."));
+      return Left(
+        Failure(
+          errMessage:
+              "No Internet Connection. Please check your network and try again.",
+        ),
+      );
     }
   }
 }
