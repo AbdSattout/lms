@@ -30,12 +30,17 @@
 		<java.version>26</java.version>
 	</properties>
 	<dependencies>
+
+		<dependency>
+			<groupId>io.imagekit</groupId>
+			<artifactId>image-kit-java</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
 			<version>0.11.5</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
