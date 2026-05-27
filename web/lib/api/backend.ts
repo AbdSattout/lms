@@ -2,10 +2,7 @@ import "server-only"
 
 import { redirect } from "next/navigation"
 
-import {
-  clearBackendJwtCookie,
-  getBackendJwtFromCookies,
-} from "@/lib/auth/backend-jwt-cookie"
+import { getBackendJwtFromCookies } from "@/lib/auth/backend-jwt-cookie"
 import { buildLoginPath } from "@/lib/auth/callback-url"
 
 type UnauthorizedBehavior = "throw" | "redirect"
@@ -97,7 +94,6 @@ export async function backend<T>(
   })
 
   if (response.status === 401) {
-    await clearBackendJwtCookie()
     handleUnauthorized(unauthorized, callbackUrl)
   }
 
