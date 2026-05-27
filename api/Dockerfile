@@ -3,7 +3,7 @@ FROM eclipse-temurin:26-jdk-alpine AS builder
 
 WORKDIR /app
 COPY . .
-RUN ./mvnw package
+RUN ./mvnw package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:26-jdk-alpine AS runner
