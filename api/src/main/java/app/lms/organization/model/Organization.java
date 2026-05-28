@@ -1,0 +1,49 @@
+package app.lms.organization.model;
+
+
+import app.lms.organization.emums.Visibility;
+import app.lms.user.model.User;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "organizations")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Organization extends BaseEntity{
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false , unique = true)
+    private String name;
+
+    @Lob
+    @Column
+    private String description;
+
+    private String imageUrl;
+
+    private String imageFileId;
+
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Visibility visibility;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
+
+
+}
