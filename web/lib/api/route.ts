@@ -15,10 +15,8 @@ export type ApiTree = {
   [key: string]: ApiRoute<ApiMethods> | ApiTree
 }
 
-export function defineApiRoute<T extends ApiMethods>(methods: T): ApiRoute<T> {
-  if (!methods.get) return methods as ApiRoute<T>
-  return Object.assign(
-    (...args: Parameters<NonNullable<T["get"]>>) => methods.get!(...args),
-    methods
+export function defineApiRoute<T extends ApiMethods>(methods: T) {
+  return (
+    methods.get ? Object.assign(methods.get, methods) : methods
   ) as ApiRoute<T>
 }
