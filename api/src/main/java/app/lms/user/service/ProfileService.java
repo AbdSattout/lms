@@ -1,5 +1,6 @@
 package app.lms.user.service;
 
+import app.lms.user.dto.CreateProfileRequest;
 import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UpdateProfile;
 import app.lms.user.mapper.UserMapper;
@@ -18,11 +19,36 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final UserMapper userMapper;
 
+    @Transactional
+    public ProfileResponse createProfile(
+            CreateProfileRequest request,
+            User user
+    ) {
+
+        if( profileRepository
+                .findByUserId(user.getId())
+                .isPresent() )
+        {
+            throw new IllegalStateException("Profile already exists");
+        }
+
+        Profile profile = new Profile();
+
+        profile.setUser(user);
+        profile.setEmail(request.getEmail());
+        profile.setPhone(request.getPhone());
+        profile.setUniversity(request.getUniversity());
+
+        profileRepository.save(profile);
+
+        return userMapper.toProfileResponse(user ,profile);
+    }
+
     public ProfileResponse getMyProfile(User user) {
 
         Profile profile = profileRepository
                 .findByUserId(user.getId())
-                .orElseGet(() -> createEmptyProfile(user));
+                .orElseThrow(() -> new UsernameNotFoundException("Profile Not Found"));
 
         return userMapper.toProfileResponse(user, profile);
     }
@@ -58,17 +84,5 @@ public class ProfileService {
         profileRepository.findByUserId(user.getId())
                 .ifPresent(profileRepository::delete);
     }
-
-
-    private Profile createEmptyProfile(User user) {
-
-        Profile profile = new Profile();
-
-        profile.setUser(user);
-
-        return profileRepository.save(profile);
-    }
-
-
 
 }
