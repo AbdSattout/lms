@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { loginWithOidcIdToken } from "@/lib/api/auth"
+import { api } from "@/lib/api"
 import {
   clearBackendJwtCookie,
   setBackendJwtCookie,
@@ -29,7 +29,7 @@ async function exchangeBackendSession() {
   }
 
   try {
-    const backendSession = await loginWithOidcIdToken(idToken)
+    const backendSession = await api.auth.login.post(idToken)
     await setBackendJwtCookie(backendSession.token)
 
     return {
