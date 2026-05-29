@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/home/bloc/navbar_cubit.dart';
 
@@ -45,106 +46,268 @@ class MainHomeScreen extends StatelessWidget {
       bottom: false,
       child: CustomScrollView(
         slivers: [
-          // Header
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+            child: Container(
+              padding: const EdgeInsets.only(
+                top: 24,
+                left: 22,
+                right: 22,
+                bottom: 22,
+              ),
+
+              decoration: const BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(34),
+                ),
+              ),
+
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+
                 children: [
+
+                  Container(
+                    padding: const EdgeInsets.all(11),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.7),
+                      shape: BoxShape.circle,
+                    ),
+
+                    child: const Icon(
+                      Icons.settings_rounded,
+                      color: AppColors.dark,
+                      size: 24,
+                    ),
+                  ),
+
                   Row(
                     children: [
-                      _buildAvatar(user, radius: 24, isHome: true),
-                      const SizedBox(width: 12),
+
                       Text(
-                        user.name,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xff040415)),
+                        "مسار",
+
+                        style: TextStyle(
+                          fontSize: 38,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.primary,
+                        ),
+                      ),
+
+                      const SizedBox(width: 14),
+
+                      _buildAvatar(
+                        user,
+                        radius: 23,
+                        isHome: true,
                       ),
                     ],
                   ),
-                  const Text(
-                    "أهلا بعودتك",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xff040415)),
-                  ),
                 ],
               ),
             ),
           ),
 
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 35),
+          ),
           SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.grey.shade100, // نفس لون E-Shop
-                        hintText: "ابحث عن مسار، كورس...",
-                        hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                        prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                        // الحدود عند عدم الضغط
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Colors.white, width: 2),
+            child: Transform.translate(
+              offset: const Offset(0, -18),
+
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                ),
+
+                child: Row(
+                  children: [
+
+                    Expanded(
+                      child: Container(
+                        height: 60,
+
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(22),
+
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.06),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
                         ),
-                        // الحدود عند الضغط (أبيض عريض)
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Colors.white, width: 3),
+
+                        child: const TextField(
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+
+                            hintText:
+                            'ابحث عن كورس أو مسار...',
+
+                            prefixIcon: Icon(
+                              Icons.search_rounded,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  // أيقونة الفلتر
-                  Container(
-                    width: 55,
-                    height: 55,
-                    decoration: BoxDecoration(
-                      color: const Color(0xff040415),
-                      borderRadius: BorderRadius.circular(16),
+
+                    const SizedBox(width: 12),
+
+                    Container(
+                      width: 60,
+                      height: 60,
+
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+
+                      child: const Icon(
+                        Icons.tune_rounded,
+                        color: Colors.white,
+                      ),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(14.0),
-                      child: Image.asset('assets/icons/filter.png', color: Colors.white),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 8,
+              ),
+
+              child: Row(
+                mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+
+                children: [
+
+                  const Text(
+                    "الكورسات المميزة",
+
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.dark,
+                    ),
+                  ),
+
+                  Text(
+                    "عرض الكل",
+
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-
           // Hero Card
           SliverToBoxAdapter(
+            child: _buildFeaturedCourse(),
+          ),
+          SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              child: Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xff040415), Color(0xff1A1A2E)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
+              padding: const EdgeInsets.fromLTRB(
+                24,
+                20,
+                24,
+                14,
+              ),
+
+              child: const Text(
+                "استكشف الكورسات",
+
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w900,
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(color: const Color(0xffff8900), borderRadius: BorderRadius.circular(8)),
-                      child: const Text("جديد", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 240,
+
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                ),
+
+                itemCount: 5,
+
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: 190,
+                    margin: const EdgeInsets.only(left: 14),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(22),
+
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 15,
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 12),
-                    const Text("طور مهاراتك البرمجية", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    Text("استكشف أحدث الكورسات الآن", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14)),
-                  ],
-                ),
+
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+
+                      child: Column(
+                        crossAxisAlignment:
+                        CrossAxisAlignment.start,
+
+                        children: [
+
+                          Container(
+                            height: 100,
+
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryLight,
+                              borderRadius:
+                              BorderRadius.circular(16),
+                            ),
+                          ),
+
+                          const SizedBox(height: 12),
+
+                          const Text(
+                            "Flutter",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                            ),
+                          ),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            "ابدأ بتطوير التطبيقات",
+
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -153,7 +316,186 @@ class MainHomeScreen extends StatelessWidget {
       ),
     );
   }
+  Widget _buildFeaturedCourse() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 10,
+      ),
 
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+
+            // IMAGE
+            Stack(
+              children: [
+
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
+
+                  // child: Image.asset(
+                  //   'assets/images/course.png',
+                  //   height: 180,
+                  //   width: double.infinity,
+                  //   fit: BoxFit.cover,
+                  // ),
+                ),
+
+                Positioned(
+                  top: 14,
+                  left: 14,
+
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 8,
+                    ),
+
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+
+                    child: const Row(
+                      children: [
+
+                        CircleAvatar(
+                          radius: 4,
+                          backgroundColor: Color(0xffff8900),
+                        ),
+
+                        SizedBox(width: 6),
+
+                        Text(
+                          "منشور",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(22),
+
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+
+                  const Text(
+                    "أساسيات البرمجة للمبتدئين",
+
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xff040415),
+                      height: 1.3,
+                    ),
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Text(
+                    "دورة تفاعلية مصممة لتبسيط المفاهيم البرمجية المعقدة بأسلوب ممتع وعملي بالتحديات.",
+
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade600,
+                      height: 1.7,
+                    ),
+                  ),
+
+                  const SizedBox(height: 18),
+
+                  Divider(
+                    color: Colors.grey.shade200,
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  Row(
+                    mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
+
+                    children: [
+
+                      Container(
+                        padding:
+                        const EdgeInsets.symmetric(
+                          horizontal: 18,
+                          vertical: 10,
+                        ),
+
+                        decoration: BoxDecoration(
+                          color: const Color(0xffff8900)
+                              .withOpacity(0.12),
+
+                          borderRadius:
+                          BorderRadius.circular(16),
+                        ),
+
+                        child: const Row(
+                          children: [
+
+                            Icon(
+                              Icons.edit_outlined,
+                              size: 18,
+                              color: Color(0xffff8900),
+                            ),
+
+                            SizedBox(width: 6),
+
+                            Text(
+                              "تعديل",
+                              style: TextStyle(
+                                color: Color(0xffff8900),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Text(
+                        "124 طالب",
+
+                        style: TextStyle(
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   Widget _buildSnakeBar() {
     return BlocBuilder<NavbarCubit, int>(
       builder: (context, state) {
@@ -163,14 +505,14 @@ class MainHomeScreen extends StatelessWidget {
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
-            backgroundColor: const Color(0xff040415),
+            backgroundColor: Colors.white,
             // 🔥 سر الاختفاء: جعل لون الـ Snake نفس لون خلفية الـ Navbar
-            snakeViewColor: const Color(0xff040415), 
+            snakeViewColor: AppColors.primary.withOpacity(0.10),
             height: 70,
-            elevation: 4,
+            elevation: 10,
             // ⚪️ لون النص المختار (أبيض كما طلبت)
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white.withOpacity(0.6),
+            selectedItemColor: AppColors.primary,
+            unselectedItemColor: AppColors.darkSoft.withOpacity(0.55),
             showSelectedLabels: true,
             showUnselectedLabels: false,
             currentIndex: state,
@@ -192,16 +534,30 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  BottomNavigationBarItem _buildNavItem(String iconPath, String label) {
+  BottomNavigationBarItem _buildNavItem(
+      String iconPath,
+      String label,
+      ) {
     return BottomNavigationBarItem(
-      icon: ImageIcon(AssetImage(iconPath), size: 22),
-      activeIcon: const Padding(
-        padding: EdgeInsets.all(5.0),
-        child: CircleAvatar(
-          backgroundColor: Color(0xffff8900), 
-          radius: 4,
+      icon: ImageIcon(
+        AssetImage(iconPath),
+        size: 22,
+      ),
+
+      activeIcon: Container(
+        padding: const EdgeInsets.all(10),
+
+        decoration: BoxDecoration(
+          color: AppColors.primary.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(14),
+        ),
+
+        child: ImageIcon(
+          AssetImage(iconPath),
+          size: 22,
         ),
       ),
+
       label: label,
     );
   }
@@ -211,7 +567,7 @@ class MainHomeScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xffff8900), width: isHome ? 2 : 4),
+        border: Border.all(color: AppColors.border, width: isHome ? 2 : 4),
       ),
       child: CircleAvatar(
         radius: radius,
