@@ -23,7 +23,7 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   //! Features - Auth
-  
+
   // Use cases
   sl.registerLazySingleton(() => LoginWithTelegram(repository: sl()));
 
@@ -35,10 +35,8 @@ Future<void> init() async {
       networkInfo: sl(),
     ),
   );
-  
-  sl.registerFactory(
-    () => AuthBloc(sl()),
-  );
+
+  sl.registerLazySingleton(() => AuthBloc(sl()));
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
@@ -48,28 +46,28 @@ Future<void> init() async {
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
-  
 
   sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(dio: sl()));
-  
-  
-  sl.registerLazySingleton(() => Dio(
-    BaseOptions(
-      // (Emulator):10.0.2.2  
-      baseUrl: 'http://10.0.2.2:8080/',
-      receiveDataWhenStatusError: true,
+
+  sl.registerLazySingleton(
+    () => Dio(
+      BaseOptions(
+        // (Emulator):10.0.2.2
+        // baseUrl: 'http://10.0.2.2:8080/',
+        /** Remove **/
+        receiveDataWhenStatusError: true,
+      ),
     ),
-  ));
-  
-  sl.registerLazySingleton(() => CacheHelper());
+  );
+
+  sl.registerLazySingleton(() => CacheHelper(sharedPreferences: sl()));
 
   //! External
-  
+
   // SharedPreferences initialization
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => sharedPreferences);
 
-  
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton(() => DataConnectionChecker());
 }

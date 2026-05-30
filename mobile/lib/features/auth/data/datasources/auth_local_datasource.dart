@@ -9,14 +9,11 @@ class AuthLocalDataSource {
 
   AuthLocalDataSource({required this.cache});
 
-  cacheAuthData(AuthModel? authToCache) {
+  Future<void> cacheAuthData(AuthModel? authToCache) async {
     if (authToCache != null) {
-      cache.saveData(
-        key: key,
-        value: json.encode(authToCache.toJson()),
-      );
+      await cache.saveData(key: key, value: json.encode(authToCache.toJson()));
     } else {
-      throw CacheExeption(errorMessage: "No data to cache");
+      throw CacheException(errorMessage: "No data to cache");
     }
   }
 
@@ -26,7 +23,7 @@ class AuthLocalDataSource {
     if (jsonString != null) {
       return Future.value(AuthModel.fromJson(json.decode(jsonString)));
     } else {
-      throw CacheExeption(errorMessage: "No cached token found");
+      throw CacheException(errorMessage: "No cached token found");
     }
   }
 }

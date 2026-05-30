@@ -27,8 +27,24 @@ class MainHomeScreen extends StatelessWidget {
                 controller: context.read<NavbarCubit>().controller,
                 children: [
                   _buildHomeContent(context, user),
-                  const Center(child: Text('كورساتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-                  const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))), 
+                  const Center(
+                    child: Text(
+                      'المنظمات',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const Center(
+                    child: Text(
+                      'الكورسات',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   ProfileView(user: user),
                 ],
               );
@@ -58,13 +74,21 @@ class MainHomeScreen extends StatelessWidget {
                       const SizedBox(width: 12),
                       Text(
                         user.name,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xff040415)),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff040415),
+                        ),
                       ),
                     ],
                   ),
                   const Text(
                     "أهلا بعودتك",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xff040415)),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xff040415),
+                    ),
                   ),
                 ],
               ),
@@ -82,18 +106,33 @@ class MainHomeScreen extends StatelessWidget {
                         filled: true,
                         fillColor: Colors.grey.shade100, // نفس لون E-Shop
                         hintText: "ابحث عن مسار، كورس...",
-                        hintStyle: TextStyle(color: Colors.grey.shade500, fontSize: 14),
-                        prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                        hintStyle: TextStyle(
+                          color: Colors.grey.shade500,
+                          fontSize: 14,
+                        ),
+                        prefixIcon: const Icon(
+                          Icons.search,
+                          color: Colors.grey,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 16,
+                        ),
                         // الحدود عند عدم الضغط
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Colors.white, width: 2),
+                          borderSide: const BorderSide(
+                            color: Colors.white,
+                            width: 2,
+                          ),
                         ),
                         // الحدود عند الضغط (أبيض عريض)
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(color: Colors.white, width: 3),
+                          borderSide: const BorderSide(
+                            color: Colors.white,
+                            width: 3,
+                          ),
                         ),
                       ),
                     ),
@@ -109,7 +148,10 @@ class MainHomeScreen extends StatelessWidget {
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(14.0),
-                      child: Image.asset('assets/icons/filter.png', color: Colors.white),
+                      child: Image.asset(
+                        'assets/icons/filter.png',
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -135,14 +177,40 @@ class MainHomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(color: const Color(0xffff8900), borderRadius: BorderRadius.circular(8)),
-                      child: const Text("جديد", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffff8900),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Text(
+                        "جديد",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 12),
-                    const Text("طور مهاراتك البرمجية", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                    const Text(
+                      "طور مهاراتك البرمجية",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text("استكشف أحدث الكورسات الآن", style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14)),
+                    Text(
+                      "استكشف أحدث الكورسات الآن",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -162,13 +230,13 @@ class MainHomeScreen extends StatelessWidget {
           child: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(48),
+            ),
             backgroundColor: const Color(0xff040415),
-            // 🔥 سر الاختفاء: جعل لون الـ Snake نفس لون خلفية الـ Navbar
-            snakeViewColor: const Color(0xff040415), 
+            snakeViewColor: const Color(0xff040415),
             height: 70,
             elevation: 4,
-            // ⚪️ لون النص المختار (أبيض كما طلبت)
             selectedItemColor: Colors.white,
             unselectedItemColor: Colors.white.withOpacity(0.6),
             showSelectedLabels: true,
@@ -176,7 +244,9 @@ class MainHomeScreen extends StatelessWidget {
             currentIndex: state,
             onTap: (index) {
               context.read<NavbarCubit>().controller.animateToPage(
-                index, duration: const Duration(milliseconds: 400), curve: Curves.linear,
+                index,
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.linear,
               );
               context.read<NavbarCubit>().update(index);
             },
@@ -197,21 +267,26 @@ class MainHomeScreen extends StatelessWidget {
       icon: ImageIcon(AssetImage(iconPath), size: 22),
       activeIcon: const Padding(
         padding: EdgeInsets.all(5.0),
-        child: CircleAvatar(
-          backgroundColor: Color(0xffff8900), 
-          radius: 4,
-        ),
+        child: CircleAvatar(backgroundColor: Color(0xffff8900), radius: 4),
       ),
       label: label,
     );
   }
 
-  static Widget _buildAvatar(dynamic user, {required double radius, bool isHome = false}) {
-    bool hasValidImage = user.picture != null && user.picture.toString().startsWith('http');
+  static Widget _buildAvatar(
+    dynamic user, {
+    required double radius,
+    bool isHome = false,
+  }) {
+    bool hasValidImage =
+        user.picture != null && user.picture.toString().startsWith('http');
     return Container(
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xffff8900), width: isHome ? 2 : 4),
+        border: Border.all(
+          color: const Color(0xffff8900),
+          width: isHome ? 2 : 4,
+        ),
       ),
       child: CircleAvatar(
         radius: radius,
@@ -223,7 +298,6 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 }
-
 
 class ProfileView extends StatelessWidget {
   final dynamic user;
@@ -240,40 +314,83 @@ class ProfileView extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               user.name,
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xff040415)),
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: Color(0xff040415),
+              ),
             ),
             const SizedBox(height: 40),
-            _buildProfileOption(title: "الإعدادات الشخصية", iconData: Icons.settings_outlined),
-            _buildProfileOption(title: "المظهر", iconData: Icons.palette_outlined),
-            _buildProfileOption(title: "شهاداتي", iconData: Icons.workspace_premium_outlined),
-            _buildProfileOption(title: "تسجيل الخروج", iconData: Icons.logout_rounded, isDestructive: true),
-            const SizedBox(height: 100), 
+            _buildProfileOption(
+              title: "الإعدادات الشخصية",
+              iconData: Icons.settings_outlined,
+            ),
+            _buildProfileOption(
+              title: "المظهر",
+              iconData: Icons.palette_outlined,
+            ),
+            _buildProfileOption(
+              title: "شهاداتي",
+              iconData: Icons.workspace_premium_outlined,
+            ),
+            _buildProfileOption(
+              title: "تسجيل الخروج",
+              iconData: Icons.logout_rounded,
+              isDestructive: true,
+            ),
+            const SizedBox(height: 100),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildProfileOption({required String title, required IconData iconData, bool isDestructive = false}) {
+  Widget _buildProfileOption({
+    required String title,
+    required IconData iconData,
+    bool isDestructive = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.08),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: ListTile(
           leading: Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: isDestructive ? Colors.red.withOpacity(0.1) : const Color(0xffff8900).withOpacity(0.1),
+              color: isDestructive
+                  ? Colors.red.withOpacity(0.1)
+                  : const Color(0xffff8900).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(iconData, color: isDestructive ? Colors.red : const Color(0xffff8900), size: 22),
+            child: Icon(
+              iconData,
+              color: isDestructive ? Colors.red : const Color(0xffff8900),
+              size: 22,
+            ),
           ),
-          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : const Color(0xff040415))),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: isDestructive ? Colors.red : const Color(0xff040415),
+            ),
+          ),
+          trailing: const Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 16,
+            color: Colors.grey,
+          ),
           onTap: () {},
         ),
       ),
