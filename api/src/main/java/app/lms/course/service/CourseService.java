@@ -2,6 +2,7 @@ package app.lms.course.service;
 
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
+import app.lms.course.dto.UpdateCourseRequest;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
@@ -16,6 +17,8 @@ import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -109,4 +112,164 @@ public class CourseService {
 
         return courseMapper.toResponse(course);
     }
+
+    private Course getManagedCourse(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                courseRepository.findById(courseId)
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Course not found"
+                                )
+                        );
+
+        OrganizationMember member =
+                memberRepository
+                        .findByOrganizationIdAndUserId(
+                                course.getOrganization().getId(),
+                                user.getId()
+                        )
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Not a member"
+                                )
+                        );
+
+        boolean allowed =
+                member.getRole() == Role.OWNER
+                        ||
+                        member.getRole() == Role.ADMIN;
+
+        if (!allowed) {
+
+            throw new IllegalStateException(
+                    "Access denied"
+            );
+        }
+
+        return course;
+    }
+
+    @Transactional
+    public CourseResponse update(
+
+            Long courseId,
+            UpdateCourseRequest request,
+            MultipartFile cover,
+            User user
+    ) {
+
+        Course course =
+                getManagedCourse(
+                        courseId,
+                        user
+                );
+
+        if (request.getTitle() != null) {
+            course.setTitle(
+                    request.getTitle()
+            );
+        }
+
+        if (request.getDescription() != null) {
+            course.setDescription(
+                    request.getDescription()
+            );
+        }
+
+        if (cover != null && !cover.isEmpty()) {
+
+            if (course.getCoverFileId() != null) {
+
+                mediaService.delete(
+                        course.getCoverFileId()
+                );
+            }
+
+            UploadedFile uploaded =
+                    mediaService.upload(
+                            cover,
+                            "/courses",
+                            FileType.IMAGE
+                    );
+
+            course.setCoverUrl(
+                    uploaded.url()
+            );
+
+            course.setCoverFileId(
+                    uploaded.fileId()
+            );
+        }
+
+        return courseMapper.toResponse(
+                course
+        );
+    }
+
+    @Transactional
+    public void delete(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                getManagedCourse(
+                        courseId,
+                        user
+                );
+
+        if (course.getCoverFileId() != null) {
+
+            mediaService.delete(
+                    course.getCoverFileId()
+            );
+        }
+
+        courseRepository.delete(
+                course
+        );
+    }
+
+    public CourseResponse getById(
+            Long courseId
+    ) {
+
+        Course course =
+                courseRepository.findById(courseId)
+                        .orElseThrow(() ->
+                                new IllegalStateException(
+                                        "Course not found"
+                                )
+                        );
+
+        return courseMapper.toResponse(
+                course
+        );
+    }
+
+    public Page<CourseResponse> list(
+
+            String organizationName,
+            Pageable pageable
+    ) {
+
+        Organization organization =
+                organizationRepository
+                        .findByName(
+                                organizationName
+                        )
+                        .orElseThrow();
+
+        return courseRepository
+                .findByOrganizationId(
+                        organization.getId(),
+                        pageable
+                )
+                .map(courseMapper::toResponse);
+    }
+
 }
