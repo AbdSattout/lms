@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_XLCgHN6Vtn
-createdAt: 2026-05-31T17:56:50.746754900
-updatedAt: 2026-05-31T19:16:01.387229100
+id: rq_r32BdgKByL
+createdAt: 2026-05-31T18:53:48.870100100
+updatedAt: 2026-05-31T19:06:05.798920900
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication:
@@ -12,8 +12,8 @@ body: {}
 bodyType: null
 description: ''
 headers: []
-method: GET
-name: get organization
+method: DELETE
+name: Organization
 sortPriority: -1778079184181.0
 url: http://localhost:8080/organizations/tech-academy
 urlParameters: []

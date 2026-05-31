@@ -1,5 +1,6 @@
 package app.lms.organization.service;
 
+import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.organization.emums.Role;
@@ -29,6 +30,7 @@ public class OrganizationService {
     private final OrganizationMemberRepository memberRepository;
     private final MediaService mediaService;
     private final OrganizationMapper organizationMapper;
+    private final CourseRepository courseRepository;
 
     @Transactional
     public OrganizationResponse create(
@@ -192,6 +194,10 @@ public class OrganizationService {
                     "You are not allowed"
             );
         }
+        memberRepository.deleteByOrganizationId(organization.getId());
+
+        courseRepository.deleteByOrganizationId(organization.getId());
+
         if (organization.getImageFileId() != null) {
 
             mediaService.delete(
