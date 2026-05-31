@@ -31,4 +31,6 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
             Long organizationId,
             Role role
     );
+    void deleteByOrganizationId(Long organizationId);
+
 }

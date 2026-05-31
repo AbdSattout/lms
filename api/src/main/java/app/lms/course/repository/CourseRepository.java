@@ -12,4 +12,5 @@ public interface CourseRepository
             Long organizationId,
             Pageable pageable
     );
+    void deleteByOrganizationId(Long organizationId);
 }
