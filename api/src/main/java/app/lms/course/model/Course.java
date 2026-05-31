@@ -23,6 +23,8 @@ public class Course extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+
+
     private String coverUrl;
 
     private String coverFileId;

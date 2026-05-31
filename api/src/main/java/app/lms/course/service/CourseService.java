@@ -41,14 +41,14 @@ public class CourseService {
     @Transactional
     public CourseResponse create(
 
-            String name,
+            String slug,
             CreateCourseRequest request,
             MultipartFile cover,
             User user
     ) {
 
         Organization organization =
-                organizationRepository.findByName(name)
+                organizationRepository.findBySlug(slug)
                         .orElseThrow(() ->
                                 new IllegalStateException(
                                         "Organization not found"
@@ -253,14 +253,14 @@ public class CourseService {
 
     public Page<CourseResponse> list(
 
-            String organizationName,
+            String organizationSlug,
             Pageable pageable
     ) {
 
         Organization organization =
                 organizationRepository
-                        .findByName(
-                                organizationName
+                        .findBySlug(
+                                organizationSlug
                         )
                         .orElseThrow();
 

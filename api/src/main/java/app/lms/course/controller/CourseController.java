@@ -21,13 +21,10 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    @PostMapping(
-            value = "/organizations/{name}/courses",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PostMapping("/organizations/{slug}/courses")
     public ResponseEntity<CourseResponse> create(
 
-            @PathVariable String name,
+            @PathVariable String slug,
 
             @RequestPart
             CreateCourseRequest request,
@@ -43,7 +40,7 @@ public class CourseController {
                 .status(HttpStatus.CREATED)
                 .body(
                         courseService.create(
-                                name,
+                                slug,
                                 request,
                                 cover,
                                 principal.user()
@@ -51,10 +48,7 @@ public class CourseController {
                 );
     }
 
-    @PatchMapping(
-            value = "/courses/{courseId}",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
-    )
+    @PatchMapping("/courses/{courseId}")
     public ResponseEntity<CourseResponse> update(
 
             @PathVariable Long courseId,
@@ -111,17 +105,17 @@ public class CourseController {
         );
     }
 
-    @GetMapping("/organizations/{name}/courses")
+    @GetMapping("/organizations/{slug}/courses")
     public ResponseEntity<Page<CourseResponse>> list(
 
-            @PathVariable String name,
+            @PathVariable String slug,
 
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
                 courseService.list(
-                        name,
+                        slug,
                         pageable
                 )
         );
