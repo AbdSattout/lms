@@ -26,7 +26,7 @@ public class CourseController {
 
             @PathVariable String slug,
 
-            @RequestPart
+            @RequestBody
             CreateCourseRequest request,
 
             @RequestPart(required = false)
@@ -53,7 +53,7 @@ public class CourseController {
 
             @PathVariable Long courseId,
 
-            @RequestPart
+            @RequestBody
             UpdateCourseRequest request,
 
             @RequestPart(required = false)
