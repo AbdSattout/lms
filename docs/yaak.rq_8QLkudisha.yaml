@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_8QLkudisha
 createdAt: 2026-05-18T16:26:17.129549800
-updatedAt: 2026-05-22T18:06:34.622761600
+updatedAt: 2026-05-31T19:44:49.049197100
 workspaceId: wk_LvqrSfWmRY
-folderId: null
+folderId: fl_NT7ErFBiF4
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzc5MTEyMjEwLCJleHAiOjE3Nzk3MTcwMTB9.hYYeZ73OiTiwL0zmz5h_hQeD1cuPtwTZvPOgdxhUQTE
 authenticationType: bearer
@@ -27,6 +27,6 @@ headers:
   id: qPSa4AcFeu
 method: PATCH
 name: user pictue editing
-sortPriority: -1778079184181.0
+sortPriority: 0.0
 url: http://localhost:8080/users/me/picture
 urlParameters: []

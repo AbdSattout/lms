@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_Q4mf4536K5
+createdAt: 2026-05-31T19:57:34.052054200
+updatedAt: 2026-05-31T19:58:18.741192200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: Delete Course
+sortPriority: 0.0
+url: http://localhost:8080/courses/1
+urlParameters: []

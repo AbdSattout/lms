@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_ap3JZY6rhs
+createdAt: 2026-05-31T19:53:07.299563300
+updatedAt: 2026-05-31T19:54:34.560998100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: bearer
+body:
+  text: '{"title": "Updated Course Title", "description": "Updated Description"}'
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: eQuvea2Rjz
+method: PATCH
+name: Edit Course
+sortPriority: 0.0
+url: http://localhost:8080/courses/1
+urlParameters: []
