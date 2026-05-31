@@ -1,11 +1,13 @@
 package app.lms.user.controller;
 
 
+import app.lms.user.dto.CreateProfileRequest;
 import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UpdateProfile;
 import app.lms.security.UserPrincipal;
 import app.lms.user.service.ProfileService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,21 @@ import org.springframework.web.bind.annotation.*;
 public class ProfileController {
 
     private final ProfileService profileService;
+
+    @PostMapping
+    public ResponseEntity<ProfileResponse> createProfile(
+            @RequestBody CreateProfileRequest request,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(
+                        profileService.createProfile(
+                                request,
+                                userPrincipal.user()
+                        )
+                );
+    }
 
     @GetMapping("/me")
     public ResponseEntity<ProfileResponse> getMyProfile(

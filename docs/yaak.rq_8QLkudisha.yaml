@@ -1,0 +1,32 @@
+type: http_request
+model: http_request
+id: rq_8QLkudisha
+createdAt: 2026-05-18T16:26:17.129549800
+updatedAt: 2026-05-22T18:06:34.622761600
+workspaceId: wk_LvqrSfWmRY
+folderId: null
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzc5MTEyMjEwLCJleHAiOjE3Nzk3MTcwMTB9.hYYeZ73OiTiwL0zmz5h_hQeD1cuPtwTZvPOgdxhUQTE
+authenticationType: bearer
+body:
+  form:
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\wallpaper.jpg
+    id: 4nq4UAxd2B
+    name: image
+  - enabled: true
+    id: NE3RKvezUF
+    name: ''
+    value: ''
+bodyType: multipart/form-data
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: multipart/form-data
+  id: qPSa4AcFeu
+method: PATCH
+name: user pictue editing
+sortPriority: -1778079184181.0
+url: http://localhost:8080/users/me/picture
+urlParameters: []
