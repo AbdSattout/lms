@@ -13,6 +13,7 @@ public class OrganizationMapper {
         return OrganizationResponse.builder()
                 .id(organization.getId())
                 .name(organization.getName())
+                .slug(organization.getSlug())
                 .description(organization.getDescription())
                 .image(organization.getImageUrl())
                 .visibility(organization.getVisibility())

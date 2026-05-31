@@ -43,9 +43,11 @@ public class OrganizationService {
             );
         }
 
-        if (organizationRepository.existsByName(request.getName())) {
+        String slug = generateSlug(request.getName());
+
+        if (organizationRepository.existsBySlug(slug)) {
             throw new IllegalStateException(
-                    "Name already exists"
+                    "Slug already exists"
             );
         }
 
@@ -67,6 +69,7 @@ public class OrganizationService {
 
         Organization organization = Organization.builder()
                 .name(request.getName())
+                .slug(slug)
                 .description(request.getDescription())
                 .imageUrl(imageUrl)
                 .imageFileId(imageFileId)
@@ -92,10 +95,10 @@ public class OrganizationService {
         return organizationMapper.ToResponse(organization);
     }
 
-    public OrganizationResponse getByName(String name) {
+    public OrganizationResponse getBySlug(String slug) {
 
         Organization organization =
-                organizationRepository.findByName(name)
+                organizationRepository.findBySlug(slug)
                         .orElseThrow(() ->
                                 new IllegalStateException(
                                         "Organization not found"
@@ -115,14 +118,14 @@ public class OrganizationService {
 
     @Transactional
     public OrganizationResponse update(
-            String name,
+            String slug,
             UpdateOrganizationRequest request,
             MultipartFile image,
             User user
     ) {
 
         Organization organization =
-                organizationRepository.findByName(name)
+                organizationRepository.findBySlug(slug)
                         .orElseThrow(() ->
                                 new IllegalStateException(
                                         "Organization not found"
@@ -172,12 +175,12 @@ public class OrganizationService {
 
     @Transactional
     public void delete(
-            String name,
+            String slug,
             User user
     ) {
 
         Organization organization =
-                organizationRepository.findByName(name)
+                organizationRepository.findBySlug(slug)
                         .orElseThrow(() ->
                                 new IllegalStateException(
                                         "Organization not found"
@@ -197,6 +200,14 @@ public class OrganizationService {
         }
 
         organizationRepository.delete(organization);
+    }
+
+    private String generateSlug(String value) {
+
+        return value
+                .toLowerCase()
+                .trim()
+                .replace(" ", "-");
     }
 
 }

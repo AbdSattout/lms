@@ -45,13 +45,13 @@ public class OrganizationController {
                 );
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<OrganizationResponse> getByName(
-            @PathVariable String name
+    @GetMapping("/{slug}")
+    public ResponseEntity<OrganizationResponse> getBySlug(
+            @PathVariable String slug
     ) {
 
         return ResponseEntity.ok(
-                organizationService.getByName(name)
+                organizationService.getBySlug(slug)
         );
     }
 
@@ -63,10 +63,10 @@ public class OrganizationController {
         );
     }
 
-    @PatchMapping("/{name}")
+    @PatchMapping("/{slug}")
     public ResponseEntity<OrganizationResponse> update(
 
-            @PathVariable String name,
+            @PathVariable String slug,
 
             @RequestBody UpdateOrganizationRequest request,
 
@@ -79,7 +79,7 @@ public class OrganizationController {
 
         return ResponseEntity.ok(
                 organizationService.update(
-                        name,
+                        slug,
                         request,
                         image,
                         principal.user()
@@ -87,17 +87,17 @@ public class OrganizationController {
         );
     }
 
-    @DeleteMapping("/{name}")
+    @DeleteMapping("/{slug}")
     public ResponseEntity<?> delete(
 
-            @PathVariable String name,
+            @PathVariable String slug,
 
             @AuthenticationPrincipal
             UserPrincipal principal
     ) {
 
         organizationService.delete(
-                name,
+                slug,
                 principal.user()
         );
 

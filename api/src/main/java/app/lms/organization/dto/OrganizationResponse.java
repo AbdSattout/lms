@@ -8,6 +8,7 @@ public record OrganizationResponse(
 
         Long id,
         String name,
+        String slug,
         String description,
         String image,
         Visibility visibility,
