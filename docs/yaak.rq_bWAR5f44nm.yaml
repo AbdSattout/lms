@@ -2,18 +2,18 @@ type: http_request
 model: http_request
 id: rq_bWAR5f44nm
 createdAt: 2026-05-06T14:57:32.465785900
-updatedAt: 2026-05-06T16:40:33.831055400
+updatedAt: 2026-05-20T16:43:45.331675800
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI3NTUwNTMyNjkiLCJpYXQiOjE3NzgwNzAyNjAsImV4cCI6MTc3ODY3NTA2MH0.cykolKO-2KXtS12Jj6-4515ASuwf7Lb1V-axLwZ06UQ
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzc5MTEyMjYyLCJleHAiOjE3Nzk3MTcwNjJ9.YQ6k1r6u1hkKQ3WxbrGXfBjeHPeLQYnuj5MXq-tR5z0
 authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
 method: GET
-name: HTTP Request
+name: greeting
 sortPriority: -1778079184181.0
-url: http://localhost:8080/2
+url: http://localhost:8080/
 urlParameters: []
