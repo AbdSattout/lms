@@ -148,6 +148,20 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalState(
+            IllegalStateException ex
+    ) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(
+                        Map.of(
+                                "status", 409,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
 
 
 }
