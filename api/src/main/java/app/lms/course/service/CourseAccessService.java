@@ -28,7 +28,7 @@ public class CourseAccessService {
                 );
     }
 
-    public Course getManagedCourse(
+    public Course getManagableCourse(
             Long courseId,
             User user
     ) {
@@ -37,7 +37,7 @@ public class CourseAccessService {
                 getById(courseId);
 
         organizationMemberAccessService
-                .getManagerMember(
+                .validateManager(
                         course.getOrganization().getId(),
                         user.getId()
                 );

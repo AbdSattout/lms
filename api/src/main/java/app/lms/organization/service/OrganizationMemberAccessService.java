@@ -36,8 +36,18 @@ public class OrganizationMemberAccessService {
             Long userId
     ) {
 
+        return getMember(
+                organizationId,
+                userId
+        );
+    }
+    public void validateManager(
+            Long organizationId,
+            Long userId
+    ) {
+
         OrganizationMember member =
-                getMember(
+                getManagerMember(
                         organizationId,
                         userId
                 );
@@ -52,7 +62,5 @@ public class OrganizationMemberAccessService {
                     "Access denied"
             );
         }
-
-        return member;
     }
 }
