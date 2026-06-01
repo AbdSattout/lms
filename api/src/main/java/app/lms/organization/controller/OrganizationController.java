@@ -8,6 +8,7 @@ import app.lms.organization.service.OrganizationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,13 @@ public class OrganizationController {
 
     private final OrganizationService organizationService;
 
-    @PostMapping
+    @PostMapping(
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
     public ResponseEntity<OrganizationResponse> create(
 
             @Valid
-            @RequestBody CreateOrganizationRequest request,
+            @RequestPart CreateOrganizationRequest request,
 
             @RequestPart(required = false)
             MultipartFile image,
@@ -68,7 +71,8 @@ public class OrganizationController {
 
             @PathVariable String slug,
 
-            @RequestBody UpdateOrganizationRequest request,
+            @Valid
+            @RequestPart UpdateOrganizationRequest request,
 
             @RequestPart(required = false)
             MultipartFile image,
