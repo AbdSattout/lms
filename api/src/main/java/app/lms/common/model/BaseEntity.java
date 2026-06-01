@@ -1,4 +1,4 @@
-package app.lms.organization.model;
+package app.lms.common.model;
 
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;

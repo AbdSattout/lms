@@ -1,7 +1,8 @@
 package app.lms.organization.model;
 
+import app.lms.common.model.BaseEntity;
 import app.lms.course.model.Course;
-import app.lms.organization.emums.QuestionDifficulty;
+import app.lms.organization.enums.QuestionDifficulty;
 import jakarta.persistence.*;
 import lombok.*;
 

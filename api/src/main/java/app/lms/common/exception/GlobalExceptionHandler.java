@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -147,10 +148,23 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotFoundException(
+            NotFoundException ex
+    ) {
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalState(
-            IllegalStateException ex
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(
+                        Map.of(
+                                "status", 404,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleConflictException(
+            ConflictException ex
     ) {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -161,6 +175,40 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> handleForbiddenException(
+            ForbiddenException ex
+    ) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(
+                        Map.of(
+                                "status", 403,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(
+            HttpMediaTypeNotSupportedException.class
+    )
+    public ResponseEntity<?> handleUnsupportedMediaType(
+            HttpMediaTypeNotSupportedException ex
+    ) {
+
+        return ResponseEntity
+                .status(
+                        HttpStatus.UNSUPPORTED_MEDIA_TYPE
+                )
+                .body(
+                        Map.of(
+                                "status", 415,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
 
 
 

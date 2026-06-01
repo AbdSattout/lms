@@ -1,4 +1,4 @@
-package app.lms.organization.emums;
+package app.lms.organization.enums;
 
 public enum QuestionDifficulty {
     EASY,
