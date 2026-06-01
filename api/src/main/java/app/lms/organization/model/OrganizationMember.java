@@ -1,6 +1,6 @@
 package app.lms.organization.model;
 
-import app.lms.organization.emums.Role;
+import app.lms.organization.enums.Role;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;

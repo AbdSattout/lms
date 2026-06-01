@@ -1,6 +1,6 @@
 package app.lms.organization.dto;
 
-import app.lms.organization.emums.Visibility;
+import app.lms.organization.enums.Visibility;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;

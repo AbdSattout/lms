@@ -1,7 +1,7 @@
 package app.lms.organization.service;
 
 import app.lms.common.exception.ForbiddenException;
-import app.lms.organization.emums.Role;
+import app.lms.organization.enums.Role;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import lombok.RequiredArgsConstructor;
