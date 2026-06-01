@@ -1,6 +1,7 @@
 package app.lms.course.model;
 
-import app.lms.organization.model.BaseEntity;
+import app.lms.course.enums.CourseStatus;
+import app.lms.common.model.BaseEntity;
 import app.lms.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,5 +37,8 @@ public class Course extends BaseEntity {
     @JoinColumn(name = "organization_id")
     private Organization organization;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseStatus status;
 
 }
