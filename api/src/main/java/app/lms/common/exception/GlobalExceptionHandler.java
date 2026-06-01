@@ -147,10 +147,23 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<?> handleNotFoundException(
+            NotFoundException ex
+    ) {
 
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalState(
-            IllegalStateException ex
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(
+                        Map.of(
+                                "status", 404,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleConflictException(
+            ConflictException ex
     ) {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
@@ -161,6 +174,22 @@ public class GlobalExceptionHandler {
                         )
                 );
     }
+
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<?> handleForbiddenException(
+            ForbiddenException ex
+    ) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(
+                        Map.of(
+                                "status", 403,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
+
 
 
 
