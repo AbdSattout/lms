@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_oB66ZiuV3d
+createdAt: 2026-05-31T19:49:05.500026200
+updatedAt: 2026-05-31T19:58:28.086811900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: bearer
+body:
+  text: '{"title": "Java Spring Boot Masterclass", "description": "Learn Spring from scratch"}'
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: JMGWfTwI2g
+method: POST
+name: Create Course
+sortPriority: 0.0
+url: http://localhost:8080/organizations/tech-academy/courses
+urlParameters: []

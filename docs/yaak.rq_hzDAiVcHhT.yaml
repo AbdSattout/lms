@@ -1,0 +1,30 @@
+type: http_request
+model: http_request
+id: rq_hzDAiVcHhT
+createdAt: 2026-05-31T19:55:43.054771400
+updatedAt: 2026-05-31T19:56:09.470600300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get all Course
+sortPriority: 0.0
+url: http://localhost:8080/organizations/tech-academy/courses
+urlParameters:
+- enabled: true
+  name: page
+  value: '0'
+  id: ZekBek0Wqp
+- enabled: true
+  name: size
+  value: '10'
+  id: Z89Mw9gUYN
+- enabled: true
+  name: sort
+  value: id,des
+  id: XRr6USj8h9

@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_XLCgHN6Vtn
 createdAt: 2026-05-31T17:56:50.746754900
-updatedAt: 2026-05-31T19:16:01.387229100
+updatedAt: 2026-05-31T19:45:46.124781500
 workspaceId: wk_LvqrSfWmRY
-folderId: null
+folderId: fl_WtY6kjNisi
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwMjU0MzI5LCJleHAiOjE3ODA4NTkxMjl9.v4rEGSxyOqvkA6slNByvpoV1Bfqc5_iM8R7roSvxXZk
 authenticationType: bearer
@@ -14,6 +14,6 @@ description: ''
 headers: []
 method: GET
 name: get organization
-sortPriority: -1778079184181.0
+sortPriority: 0.0
 url: http://localhost:8080/organizations/tech-academy
 urlParameters: []
