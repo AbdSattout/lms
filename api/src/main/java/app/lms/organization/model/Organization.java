@@ -2,7 +2,7 @@ package app.lms.organization.model;
 
 
 import app.lms.common.model.BaseEntity;
-import app.lms.organization.emums.Visibility;
+import app.lms.organization.enums.Visibility;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;

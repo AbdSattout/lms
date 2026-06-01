@@ -1,6 +1,6 @@
 package app.lms.organization.repository;
 
-import app.lms.organization.emums.QuestionDifficulty;
+import app.lms.organization.enums.QuestionDifficulty;
 import app.lms.organization.model.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 

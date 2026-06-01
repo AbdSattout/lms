@@ -1,6 +1,6 @@
 package app.lms.organization.repository;
 
-import app.lms.organization.emums.Role;
+import app.lms.organization.enums.Role;
 import app.lms.organization.model.OrganizationMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
