@@ -26,7 +26,7 @@ public class CourseController {
 
             @PathVariable String slug,
 
-            @RequestBody
+            @RequestPart
             CreateCourseRequest request,
 
             @RequestPart(required = false)
