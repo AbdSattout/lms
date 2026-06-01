@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_ae4WsGXLRz
+createdAt: 2026-05-20T16:44:24.957041600
+updatedAt: 2026-05-31T19:44:49.089418
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_NT7ErFBiF4
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzc5MTEyMjEwLCJleHAiOjE3Nzk3MTcwMTB9.hYYeZ73OiTiwL0zmz5h_hQeD1cuPtwTZvPOgdxhUQTE
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: PUT
+name: Edit Profile
+sortPriority: 2000.0
+url: http://localhost:8080/profile/me
+urlParameters: []

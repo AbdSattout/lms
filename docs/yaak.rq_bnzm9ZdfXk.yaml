@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_bnzm9ZdfXk
+createdAt: 2026-06-01T09:05:53.157057900
+updatedAt: 2026-06-01T09:39:21.242475800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_WtY6kjNisi
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: index organizations
+sortPriority: 1000.0
+url: http://localhost:8080/organizations
+urlParameters: []
