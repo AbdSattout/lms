@@ -1,8 +1,13 @@
 package app.lms.organization.service;
 
+import app.lms.common.exception.ConflictException;
+import app.lms.common.exception.ForbiddenException;
+import app.lms.common.exception.NotFoundException;
+import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
+import app.lms.media.exception.ImageDeleteException;
 import app.lms.organization.emums.Role;
 import app.lms.organization.emums.Visibility;
 import app.lms.media.service.MediaService;
@@ -21,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +46,7 @@ public class OrganizationService {
     ) {
 
         if (organizationRepository.existsByName(request.getName())) {
-            throw new IllegalStateException(
+            throw new ConflictException(
                     "Organization name already exists"
             );
         }
@@ -48,33 +54,31 @@ public class OrganizationService {
         String slug = generateSlug(request.getName());
 
         if (organizationRepository.existsBySlug(slug)) {
-            throw new IllegalStateException(
+            throw new ConflictException(
                     "Slug already exists"
             );
         }
 
-        String imageUrl = null;
-        String imageFileId = null;
+        UploadedFile uploaded = null;
 
-        if (image != null && !image.isEmpty()) {
-
-            UploadedFile uploaded =
-                    mediaService.upload(
-                            image,
-                            "/organizations",
-                            FileType.IMAGE
-                    );
-
-            imageUrl = uploaded.url();
-            imageFileId = uploaded.fileId();
+        if (hasImage(image)) {
+            uploaded = uploadOrganizationImage(image);
         }
 
         Organization organization = Organization.builder()
                 .name(request.getName())
                 .slug(slug)
                 .description(request.getDescription())
-                .imageUrl(imageUrl)
-                .imageFileId(imageFileId)
+                .imageUrl(
+                        uploaded != null
+                                ? uploaded.url()
+                                : null
+                )
+                .imageFileId(
+                        uploaded != null
+                                ? uploaded.fileId()
+                                : null
+                )
                 .visibility(
                         request.getVisibility() == null
                                 ? Visibility.PUBLIC
@@ -85,29 +89,24 @@ public class OrganizationService {
 
         organizationRepository.save(organization);
 
-        OrganizationMember owner =
-                OrganizationMember.builder()
-                        .organization(organization)
-                        .user(user)
-                        .role(Role.OWNER)
-                        .build();
+        createOwnerMember(
+                organization,
+                user
+        );
 
-        memberRepository.save(owner);
-
-        return organizationMapper.ToResponse(organization);
+        return organizationMapper.ToResponse(
+                organization
+        );
     }
 
     public OrganizationResponse getBySlug(String slug) {
 
         Organization organization =
-                organizationRepository.findBySlug(slug)
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Organization not found"
-                                )
-                        );
+                getOrganizationBySlug(slug);
 
-        return organizationMapper.ToResponse(organization);
+        return organizationMapper.ToResponse(
+                organization
+        );
     }
 
     public List<OrganizationResponse> getAll() {
@@ -127,54 +126,93 @@ public class OrganizationService {
     ) {
 
         Organization organization =
-                organizationRepository.findBySlug(slug)
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Organization not found"
-                                )
-                        );
+                getOwnedOrganization(
+                        slug,
+                        user
+                );
 
-        if (!organization.getOwner().getId().equals(user.getId())) {
-            throw new IllegalStateException(
-                    "You are not allowed"
+        if (request.getName() != null) {
+            updateOrganizationName(
+                    organization,
+                    request.getName()
             );
         }
 
-        if (image != null && !image.isEmpty()) {
+        if (hasImage(image)) {
+
+            String oldFileId =
+                    organization.getImageFileId();
 
             UploadedFile uploaded =
-                    mediaService.upload(
-                            image,
-                            "/organizations",
-                            FileType.IMAGE
+                    uploadOrganizationImage(
+                            image
                     );
 
-            if (organization.getImageFileId() != null) {
+            organization.setImageUrl(
+                    uploaded.url()
+            );
+
+            organization.setImageFileId(
+                    uploaded.fileId()
+            );
+
+            if (oldFileId != null) {
 
                 mediaService.delete(
-                        organization.getImageFileId()
+                        oldFileId
                 );
             }
-
-            organization.setImageUrl(uploaded.url());
-            organization.setImageFileId(uploaded.fileId());
-        }
-
-        if (request.getName() != null) {
-            organization.setName(request.getName());
         }
 
         if (request.getDescription() != null) {
-            organization.setDescription(request.getDescription());
+            organization.setDescription(
+                    request.getDescription()
+            );
         }
 
         if (request.getVisibility() != null) {
-            organization.setVisibility(request.getVisibility());
+            organization.setVisibility(
+                    request.getVisibility()
+            );
         }
 
-        return organizationMapper.ToResponse(organization);
+        return organizationMapper.ToResponse(
+                organization
+        );
     }
 
+    private void updateOrganizationName(
+            Organization organization,
+            String newName
+    ) {
+
+        if (
+                !newName.equals(organization.getName())
+                        &&
+                        organizationRepository.existsByName(newName)
+        ) {
+
+            throw new ConflictException(
+                    "Organization name already exists"
+            );
+        }
+
+        String newSlug = generateSlug(newName);
+
+        if (
+                !newSlug.equals(organization.getSlug())
+                        &&
+                        organizationRepository.existsBySlug(newSlug)
+        ) {
+
+            throw new ConflictException(
+                    "Slug already exists"
+            );
+        }
+
+        organization.setName(newName);
+        organization.setSlug(newSlug);
+    }
     @Transactional
     public void delete(
             String slug,
@@ -182,21 +220,34 @@ public class OrganizationService {
     ) {
 
         Organization organization =
-                organizationRepository.findBySlug(slug)
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Organization not found"
-                                )
-                        );
+                getOwnedOrganization(
+                        slug,
+                        user
+                );
 
-        if (!organization.getOwner().getId().equals(user.getId())) {
-            throw new IllegalStateException(
-                    "You are not allowed"
-            );
-        }
-        memberRepository.deleteByOrganizationId(organization.getId());
+        memberRepository.deleteByOrganizationId(
+                organization.getId()
+        );
 
-        courseRepository.deleteByOrganizationId(organization.getId());
+        List<Course> courses =
+                courseRepository.findAllByOrganizationId(
+                        organization.getId()
+                );
+
+        courses.stream()
+                .map(Course::getCoverFileId)
+                .filter(Objects::nonNull)
+                .forEach(fileId -> {
+                    try {
+                        mediaService.delete(fileId);
+                    }catch (ImageDeleteException ex) {
+                        System.err.println(ex.getMessage());
+                    }
+                });
+
+        courseRepository.deleteAll(
+                courses
+        );
 
         if (organization.getImageFileId() != null) {
 
@@ -205,15 +256,73 @@ public class OrganizationService {
             );
         }
 
-        organizationRepository.delete(organization);
+        organizationRepository.delete(
+                organization
+        );
     }
 
-    private String generateSlug(String value) {
+
+    private boolean hasImage(MultipartFile image) {
+        return image != null && !image.isEmpty();
+    }
+    private UploadedFile uploadOrganizationImage(
+            MultipartFile image
+    ) {
+
+        return mediaService.upload(
+                image,
+                "/organizations",
+                FileType.IMAGE
+        );
+    }
+    private void createOwnerMember(
+            Organization organization,
+            User user
+    ) {
+
+        memberRepository.save(
+                OrganizationMember.builder()
+                        .organization(organization)
+                        .user(user)
+                        .role(Role.OWNER)
+                        .build()
+        );
+    }
+    private Organization getOrganizationBySlug(
+            String slug
+    ) {
+
+        return organizationRepository
+                .findBySlug(slug)
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Organization not found"
+                        )
+                );
+    }
+    private Organization getOwnedOrganization(
+            String slug,
+            User user
+    ) {
+
+        Organization organization =
+                getOrganizationBySlug(slug);
+
+        if (!organization.getOwner().getId().equals(user.getId())) {
+            throw new ForbiddenException(
+                    "You are not allowed"
+            );
+        }
+
+        return organization;
+    }
+    private String generateSlug(
+            String value
+    ) {
 
         return value
-                .toLowerCase()
                 .trim()
-                .replace(" ", "-");
+                .toLowerCase()
+                .replaceAll("\\s+", "-");
     }
-
 }

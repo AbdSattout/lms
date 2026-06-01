@@ -265,7 +265,7 @@ public class CourseService {
                         .orElseThrow();
 
         return courseRepository
-                .findByOrganizationId(
+                .findAllByOrganizationId(
                         organization.getId(),
                         pageable
                 )
