@@ -2,27 +2,34 @@ type: http_request
 model: http_request
 id: rq_seF4pkBexf
 createdAt: 2026-05-31T17:51:51.795939700
-updatedAt: 2026-06-01T08:40:25.722378600
+updatedAt: 2026-06-01T09:20:41.366756500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_WtY6kjNisi
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMjQ5ODE5LCJleHAiOjE3ODA4NTQ2MTl9.XW_oD4yvhtpVME2wW2KPH5Jq_EZqIgiuUUjxeX5N1Vs
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
 body:
-  text: |-
-    {
-      "name": "Tech Academy",
-      "description": "Learn coding",
-      "visibility": "PUBLIC",
-      "slug" :"tech-academy"
-    }
-bodyType: application/json
+  form:
+  - contentType: application/json
+    enabled: true
+    id: 9Kh339MNzt
+    name: request
+    value: '{  "name": "Tech Company",  "slug": "tech-company",  "description": "My organization",  "visibility": "PUBLIC"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\abdbd.jpg
+    id: VDFyZ3H4Ux
+    name: image
+  - enabled: true
+    id: mrxBQAx0si
+    name: ''
+    value: ''
+bodyType: multipart/form-data
 description: ''
 headers:
 - enabled: true
   name: Content-Type
-  value: application/json
-  id: Hd6pa02jFg
+  value: multipart/form-data
+  id: Y6ZXDrSSP9
 method: POST
 name: create organization
 sortPriority: 2000.0

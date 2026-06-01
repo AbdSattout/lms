@@ -2,29 +2,26 @@ type: http_request
 model: http_request
 id: rq_hzDAiVcHhT
 createdAt: 2026-05-31T19:55:43.054771400
-updatedAt: 2026-05-31T19:56:09.470600300
+updatedAt: 2026-06-01T09:41:44.353233
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
-authentication: {}
-authenticationType: null
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
 method: GET
-name: Get all Course
+name: List Organization Course
 sortPriority: 0.0
-url: http://localhost:8080/organizations/tech-academy/courses
+url: http://localhost:8080/organizations/tech-company/courses
 urlParameters:
 - enabled: true
   name: page
   value: '0'
-  id: ZekBek0Wqp
+  id: x2AxRtpJfX
 - enabled: true
   name: size
   value: '10'
-  id: Z89Mw9gUYN
-- enabled: true
-  name: sort
-  value: id,des
-  id: XRr6USj8h9
+  id: hZQvbpGQiD

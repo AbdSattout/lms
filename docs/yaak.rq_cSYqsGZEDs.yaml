@@ -1,19 +1,24 @@
 type: http_request
 model: http_request
-id: rq_Q4mf4536K5
-createdAt: 2026-05-31T19:57:34.052054200
-updatedAt: 2026-06-01T09:42:12.202349300
+id: rq_cSYqsGZEDs
+createdAt: 2026-06-01T09:09:27.755213600
+updatedAt: 2026-06-01T09:42:25.221597800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
-body: {}
-bodyType: null
+body:
+  text: '{}'
+bodyType: application/json
 description: ''
-headers: []
-method: DELETE
-name: Delete Course
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: vGqEXJ9urz
+method: POST
+name: Publish Course
 sortPriority: 0.0
-url: http://localhost:8080/courses/3
+url: http://localhost:8080/courses/1/publish
 urlParameters: []

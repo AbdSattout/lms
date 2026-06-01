@@ -2,22 +2,36 @@ type: http_request
 model: http_request
 id: rq_VqgAwuAULQ
 createdAt: 2026-05-31T19:46:57.051601200
-updatedAt: 2026-06-01T08:40:00.014888100
+updatedAt: 2026-06-01T09:30:52.222919
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_WtY6kjNisi
-authentication: {}
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
 body:
-  text: '{"name": "Tech Academy Updated", "description": "New description"}'
-bodyType: application/json
+  form:
+  - contentType: application/json
+    enabled: true
+    id: 67jDZbuQ4j
+    name: request
+    value: '{  "name": "Tech Company Updated",  "slug": "tech-company-new",  "description": "Updated description",  "visibility": "PRIVATE"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\abdbd.jpg
+    id: hSqFutJQPc
+    name: image
+  - enabled: true
+    id: 5zJTy8NGYg
+    name: ''
+    value: ''
+bodyType: multipart/form-data
 description: ''
 headers:
 - enabled: true
   name: Content-Type
-  value: application/json
-  id: espWbkDRKK
-method: POST
+  value: multipart/form-data
+  id: 603CtkX9tv
+method: PATCH
 name: update organization
 sortPriority: 1000.0
-url: http://localhost:8080/organizations/tech-academy
+url: http://localhost:8080/organizations/tech-company
 urlParameters: []
