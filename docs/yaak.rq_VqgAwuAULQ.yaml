@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_VqgAwuAULQ
+createdAt: 2026-05-31T19:46:57.051601200
+updatedAt: 2026-05-31T19:47:47.246610700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_WtY6kjNisi
+authentication: {}
+authenticationType: bearer
+body:
+  text: '{"name": "Tech Academy Updated", "description": "New description"}'
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: espWbkDRKK
+method: POST
+name: Update Org
+sortPriority: 1000.0
+url: http://localhost:8080/organizations/tech-academy
+urlParameters: []
