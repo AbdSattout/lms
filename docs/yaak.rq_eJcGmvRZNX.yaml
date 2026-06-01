@@ -1,0 +1,22 @@
+type: http_request
+model: http_request
+id: rq_eJcGmvRZNX
+createdAt: 2026-06-01T08:49:29.084483900
+updatedAt: 2026-06-01T08:52:38.449957100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_dt6hs3HrkH
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 9FTQRpsmEm
+method: POST
+name: create chapter
+sortPriority: 1000.0
+url: http://localhost:8080/courses/{courseId}/chapters
+urlParameters: []

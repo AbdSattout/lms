@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_RKeDF8mJZ2
+createdAt: 2026-06-01T08:52:00.133050800
+updatedAt: 2026-06-01T08:52:31.067200500
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_dt6hs3HrkH
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: PATCH
+name: reorder chapters
+sortPriority: 0.0
+url: http://localhost:8080/courses/{courseId}/chapters/reorder
+urlParameters: []

@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_MLc8dawgVf
+createdAt: 2026-06-01T08:50:42.376666100
+updatedAt: 2026-06-01T08:52:31.076397800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_dt6hs3HrkH
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: PATCH
+name: update chapter
+sortPriority: 2000.0
+url: http://localhost:8080/chapters/{chapterId}
+urlParameters: []
