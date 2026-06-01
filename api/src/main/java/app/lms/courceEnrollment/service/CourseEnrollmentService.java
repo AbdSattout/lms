@@ -4,7 +4,7 @@ import app.lms.courceEnrollment.dto.EnrollmentResponse;
 import app.lms.courceEnrollment.enums.EnrollmentStatus;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
-import app.lms.organization.emums.Role;
+import app.lms.organization.enums.Role;
 import app.lms.courceEnrollment.enums.XPEventType;
 import app.lms.course.model.Course;
 import app.lms.organization.model.Organization;

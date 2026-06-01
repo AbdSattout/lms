@@ -1,0 +1,37 @@
+type: http_request
+model: http_request
+id: rq_VqgAwuAULQ
+createdAt: 2026-05-31T19:46:57.051601200
+updatedAt: 2026-06-01T09:30:52.222919
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_WtY6kjNisi
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  form:
+  - contentType: application/json
+    enabled: true
+    id: 67jDZbuQ4j
+    name: request
+    value: '{  "name": "Tech Company Updated",  "slug": "tech-company-new",  "description": "Updated description",  "visibility": "PRIVATE"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\abdbd.jpg
+    id: hSqFutJQPc
+    name: image
+  - enabled: true
+    id: 5zJTy8NGYg
+    name: ''
+    value: ''
+bodyType: multipart/form-data
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: multipart/form-data
+  id: 603CtkX9tv
+method: PATCH
+name: update organization
+sortPriority: 1000.0
+url: http://localhost:8080/organizations/tech-company
+urlParameters: []

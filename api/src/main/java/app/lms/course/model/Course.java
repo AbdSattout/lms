@@ -1,11 +1,10 @@
 package app.lms.course.model;
 
-import app.lms.organization.model.BaseEntity;
+import app.lms.course.enums.CourseStatus;
+import app.lms.common.model.BaseEntity;
 import app.lms.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "courses")
@@ -35,12 +34,11 @@ public class Course extends BaseEntity {
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id",nullable = true)
+    @JoinColumn(name = "organization_id")
     private Organization organization;
 
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CourseStatus status;
 
 }

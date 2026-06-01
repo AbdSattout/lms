@@ -1,19 +1,20 @@
 package app.lms.course.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
+import app.lms.course.enums.CourseStatus;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
+import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
-import app.lms.organization.emums.Role;
 import app.lms.organization.model.Organization;
-import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.repository.OrganizationMemberRepository;
-import app.lms.organization.repository.OrganizationRepository;
+import app.lms.organization.service.OrganizationAccessService;
+import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,16 +29,15 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
 
-    private final OrganizationRepository
-            organizationRepository;
-
-    private final OrganizationMemberRepository
-            memberRepository;
-
     private final MediaService mediaService;
 
     private final CourseMapper courseMapper;
 
+    private final OrganizationAccessService organizationAccessService;
+
+    private final OrganizationMemberAccessService organizationMemberAccessService;
+
+    private final CourseAccessService courseAccessService;
     @Transactional
     public CourseResponse create(
 
@@ -48,109 +48,62 @@ public class CourseService {
     ) {
 
         Organization organization =
-                organizationRepository.findBySlug(slug)
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Organization not found"
-                                )
-                        );
+                organizationAccessService.getBySlug(slug);
 
-        OrganizationMember member =
-                memberRepository
-                        .findByOrganizationIdAndUserId(
-                                organization.getId(),
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "You are not a member"
-                                )
-                        );
 
-        boolean allowed =
-                member.getRole()
-                        == Role.OWNER
-                        ||
-                        member.getRole()
-                                == Role.ADMIN;
 
-        if (!allowed) {
+        organizationMemberAccessService
+                .validateManager(
+                        organization.getId(),
+                        user.getId()
+                );
 
-            throw new IllegalStateException(
-                    "You are not allowed"
-            );
-        }
-
-        String coverUrl = null;
-        String coverFileId = null;
-
-        if (cover != null && !cover.isEmpty()) {
-
-            UploadedFile uploaded =
-                    mediaService.upload(
-                            cover,
-                            "/courses",
-                            FileType.IMAGE
-                    );
-
-            coverUrl = uploaded.url();
-            coverFileId = uploaded.fileId();
-        }
+        UploadedFile uploaded =
+                hasCover(cover)
+                        ? uploadCourseCover(cover)
+                        : null;
 
         Course course =
-                Course.builder()
-                        .title(request.getTitle())
-                        .description(
-                                request.getDescription()
-                        )
-                        .coverUrl(coverUrl)
-                        .coverFileId(coverFileId)
-                        .organization(organization)
-                        .build();
+               buildCourse( request,
+                       organization,
+                       uploaded);
 
-        courseRepository.save(course);
+        Course savedCourse =
+                courseRepository.save(course);
 
-        return courseMapper.toResponse(course);
+        return courseMapper.toResponse(
+                savedCourse
+        );
     }
 
-    private Course getManagedCourse(
-            Long courseId,
-            User user
+    private Course buildCourse(
+            CreateCourseRequest request,
+            Organization organization,
+            UploadedFile uploaded
     ) {
 
-        Course course =
-                courseRepository.findById(courseId)
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Course not found"
-                                )
-                        );
-
-        OrganizationMember member =
-                memberRepository
-                        .findByOrganizationIdAndUserId(
-                                course.getOrganization().getId(),
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Not a member"
-                                )
-                        );
-
-        boolean allowed =
-                member.getRole() == Role.OWNER
-                        ||
-                        member.getRole() == Role.ADMIN;
-
-        if (!allowed) {
-
-            throw new IllegalStateException(
-                    "Access denied"
-            );
-        }
-
-        return course;
+        return Course.builder()
+                .title(
+                        request.getTitle()
+                )
+                .description(
+                        request.getDescription()
+                )
+                .coverUrl(
+                        uploaded != null
+                                ? uploaded.url()
+                                : null
+                )
+                .coverFileId(
+                        uploaded != null
+                                ? uploaded.fileId()
+                                : null
+                )
+                .organization(
+                        organization
+                )
+                .status(CourseStatus.DRAFT)
+                .build();
     }
 
     @Transactional
@@ -163,7 +116,9 @@ public class CourseService {
     ) {
 
         Course course =
-                getManagedCourse(
+
+                courseAccessService.
+                        getManageableCourse(
                         courseId,
                         user
                 );
@@ -179,29 +134,10 @@ public class CourseService {
                     request.getDescription()
             );
         }
-
-        if (cover != null && !cover.isEmpty()) {
-
-            if (course.getCoverFileId() != null) {
-
-                mediaService.delete(
-                        course.getCoverFileId()
-                );
-            }
-
-            UploadedFile uploaded =
-                    mediaService.upload(
-                            cover,
-                            "/courses",
-                            FileType.IMAGE
-                    );
-
-            course.setCoverUrl(
-                    uploaded.url()
-            );
-
-            course.setCoverFileId(
-                    uploaded.fileId()
+        if (hasCover(cover)) {
+            updateCourseCover(
+                    course,
+                    cover
             );
         }
 
@@ -217,7 +153,8 @@ public class CourseService {
     ) {
 
         Course course =
-                getManagedCourse(
+                courseAccessService.
+                        getManageableCourse(
                         courseId,
                         user
                 );
@@ -238,16 +175,26 @@ public class CourseService {
             Long courseId
     ) {
 
-        Course course =
-                courseRepository.findById(courseId)
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "Course not found"
-                                )
-                        );
+        Course course = courseAccessService.getById(courseId);
+
 
         return courseMapper.toResponse(
                 course
+        );
+    }
+    private boolean hasCover(
+            MultipartFile cover
+    ) {
+        return cover != null && !cover.isEmpty();
+    }
+
+    private UploadedFile uploadCourseCover(
+            MultipartFile cover
+    ) {
+        return mediaService.upload(
+                cover,
+                "/courses",
+                FileType.IMAGE
         );
     }
 
@@ -258,18 +205,79 @@ public class CourseService {
     ) {
 
         Organization organization =
-                organizationRepository
-                        .findBySlug(
+                organizationAccessService
+                        .getBySlug(
                                 organizationSlug
-                        )
-                        .orElseThrow();
+                        );
 
         return courseRepository
-                .findByOrganizationId(
+                .findAllByOrganizationId(
                         organization.getId(),
                         pageable
                 )
                 .map(courseMapper::toResponse);
     }
+    private void updateCourseCover(
+            Course course,
+            MultipartFile cover
+    ) {
 
+        String oldFileId =
+                course.getCoverFileId();
+
+        UploadedFile uploaded =
+                uploadCourseCover(cover);
+
+        course.setCoverUrl(
+                uploaded.url()
+        );
+
+        course.setCoverFileId(
+                uploaded.fileId()
+        );
+
+        if (oldFileId != null) {
+
+            try {
+
+                mediaService.delete(
+                        oldFileId
+                );
+
+            } catch (ImageDeleteException ignored) {
+            }
+        }
+    }
+
+    @Transactional
+    public void publish(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                courseId,
+                                user
+                        );
+
+       validateNotPublished(course);
+
+        course.setStatus(
+                CourseStatus.PUBLISHED
+        );
+    }
+    private void validateNotPublished(
+            Course course
+    ) {
+
+        if (course.getStatus()
+                == CourseStatus.PUBLISHED) {
+
+            throw new ConflictException(
+                    "Course already published"
+            );
+        }
+    }
 }

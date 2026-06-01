@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_PdbdoLd79m
 createdAt: 2026-05-20T15:53:24.625308400
-updatedAt: 2026-05-31T17:55:10.258365
+updatedAt: 2026-06-01T08:56:06.594266500
 workspaceId: wk_LvqrSfWmRY
-folderId: null
+folderId: fl_NT7ErFBiF4
 authentication:
   token: '"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMjQ5ODE5LCJleHAiOjE3ODA4NTQ2MTl9.XW_oD4yvhtpVME2wW2KPH5Jq_EZqIgiuUUjxeX5N1Vs'
 authenticationType: bearer
@@ -14,6 +14,6 @@ description: ''
 headers: []
 method: GET
 name: get profile
-sortPriority: -1778079184181.0
+sortPriority: 1000.0
 url: http://localhost:8080/profile/me
 urlParameters: []

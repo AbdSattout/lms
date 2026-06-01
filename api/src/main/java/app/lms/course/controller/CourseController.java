@@ -5,6 +5,7 @@ import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
 import app.lms.course.service.CourseService;
 import app.lms.security.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,7 +26,7 @@ public class CourseController {
 
             @PathVariable String slug,
 
-            @RequestBody
+            @RequestPart
             CreateCourseRequest request,
 
             @RequestPart(required = false)
@@ -52,7 +53,7 @@ public class CourseController {
 
             @PathVariable Long courseId,
 
-            @RequestBody
+            @RequestPart @Valid
             UpdateCourseRequest request,
 
             @RequestPart(required = false)
@@ -118,5 +119,22 @@ public class CourseController {
                         pageable
                 )
         );
+    }
+
+    @PostMapping("/courses/{courseId}/publish")
+    public ResponseEntity<Void> publish(
+
+            @PathVariable Long courseId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        courseService.publish(
+                courseId,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }
