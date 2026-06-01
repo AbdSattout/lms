@@ -1,6 +1,7 @@
 package app.lms.organization.model;
 
 
+import app.lms.common.model.BaseEntity;
 import app.lms.organization.emums.Visibility;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Organization extends BaseEntity{
+public class Organization extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

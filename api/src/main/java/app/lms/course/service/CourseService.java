@@ -1,8 +1,10 @@
 package app.lms.course.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
+import app.lms.course.enums.CourseStatus;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
@@ -66,9 +68,12 @@ public class CourseService {
                        organization,
                        uploaded);
 
-        courseRepository.save(course);
+        Course savedCourse =
+                courseRepository.save(course);
 
-        return courseMapper.toResponse(course);
+        return courseMapper.toResponse(
+                savedCourse
+        );
     }
 
     private Course buildCourse(
@@ -97,6 +102,7 @@ public class CourseService {
                 .organization(
                         organization
                 )
+                .status(CourseStatus.DRAFT)
                 .build();
     }
 
@@ -243,4 +249,35 @@ public class CourseService {
         }
     }
 
+    @Transactional
+    public void publish(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                courseId,
+                                user
+                        );
+
+       validateNotPublished(course);
+
+        course.setStatus(
+                CourseStatus.PUBLISHED
+        );
+    }
+    private void validateNotPublished(
+            Course course
+    ) {
+
+        if (course.getStatus()
+                == CourseStatus.PUBLISHED) {
+
+            throw new ConflictException(
+                    "Course already published"
+            );
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package app.lms.organization.model;
 
+import app.lms.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
