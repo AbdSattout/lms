@@ -1,7 +1,5 @@
 package app.lms.course.service;
 
-import app.lms.common.exception.ForbiddenException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
@@ -11,11 +9,9 @@ import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.service.MediaService;
-import app.lms.organization.emums.Role;
 import app.lms.organization.model.Organization;
-import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.repository.OrganizationMemberRepository;
-import app.lms.organization.repository.OrganizationRepository;
+import app.lms.organization.service.OrganizationAccessService;
+import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +26,15 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
 
-    private final OrganizationRepository
-            organizationRepository;
-
-    private final OrganizationMemberRepository
-            memberRepository;
-
     private final MediaService mediaService;
 
     private final CourseMapper courseMapper;
 
+    private final OrganizationAccessService organizationAccessService;
+
+    private final OrganizationMemberAccessService organizationMemberAccessService;
+
+    private final CourseAccessService courseAccessService;
     @Transactional
     public CourseResponse create(
 
@@ -50,63 +45,35 @@ public class CourseService {
     ) {
 
         Organization organization =
-                organizationRepository.findBySlug(slug)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Organization not found"
-                                )
-                        );
+                organizationAccessService.getBySlug(slug);
 
-        OrganizationMember member =
-                memberRepository
-                        .findByOrganizationIdAndUserId(
-                                organization.getId(),
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new IllegalStateException(
-                                        "You are not a member"
-                                )
-                        );
 
-        boolean allowed =
-                member.getRole()
-                        == Role.OWNER
-                        ||
-                        member.getRole()
-                                == Role.ADMIN;
 
-        if (!allowed) {
+        organizationMemberAccessService
+                .getManagerMember(
+                        organization.getId(),
+                        user.getId()
+                );
 
-            throw new IllegalStateException(
-                    "You are not allowed"
-            );
-        }
-
-        String coverUrl = null;
-        String coverFileId = null;
-
-        if (cover != null && !cover.isEmpty()) {
-
-            UploadedFile uploaded =
-                    mediaService.upload(
-                            cover,
-                            "/courses",
-                            FileType.IMAGE
-                    );
-
-            coverUrl = uploaded.url();
-            coverFileId = uploaded.fileId();
-        }
+        UploadedFile uploaded =
+                hasCover(cover)
+                        ? uploadCourseCover(cover)
+                        : null;
 
         Course course =
                 Course.builder()
                         .title(request.getTitle())
-                        .description(
-                                request.getDescription()
+                        .description(request.getDescription())
+                        .coverUrl(
+                                uploaded != null
+                                        ? uploaded.url()
+                                        : null
                         )
-                        .coverUrl(coverUrl)
-                        .coverFileId(coverFileId)
+                        .coverFileId(
+                                uploaded != null
+                                        ? uploaded.fileId()
+                                        : null
+                        )
                         .organization(organization)
                         .build();
 
@@ -115,45 +82,7 @@ public class CourseService {
         return courseMapper.toResponse(course);
     }
 
-    private Course getManagedCourse(
-            Long courseId,
-            User user
-    ) {
 
-        Course course =
-                courseRepository.findById(courseId)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Course not found"
-                                )
-                        );
-
-        OrganizationMember member =
-                memberRepository
-                        .findByOrganizationIdAndUserId(
-                                course.getOrganization().getId(),
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new ForbiddenException(
-                                        "Not a member"
-                                )
-                        );
-
-        boolean allowed =
-                member.getRole() == Role.OWNER
-                        ||
-                        member.getRole() == Role.ADMIN;
-
-        if (!allowed) {
-
-            throw new ForbiddenException(
-                    "Access denied"
-            );
-        }
-
-        return course;
-    }
 
     @Transactional
     public CourseResponse update(
@@ -165,6 +94,8 @@ public class CourseService {
     ) {
 
         Course course =
+
+                courseAccessService.
                 getManagedCourse(
                         courseId,
                         user
@@ -182,7 +113,7 @@ public class CourseService {
             );
         }
 
-        if (cover != null && !cover.isEmpty()) {
+        if (hasCover(cover)) {
 
             if (course.getCoverFileId() != null) {
 
@@ -192,11 +123,7 @@ public class CourseService {
             }
 
             UploadedFile uploaded =
-                    mediaService.upload(
-                            cover,
-                            "/courses",
-                            FileType.IMAGE
-                    );
+                    uploadCourseCover(cover);
 
             course.setCoverUrl(
                     uploaded.url()
@@ -219,6 +146,7 @@ public class CourseService {
     ) {
 
         Course course =
+                courseAccessService.
                 getManagedCourse(
                         courseId,
                         user
@@ -240,16 +168,26 @@ public class CourseService {
             Long courseId
     ) {
 
-        Course course =
-                courseRepository.findById(courseId)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Course not found"
-                                )
-                        );
+        Course course = courseAccessService.getById(courseId);
+
 
         return courseMapper.toResponse(
                 course
+        );
+    }
+    private boolean hasCover(
+            MultipartFile cover
+    ) {
+        return cover != null && !cover.isEmpty();
+    }
+
+    private UploadedFile uploadCourseCover(
+            MultipartFile cover
+    ) {
+        return mediaService.upload(
+                cover,
+                "/courses",
+                FileType.IMAGE
         );
     }
 
@@ -260,11 +198,10 @@ public class CourseService {
     ) {
 
         Organization organization =
-                organizationRepository
-                        .findBySlug(
+                organizationAccessService
+                        .getBySlug(
                                 organizationSlug
-                        )
-                        .orElseThrow();
+                        );
 
         return courseRepository
                 .findAllByOrganizationId(
