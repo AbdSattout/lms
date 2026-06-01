@@ -8,6 +8,7 @@ import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
+import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
@@ -50,7 +51,7 @@ public class CourseService {
 
 
         organizationMemberAccessService
-                .getManagerMember(
+                .validateManager(
                         organization.getId(),
                         user.getId()
                 );
@@ -96,7 +97,7 @@ public class CourseService {
         Course course =
 
                 courseAccessService.
-                getManagedCourse(
+                        getManagableCourse(
                         courseId,
                         user
                 );
@@ -112,25 +113,10 @@ public class CourseService {
                     request.getDescription()
             );
         }
-
         if (hasCover(cover)) {
-
-            if (course.getCoverFileId() != null) {
-
-                mediaService.delete(
-                        course.getCoverFileId()
-                );
-            }
-
-            UploadedFile uploaded =
-                    uploadCourseCover(cover);
-
-            course.setCoverUrl(
-                    uploaded.url()
-            );
-
-            course.setCoverFileId(
-                    uploaded.fileId()
+            updateCourseCover(
+                    course,
+                    cover
             );
         }
 
@@ -147,7 +133,7 @@ public class CourseService {
 
         Course course =
                 courseAccessService.
-                getManagedCourse(
+                        getManagableCourse(
                         courseId,
                         user
                 );
@@ -209,6 +195,37 @@ public class CourseService {
                         pageable
                 )
                 .map(courseMapper::toResponse);
+    }
+    private void updateCourseCover(
+            Course course,
+            MultipartFile cover
+    ) {
+
+        String oldFileId =
+                course.getCoverFileId();
+
+        UploadedFile uploaded =
+                uploadCourseCover(cover);
+
+        course.setCoverUrl(
+                uploaded.url()
+        );
+
+        course.setCoverFileId(
+                uploaded.fileId()
+        );
+
+        if (oldFileId != null) {
+
+            try {
+
+                mediaService.delete(
+                        oldFileId
+                );
+
+            } catch (ImageDeleteException ignored) {
+            }
+        }
     }
 
 }
