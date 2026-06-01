@@ -28,7 +28,7 @@ public class CourseAccessService {
                 );
     }
 
-    public Course getManagableCourse(
+    public Course getManageableCourse(
             Long courseId,
             User user
     ) {
