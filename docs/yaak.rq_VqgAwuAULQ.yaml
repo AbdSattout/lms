@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_VqgAwuAULQ
 createdAt: 2026-05-31T19:46:57.051601200
-updatedAt: 2026-05-31T19:47:47.246610700
+updatedAt: 2026-06-01T08:40:00.014888100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_WtY6kjNisi
 authentication: {}
@@ -17,7 +17,7 @@ headers:
   value: application/json
   id: espWbkDRKK
 method: POST
-name: Update Org
+name: update organization
 sortPriority: 1000.0
 url: http://localhost:8080/organizations/tech-academy
 urlParameters: []

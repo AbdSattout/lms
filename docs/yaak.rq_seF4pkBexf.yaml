@@ -2,14 +2,20 @@ type: http_request
 model: http_request
 id: rq_seF4pkBexf
 createdAt: 2026-05-31T17:51:51.795939700
-updatedAt: 2026-05-31T19:45:46.169816
+updatedAt: 2026-06-01T08:40:25.722378600
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_WtY6kjNisi
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMjQ5ODE5LCJleHAiOjE3ODA4NTQ2MTl9.XW_oD4yvhtpVME2wW2KPH5Jq_EZqIgiuUUjxeX5N1Vs
 authenticationType: bearer
 body:
-  text: '{"name": "Tech Academy", "description": "Learn coding", "visibility": "PUBLIC"}'
+  text: |-
+    {
+      "name": "Tech Academy",
+      "description": "Learn coding",
+      "visibility": "PUBLIC",
+      "slug" :"tech-academy"
+    }
 bodyType: application/json
 description: ''
 headers:
@@ -18,7 +24,7 @@ headers:
   value: application/json
   id: Hd6pa02jFg
 method: POST
-name: create org
+name: create organization
 sortPriority: 2000.0
 url: http://localhost:8080/organizations
 urlParameters: []
