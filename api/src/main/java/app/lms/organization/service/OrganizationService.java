@@ -75,7 +75,7 @@ public class OrganizationService {
         Organization organization = Organization.builder()
                 .name(name)
                 .slug(slug)
-                .description(request.getDescription())
+                .description(request.getDescription()!=null? request.getDescription().trim():null)
                 .imageUrl(
                         uploaded != null
                                 ? uploaded.url()
@@ -164,16 +164,29 @@ public class OrganizationService {
             );
 
             if (oldFileId != null) {
-
-                mediaService.delete(
-                        oldFileId
-                );
+                try {
+                    mediaService.delete(oldFileId);
+                } catch (ImageDeleteException ex) {
+                    log.error(
+                            "Failed to delete organization image {}",
+                            oldFileId,
+                            ex
+                    );
+                }
             }
         }
 
+        if (request.getSlug() != null) {
+            updateOrganizationSlug(
+                    organization,
+                    request.getSlug()
+                            .trim()
+                            .toLowerCase()
+            );
+        }
         if (request.getDescription() != null) {
             organization.setDescription(
-                    request.getDescription()
+                    request.getDescription().trim()
             );
         }
 
@@ -188,6 +201,30 @@ public class OrganizationService {
         );
     }
 
+    private void updateOrganizationSlug(
+            Organization organization,
+            String newSlug
+    ) {
+
+        if (
+                !newSlug.equals(
+                        organization.getSlug()
+                )
+                        &&
+                        organizationRepository.existsBySlug(
+                                newSlug
+                        )
+        ) {
+
+            throw new ConflictException(
+                    "Slug already exists"
+            );
+        }
+
+        organization.setSlug(
+                newSlug
+        );
+    }
     private void updateOrganizationName(
             Organization organization,
             String newName

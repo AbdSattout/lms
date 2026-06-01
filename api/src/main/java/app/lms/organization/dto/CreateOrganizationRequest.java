@@ -23,7 +23,5 @@ public class CreateOrganizationRequest {
     @Size(max = 5000)
     private String description;
 
-    private String image;
-
     private Visibility visibility;
 }
