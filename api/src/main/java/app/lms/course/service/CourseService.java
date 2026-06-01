@@ -1,5 +1,7 @@
 package app.lms.course.service;
 
+import app.lms.common.exception.ForbiddenException;
+import app.lms.common.exception.NotFoundException;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
@@ -50,7 +52,7 @@ public class CourseService {
         Organization organization =
                 organizationRepository.findBySlug(slug)
                         .orElseThrow(() ->
-                                new IllegalStateException(
+                                new NotFoundException(
                                         "Organization not found"
                                 )
                         );
@@ -121,7 +123,7 @@ public class CourseService {
         Course course =
                 courseRepository.findById(courseId)
                         .orElseThrow(() ->
-                                new IllegalStateException(
+                                new NotFoundException(
                                         "Course not found"
                                 )
                         );
@@ -133,7 +135,7 @@ public class CourseService {
                                 user.getId()
                         )
                         .orElseThrow(() ->
-                                new IllegalStateException(
+                                new ForbiddenException(
                                         "Not a member"
                                 )
                         );
@@ -145,7 +147,7 @@ public class CourseService {
 
         if (!allowed) {
 
-            throw new IllegalStateException(
+            throw new ForbiddenException(
                     "Access denied"
             );
         }
@@ -241,7 +243,7 @@ public class CourseService {
         Course course =
                 courseRepository.findById(courseId)
                         .orElseThrow(() ->
-                                new IllegalStateException(
+                                new NotFoundException(
                                         "Course not found"
                                 )
                         );
