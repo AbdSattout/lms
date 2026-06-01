@@ -48,15 +48,19 @@ public class OrganizationService {
             MultipartFile image,
             User user
     ) {
+        String name =
+                request.getName().trim();
 
-        if (organizationRepository.existsByName(request.getName())) {
+        if (organizationRepository.existsByNameIgnoreCase(name)) {
             throw new ConflictException(
                     "Organization name already exists"
             );
         }
 
-        String slug = generateSlug(request.getName());
-
+        String slug =
+                request.getSlug()
+                        .trim()
+                        .toLowerCase();
         if (organizationRepository.existsBySlug(slug)) {
             throw new ConflictException(
                     "Slug already exists"
@@ -69,7 +73,7 @@ public class OrganizationService {
                         : null;
 
         Organization organization = Organization.builder()
-                .name(request.getName())
+                .name(name)
                 .slug(slug)
                 .description(request.getDescription())
                 .imageUrl(
@@ -137,7 +141,7 @@ public class OrganizationService {
         if (request.getName() != null) {
             updateOrganizationName(
                     organization,
-                    request.getName()
+                    request.getName().trim()
             );
         }
 
@@ -189,10 +193,16 @@ public class OrganizationService {
             String newName
     ) {
 
+        newName = newName.trim();
+
         if (
-                !newName.equals(organization.getName())
+                !newName.equalsIgnoreCase(
+                        organization.getName()
+                )
                         &&
-                        organizationRepository.existsByName(newName)
+                        organizationRepository.existsByNameIgnoreCase(
+                                newName
+                        )
         ) {
 
             throw new ConflictException(
@@ -200,21 +210,7 @@ public class OrganizationService {
             );
         }
 
-        String newSlug = generateSlug(newName);
-
-        if (
-                !newSlug.equals(organization.getSlug())
-                        &&
-                        organizationRepository.existsBySlug(newSlug)
-        ) {
-
-            throw new ConflictException(
-                    "Slug already exists"
-            );
-        }
-
         organization.setName(newName);
-        organization.setSlug(newSlug);
     }
     @Transactional
     public void delete(
@@ -305,13 +301,4 @@ public class OrganizationService {
     }
 
 
-    private String generateSlug(
-            String value
-    ) {
-
-        return value
-                .trim()
-                .toLowerCase()
-                .replaceAll("\\s+", "-");
-    }
 }
