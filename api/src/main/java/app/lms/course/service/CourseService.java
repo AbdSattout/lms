@@ -62,28 +62,43 @@ public class CourseService {
                         : null;
 
         Course course =
-                Course.builder()
-                        .title(request.getTitle())
-                        .description(request.getDescription())
-                        .coverUrl(
-                                uploaded != null
-                                        ? uploaded.url()
-                                        : null
-                        )
-                        .coverFileId(
-                                uploaded != null
-                                        ? uploaded.fileId()
-                                        : null
-                        )
-                        .organization(organization)
-                        .build();
+               buildCourse( request,
+                       organization,
+                       uploaded);
 
         courseRepository.save(course);
 
         return courseMapper.toResponse(course);
     }
 
+    private Course buildCourse(
+            CreateCourseRequest request,
+            Organization organization,
+            UploadedFile uploaded
+    ) {
 
+        return Course.builder()
+                .title(
+                        request.getTitle()
+                )
+                .description(
+                        request.getDescription()
+                )
+                .coverUrl(
+                        uploaded != null
+                                ? uploaded.url()
+                                : null
+                )
+                .coverFileId(
+                        uploaded != null
+                                ? uploaded.fileId()
+                                : null
+                )
+                .organization(
+                        organization
+                )
+                .build();
+    }
 
     @Transactional
     public CourseResponse update(
@@ -97,7 +112,7 @@ public class CourseService {
         Course course =
 
                 courseAccessService.
-                        getManagableCourse(
+                        getManageableCourse(
                         courseId,
                         user
                 );
@@ -133,7 +148,7 @@ public class CourseService {
 
         Course course =
                 courseAccessService.
-                        getManagableCourse(
+                        getManageableCourse(
                         courseId,
                         user
                 );
