@@ -109,4 +109,13 @@ public class OrganizationController {
                 "Organization deleted"
         );
     }
+
+    @GetMapping("/check-availability")
+    public ResponseEntity<Boolean> checkSlugAvailability(
+            @RequestBody String slug
+    ) {
+        boolean isAvailable = organizationService.isSlugAvailable(slug);
+
+        return ResponseEntity.ok(isAvailable);
+    }
 }

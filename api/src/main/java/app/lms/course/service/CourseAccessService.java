@@ -30,6 +30,19 @@ public class CourseAccessService {
                 );
     }
 
+    public Course getBySlug(
+            String slug
+    ) {
+
+        return courseRepository
+                .findBySlug(slug)
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Course not found"
+                        )
+                );
+    }
+
     public Course getManageableCourse(
             Long courseId,
             User user
