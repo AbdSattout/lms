@@ -1,14 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:lms/core/errors/error_model.dart';
+
 //!ServerException
 class ServerException implements Exception {
   final ErrorModel errorModel;
   ServerException(this.errorModel);
 }
+
 //!CacheExeption
-class CacheExeption implements Exception {
+class CacheException implements Exception {
   final String errorMessage;
-  CacheExeption({required this.errorMessage});
+  CacheException({required this.errorMessage});
 }
 
 class BadCertificateException extends ServerException {
@@ -59,7 +61,7 @@ class UnknownException extends ServerException {
   UnknownException(super.errorModel);
 }
 
-handleDioException(DioException e) {
+Never handleDioException(DioException e) {
   switch (e.type) {
     case DioExceptionType.connectionError:
       throw ConnectionErrorException(_extractError(e));
@@ -76,7 +78,6 @@ handleDioException(DioException e) {
 
     case DioExceptionType.badResponse:
       _handleBadResponse(e);
-      break;
 
     case DioExceptionType.cancel:
       throw CancelException(_extractError(e));
@@ -86,10 +87,12 @@ handleDioException(DioException e) {
   }
 }
 
-void _handleBadResponse(DioException e) {
+Never _handleBadResponse(DioException e) {
   final response = e.response;
   if (response == null) {
-    throw UnknownException(ErrorModel(status: 500, errorMessage: 'استجابة غير معروفة من السيرفر'));
+    throw UnknownException(
+      ErrorModel(status: 500, errorMessage: 'استجابة غير معروفة من السيرفر'),
+    );
   }
 
   switch (response.statusCode) {
@@ -105,7 +108,10 @@ void _handleBadResponse(DioException e) {
       throw ConflictException(ErrorModel.fromJson(response.data));
     case 504: // Bad reponse
       throw BadResponseException(
-        ErrorModel(status: 504, errorMessage: 'استغراق الاتصال بالسيرفر وقت طويلاً')
+        ErrorModel(
+          status: 504,
+          errorMessage: 'استغراق الاتصال بالسيرفر وقت طويلاً',
+        ),
       );
     default:
       throw UnknownException(ErrorModel.fromJson(response.data));
@@ -113,12 +119,18 @@ void _handleBadResponse(DioException e) {
 }
 
 ErrorModel _extractError(DioException e) {
-  if(e.response != null && e.response!.data != null) {
+  if (e.response != null && e.response!.data != null) {
     try {
       return ErrorModel.fromJson(e.response!.data);
-    } catch(_) {
-      return ErrorModel(status: 0, errorMessage: "حدث خطأ أثناء معالجة البيانات");
+    } catch (_) {
+      return ErrorModel(
+        status: 0,
+        errorMessage: "حدث خطأ أثناء معالجة البيانات",
+      );
     }
   }
-  return ErrorModel(status: 0, errorMessage: "لا يوجد اتصال بالانترنت أو السيرفر لا يستجيب");
+  return ErrorModel(
+    status: 0,
+    errorMessage: "لا يوجد اتصال بالانترنت أو السيرفر لا يستجيب",
+  );
 }

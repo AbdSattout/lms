@@ -23,18 +23,36 @@ class TelegramLoginPage extends StatelessWidget {
           listener: (context, state) {
             if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+                SnackBar(
+                  content: Text(state.message),
+                  backgroundColor: Colors.red,
+                ),
               );
             }
             if (state is AuthSuccess) {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MainHomeScreen(userAuthData: state.authEntity)),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      MainHomeScreen(userAuthData: state.authEntity),
+                ),
               );
             }
           },
           builder: (context, state) {
             final isLoading = state is AuthLoading;
+            if (state is AuthSuccess) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        MainHomeScreen(userAuthData: state.authEntity),
+                  ),
+                );
+              });
+              return const Scaffold(body: Center(child: CircularProgressIndicator()));
+            }
             return Stack(
               children: [
                 // خلفية علوية منحنية بلون خفيف
@@ -42,7 +60,9 @@ class TelegramLoginPage extends StatelessWidget {
                   height: MediaQuery.of(context).size.height * 0.4,
                   decoration: BoxDecoration(
                     color: kLightPrimaryColor.withOpacity(0.1),
-                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(50)),
+                    borderRadius: const BorderRadius.vertical(
+                      bottom: Radius.circular(50),
+                    ),
                   ),
                 ),
                 SafeArea(
@@ -71,37 +91,59 @@ class TelegramLoginPage extends StatelessWidget {
                             style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                           const SizedBox(height: 40),
-                          
+
                           // زر تسجيل الدخول المصمم بشكل عصري
                           SizedBox(
                             width: double.infinity,
                             height: 60,
                             child: ElevatedButton(
-                              onPressed: isLoading ? null : () {
-                                print("BUTTON PRESSED");
-                                context.read<AuthBloc>().add(LoginWithTelegramRequested());
-                              },
+                              onPressed: isLoading
+                                  ? null
+                                  : () {
+                                      context.read<AuthBloc>().add(
+                                        LoginWithTelegramRequested(),
+                                      );
+                                    },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: kLightPrimaryColor,
                                 foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                                 elevation: 8,
-                                shadowColor: kLightPrimaryColor.withOpacity(0.4),
+                                shadowColor: kLightPrimaryColor.withOpacity(
+                                  0.4,
+                                ),
                               ),
                               child: isLoading
-                                  ? const CircularProgressIndicator(color: Colors.white)
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white,
+                                    )
                                   : Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: const [
                                         Icon(Icons.telegram_rounded, size: 28),
                                         SizedBox(width: 12),
-                                        Text('الدخول بواسطة تيليجرام', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                        Text(
+                                          'الدخول بواسطة تيليجرام',
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ],
                                     ),
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const Text('دخول آمن ومشفر 100%', style: TextStyle(color: Colors.black26, fontSize: 12)),
+                          const Text(
+                            'دخول آمن ومشفر 100%',
+                            style: TextStyle(
+                              color: Colors.black26,
+                              fontSize: 12,
+                            ),
+                          ),
                         ],
                       ),
                     ),

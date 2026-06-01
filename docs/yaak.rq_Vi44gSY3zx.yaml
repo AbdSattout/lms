@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_Vi44gSY3zx
+createdAt: 2026-05-31T19:52:13.312508800
+updatedAt: 2026-06-01T09:42:04.884628700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get Course
+sortPriority: 0.0
+url: http://localhost:8080/courses/1
+urlParameters: []
