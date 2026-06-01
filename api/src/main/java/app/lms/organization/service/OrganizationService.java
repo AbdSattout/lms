@@ -1,8 +1,6 @@
 package app.lms.organization.service;
 
 import app.lms.common.exception.ConflictException;
-import app.lms.common.exception.ForbiddenException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
@@ -24,7 +22,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,11 +31,16 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class OrganizationService {
 
+    private static final Logger log =
+            LoggerFactory.getLogger(
+                    OrganizationService.class
+            );
     private final OrganizationRepository organizationRepository;
     private final OrganizationMemberRepository memberRepository;
     private final MediaService mediaService;
     private final OrganizationMapper organizationMapper;
     private final CourseRepository courseRepository;
+    private final OrganizationAccessService organizationAccessService;
 
     @Transactional
     public OrganizationResponse create(
@@ -59,11 +63,10 @@ public class OrganizationService {
             );
         }
 
-        UploadedFile uploaded = null;
-
-        if (hasImage(image)) {
-            uploaded = uploadOrganizationImage(image);
-        }
+        UploadedFile uploaded =
+                hasImage(image)
+                        ? uploadOrganizationImage(image)
+                        : null;
 
         Organization organization = Organization.builder()
                 .name(request.getName())
@@ -102,7 +105,7 @@ public class OrganizationService {
     public OrganizationResponse getBySlug(String slug) {
 
         Organization organization =
-                getOrganizationBySlug(slug);
+                organizationAccessService.getBySlug(slug);
 
         return organizationMapper.ToResponse(
                 organization
@@ -126,7 +129,7 @@ public class OrganizationService {
     ) {
 
         Organization organization =
-                getOwnedOrganization(
+                organizationAccessService.getOwnedOrganization(
                         slug,
                         user
                 );
@@ -220,7 +223,8 @@ public class OrganizationService {
     ) {
 
         Organization organization =
-                getOwnedOrganization(
+
+                organizationAccessService.getOwnedOrganization(
                         slug,
                         user
                 );
@@ -241,7 +245,11 @@ public class OrganizationService {
                     try {
                         mediaService.delete(fileId);
                     }catch (ImageDeleteException ex) {
-                        System.err.println(ex.getMessage());
+                        log.error(
+                                "Failed to delete course cover {}",
+                                fileId,
+                                ex
+                        );
                     }
                 });
 
@@ -250,10 +258,17 @@ public class OrganizationService {
         );
 
         if (organization.getImageFileId() != null) {
-
-            mediaService.delete(
-                    organization.getImageFileId()
-            );
+            try {
+                mediaService.delete(
+                        organization.getImageFileId()
+                );
+            } catch (ImageDeleteException ex) {
+                log.error(
+                        "Failed to delete organization image {}",
+                        organization.getImageFileId(),
+                        ex
+                );
+            }
         }
 
         organizationRepository.delete(
@@ -288,34 +303,8 @@ public class OrganizationService {
                         .build()
         );
     }
-    private Organization getOrganizationBySlug(
-            String slug
-    ) {
 
-        return organizationRepository
-                .findBySlug(slug)
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Organization not found"
-                        )
-                );
-    }
-    private Organization getOwnedOrganization(
-            String slug,
-            User user
-    ) {
 
-        Organization organization =
-                getOrganizationBySlug(slug);
-
-        if (!organization.getOwner().getId().equals(user.getId())) {
-            throw new ForbiddenException(
-                    "You are not allowed"
-            );
-        }
-
-        return organization;
-    }
     private String generateSlug(
             String value
     ) {
