@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_36v9bki2bF
+createdAt: 2026-05-31T20:59:32.838241
+updatedAt: 2026-06-01T15:54:42.160569600
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_WtY6kjNisi
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "slug": "Tech Academy"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 7pjj9fNcd8
+method: GET
+name: checkSlugAvailability
+sortPriority: 0.0
+url: http://localhost:8080/organizations/check-availability
+urlParameters: []
