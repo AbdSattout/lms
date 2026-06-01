@@ -2,17 +2,28 @@ type: http_request
 model: http_request
 id: rq_RKeDF8mJZ2
 createdAt: 2026-06-01T08:52:00.133050800
-updatedAt: 2026-06-01T08:52:31.067200500
+updatedAt: 2026-06-01T09:47:15.511471500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
-authentication: {}
-authenticationType: null
-body: {}
-bodyType: null
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "chapterIds": [
+       10,13,11,12
+      ]
+    }
+bodyType: application/json
 description: ''
-headers: []
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: fqifhtHveE
 method: PATCH
 name: reorder chapters
-sortPriority: 0.0
-url: http://localhost:8080/courses/{courseId}/chapters/reorder
+sortPriority: 3000.0
+url: http://localhost:8080/courses/5/chapters/reorder
 urlParameters: []

@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_XLCgHN6Vtn
 createdAt: 2026-05-31T17:56:50.746754900
-updatedAt: 2026-06-01T08:39:53.945727700
+updatedAt: 2026-06-01T09:31:37.722993400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_WtY6kjNisi
 authentication:
@@ -15,5 +15,5 @@ headers: []
 method: GET
 name: get organization
 sortPriority: 0.0
-url: http://localhost:8080/organizations/tech-academy
+url: http://localhost:8080/organizations/tech-company-new
 urlParameters: []

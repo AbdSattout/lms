@@ -2,22 +2,36 @@ type: http_request
 model: http_request
 id: rq_ap3JZY6rhs
 createdAt: 2026-05-31T19:53:07.299563300
-updatedAt: 2026-05-31T19:54:34.560998100
+updatedAt: 2026-06-01T09:42:53.242876500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
-authentication: {}
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
 body:
-  text: '{"title": "Updated Course Title", "description": "Updated Description"}'
-bodyType: application/json
+  form:
+  - contentType: application/json
+    enabled: true
+    id: P7EHBpSijN
+    name: request
+    value: '{  "title": "Spring Boot Advanced",  "description": "Updated description"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\photo_2026-05-18_19-38-54.jpg
+    id: 6PhQebUVZn
+    name: cover
+  - enabled: true
+    id: 7tzFnbnFnU
+    name: ''
+    value: ''
+bodyType: multipart/form-data
 description: ''
 headers:
 - enabled: true
   name: Content-Type
-  value: application/json
-  id: eQuvea2Rjz
+  value: multipart/form-data
+  id: A7H4NYR3Sb
 method: PATCH
-name: Edit Course
+name: Update Course
 sortPriority: 0.0
 url: http://localhost:8080/courses/1
 urlParameters: []

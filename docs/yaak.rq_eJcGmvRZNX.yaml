@@ -2,21 +2,39 @@ type: http_request
 model: http_request
 id: rq_eJcGmvRZNX
 createdAt: 2026-06-01T08:49:29.084483900
-updatedAt: 2026-06-01T08:52:38.449957100
+updatedAt: 2026-06-01T09:46:39.942924
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
-authentication: {}
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
-body: {}
+body:
+  form:
+  - enabled: true
+    id: fYwIcYsPCA
+    name: title
+    value: '{  "name": "Tech Company",  "slug": "tech-company",  "description": "My organization",  "visibility": "PUBLIC"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\abdbd.jpg
+    id: rhn6ZTpeth
+    name: image
+  - enabled: true
+    id: DI2r8D9IBC
+    name: ''
+    value: ''
+  text: |-
+    {
+      "title": "Introduction"
+    }
 bodyType: application/json
 description: ''
 headers:
 - enabled: true
   name: Content-Type
   value: application/json
-  id: 9FTQRpsmEm
+  id: R67B83ReJ0
 method: POST
 name: create chapter
-sortPriority: 1000.0
-url: http://localhost:8080/courses/{courseId}/chapters
+sortPriority: 0.0
+url: http://localhost:8080/courses/5/chapters
 urlParameters: []

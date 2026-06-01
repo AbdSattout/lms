@@ -2,22 +2,36 @@ type: http_request
 model: http_request
 id: rq_oB66ZiuV3d
 createdAt: 2026-05-31T19:49:05.500026200
-updatedAt: 2026-05-31T19:58:28.086811900
+updatedAt: 2026-06-01T09:40:53.405521800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
-authentication: {}
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
 body:
-  text: '{"title": "Java Spring Boot Masterclass", "description": "Learn Spring from scratch"}'
-bodyType: application/json
+  form:
+  - contentType: application/json
+    enabled: true
+    id: fVRMqnCW9R
+    name: request
+    value: '{  "title": "Spring Boot Masterclass",  "description": "Learn Spring Boot"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\photo_2026-05-03_07-02-04.jpg
+    id: SeCKvKw3GU
+    name: cover
+  - enabled: true
+    id: 4c6fUSb0wF
+    name: ''
+    value: ''
+bodyType: multipart/form-data
 description: ''
 headers:
 - enabled: true
   name: Content-Type
-  value: application/json
-  id: JMGWfTwI2g
+  value: multipart/form-data
+  id: mr4mYwwSZr
 method: POST
 name: Create Course
 sortPriority: 0.0
-url: http://localhost:8080/organizations/tech-academy/courses
+url: http://localhost:8080/organizations/tech-company/courses
 urlParameters: []

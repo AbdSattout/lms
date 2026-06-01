@@ -2,17 +2,39 @@ type: http_request
 model: http_request
 id: rq_MLc8dawgVf
 createdAt: 2026-06-01T08:50:42.376666100
-updatedAt: 2026-06-01T08:52:31.076397800
+updatedAt: 2026-06-01T09:43:50.333622300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
-authentication: {}
-authenticationType: null
-body: {}
-bodyType: null
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  form:
+  - enabled: true
+    id: zIPenwBMfi
+    name: request
+    value: '{  "name": "Tech Company Updated",  "slug": "tech-company-new",  "description": "Updated description",  "visibility": "PRIVATE"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\wallpaper.jpg
+    id: zjyUeeYXb5
+    name: image
+  - enabled: true
+    id: fmrHzY6W3q
+    name: ''
+    value: ''
+  text: |-
+    {
+      "title": "Getting Started"
+    }
+bodyType: application/json
 description: ''
-headers: []
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: dh0qMG4C8q
 method: PATCH
 name: update chapter
-sortPriority: 2000.0
-url: http://localhost:8080/chapters/{chapterId}
+sortPriority: 1000.0
+url: http://localhost:8080/chapters/1
 urlParameters: []

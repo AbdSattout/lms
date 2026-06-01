@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_8QLkudisha
 createdAt: 2026-05-18T16:26:17.129549800
-updatedAt: 2026-05-31T19:44:49.049197100
+updatedAt: 2026-06-01T08:56:05.559000800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
