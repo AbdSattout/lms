@@ -97,11 +97,34 @@ public class ChapterService {
                                 user
                         );
 
+        Long courseId =
+                chapter.getCourse().getId();
+
         chapterRepository.delete(
                 chapter
         );
+
+        normalizePositions(
+                courseId
+        );
     }
 
+    private void normalizePositions(
+            Long courseId
+    ) {
+
+        List<Chapter> chapters =
+                chapterRepository
+                        .findAllByCourseIdOrderByPositionAsc(
+                                courseId
+                        );
+
+        int position = 1;
+
+        for (Chapter chapter : chapters) {
+            chapter.setPosition(position++);
+        }
+    }
     private Chapter buildChapter(
             String title,
             Integer position,
@@ -134,7 +157,17 @@ public class ChapterService {
                         course.getId()
                 );
 
-        if (chapters.size() != request.chapterIds().size()) {
+        if (
+                request.chapterIds().size()
+                        != chapters.size()
+                        ||
+                        request.chapterIds()
+                                .stream()
+                                .distinct()
+                                .count()
+                                != chapters.size()
+        )
+        {
             throw new ConflictException(
                     "Invalid chapter list"
             );
