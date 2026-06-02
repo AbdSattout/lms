@@ -12,29 +12,7 @@ import type {
   UpdateOrganizationRequest,
 } from "@/lib/api/types"
 
-function toFormData(fields: Record<string, unknown>) {
-  const formData = new FormData()
-
-  for (const [key, value] of Object.entries(fields)) {
-    if (value === undefined) continue
-
-    if (value instanceof File) {
-      formData.set(key, value)
-      continue
-    }
-
-    formData.set(
-      key,
-      typeof value === "string" ? value : new Blob([JSON.stringify(value)], { type: "application/json" })
-    )
-  }
-
-  return formData
-}
-
-function toQueryString(pageable?: Pageable) {
-  if (!pageable) return ""
-
+function toQueryString(pageable: Pageable) {
   const params = new URLSearchParams()
 
   if (pageable.page !== undefined) params.set("page", String(pageable.page))
@@ -55,12 +33,18 @@ export const list = defineApiRoute({
     request: CreateOrganizationRequest,
     image?: File,
     options?: BackendFetchOptions
-  ) =>
-    backend<OrganizationResponse>("/organizations", {
+  ) => {
+    const body = new FormData()
+
+    body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+    if (image) body.set("image", image)
+
+    return backend<OrganizationResponse>("/organizations", {
       method: "POST",
-      body: toFormData({ request, image }),
+      body,
       ...options,
-    }),
+    })
+  },
 })
 
 export const bySlug = defineApiRoute({
@@ -69,7 +53,7 @@ export const bySlug = defineApiRoute({
       method: "GET",
       ...options,
     }),
-  patch: (
+  patch: async (
     slug: string,
     request: UpdateOrganizationRequest,
     image?: File,
@@ -77,22 +61,25 @@ export const bySlug = defineApiRoute({
   ) =>
     backend<OrganizationResponse>(`/organizations/${slug}`, {
       method: "PATCH",
-      body: toFormData({ request, image }),
+      body: (() => {
+        const body = new FormData()
+
+        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        if (image) body.set("image", image)
+
+        return body
+      })(),
       ...options,
     }),
   delete: (slug: string, options?: BackendFetchOptions) =>
-    backend<void>(`/organizations/${slug}`, {
+    backend<string>(`/organizations/${slug}`, {
       method: "DELETE",
       ...options,
     }),
 })
 
 export const courses = defineApiRoute({
-  get: (
-    slug: string,
-    pageable?: Pageable,
-    options?: BackendFetchOptions
-  ) =>
+  get: (slug: string, pageable: Pageable, options?: BackendFetchOptions) =>
     backend<PageCourseResponse>(
       `/organizations/${slug}/courses${toQueryString(pageable)}`,
       {
@@ -100,7 +87,7 @@ export const courses = defineApiRoute({
         ...options,
       }
     ),
-  post: (
+  post: async (
     slug: string,
     request: CreateCourseRequest,
     cover?: File,
@@ -108,7 +95,14 @@ export const courses = defineApiRoute({
   ) =>
     backend<CourseResponse>(`/organizations/${slug}/courses`, {
       method: "POST",
-      body: toFormData({ request, cover }),
+      body: (() => {
+        const body = new FormData()
+
+        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        if (cover) body.set("cover", cover)
+
+        return body
+      })(),
       ...options,
     }),
 })

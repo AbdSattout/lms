@@ -29,7 +29,7 @@ export const me = defineApiRoute({
       ...options,
     }),
   delete: (options?: BackendFetchOptions) =>
-    backend<void>("/profile/me", {
+    backend<string>("/profile/me", {
       method: "DELETE",
       ...options,
     }),
