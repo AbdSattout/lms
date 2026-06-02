@@ -4,31 +4,12 @@ import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
   ChapterResponse,
+  EnrollmentResponse,
   CourseResponse,
   CreateChapterRequest,
   ReorderChaptersRequest,
   UpdateCourseRequest,
 } from "@/lib/api/types"
-
-function toFormData(fields: Record<string, unknown>) {
-  const formData = new FormData()
-
-  for (const [key, value] of Object.entries(fields)) {
-    if (value === undefined) continue
-
-    if (value instanceof File) {
-      formData.set(key, value)
-      continue
-    }
-
-    formData.set(
-      key,
-      typeof value === "string" ? value : new Blob([JSON.stringify(value)], { type: "application/json" })
-    )
-  }
-
-  return formData
-}
 
 export const byId = defineApiRoute({
   get: (courseId: number, options?: BackendFetchOptions) =>
@@ -41,7 +22,7 @@ export const byId = defineApiRoute({
       method: "DELETE",
       ...options,
     }),
-  patch: (
+  patch: async (
     courseId: number,
     request: UpdateCourseRequest,
     cover?: File,
@@ -49,7 +30,14 @@ export const byId = defineApiRoute({
   ) =>
     backend<CourseResponse>(`/courses/${courseId}`, {
       method: "PATCH",
-      body: toFormData({ request, cover }),
+      body: (() => {
+        const body = new FormData()
+
+        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        if (cover) body.set("cover", cover)
+
+        return body
+      })(),
       ...options,
     }),
 })
@@ -64,7 +52,7 @@ export const publish = defineApiRoute({
 
 export const enroll = defineApiRoute({
   post: (courseId: number, options?: BackendFetchOptions) =>
-    backend<CourseResponse>(`/courses/${courseId}/enroll`, {
+    backend<EnrollmentResponse>(`/courses/${courseId}/enroll`, {
       method: "POST",
       ...options,
     }),
