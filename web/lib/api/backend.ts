@@ -7,15 +7,6 @@ import { buildLoginPath } from "@/lib/auth/callback-url"
 
 type UnauthorizedBehavior = "throw" | "redirect"
 
-type JsonBody =
-  | Record<string, unknown>
-  | unknown[]
-  | string
-  | number
-  | boolean
-  | null
-  | FormData
-
 export interface BackendFetchOptions extends Omit<
   RequestInit,
   "body" | "headers"
@@ -24,7 +15,7 @@ export interface BackendFetchOptions extends Omit<
   onUnauthorized?: UnauthorizedBehavior
   callbackUrl?: string
   headers?: HeadersInit
-  body?: JsonBody
+  body?: unknown
 }
 
 export class BackendUnauthorizedError extends Error {
@@ -121,11 +112,12 @@ export async function backend<T>(
 
   const contentType = response.headers.get("content-type")
 
-  if (!contentType || !contentType.includes("application/json")) {
-    return undefined as T
+  if (contentType?.includes("application/json")) {
+    return response.json() as Promise<T>
   }
 
-  return response.json() as Promise<T>
+  const text = await response.text()
+  return (text.length > 0 ? text : undefined) as T
 }
 
 function handleUnauthorized(
