@@ -3,7 +3,7 @@ import "server-only"
 type ApiMethod = (...args: never[]) => Promise<unknown>
 
 type ApiMethods = Partial<
-  Record<"get" | "post" | "patch" | "delete", ApiMethod>
+  Record<"get" | "post" | "patch" | "delete" | "put" | "options" | "head", ApiMethod>
 >
 
 export type ApiRoute<T extends ApiMethods> = T &

@@ -30,6 +30,10 @@ async function exchangeBackendSession() {
 
   try {
     const backendSession = await api.auth.login.post(idToken)
+    if (!backendSession.token) {
+      throw new Error("Backend login response missing token.")
+    }
+
     await setBackendJwtCookie(backendSession.token)
 
     return {
