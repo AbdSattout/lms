@@ -14,6 +14,7 @@ type JsonBody =
   | number
   | boolean
   | null
+  | FormData
 
 export interface BackendFetchOptions extends Omit<
   RequestInit,
@@ -80,9 +81,10 @@ export async function backend<T>(
     requestHeaders.set("authorization", `Bearer ${token}`)
   }
 
-  const hasJsonBody = body !== undefined
+  const hasBody = body !== undefined
+  const isFormData = body instanceof FormData
 
-  if (hasJsonBody && !requestHeaders.has("content-type")) {
+  if (hasBody && !isFormData && !requestHeaders.has("content-type")) {
     requestHeaders.set("content-type", "application/json")
   }
 
@@ -90,7 +92,11 @@ export async function backend<T>(
     ...init,
     cache,
     headers: requestHeaders,
-    body: hasJsonBody ? JSON.stringify(body) : undefined,
+    body: !hasBody
+      ? undefined
+      : isFormData
+        ? body
+        : JSON.stringify(body),
   })
 
   if (response.status === 401) {
@@ -110,6 +116,12 @@ export async function backend<T>(
   }
 
   if (response.status === 204) {
+    return undefined as T
+  }
+
+  const contentType = response.headers.get("content-type")
+
+  if (!contentType || !contentType.includes("application/json")) {
     return undefined as T
   }
 

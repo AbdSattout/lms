@@ -1,10 +1,10 @@
-export interface BackendUser {
+export interface User {
   id: number
   name: string
   picture?: string | null
 }
 
-export interface BackendAuthLoginResponse {
+export interface AuthLoginResponse {
   token: string
-  user: BackendUser
+  user: User
 }
