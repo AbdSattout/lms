@@ -2,7 +2,7 @@ package app.lms.courceEnrollment.model;
 
 import app.lms.courceEnrollment.enums.EnrollmentStatus;
 import app.lms.course.model.Course;
-import app.lms.organization.model.Lesson;
+import app.lms.lesson.model.Lesson;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;

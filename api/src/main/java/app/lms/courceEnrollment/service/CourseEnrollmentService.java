@@ -11,7 +11,7 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.model.XPEvent;
 import app.lms.course.repository.CourseRepository;
-import app.lms.organization.repository.BlockRepository;
+import app.lms.block.repository.BlockRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.ProgressRepository;
 import app.lms.organization.repository.XPEventRepository;
