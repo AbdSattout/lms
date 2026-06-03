@@ -1,5 +1,6 @@
 package app.lms.organization.model;
 
+import app.lms.block.model.Block;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
