@@ -16,23 +16,25 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<AuthModel> loginWithTelegram() async {
     // Step 1: Authenticate with Telegram OIDC to get idToken
-    final AuthorizationTokenResponse? result = await appAuth
-        .authorizeAndExchangeCode(
-          AuthorizationTokenRequest(
-            EndPoints.telegramClientId,
-            EndPoints.redirectUri,
-            discoveryUrl: EndPoints.discoveryUrl,
-            scopes: EndPoints.scopes,
-            promptValues: ['login'],
-          ),
-        );
-
+    print("Auth Start");
+      final AuthorizationTokenResponse? result = await appAuth.authorizeAndExchangeCode(
+        AuthorizationTokenRequest(
+          EndPoints.telegramClientId,
+          EndPoints.redirectUri,
+          discoveryUrl: EndPoints.discoveryUrl,
+          scopes: EndPoints.scopes,
+          promptValues: ['login'],
+        ),
+      );
+    print("Auth Finished");
     if (result != null && result.idToken != null) {
       // Step 2: Send idToken to Spring Boot Backend
       // http://10.0.2.2:8080 for Android Emulator
       final response = await apiConsumer.post(
-        'auth/login',
-        data: {"idToken": result.idToken},
+        'auth/login', 
+        data: {
+          "idToken": result.idToken,
+        },
       );
       // Step 3: Parse the backend response (Token + User Info)
       return AuthModel.fromJson(response);

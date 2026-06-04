@@ -5,7 +5,7 @@ class ErrorModel {
   ErrorModel({required this.status, required this.errorMessage});
   factory ErrorModel.fromJson(Map<String, dynamic> jsonData) {
     return ErrorModel(
-      errorMessage: jsonData["message"] ?? 'حدث خطأ غير معروف',
+      errorMessage: jsonData["Message"] ?? "unexcpected error",
       status: jsonData["status"],
     );
   }
