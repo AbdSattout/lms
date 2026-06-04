@@ -337,5 +337,11 @@ public class OrganizationService {
         );
     }
 
+    public boolean isSlugAvailable(String slug) {
+        return !organizationRepository.existsBySlug(slug);
+    }
+
+
+
 
 }

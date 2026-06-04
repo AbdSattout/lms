@@ -7,6 +7,7 @@ public record CourseResponse(
 
         Long id,
         String title,
+        String slug,
         String description,
         String coverUrl,
         String organizationName
