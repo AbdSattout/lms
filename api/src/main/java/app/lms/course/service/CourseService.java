@@ -63,6 +63,17 @@ public class CourseService {
                         ? uploadCourseCover(cover)
                         : null;
 
+        String slugValue =
+                request.getSlug()
+                        .trim()
+                        .toLowerCase();
+
+        if (courseRepository.existsBySlug(slugValue)) {
+            throw new ConflictException(
+                    "Slug already exists"
+            );
+        }
+
         Course course =
                buildCourse( request,
                        organization,
@@ -82,10 +93,16 @@ public class CourseService {
             UploadedFile uploaded
     ) {
 
+        String slug =
+                request.getSlug()
+                        .trim()
+                        .toLowerCase();
+
         return Course.builder()
                 .title(
                         request.getTitle()
                 )
+                .slug(slug)
                 .description(
                         request.getDescription()
                 )
@@ -140,6 +157,54 @@ public class CourseService {
                     cover
             );
         }
+
+        if (request.getSlug() != null) {
+
+            updateCourseSlug(
+                    course,
+                    request.getSlug()
+                            .trim()
+                            .toLowerCase()
+            );
+        }
+
+        return courseMapper.toResponse(
+                course
+        );
+    }
+
+    private void updateCourseSlug(
+            Course course,
+            String newSlug
+    ) {
+
+        if (
+                !newSlug.equals(
+                        course.getSlug()
+                )
+                        &&
+                        courseRepository.existsBySlug(
+                                newSlug
+                        )
+        ) {
+
+            throw new ConflictException(
+                    "Slug already exists"
+            );
+        }
+
+        course.setSlug(
+                newSlug
+        );
+    }
+    public CourseResponse getBySlug(
+            String slug
+    ) {
+
+        Course course =
+                courseAccessService.getBySlug(
+                        slug
+                );
 
         return courseMapper.toResponse(
                 course
@@ -280,4 +345,9 @@ public class CourseService {
             );
         }
     }
+
+    public boolean isSlugAvailable(String slug) {
+        return !courseRepository.existsBySlug(slug);
+    }
+
 }

@@ -137,4 +137,26 @@ public class CourseController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/courses/check-slug")
+    public ResponseEntity<Boolean> checkSlugAvailability(
+            @RequestBody String slug
+    ) {
+        boolean isAvailable = courseService.isSlugAvailable(slug);
+
+        return ResponseEntity.ok(isAvailable);
+    }
+
+    @GetMapping("/courses/slug/{slug}")
+    public ResponseEntity<CourseResponse> getBySlug(
+
+            @PathVariable String slug
+    ) {
+
+        return ResponseEntity.ok(
+                courseService.getBySlug(
+                        slug
+                )
+        );
+    }
 }

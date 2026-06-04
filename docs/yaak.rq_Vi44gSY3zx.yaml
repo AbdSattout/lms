@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_Vi44gSY3zx
 createdAt: 2026-05-31T19:52:13.312508800
-updatedAt: 2026-06-01T09:42:04.884628700
+updatedAt: 2026-06-01T15:59:28.374039800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: Get Course
+name: Get Course By id
 sortPriority: 0.0
 url: http://localhost:8080/courses/1
 urlParameters: []
