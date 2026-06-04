@@ -27,7 +27,6 @@ public class Lesson extends BaseEntity {
 
     private Integer position;
 
-    private Boolean isPublished;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chapter_id")

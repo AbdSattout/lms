@@ -43,6 +43,39 @@ public class CourseAccessService {
                 );
     }
 
+    public Course getAccessibleCourse(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                getById(
+                        courseId
+                );
+
+        if (
+                course.getStatus()
+                        == CourseStatus.PUBLISHED
+        ) {
+
+            organizationMemberAccessService
+                    .getMember(
+                            course.getOrganization().getId(),
+                            user.getId()
+                    );
+
+            return course;
+        }
+
+        organizationMemberAccessService
+                .validateManager(
+                        course.getOrganization().getId(),
+                        user.getId()
+                );
+
+        return course;
+    }
+
     public Course getManageableCourse(
             Long courseId,
             User user
