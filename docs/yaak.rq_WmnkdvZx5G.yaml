@@ -1,0 +1,32 @@
+type: http_request
+model: http_request
+id: rq_WmnkdvZx5G
+createdAt: 2026-06-04T14:44:12.519708300
+updatedAt: 2026-06-04T14:49:18.106464800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Fw4aDnUEpa
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  form:
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\abdbd.jpg
+    id: XPs6I0WwP3
+    name: file
+  - enabled: true
+    id: Hz4z32BnRU
+    name: ''
+    value: ''
+bodyType: multipart/form-data
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: multipart/form-data
+  id: 9SWI4Rc2d7
+method: PATCH
+name: update Media
+sortPriority: 3000.0
+url: http://localhost:8080/media/1
+urlParameters: []

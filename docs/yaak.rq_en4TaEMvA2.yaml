@@ -1,10 +1,10 @@
 type: http_request
 model: http_request
-id: rq_Vi44gSY3zx
-createdAt: 2026-05-31T19:52:13.312508800
-updatedAt: 2026-06-04T14:38:07.175687100
+id: rq_en4TaEMvA2
+createdAt: 2026-06-04T14:51:28.111798700
+updatedAt: 2026-06-04T14:52:08.422177300
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_ECvsVYsFmt
+folderId: fl_Fw4aDnUEpa
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: Get Course By id
-sortPriority: 5000.0
-url: http://localhost:8080/courses/7
+name: get media
+sortPriority: 3000.0
+url: http://localhost:8080/media/1
 urlParameters: []
