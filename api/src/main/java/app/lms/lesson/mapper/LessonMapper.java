@@ -13,8 +13,8 @@ public class LessonMapper {
         return new LessonResponse(
                 lesson.getId(),
                 lesson.getTitle(),
-                lesson.getPosition(),
-                lesson.getIsPublished()
+                lesson.getPosition()
+
         );
     }
 }
