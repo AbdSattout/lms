@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_ap3JZY6rhs
 createdAt: 2026-05-31T19:53:07.299563300
-updatedAt: 2026-06-01T16:08:54.419990
+updatedAt: 2026-06-04T14:42:19.319388100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -32,6 +32,6 @@ headers:
   id: A7H4NYR3Sb
 method: PATCH
 name: Update Course
-sortPriority: 0.0
-url: http://localhost:8080/courses/1
+sortPriority: 6000.0
+url: http://localhost:8080/courses/8
 urlParameters: []

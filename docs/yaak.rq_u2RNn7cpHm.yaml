@@ -1,0 +1,32 @@
+type: http_request
+model: http_request
+id: rq_u2RNn7cpHm
+createdAt: 2026-06-04T14:34:08.700139400
+updatedAt: 2026-06-04T14:44:46.547847800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Fw4aDnUEpa
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  form:
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\github archecticuter presentation.txt
+    id: kYyHeVbINQ
+    name: file
+  - enabled: true
+    id: HVVVCRS7Fv
+    name: ''
+    value: ''
+bodyType: multipart/form-data
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: multipart/form-data
+  id: K4qKQVFXZG
+method: POST
+name: Create Media
+sortPriority: 3000.0
+url: http://localhost:8080/courses/7/media
+urlParameters: []
