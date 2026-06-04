@@ -7,14 +7,6 @@ import { buildLoginPath } from "@/lib/auth/callback-url"
 
 type UnauthorizedBehavior = "throw" | "redirect"
 
-type JsonBody =
-  | Record<string, unknown>
-  | unknown[]
-  | string
-  | number
-  | boolean
-  | null
-
 export interface BackendFetchOptions extends Omit<
   RequestInit,
   "body" | "headers"
@@ -23,7 +15,7 @@ export interface BackendFetchOptions extends Omit<
   onUnauthorized?: UnauthorizedBehavior
   callbackUrl?: string
   headers?: HeadersInit
-  body?: JsonBody
+  body?: unknown
 }
 
 export class BackendUnauthorizedError extends Error {
@@ -80,9 +72,10 @@ export async function backend<T>(
     requestHeaders.set("authorization", `Bearer ${token}`)
   }
 
-  const hasJsonBody = body !== undefined
+  const hasBody = body !== undefined
+  const isFormData = body instanceof FormData
 
-  if (hasJsonBody && !requestHeaders.has("content-type")) {
+  if (hasBody && !isFormData && !requestHeaders.has("content-type")) {
     requestHeaders.set("content-type", "application/json")
   }
 
@@ -90,7 +83,11 @@ export async function backend<T>(
     ...init,
     cache,
     headers: requestHeaders,
-    body: hasJsonBody ? JSON.stringify(body) : undefined,
+    body: !hasBody
+      ? undefined
+      : isFormData
+        ? body
+        : JSON.stringify(body),
   })
 
   if (response.status === 401) {
@@ -113,7 +110,14 @@ export async function backend<T>(
     return undefined as T
   }
 
-  return response.json() as Promise<T>
+  const contentType = response.headers.get("content-type")
+
+  if (contentType?.includes("application/json")) {
+    return response.json() as Promise<T>
+  }
+
+  const text = await response.text()
+  return (text.length > 0 ? text : undefined) as T
 }
 
 function handleUnauthorized(

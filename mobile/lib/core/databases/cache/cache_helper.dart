@@ -1,17 +1,22 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheHelper {
-  final SharedPreferences sharedPreferences;
+  static late SharedPreferences sharedPreferences;
 
-  CacheHelper({required this.sharedPreferences});
+//! Here The Initialize of cache .
+  init() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+  }
 
-  //! this method to get data from local database using key
+//! this method to get data from local database using key
 
-  String? getDataString({required String key}) {
+  String? getDataString({
+    required String key,
+  }) {
     return sharedPreferences.getString(key);
   }
 
-  //! this method to put data in local database using key
+//! this method to put data in local database using key
 
   Future<bool> saveData({required String key, required dynamic value}) async {
     if (value is bool) {
@@ -28,30 +33,33 @@ class CacheHelper {
     }
   }
 
-  //! this method to get data already saved in local database
+//! this method to get data already saved in local database
 
   dynamic getData({required String key}) {
     return sharedPreferences.get(key);
   }
 
-  //! remove data using specific key
+//! remove data using specific key
 
   Future<bool> removeData({required String key}) async {
     return await sharedPreferences.remove(key);
   }
 
-  //! this method to check if local database contains {key}
+//! this method to check if local database contains {key}
   bool containsKey({required String key}) {
     return sharedPreferences.containsKey(key);
   }
 
-  //! clear all data in the local database
+//! clear all data in the local database
   Future<bool> clearData() async {
     return await sharedPreferences.clear();
   }
 
-  //! this method to put data in local database using key
-  Future<bool> put({required String key, required dynamic value}) async {
+//! this method to put data in local database using key
+  Future<bool> put({
+    required String key,
+    required dynamic value,
+  }) async {
     if (value is String) {
       return await sharedPreferences.setString(key, value);
     } else if (value is bool) {
