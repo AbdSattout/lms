@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_AJUAqZr8KB
 createdAt: 2026-06-01T13:44:06.438219200
-updatedAt: 2026-06-01T15:58:47.875042900
+updatedAt: 2026-06-04T14:37:59.502119400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication: {}
@@ -21,6 +21,6 @@ headers:
   id: 0Cpsvz2BRZ
 method: GET
 name: Check Slug Availabilty
-sortPriority: 0.0
+sortPriority: 3000.0
 url: http://localhost:8080/courses/check-slug
 urlParameters: []

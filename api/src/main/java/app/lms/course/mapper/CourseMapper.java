@@ -19,6 +19,7 @@ public class CourseMapper {
                 .organizationName(
                         course.getOrganization().getName()
                 )
+                .slug(course.getSlug())
                 .build();
     }
 }
