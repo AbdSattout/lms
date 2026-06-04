@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_oB66ZiuV3d
 createdAt: 2026-05-31T19:49:05.500026200
-updatedAt: 2026-06-01T15:48:43.507015300
+updatedAt: 2026-06-04T14:41:53.383321
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -14,13 +14,13 @@ body:
     enabled: true
     id: fVRMqnCW9R
     name: request
-    value: '{  "title": "Spring Boot Masterclass", "slug": "Spring Boot Masterclass" , "description": "Learn Spring Boot"}'
+    value: '{  "title": "Spring Boot Masterclass", "slug": "techs xx" , "description": "Learn Spring Boot"}'
   - enabled: true
     file: C:\Users\ASUS\Desktop\photo_2026-05-03_07-02-04.jpg
     id: SeCKvKw3GU
     name: cover
   - enabled: true
-    id: wi6XndRIy8
+    id: 3QDHppkQyt
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -32,6 +32,6 @@ headers:
   id: mr4mYwwSZr
 method: POST
 name: Create Course
-sortPriority: 0.0
+sortPriority: 7000.0
 url: http://localhost:8080/organizations/tech-company/courses
 urlParameters: []
