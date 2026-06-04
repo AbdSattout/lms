@@ -55,7 +55,7 @@ public class LessonService {
                 Lesson.builder()
                         .title(request.title())
                         .position(position)
-                        .isPublished(false)
+                       
                         .chapter(chapter)
                         .build();
 
@@ -89,11 +89,7 @@ public class LessonService {
         }
 
 
-        if (request.isPublished() != null) {
-            lesson.setIsPublished(
-                    request.isPublished()
-            );
-        }
+
 
         return lessonMapper.toResponse(
                 lesson
