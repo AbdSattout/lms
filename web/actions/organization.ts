@@ -40,5 +40,5 @@ export async function createOrganization(
   }
 
   revalidatePath("/organization")
-  redirect("/dashboard")
+  redirect(`/dashboard/${slug}`)
 }

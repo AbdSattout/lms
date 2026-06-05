@@ -20,37 +20,40 @@ import {
   CommandIcon,
   GraduationCap,
 } from "lucide-react"
-
+import Link from "next/link"
 const data = {
   user: {
     name: "اسم المنظمه",
     email: "mail@example.com",
     avatar: "/assets/icon-192.png",
   },
-  navMain: [
+}
+export function AppSidebar({
+  orgSlug,
+  ...props
+}: { orgSlug?: string } & React.ComponentProps<typeof Sidebar>) {
+  const navItems = [
     {
       title: "نظرة عامة",
-      url: "#",
+      url: `/dashboard/${orgSlug}`,
       icon: <LayoutDashboardIcon />,
     },
     {
       title: "الدورات",
-      url: "#",
+      url: `/dashboard/${orgSlug}/courses`,
       icon: <GraduationCap />,
     },
     {
       title: "المنشورات",
-      url: "#",
+      url: `/dashboard/${orgSlug}/posts`,
       icon: <SquarePen />,
     },
     {
       title: "الاعدادات",
-      url: "#",
+      url: `/dashboard/${orgSlug}/settings`,
       icon: <Settings />,
     },
-  ],
-}
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  ]
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -58,7 +61,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               className="data-[slot=sidebar-menu-button]:p-1.5!"
-              render={<a href="#" />}
+              render={<Link href={`/dashboard/${orgSlug}`} />}
             >
               <CommandIcon className="size-5!" />
               <span className="text-xl font-bold text-primary">
@@ -69,10 +72,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={data.user} orgSlug={orgSlug} />
       </SidebarFooter>
     </Sidebar>
   )
