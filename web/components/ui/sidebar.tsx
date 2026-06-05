@@ -482,7 +482,8 @@ const sidebarMenuButtonVariants = cva(
   {
     variants: {
       variant: {
-        default: "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+        default:
+          "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground data-[active=true]:bg-blue-100 data-[active=true]:text-blue-700 data-[active=true]:hover:bg-blue-200 data-[active=true]:hover:text-blue-800 dark:data-[active=true]:bg-blue-900 dark:data-[active=true]:text-blue-300 dark:data-[active=true]:hover:bg-blue-800",
         outline:
           "bg-background shadow-[0_0_0_1px_var(--sidebar-border)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_var(--sidebar-accent)]",
       },
@@ -517,7 +518,16 @@ function SidebarMenuButton({
     defaultTagName: "button",
     props: mergeProps<"button">(
       {
-        className: cn(sidebarMenuButtonVariants({ variant, size }), className),
+        className: cn(
+          sidebarMenuButtonVariants({ variant, size }),
+          isActive && [
+            "!bg-blue-100 !text-blue-700",
+            "hover:!bg-blue-200 hover:!text-blue-800",
+            "dark:!bg-blue-900 dark:!text-blue-300",
+            "dark:hover:!bg-blue-800",
+          ],
+          className
+        ),
       },
       props
     ),
