@@ -31,7 +31,7 @@ public class OrganizationMemberAccessService {
                 );
     }
 
-    public OrganizationMember getManagerMember(
+    private OrganizationMember getManagerMember(
             Long organizationId,
             Long userId
     ) {
