@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_VqgAwuAULQ
 createdAt: 2026-05-31T19:46:57.051601200
-updatedAt: 2026-06-01T09:30:52.222919
+updatedAt: 2026-06-05T14:13:05.595865800
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_WtY6kjNisi
+folderId: fl_Q4vPANan6j
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
@@ -33,5 +33,5 @@ headers:
 method: PATCH
 name: update organization
 sortPriority: 1000.0
-url: http://localhost:8080/organizations/tech-company
+url: http://localhost:8080/dashboard/organizations/tech-company
 urlParameters: []
