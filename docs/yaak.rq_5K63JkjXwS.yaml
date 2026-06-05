@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_r32BdgKByL
-createdAt: 2026-05-31T18:53:48.870100100
-updatedAt: 2026-06-05T14:14:00.899874200
+id: rq_5K63JkjXwS
+createdAt: 2026-06-05T14:09:57.243124500
+updatedAt: 2026-06-05T14:11:12.658936700
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
@@ -12,8 +12,8 @@ body: {}
 bodyType: null
 description: ''
 headers: []
-method: DELETE
-name: delete Organization
-sortPriority: 0.0
+method: GET
+name: Get organization details
+sortPriority: -1780668551044.0
 url: http://localhost:8080/dashboard/organizations/tech-company
 urlParameters: []
