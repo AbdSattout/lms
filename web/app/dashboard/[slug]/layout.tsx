@@ -1,8 +1,10 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { api } from "@/lib/api"
+import { notFound, redirect } from "next/navigation"
 
-export default async function DashboardPage({
+export default async function DashboardLayout({
   params,
   children,
 }: {
@@ -10,6 +12,24 @@ export default async function DashboardPage({
   children: React.ReactNode
 }) {
   const { slug } = await params
+  try{
+    const org=await api.organizations.bySlug(slug);
+    if(!org){
+      notFound();
+    }
+  } catch (error:unknown) {
+    console.error("Organization layout auth error:", error)
+
+if (typeof error === "object" && error !== null) {
+    
+    if ("status" in error) {
+      const status = (error as { status: unknown }).status;
+    if (status === 401) {
+      redirect("/")
+    }
+  }}
+    notFound()
+  }
   return (
     <SidebarProvider
       style={
