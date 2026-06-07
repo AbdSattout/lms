@@ -110,6 +110,22 @@ public class CourseAccessService {
 
         return course;
     }
+    public Course getManageableCourse(
+            String slug,
+            User user
+    ) {
+
+        Course course =
+                getBySlug(slug);
+
+        organizationMemberAccessService
+                .validateManager(
+                        course.getOrganization().getId(),
+                        user.getId()
+                );
+
+        return course;
+    }
 
     public Course getEditableCourse(
             Long courseId,
