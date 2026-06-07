@@ -13,6 +13,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/dashboard")
@@ -90,6 +92,61 @@ public class DashboardCourseController {
                 .noContent()
                 .build();
     }
+
+    @GetMapping("/courses/{courseId}")
+    public ResponseEntity<CourseResponse> getById(
+
+            @PathVariable
+            Long courseId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardCourseService.getById(
+                        courseId,
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/courses/slug/{slug}")
+    public ResponseEntity<CourseResponse> getBySlug(
+
+            @PathVariable
+            String slug,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardCourseService.getBySlug(
+                        slug,
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/organizations/{slug}/courses")
+    public ResponseEntity<List<CourseResponse>> getAll(
+
+            @PathVariable
+            String slug,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardCourseService.list(
+                        slug,
+                        principal.user()
+                )
+        );
+    }
+
     @PostMapping("/courses/{courseId}/publish")
     public ResponseEntity<Void> publish(
 

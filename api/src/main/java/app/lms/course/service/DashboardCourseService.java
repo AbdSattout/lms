@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class DashboardCourseService {
@@ -138,7 +140,7 @@ public class DashboardCourseService {
 
         Course course =
                 courseAccessService.
-                        getManageableCourse(
+                        getEditableCourse(
                                 courseId,
                                 user
                         );
@@ -176,6 +178,8 @@ public class DashboardCourseService {
                 CourseStatus.PUBLISHED
         );
     }
+
+
     private void validateNotPublished(
             Course course
     ) {
@@ -295,5 +299,61 @@ public class DashboardCourseService {
                 "/courses",
                 FileType.IMAGE
         );
+    }
+    public CourseResponse getById(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                courseId,
+                                user
+                        );
+
+        return courseMapper.toResponse(
+                course
+        );
+    }
+
+    public CourseResponse getBySlug(
+            String slug,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                slug,
+                                user
+                        );
+
+        return courseMapper.toResponse(
+                course
+        );
+    }
+
+    public List<CourseResponse> list(
+            String organizationSlug,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
+                        );
+
+        return courseRepository
+                .findAllByOrganizationId(
+                        organization.getId()
+                )
+                .stream()
+                .map(
+                        courseMapper::toResponse
+                )
+                .toList();
     }
 }
