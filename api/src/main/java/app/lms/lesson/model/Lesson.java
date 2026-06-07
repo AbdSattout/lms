@@ -39,4 +39,6 @@ public class Lesson extends BaseEntity {
     )
     @OrderBy("position ASC")
     private List<Block> blocks = new ArrayList<>();
+
+
 }
