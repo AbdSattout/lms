@@ -1,10 +1,13 @@
 package app.lms.course.model;
 
+import app.lms.chapter.model.Chapter;
 import app.lms.course.enums.CourseStatus;
 import app.lms.common.model.BaseEntity;
 import app.lms.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "courses")
@@ -29,6 +32,12 @@ public class Course extends BaseEntity {
 
     private String coverFileId;
 
+    @OneToMany(
+            mappedBy = "course",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Chapter> chapters;
 
     @Lob
     @Column

@@ -2,8 +2,11 @@ package app.lms.chapter.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.course.model.Course;
+import app.lms.lesson.model.Lesson;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "chapters")
@@ -29,5 +32,11 @@ public class Chapter extends BaseEntity {
             nullable = false
     )
     private Course course;
+    @OneToMany(
+            mappedBy = "chapter",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Lesson> lessons;
 }
 

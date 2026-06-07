@@ -1,5 +1,6 @@
 package app.lms.course.service;
 
+import app.lms.course.dto.CourseDetailsResponse;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.mapper.CourseMapper;
@@ -25,19 +26,19 @@ public class CourseService {
 
     private final CourseAccessService courseAccessService;
 
-    public CourseResponse getBySlug(
-            String slug
-    ) {
+        public CourseDetailsResponse getBySlug(
+                String slug
+        ) {
 
-        Course course =
-                courseAccessService.getPublishedBySlug(
-                        slug
-                );
+            Course course =
+                    courseAccessService.getPublishedBySlug(
+                            slug
+                    );
 
-        return courseMapper.toResponse(
-                course
-        );
-    }
+            return courseMapper.toDetailsResponse(
+                    course
+            );
+        }
 
 
     public CourseResponse getById(
