@@ -30,7 +30,7 @@ public class CourseAccessService {
                 );
     }
 
-    public Course getBySlug(
+    private Course getBySlug(
             String slug
     ) {
 
@@ -41,6 +41,24 @@ public class CourseAccessService {
                                 "Course not found"
                         )
                 );
+    }
+    public Course getPublishedBySlug(
+            String slug
+    ) {
+
+        Course course =
+                getBySlug(slug);
+
+        if (
+                course.getStatus()
+                        != CourseStatus.PUBLISHED
+        ) {
+            throw new NotFoundException(
+                    "Course not found"
+            );
+        }
+
+        return course;
     }
 
     public Course getAccessibleCourse(
@@ -83,6 +101,22 @@ public class CourseAccessService {
 
         Course course =
                 getById(courseId);
+
+        organizationMemberAccessService
+                .validateManager(
+                        course.getOrganization().getId(),
+                        user.getId()
+                );
+
+        return course;
+    }
+    public Course getManageableCourse(
+            String slug,
+            User user
+    ) {
+
+        Course course =
+                getBySlug(slug);
 
         organizationMemberAccessService
                 .validateManager(
