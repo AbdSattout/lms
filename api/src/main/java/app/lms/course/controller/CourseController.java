@@ -1,5 +1,6 @@
 package app.lms.course.controller;
 
+import app.lms.course.dto.CourseDetailsResponse;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.service.CourseService;
 import app.lms.security.UserPrincipal;
@@ -20,21 +21,21 @@ public class CourseController {
 
 
 
-    @GetMapping("/courses/{courseId}")
-    public ResponseEntity<CourseResponse> getById(
-
-            @PathVariable Long courseId,
-            @AuthenticationPrincipal
-            UserPrincipal principal
-    ) {
-
-        return ResponseEntity.ok(
-                courseService.getById(
-                        courseId,
-                        principal.user()
-                )
-        );
-    }
+//    @GetMapping("/courses/{courseId}")
+//    public ResponseEntity<CourseResponse> getById(
+//
+//            @PathVariable Long courseId,
+//            @AuthenticationPrincipal
+//            UserPrincipal principal
+//    ) {
+//
+//        return ResponseEntity.ok(
+//                courseService.getById(
+//                        courseId,
+//                        principal.user()
+//                )
+//        );
+//    }
 
     @GetMapping("/organizations/{slug}/courses")
     public ResponseEntity<Page<CourseResponse>> list(
@@ -57,7 +58,7 @@ public class CourseController {
 
 
     @GetMapping("/courses/slug/{slug}")
-    public ResponseEntity<CourseResponse> getBySlug(
+    public ResponseEntity<CourseDetailsResponse> getBySlug(
 
             @PathVariable String slug
     ) {
