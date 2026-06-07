@@ -1,6 +1,5 @@
 package app.lms.organization.service;
 
-import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationRepository;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class OrganizationAccessService {
 
     private final OrganizationRepository organizationRepository;
+    private final OrganizationMemberAccessService organizationMemberAccessService;
 
     public Organization getBySlug(
             String slug
@@ -27,7 +27,7 @@ public class OrganizationAccessService {
                 );
     }
 
-    public Organization getOwnedOrganization(
+    public Organization getManageableOrganization(
             String slug,
             User user
     ) {
@@ -35,11 +35,11 @@ public class OrganizationAccessService {
         Organization organization =
                 getBySlug(slug);
 
-        if (!organization.getOwner().getId().equals(user.getId())) {
-            throw new ForbiddenException(
-                    "You are not allowed"
-            );
-        }
+        organizationMemberAccessService
+                .validateManager(
+                        organization.getId(),
+                        user.getId()
+                );
 
         return organization;
     }
