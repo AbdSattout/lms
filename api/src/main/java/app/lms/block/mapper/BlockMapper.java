@@ -22,7 +22,6 @@ public class BlockMapper {
                 block.getType(),
                 block.getContent(),
                 block.getPosition(),
-                block.getIsPublished(),
                 block.getQuestion() == null
                         ? null
                         : questionMapper.toResponse(
