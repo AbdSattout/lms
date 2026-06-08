@@ -41,19 +41,19 @@ public class CourseService {
         }
 
 
-    public CourseResponse getById(
+    public CourseDetailsResponse getById(
             Long courseId,
             User user
     ) {
 
         Course course =
                 courseAccessService
-                        .getAccessibleCourse(
+                        .getEnrolledCourse(
                                 courseId,
                                 user
                         );
 
-        return courseMapper.toResponse(
+        return courseMapper.toDetailsResponse(
                 course
         );
     }
