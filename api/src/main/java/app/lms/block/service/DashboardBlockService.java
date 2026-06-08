@@ -94,7 +94,7 @@ public class DashboardBlockService {
 
         if (request.title() != null) {
             block.setTitle(
-                    request.title()
+                    request.title().trim()
             );
         }
 
