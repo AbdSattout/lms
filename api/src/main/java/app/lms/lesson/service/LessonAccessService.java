@@ -1,7 +1,7 @@
 package app.lms.lesson.service;
 
-import app.lms.chapter.service.ChapterAccessService;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.service.CourseAccessService;
 import app.lms.lesson.model.Lesson;
 import app.lms.lesson.repository.LessonRepository;
 import app.lms.user.model.User;
@@ -13,8 +13,7 @@ import org.springframework.stereotype.Service;
 public class    LessonAccessService {
 
     private final LessonRepository lessonRepository;
-    private final ChapterAccessService chapterAccessService;
-
+    private final CourseAccessService courseAccessService;
     public Lesson getEditableLesson(
             Long lessonId,
             User user
@@ -30,9 +29,13 @@ public class    LessonAccessService {
                                 )
                         );
 
-        chapterAccessService
-                .getEditableChapter(
-                        lesson.getChapter().getId(),
+        Long courseId = lesson.getChapter()
+                        .getCourse()
+                        .getId();
+
+        courseAccessService
+                .getEditableCourse(
+                       courseId,
                         user
                 );
 

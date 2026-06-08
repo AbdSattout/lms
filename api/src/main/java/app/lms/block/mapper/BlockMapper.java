@@ -20,7 +20,6 @@ public class BlockMapper {
         return new BlockResponse(
                 block.getId(),
                 block.getTitle(),
-                block.getType(),
                 block.getContent(),
                 block.getPosition(),
                 block.getQuestion() == null
@@ -36,7 +35,6 @@ public class BlockMapper {
         return new BlockPublicResponse(
                 block.getId(),
                 block.getTitle(),
-                block.getType(),
                 block.getContent(),
                 block.getPosition(),
                 block.getQuestion() == null
