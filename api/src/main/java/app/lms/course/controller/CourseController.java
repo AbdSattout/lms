@@ -21,21 +21,21 @@ public class CourseController {
 
 
 
-//    @GetMapping("/courses/{courseId}")
-//    public ResponseEntity<CourseResponse> getById(
-//
-//            @PathVariable Long courseId,
-//            @AuthenticationPrincipal
-//            UserPrincipal principal
-//    ) {
-//
-//        return ResponseEntity.ok(
-//                courseService.getById(
-//                        courseId,
-//                        principal.user()
-//                )
-//        );
-//    }
+    @GetMapping("/courses/{courseId}")
+    public ResponseEntity<CourseDetailsResponse> getById(
+
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                courseService.getById(
+                        courseId,
+                        principal.user()
+                )
+        );
+    }
 
     @GetMapping("/organizations/{slug}/courses")
     public ResponseEntity<Page<CourseResponse>> list(

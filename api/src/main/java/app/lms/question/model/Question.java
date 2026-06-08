@@ -1,8 +1,7 @@
-package app.lms.organization.model;
+package app.lms.question.model;
 
+import app.lms.block.model.Block;
 import app.lms.common.model.BaseEntity;
-import app.lms.course.model.Course;
-import app.lms.organization.enums.QuestionDifficulty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,25 +20,29 @@ public class Question extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
+    @Lob
+    @Column(nullable = false)
     private String content;
 
     @ElementCollection
     @CollectionTable(
             name = "question_options",
-            joinColumns = @JoinColumn(name = "question_id")
+            joinColumns = @JoinColumn(
+                    name = "question_id"
+            )
     )
     @Column(name = "option_value")
     private List<String> options;
 
+    @Column(nullable = false)
     private Integer correctAnswerIndex;
 
-    @Enumerated(EnumType.STRING)
-    private QuestionDifficulty difficulty;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "block_id",
+            nullable = false,
+            unique = true
+    )
+    private Block block;
 
-    private boolean shuffleOptions;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id")
-    private Course course;
 }

@@ -6,6 +6,5 @@ public enum BlockType {
     VIDEO,
     IMAGE,
     FILE,
-    QUIZ,
     CODE
 }

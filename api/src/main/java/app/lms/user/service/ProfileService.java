@@ -48,9 +48,18 @@ public class ProfileService {
 
         Profile profile = profileRepository
                 .findByUserId(user.getId())
-                .orElseThrow(() -> new UsernameNotFoundException("Profile Not Found"));
+                .orElseGet(() -> createNewProfile(user));
 
         return userMapper.toProfileResponse(user, profile);
+    }
+
+    private Profile createNewProfile(User user) {
+        Profile profile = new Profile();
+        profile.setUser(user);
+        profile.setEmail(null);
+        profile.setPhone(null);
+        profile.setUniversity(null);
+        return profileRepository.save(profile);
     }
 
     @Transactional
