@@ -188,7 +188,7 @@ public class CourseMediaService {
 
         Course course =
                 courseAccessService
-                        .getAccessibleCourse(
+                        .getManageableCourse(
                                 courseId,
                                 user
                         );
