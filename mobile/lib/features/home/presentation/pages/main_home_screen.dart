@@ -460,17 +460,17 @@ class MainHomeScreen extends StatelessWidget {
                           children: [
 
                             Icon(
-                              Icons.edit_outlined,
+                              Icons.menu_book_outlined,
                               size: 18,
-                              color: Color(0xffff8900),
+                              color: AppColors.primary,
                             ),
 
                             SizedBox(width: 6),
 
                             Text(
-                              "تعديل",
+                              "تسجيل",
                               style: TextStyle(
-                                color: Color(0xffff8900),
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -626,10 +626,10 @@ class ProfileView extends StatelessWidget {
               color: isDestructive ? Colors.red.withOpacity(0.1) : const Color(0xffff8900).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(iconData, color: isDestructive ? Colors.red : const Color(0xffff8900), size: 22),
+            child: Icon(iconData, color: isDestructive ? Colors.red : AppColors.primary, size: 22),
           ),
-          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : const Color(0xff040415))),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : AppColors.dark)),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.darkSoft),
           onTap: () {},
         ),
       ),
