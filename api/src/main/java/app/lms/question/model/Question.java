@@ -40,6 +40,7 @@ public class Question extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
             name = "block_id",
+            nullable = false,
             unique = true
     )
     private Block block;

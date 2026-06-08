@@ -7,10 +7,13 @@ import app.lms.block.dto.UpdateBlockRequest;
 import app.lms.block.mapper.BlockMapper;
 import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
+import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.lesson.model.Lesson;
 import app.lms.lesson.service.LessonAccessService;
+import app.lms.question.dto.CreateQuestionRequest;
+import app.lms.question.model.Question;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -48,15 +51,23 @@ public class DashboardBlockService {
                         )
                         .orElse(0) + 1;
 
+        Question question =
+                buildQuestion(request);
+
         Block block =
-                Block.builder()
-                        .title(request.title())
-                        .type(request.type())
-                        .content(request.content())
-                        .position(position)
-                        .isPublished(false)
-                        .lesson(lesson)
-                        .build();
+                buildBlock(
+                        request,
+                        lesson,
+                        position,
+                        question
+                );
+
+
+        question.setBlock(block);
+        block.setQuestion(question);
+
+
+
 
         blockRepository.save(
                 block
@@ -90,12 +101,6 @@ public class DashboardBlockService {
         if (request.content() != null) {
             block.setContent(
                     request.content()
-            );
-        }
-
-        if (request.isPublished() != null) {
-            block.setIsPublished(
-                    request.isPublished()
             );
         }
 
@@ -195,6 +200,57 @@ public class DashboardBlockService {
         }
     }
 
+    private Question buildQuestion(
+            CreateBlockRequest request
+    ) {
+
+        CreateQuestionRequest questionRequest =
+                request.question();
+
+        if (questionRequest == null) {
+            throw new BadRequestException(
+                    "Question is required"
+            );
+        }
+
+        if (
+                questionRequest.correctAnswerIndex()
+                        >= questionRequest.options().size()
+        ) {
+            throw new BadRequestException(
+                    "Invalid correct answer index"
+            );
+        }
+
+        return Question.builder()
+                .content(
+                        questionRequest.content().trim()
+                )
+                .options(
+                        questionRequest.options()
+                )
+                .correctAnswerIndex(
+                        questionRequest.correctAnswerIndex()
+                )
+                .build();
+    }
+
+    private Block buildBlock(
+            CreateBlockRequest request,
+            Lesson lesson,
+            Integer position,
+            Question question
+    ) {
+
+
+        return Block.builder()
+                .title(request.title().trim())
+                .content(request.content())
+                .position(position)
+                .lesson(lesson)
+                .question(question)
+                .build();
+    }
     private void normalizePositions(
             Long lessonId
     ) {

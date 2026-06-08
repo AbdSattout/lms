@@ -8,7 +8,6 @@ public record BlockResponse(
 
         Long id,
         String title,
-        BlockType type,
         String content,
         Integer position,
         QuestionResponse question
