@@ -31,6 +31,20 @@ public class OrganizationMemberAccessService {
                 );
     }
 
+    public boolean isManager(
+            Long organizationId,
+            Long userId
+    ) {
+        try {
+            validateManager(
+                    organizationId,
+                    userId
+            );
+            return true;
+        } catch (ForbiddenException e) {
+            return false;
+        }
+    }
     private OrganizationMember getManagerMember(
             Long organizationId,
             Long userId

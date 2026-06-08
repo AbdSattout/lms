@@ -2,6 +2,7 @@ package app.lms.course.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
@@ -17,6 +18,8 @@ public class CourseAccessService {
     private final CourseRepository courseRepository;
     private final OrganizationMemberAccessService
             organizationMemberAccessService;
+
+    private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
     public Course getById(
             Long courseId
@@ -60,6 +63,36 @@ public class CourseAccessService {
 
         return course;
     }
+    public Course getEnrolledCourse(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                getAccessibleCourse(
+                        courseId,
+                        user
+                );
+
+        boolean manager =
+                organizationMemberAccessService
+                        .isManager(
+                                course.getOrganization().getId(),
+                                user.getId()
+                        );
+
+        if (!manager) {
+
+            courseEnrollmentAccessService
+                    .validateEnrolled(
+                            courseId,
+                            user.getId()
+                    );
+        }
+
+        return course;
+    }
+
 
     public Course getAccessibleCourse(
             Long courseId,
