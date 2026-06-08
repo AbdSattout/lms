@@ -59,7 +59,7 @@ public class CourseMediaAccessService {
                 getById(mediaId);
 
         courseAccessService
-                .getAccessibleCourse(
+                .getEnrolledCourse(
                         media.getCourse().getId(),
                         user
                 );

@@ -26,4 +26,8 @@ public interface CourseEnrollmentRepository
 
     List<CourseEnrollment>
     findAllByCourseId(Long courseId);
+    boolean existsByCourseIdAndUserId(
+            Long courseId,
+            Long userId
+    );
 }
