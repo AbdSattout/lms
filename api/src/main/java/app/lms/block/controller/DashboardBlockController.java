@@ -4,10 +4,7 @@ import app.lms.block.dto.BlockResponse;
 import app.lms.block.dto.CreateBlockRequest;
 import app.lms.block.dto.ReorderBlocksRequest;
 import app.lms.block.dto.UpdateBlockRequest;
-import app.lms.block.mapper.BlockMapper;
-import app.lms.block.model.Block;
-import app.lms.block.service.BlockService;
-import app.lms.block.service.DashboardBlockAccessService;
+import app.lms.block.service.DashboardBlockService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DashboardBlockController {
 
-    private final BlockService blockService;
-    private final BlockMapper blockMapper;
-    private final DashboardBlockAccessService dashboardBlockAccessService;
+   private final DashboardBlockService dashboardBlockService;
 
     @PostMapping("/lessons/{lessonId}/blocks")
     public ResponseEntity<BlockResponse> create(
@@ -41,7 +36,7 @@ public class DashboardBlockController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        blockService.create(
+                        dashboardBlockService.create(
                                 lessonId,
                                 request,
                                 principal.user()
@@ -63,7 +58,7 @@ public class DashboardBlockController {
     ) {
 
         return ResponseEntity.ok(
-                blockService.update(
+                dashboardBlockService.update(
                         blockId,
                         request,
                         principal.user()
@@ -80,7 +75,7 @@ public class DashboardBlockController {
             UserPrincipal principal
     ) {
 
-        blockService.delete(
+        dashboardBlockService.delete(
                 blockId,
                 principal.user()
         );
@@ -103,7 +98,7 @@ public class DashboardBlockController {
             UserPrincipal principal
     ) {
 
-        blockService.reorder(
+        dashboardBlockService.reorder(
                 lessonId,
                 request,
                 principal.user()
@@ -115,11 +110,11 @@ public class DashboardBlockController {
     }
 
     @GetMapping("/blocks/{blockId}")
-    public BlockResponse getBlockForAdmin(
+    public ResponseEntity<?> getBlock(
             @PathVariable Long blockId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        Block block = dashboardBlockAccessService.getManageableBlock(blockId, principal.user());
-        return blockMapper.toResponse(block);
+       BlockResponse block= dashboardBlockService.getBlock(blockId , principal.user());
+        return ResponseEntity.ok(block);
     }
 }
