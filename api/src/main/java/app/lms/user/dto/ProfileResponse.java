@@ -10,4 +10,5 @@ public class ProfileResponse {
     private String email;
     private String phone;
     private String university;
+    private UserResponse user;
 }
