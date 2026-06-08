@@ -6,6 +6,7 @@ class ProfileModel extends ProfileEntity {
     required super.name,
     required super.email,
     required super.university,
+    req
   });
 
   factory ProfileModel.fromJson(

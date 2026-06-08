@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lms/features/profile/presentation/bloc/profile_event.dart';
-import 'package:lms/features/profile/presentation/bloc/profile_state.dart';
 
 import '../../domain/usecases/get_profile_usecase.dart';
 import '../../domain/usecases/update_profile_picture_usecase.dart';
+import 'profile_event.dart';
+import 'profile_state.dart';
 
 class ProfileBloc
     extends Bloc<ProfileEvent, ProfileState> {
@@ -16,7 +16,10 @@ class ProfileBloc
     required this.updatePictureUseCase,
   }) : super(ProfileInitial()) {
 
-    on<GetProfileEvent>(_getProfile);
+    on<GetProfileEvent>(
+      _getProfile,
+    );
+
     on<UpdateProfilePictureEvent>(
       _updatePicture,
     );
@@ -26,28 +29,46 @@ class ProfileBloc
       GetProfileEvent event,
       Emitter<ProfileState> emit,
       ) async {
+    try {
+      emit(ProfileLoading());
 
-    emit(ProfileLoading());
+      final profile =
+      await getProfileUseCase();
 
-    final profile =
-    await getProfileUseCase();
-
-    emit(
-      ProfileLoaded(profile),
-    );
+      emit(
+        ProfileLoaded(profile),
+      );
+    } catch (e) {
+      emit(
+        ProfileError(
+          e.toString(),
+        ),
+      );
+    }
   }
 
   Future<void> _updatePicture(
       UpdateProfilePictureEvent event,
       Emitter<ProfileState> emit,
       ) async {
+    try {
+      await updatePictureUseCase(
+        event.imagePath,
+      );
 
-    await updatePictureUseCase(
-      event.imagePath,
-    );
+      emit(
+        ProfilePictureUpdated(),
+      );
 
-    add(
-      GetProfileEvent(),
-    );
+      add(
+        GetProfileEvent(),
+      );
+    } catch (e) {
+      emit(
+        ProfileError(
+          e.toString(),
+        ),
+      );
+    }
   }
 }

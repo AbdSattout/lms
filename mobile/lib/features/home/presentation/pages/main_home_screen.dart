@@ -4,7 +4,7 @@ import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/home/bloc/navbar_cubit.dart';
-
+import 'package:lms/features/profile/presentation/pages/profile_page.dart';
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
 
@@ -29,9 +29,8 @@ class MainHomeScreen extends StatelessWidget {
                 children: [
                   _buildHomeContent(context, user),
                   const Center(child: Text('كورساتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-                  const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))), 
-                  ProfileView(user: user),
-                ],
+                  const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                  const ProfilePage(),                ],
               );
             },
           ),
