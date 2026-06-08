@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_5K63JkjXwS
+createdAt: 2026-06-05T14:09:57.243124500
+updatedAt: 2026-06-05T14:11:12.658936700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get organization details
+sortPriority: -1780668551044.0
+url: http://localhost:8080/dashboard/organizations/tech-company
+urlParameters: []

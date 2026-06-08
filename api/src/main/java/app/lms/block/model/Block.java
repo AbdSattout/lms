@@ -1,6 +1,8 @@
-package app.lms.organization.model;
+package app.lms.block.model;
 
+import app.lms.block.enums.BlockType;
 import app.lms.common.model.BaseEntity;
+import app.lms.lesson.model.Lesson;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,22 +13,26 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Block extends BaseEntity {
+public class Block extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
+    private String title;
+
+    @Enumerated(EnumType.STRING)
+    private BlockType type;
+
+    @Column
+    @Lob
     private String content;
+
+    private Integer position;
+
+    private Boolean isPublished;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lesson_id")
     private Lesson lesson;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "question_id")
-    private Question question;
-
-    private Integer position;
 }

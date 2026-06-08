@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_r32BdgKByL
 createdAt: 2026-05-31T18:53:48.870100100
-updatedAt: 2026-06-01T09:38:58.049954500
+updatedAt: 2026-06-05T14:14:00.899874200
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_WtY6kjNisi
+folderId: fl_Q4vPANan6j
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
@@ -14,6 +14,6 @@ description: ''
 headers: []
 method: DELETE
 name: delete Organization
-sortPriority: 1000.0
-url: http://localhost:8080/organizations/tech-company-new
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/organizations/tech-company
 urlParameters: []

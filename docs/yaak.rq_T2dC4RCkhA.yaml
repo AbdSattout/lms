@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_T2dC4RCkhA
+createdAt: 2026-06-04T14:52:45.847153
+updatedAt: 2026-06-04T14:53:19.499369
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Fw4aDnUEpa
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: delete media
+sortPriority: 3000.0
+url: http://localhost:8080/media/1
+urlParameters: []

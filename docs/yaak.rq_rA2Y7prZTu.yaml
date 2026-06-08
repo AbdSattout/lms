@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_rA2Y7prZTu
+createdAt: 2026-06-05T14:09:11.045196300
+updatedAt: 2026-06-05T14:09:32.907353400
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get my managed organizations
+sortPriority: -1780668551044.0
+url: http://localhost:8080/dashboard/organizations
+urlParameters: []
