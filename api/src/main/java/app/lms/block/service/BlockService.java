@@ -27,8 +27,8 @@ public class BlockService {
 
     private final BlockRepository blockRepository;
     private final BlockMapper blockMapper;
-    private final BlockAccessService blockAccessService;
     private final LessonAccessService lessonAccessService;
+    private final DashboardBlockAccessService dashboardBlockAccessService;
 
     @Transactional
     public BlockResponse create(
@@ -78,7 +78,7 @@ public class BlockService {
     ) {
 
         Block block =
-                blockAccessService
+                dashboardBlockAccessService
                         .getEditableBlock(
                                 blockId,
                                 user
@@ -114,7 +114,7 @@ public class BlockService {
     ) {
 
         Block block =
-                blockAccessService
+                dashboardBlockAccessService
                         .getEditableBlock(
                                 blockId,
                                 user
