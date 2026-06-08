@@ -10,13 +10,12 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class BlockAccessService {
+public class DashboardBlockAccessService {
 
     private final BlockRepository blockRepository;
     private final CourseAccessService courseAccessService;
 
-
-    public Block getAccessibleBlock(
+    public Block getEditableBlock(
             Long blockId,
             User user
     ) {
@@ -37,7 +36,7 @@ public class BlockAccessService {
                         .getId();
 
         courseAccessService
-                .getEnrolledCourse(
+                .getEditableCourse(
                         courseId,
                         user
                 );
@@ -45,5 +44,25 @@ public class BlockAccessService {
         return block;
     }
 
+    public Block getManageableBlock(
+            Long blockId,
+            User user
+    ) {
+
+        Block block =
+                blockRepository.findById(blockId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Block not found")
+                        );
+
+        Long courseId = block.getLesson()
+                .getChapter()
+                .getCourse()
+                .getId();
+
+        courseAccessService.getManageableCourse(courseId, user);
+
+        return block;
+    }
 
 }

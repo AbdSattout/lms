@@ -1,5 +1,6 @@
 package app.lms.block.mapper;
 
+import app.lms.block.dto.BlockPublicResponse;
 import app.lms.block.dto.BlockResponse;
 import app.lms.block.model.Block;
 import app.lms.question.mapper.QuestionMapper;
@@ -29,4 +30,19 @@ public class BlockMapper {
                 )
         );
     }
+
+    public BlockPublicResponse toPublicResponse(Block block) {
+
+        return new BlockPublicResponse(
+                block.getId(),
+                block.getTitle(),
+                block.getType(),
+                block.getContent(),
+                block.getPosition(),
+                block.getQuestion() == null
+                        ? null
+                        : questionMapper.toPublicResponse(block.getQuestion())
+        );
+    }
+
 }
