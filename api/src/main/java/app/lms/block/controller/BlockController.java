@@ -1,11 +1,10 @@
 package app.lms.block.controller;
 
 import app.lms.block.dto.*;
-import app.lms.block.mapper.BlockMapper;
-import app.lms.block.model.Block;
-import app.lms.block.service.BlockAccessService;
+import app.lms.block.service.BlockService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,15 +13,17 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class BlockController {
 
-    private final BlockAccessService blockAccessService;
-    private final BlockMapper blockMapper;
+
+    private final BlockService blockService;
 
     @GetMapping("/{blockId}")
-    public BlockPublicResponse getBlock(
+    public ResponseEntity<BlockPublicResponse> getBlock(
             @PathVariable Long blockId,
             @AuthenticationPrincipal User user
     ) {
-        Block block = blockAccessService.getAccessibleBlock(blockId, user);
-        return blockMapper.toPublicResponse(block);
+
+      BlockPublicResponse blockPublicResponse =  blockService.getBlock(blockId , user);
+       return ResponseEntity.ok(blockPublicResponse);
+
     }
 }

@@ -45,5 +45,54 @@ public class BlockAccessService {
         return block;
     }
 
+    public Block getEditableBlock(
+            Long blockId,
+            User user
+    ) {
+
+        Block block =
+                blockRepository
+                        .findById(blockId)
+                        .orElseThrow(
+                                () -> new NotFoundException(
+                                        "Block not found"
+                                )
+                        );
+
+        Long courseId =
+                block.getLesson()
+                        .getChapter()
+                        .getCourse()
+                        .getId();
+
+        courseAccessService
+                .getEditableCourse(
+                        courseId,
+                        user
+                );
+
+        return block;
+    }
+
+    public Block getManageableBlock(
+            Long blockId,
+            User user
+    ) {
+
+        Block block =
+                blockRepository.findById(blockId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Block not found")
+                        );
+
+        Long courseId = block.getLesson()
+                .getChapter()
+                .getCourse()
+                .getId();
+
+        courseAccessService.getManageableCourse(courseId, user);
+
+        return block;
+    }
 
 }
