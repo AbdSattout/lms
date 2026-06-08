@@ -2,10 +2,15 @@ package app.lms.block.mapper;
 
 import app.lms.block.dto.BlockResponse;
 import app.lms.block.model.Block;
+import app.lms.question.mapper.QuestionMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class BlockMapper {
+
+    private final QuestionMapper questionMapper;
 
     public BlockResponse toResponse(
             Block block
@@ -17,7 +22,12 @@ public class BlockMapper {
                 block.getType(),
                 block.getContent(),
                 block.getPosition(),
-                block.getIsPublished()
+                block.getIsPublished(),
+                block.getQuestion() == null
+                        ? null
+                        : questionMapper.toResponse(
+                        block.getQuestion()
+                )
         );
     }
 }
