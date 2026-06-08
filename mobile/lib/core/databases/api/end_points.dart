@@ -17,5 +17,12 @@ class EndPoints {
   static const List<String> scopes = ['openid', 'profile'];
 
   // Paths
-  static const String login = "auth/login";
+  static const String login =
+      'auth/login';
+
+  static const String profile =
+      'profile/me';
+
+  static const String updateProfilePicture =
+      'users/me/picture';
 }
