@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_36v9bki2bF
+createdAt: 2026-05-31T20:59:32.838241
+updatedAt: 2026-06-05T14:10:53.145572900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "slug": "Tech Academy"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 7pjj9fNcd8
+method: GET
+name: checkSlugAvailability
+sortPriority: 2000.0
+url: http://localhost:8080/dashboard/organizations/check-availability?slug=tech-companys
+urlParameters: []

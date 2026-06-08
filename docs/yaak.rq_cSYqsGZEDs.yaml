@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_cSYqsGZEDs
 createdAt: 2026-06-01T09:09:27.755213600
-updatedAt: 2026-06-01T09:42:25.221597800
+updatedAt: 2026-06-04T14:37:59.493969
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -19,6 +19,6 @@ headers:
   id: vGqEXJ9urz
 method: POST
 name: Publish Course
-sortPriority: 0.0
+sortPriority: 2000.0
 url: http://localhost:8080/courses/1/publish
 urlParameters: []

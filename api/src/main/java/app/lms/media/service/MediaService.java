@@ -26,6 +26,9 @@ public class MediaService {
     private static final long MAX_VIDEO_SIZE =
             100L * 1024 * 1024;
 
+    private static final long MAX_FILE_SIZE =
+            100L * 1024 * 1024;
+
 
     // UPLOAD FILE
     public UploadedFile upload(
@@ -135,6 +138,20 @@ public class MediaService {
 
                     throw new ImageUploadException(
                             "Video size exceeded"
+                    );
+                }
+            }
+            case FILE -> {
+
+                if (contentType == null) {
+                    throw new ImageUploadException(
+                            "Invalid file type"
+                    );
+                }
+
+                if (file.getSize() > MAX_FILE_SIZE) {
+                    throw new ImageUploadException(
+                            "File size exceeded"
                     );
                 }
             }

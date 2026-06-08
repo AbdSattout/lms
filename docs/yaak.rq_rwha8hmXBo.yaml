@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_rwha8hmXBo
+createdAt: 2026-06-01T13:42:58.706906200
+updatedAt: 2026-06-04T14:37:59.509797600
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "slug" : "java-spring-boot"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: xgkBJ52siE
+method: GET
+name: Get Course By slug
+sortPriority: 4000.0
+url: http://localhost:8080/courses/check-slug
+urlParameters: []
