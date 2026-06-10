@@ -24,7 +24,6 @@ public class Block extends BaseEntity{
 
 
     @Column
-    @Lob
     private String content;
 
 

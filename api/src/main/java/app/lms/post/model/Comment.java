@@ -4,9 +4,6 @@ import app.lms.common.model.BaseEntity;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
