@@ -51,4 +51,8 @@ import java.util.Optional;
         findFirstByLessonIdOrderByPositionAsc(
                 Long lessonId
         );
+
+        long countByLessonChapterCourseId(
+                Long courseId
+        );
 }

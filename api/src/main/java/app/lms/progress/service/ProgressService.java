@@ -4,6 +4,7 @@ import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
 import app.lms.block.service.BlockAccessService;
 import app.lms.chapter.repository.ChapterRepository;
+import app.lms.courceEnrollment.service.CourseEnrollmentService;
 import app.lms.lesson.repository.LessonRepository;
 import app.lms.progress.dto.SubmitBlockAnswerRequest;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
@@ -26,6 +27,7 @@ public class ProgressService {
     private final BlockRepository blockRepository;
     private final LessonRepository lessonRepository;
     private final ChapterRepository chapterRepository;
+    private final CourseEnrollmentService courseEnrollmentService;
 
     @Transactional
     public SubmitBlockAnswerResponse submitAnswer(
@@ -60,6 +62,7 @@ public class ProgressService {
                     block
             );
         }
+
         progress.setAttempts(
                 progress.getAttempts() + 1
         );
@@ -76,9 +79,19 @@ public class ProgressService {
             return progressMapper.incorrectAnswer();
         }
 
-        return resolveNextStep(
-                block
-        );
+        SubmitBlockAnswerResponse nextStep =
+                resolveNextStep(
+                        block
+                );
+
+        courseEnrollmentService
+                .updateProgressAfterCorrectAnswer(
+                        block,
+                        nextStep,
+                        user
+                );
+
+        return nextStep;
     }
 
     private BlockProgress getOrCreateProgress(
