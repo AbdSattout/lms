@@ -23,7 +23,7 @@ export function readCallbackUrlFromRequest(request: NextRequest) {
 
 export function buildLoginPath(callbackUrl = "/") {
   const safeCallbackUrl = resolveSafeCallbackUrl(callbackUrl)
-  return `/login?callbackUrl=${encodeURIComponent(safeCallbackUrl)}`
+  return `/login?callbackUrl=${encodeURIComponent(safeCallbackUrl)}` as const
 }
 
 export function buildLoginRedirectResponse(request: NextRequest) {
