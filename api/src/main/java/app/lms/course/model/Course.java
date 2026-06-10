@@ -39,7 +39,6 @@ public class Course extends BaseEntity {
     )
     private List<Chapter> chapters;
 
-    @Lob
     @Column
     private String description;
 
