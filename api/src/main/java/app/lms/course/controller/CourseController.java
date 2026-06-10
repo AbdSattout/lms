@@ -58,7 +58,7 @@ public class CourseController {
 
 
     @GetMapping("/courses/slug/{slug}")
-    public ResponseEntity<CourseDetailsResponse> getBySlug(
+    public ResponseEntity<CourseResponse> getBySlug(
 
             @PathVariable String slug
     ) {
