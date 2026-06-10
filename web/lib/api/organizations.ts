@@ -39,7 +39,7 @@ export const list = defineApiRoute({
     body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
     if (image) body.set("image", image)
 
-    return backend<OrganizationResponse>("/organizations", {
+    return backend<OrganizationResponse>("/dashboard/organizations", {
       method: "POST",
       body,
       ...options,
@@ -49,7 +49,7 @@ export const list = defineApiRoute({
 
 export const bySlug = defineApiRoute({
   get: (slug: string, options?: BackendFetchOptions) =>
-    backend<OrganizationResponse>(`/organizations/${slug}`, {
+    backend<OrganizationResponse>(`/dashboard/organizations/${slug}`, {
       method: "GET",
       ...options,
     }),
@@ -59,7 +59,7 @@ export const bySlug = defineApiRoute({
     image?: File,
     options?: BackendFetchOptions
   ) =>
-    backend<OrganizationResponse>(`/organizations/${slug}`, {
+    backend<OrganizationResponse>(`/dashboard/organizations/${slug}`, {
       method: "PATCH",
       body: (() => {
         const body = new FormData()
@@ -72,7 +72,7 @@ export const bySlug = defineApiRoute({
       ...options,
     }),
   delete: (slug: string, options?: BackendFetchOptions) =>
-    backend<string>(`/organizations/${slug}`, {
+    backend<void>(`/dashboard/organizations/${slug}`, {
       method: "DELETE",
       ...options,
     }),
@@ -93,7 +93,7 @@ export const courses = defineApiRoute({
     cover?: File,
     options?: BackendFetchOptions
   ) =>
-    backend<CourseResponse>(`/organizations/${slug}/courses`, {
+    backend<CourseResponse>(`/dashboard/organizations/${slug}/courses`, {
       method: "POST",
       body: (() => {
         const body = new FormData()
