@@ -30,4 +30,5 @@ public interface CourseEnrollmentRepository
             Long courseId,
             Long userId
     );
+
 }

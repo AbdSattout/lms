@@ -25,4 +25,10 @@ public interface ChapterRepository
     List<Chapter> findAllByCourseId(
             Long courseId
     );
+
+    Optional<Chapter>
+    findFirstByCourseIdAndPositionGreaterThanOrderByPositionAsc(
+            Long courseId,
+            Integer position
+    );
 }
