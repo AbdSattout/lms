@@ -1,5 +1,7 @@
 package app.lms.course.service;
 
+import app.lms.courceEnrollment.model.CourseEnrollment;
+import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.dto.CourseDetailsResponse;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.enums.CourseStatus;
@@ -26,7 +28,9 @@ public class CourseService {
 
     private final CourseAccessService courseAccessService;
 
-        public CourseDetailsResponse getBySlug(
+    private final CourseEnrollmentAccessService courseEnrollmentAccessService;
+
+        public CourseResponse getBySlug(
                 String slug
         ) {
 
@@ -35,7 +39,7 @@ public class CourseService {
                             slug
                     );
 
-            return courseMapper.toDetailsResponse(
+            return courseMapper.toResponse(
                     course
             );
         }
@@ -52,9 +56,16 @@ public class CourseService {
                                 courseId,
                                 user
                         );
+        CourseEnrollment enrollment =
+                courseEnrollmentAccessService
+                        .getEnrollment(
+                                courseId,
+                                user
+                        );
 
         return courseMapper.toDetailsResponse(
-                course
+                course,
+                enrollment
         );
     }
 
