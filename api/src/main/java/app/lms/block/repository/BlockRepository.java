@@ -40,4 +40,15 @@ import java.util.Optional;
             @Param("courseId")
             Long courseId
     );
+
+        Optional<Block>
+        findFirstByLessonIdAndPositionGreaterThanOrderByPositionAsc(
+                Long lessonId,
+                Integer position
+        );
+
+        Optional<Block>
+        findFirstByLessonIdOrderByPositionAsc(
+                Long lessonId
+        );
 }
