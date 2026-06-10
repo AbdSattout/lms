@@ -1,7 +1,7 @@
 import { Geist_Mono, IBM_Plex_Sans_Arabic, Lalezar } from "next/font/google"
 
-import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
+import { ThemeProvider } from "@wrksz/themes/next"
 import "./globals.css"
 
 const lalezarHeading = Lalezar({
