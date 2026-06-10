@@ -1,6 +1,5 @@
 package app.lms.block.dto;
 
-import app.lms.block.enums.BlockType;
 import app.lms.question.dto.QuestionResponse;
 
 public record BlockResponse(
