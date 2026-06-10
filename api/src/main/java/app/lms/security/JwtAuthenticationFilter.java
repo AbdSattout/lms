@@ -1,12 +1,14 @@
 package app.lms.security;
 
 
+import app.lms.common.exception.CustomAuthenticationEntryPoint;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,7 +25,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-
+    private final CustomAuthenticationEntryPoint
+            authenticationEntryPoint;
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -43,31 +46,46 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             username = jwtService.extractUsername(jwt);
 
-        } catch (Exception e) {
+        } catch (Exception ex) {
+
             SecurityContextHolder.clearContext();
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-
-            response.getWriter().write("""
-                        {
-                            "status": 401,
-                            "error": "Invalid JWT"
-                        }
-                    """);
+            authenticationEntryPoint.commence(
+                    request,
+                    response,
+                    new BadCredentialsException(
+                            "Invalid JWT"
+                    )
+            );
 
             return;
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtService.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+            try {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                if (jwtService.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
 
+            }catch (Exception ex) {
+
+                SecurityContextHolder.clearContext();
+
+                authenticationEntryPoint.commence(
+                        request,
+                        response,
+                        new
+                                BadCredentialsException(
+                                ex.getMessage()
+                        )
+                );
+
+                return;
+            }
         }
         filterChain.doFilter(request, response);
 
