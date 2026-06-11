@@ -1,6 +1,7 @@
 package app.lms.course.dto;
 
 import app.lms.chapter.dto.ChapterResponse;
+import app.lms.courceEnrollment.dto.CourseProgressResponse;
 import lombok.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ import java.util.List;
 
         private String organizationName;
         private List<ChapterResponse> chapters;
+        private CourseProgressResponse progress;
 
     }
 

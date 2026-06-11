@@ -86,7 +86,7 @@ public class CourseAccessService {
             courseEnrollmentAccessService
                     .validateEnrolled(
                             courseId,
-                            user.getId()
+                            user
                     );
         }
 
