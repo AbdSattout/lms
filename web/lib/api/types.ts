@@ -68,14 +68,12 @@ export interface CreateCourseRequest {
   title: string
   slug: string
   description?: string
-  coverUrl?: string
 }
 
 export interface UpdateCourseRequest {
   title?: string
   slug?: string
   description?: string
-  coverUrl?: string
 }
 
 export interface CourseResponse {

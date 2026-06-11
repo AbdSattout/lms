@@ -12,8 +12,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { checkSlugAvailability } from "@/lib/actions/check-slug-availability"
-import { createOrganization } from "@/lib/actions/create-organization"
+import {
+  checkSlugAvailability,
+  createOrganization,
+} from "@/lib/actions/organization"
 import { generateSlug } from "@/lib/utils"
 import { CheckIcon, Loader2Icon, XIcon } from "lucide-react"
 import { useActionState, useEffect, useRef, useState } from "react"

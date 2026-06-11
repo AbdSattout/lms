@@ -17,7 +17,6 @@ export async function createCourse(
     title: formData.get("title"),
     slug: formData.get("slug"),
     description: formData.get("description") || undefined,
-    coverUrl: formData.get("coverUrl") || undefined,
   })
 
   if (!result.success) {
@@ -26,12 +25,12 @@ export async function createCourse(
     }
   }
 
-  const { title, slug, description, coverUrl } = result.data
+  const { title, slug, description } = result.data
   const cover = formData.get("cover") as File | null
   const coverFile = cover?.size ? cover : undefined
 
   const course = await api.organizations.courses
-    .post(orgSlug, { title, slug, description, coverUrl }, coverFile)
+    .post(orgSlug, { title, slug, description }, coverFile)
     .catch(() => null)
 
   if (!course) return { error: "حدث خطأ أثناء إنشاء الدورة." }
@@ -53,7 +52,6 @@ export async function updateCourse(
     title: formData.get("title") || undefined,
     slug: formData.get("slug") || undefined,
     description: formData.get("description") || undefined,
-    coverUrl: formData.get("coverUrl") || undefined,
   })
 
   if (!result.success) {
@@ -70,17 +68,6 @@ export async function updateCourse(
     .catch(() => null)
 
   if (!updated) return { error: "حدث خطأ أثناء تحديث الدورة." }
-
-  revalidatePath(`/${orgSlug}/courses`)
-  return { success: true }
-}
-
-export async function deleteCourseCover(courseId: number, orgSlug: string) {
-  const updated = await api.courses.byId
-    .patch(courseId, { coverUrl: "" })
-    .catch(() => null)
-
-  if (updated === null) return { error: "حدث خطأ أثناء حذف الغلاف." }
 
   revalidatePath(`/${orgSlug}/courses`)
   return { success: true }
