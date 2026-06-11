@@ -3,9 +3,9 @@ import "server-only"
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
+  CourseResponse,
   CreateCourseRequest,
   CreateOrganizationRequest,
-  CourseResponse,
   OrganizationResponse,
   Pageable,
   PageCourseResponse,
@@ -36,7 +36,10 @@ export const list = defineApiRoute({
   ) => {
     const body = new FormData()
 
-    body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+    body.set(
+      "request",
+      new Blob([JSON.stringify(request)], { type: "application/json" })
+    )
     if (image) body.set("image", image)
 
     return backend<OrganizationResponse>("/dashboard/organizations", {
@@ -64,7 +67,10 @@ export const bySlug = defineApiRoute({
       body: (() => {
         const body = new FormData()
 
-        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        body.set(
+          "request",
+          new Blob([JSON.stringify(request)], { type: "application/json" })
+        )
         if (image) body.set("image", image)
 
         return body
@@ -76,6 +82,17 @@ export const bySlug = defineApiRoute({
       method: "DELETE",
       ...options,
     }),
+})
+
+export const checkSlugAvailability = defineApiRoute({
+  get: (slug: string, options?: BackendFetchOptions) =>
+    backend<boolean>(
+      `/dashboard/organizations/check-availability?slug=${encodeURIComponent(slug)}`,
+      {
+        method: "GET",
+        ...options,
+      }
+    ),
 })
 
 export const courses = defineApiRoute({
@@ -98,7 +115,10 @@ export const courses = defineApiRoute({
       body: (() => {
         const body = new FormData()
 
-        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        body.set(
+          "request",
+          new Blob([JSON.stringify(request)], { type: "application/json" })
+        )
         if (cover) body.set("cover", cover)
 
         return body
