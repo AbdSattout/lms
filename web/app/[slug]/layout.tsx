@@ -13,7 +13,7 @@ export default async function DashboardLayout({
 }) {
   const { slug } = await params
   const org = await api.organizations.bySlug(slug).catch(notFound)
-  const user = await api.users.me.get()
+  const user = await api.users.me()
 
   return (
     <SidebarProvider

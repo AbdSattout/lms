@@ -1,7 +1,7 @@
 "use server"
 
 import { api } from "@/lib/api"
-import { createOrganizationSchema } from "@/lib/validation"
+import { createOrganizationSchema, slugSchema } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -34,4 +34,11 @@ export async function createOrganization(
 
   revalidatePath("/")
   redirect(`/${slug}`)
+}
+
+export async function checkSlugAvailability(slug: string) {
+  if (!slug || !slugSchema.safeParse(slug).success) {
+    return false
+  }
+  return api.organizations.checkSlugAvailability(slug)
 }

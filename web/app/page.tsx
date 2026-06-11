@@ -4,7 +4,7 @@ import { PlusIcon } from "lucide-react"
 import Link from "next/link"
 
 export default async function HomePage() {
-  const organizations = await api.organizations.list.get()
+  const organizations = await api.organizations.list()
 
   return (
     <div className="p-8">
