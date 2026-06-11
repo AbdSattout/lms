@@ -29,7 +29,7 @@ export async function createCourse(
   const cover = formData.get("cover") as File | null
   const coverFile = cover?.size ? cover : undefined
 
-  const course = await api.organizations.courses
+  const course = await api.dashboard.organizations.courses
     .post(orgSlug, { title, slug, description }, coverFile)
     .catch(() => null)
 
@@ -63,7 +63,7 @@ export async function updateCourse(
   const cover = formData.get("cover") as File | null
   const coverFile = cover?.size ? cover : undefined
 
-  const updated = await api.courses.byId
+  const updated = await api.dashboard.courses.byId
     .patch(courseId, result.data, coverFile)
     .catch(() => null)
 
@@ -82,7 +82,7 @@ export async function deleteCourse(
 
   if (isNaN(courseId) || !orgSlug) return { error: "بيانات غير صالحة" }
 
-  const deleted = await api.courses.byId.delete(courseId).catch(() => null)
+  const deleted = await api.dashboard.courses.byId.delete(courseId).catch(() => null)
 
   if (deleted === null) return { error: "حدث خطأ أثناء حذف الدورة." }
 

@@ -12,7 +12,7 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const { slug } = await params
-  const org = await api.organizations.bySlug(slug).catch(notFound)
+  const org = await api.dashboard.organizations.bySlug(slug).catch(notFound)
   const user = await api.users.me()
 
   return (

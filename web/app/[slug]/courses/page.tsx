@@ -7,9 +7,9 @@ export default async function CoursesPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const page = await api.organizations
-    .courses(slug, { page: 0, size: 50 })
+  const courses = await api.dashboard.organizations
+    .courses(slug)
     .catch(() => null)
 
-  return <CoursesContent orgSlug={slug} courses={page?.content ?? []} />
+  return <CoursesContent orgSlug={slug} courses={courses ?? []} />
 }
