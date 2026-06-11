@@ -29,4 +29,15 @@ public interface LessonRepository
     findMaxPositionByChapterId(
             Long chapterId
     );
+
+    Optional<Lesson>
+    findFirstByChapterIdAndPositionGreaterThanOrderByPositionAsc(
+            Long chapterId,
+            Integer position
+    );
+
+    Optional<Lesson>
+    findFirstByChapterIdOrderByPositionAsc(
+            Long chapterId
+    );
 }
