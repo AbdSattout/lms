@@ -13,10 +13,14 @@ import { usePathname } from "next/navigation"
 export function NavMain({
   items,
 }: {
-  items: {
+  items: readonly {
     title: string
-    url: string
-    icon?: React.ReactNode
+    url:
+      | `/${string}`
+      | `/${string}/settings`
+      | `/${string}/posts`
+      | `/${string}/courses`
+    icon: React.ReactNode
   }[]
 }) {
   const pathname = usePathname()
@@ -29,9 +33,13 @@ export function NavMain({
             const isActive = pathname === item.url
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton tooltip={item.title} isActive={isActive}>
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  isActive={isActive}
+                  render={<Link href={item.url} />}
+                >
                   {item.icon}
-                  <Link href={item.url}>{item.title}</Link>
+                  <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             )

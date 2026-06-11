@@ -10,64 +10,59 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { OrganizationResponse, User } from "@/lib/api/types"
 import {
-  LayoutDashboardIcon,
-  SquarePen,
-  Settings,
-  CommandIcon,
   GraduationCap,
+  LayoutDashboardIcon,
+  Settings,
+  SquarePen,
 } from "lucide-react"
 import Link from "next/link"
-const data = {
-  user: {
-    name: "اسم المنظمه",
-    email: "mail@example.com",
-    avatar: "/assets/icon-192.png",
-  },
-}
+
 export function AppSidebar({
-  orgSlug,
+  org,
+  user,
   ...props
-}: { orgSlug?: string } & React.ComponentProps<typeof Sidebar>) {
+}: {
+  org?: OrganizationResponse
+  user?: User
+} & React.ComponentProps<typeof Sidebar>) {
   const navItems = [
     {
       title: "نظرة عامة",
-      url: `/dashboard/${orgSlug}`,
+      url: `/${org?.slug}`,
       icon: <LayoutDashboardIcon />,
     },
     {
       title: "الدورات",
-      url: `/dashboard/${orgSlug}/courses`,
+      url: `/${org?.slug}/courses`,
       icon: <GraduationCap />,
     },
     {
       title: "المنشورات",
-      url: `/dashboard/${orgSlug}/posts`,
+      url: `/${org?.slug}/posts`,
       icon: <SquarePen />,
     },
     {
       title: "الاعدادات",
-      url: `/dashboard/${orgSlug}/settings`,
+      url: `/${org?.slug}/settings`,
       icon: <Settings />,
     },
-  ]
+  ] as const
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
-              render={<Link href={`/dashboard/${orgSlug}`} />}
+            <Link
+              className="font-heading text-2xl data-[slot=sidebar-menu-button]:p-1.5!"
+              href="/"
             >
-              <CommandIcon className="size-5!" />
-              <span className="text-xl font-bold text-primary">
-                لوحة التحكم
-              </span>
-            </SidebarMenuButton>
+              مسار
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -75,7 +70,7 @@ export function AppSidebar({
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} orgSlug={orgSlug} />
+        <NavUser user={user} org={org} />
       </SidebarFooter>
     </Sidebar>
   )
