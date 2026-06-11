@@ -1,56 +1,66 @@
+import { OrgAvatar } from "@/components/org-avatar"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { api } from "@/lib/api"
+import { PlusIcon } from "lucide-react"
 import Link from "next/link"
-import { LogoutButton } from "@/components/auth/logout-button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { UserRound } from "lucide-react"
+
 export default async function HomePage() {
   const organizations = await api.organizations.list.get()
-  const me = await api.users.me()
+
   return (
-    <div dir="rtl" className="p-8">
-      <h1 className="mb-6 text-2xl font-bold">منظماتي</h1>
+    <div className="p-8">
+      <h1 className="mb-6 font-heading text-2xl">منظماتي</h1>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <Link
-          href="/organization/new"
-          className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 p-8 text-center transition hover:bg-gray-50"
+          href="/new"
+          className="flex flex-col items-center justify-center rounded-4xl border-2 border-dashed border-border p-8 text-center transition hover:bg-muted/50"
         >
-          <div className="mb-4 rounded-full bg-blue-50 p-4 text-2xl text-blue-500">
-            +
+          <div className="mb-4 rounded-full bg-primary/10 p-4 text-2xl text-primary">
+            <PlusIcon className="size-6" />
           </div>
           <h3 className="font-bold">إنشاء أو انضمام</h3>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             قم بإضافة مؤسسة جديدة لإدارة محتواك التعليمي
           </p>
         </Link>
 
         {organizations.map((org) => (
-          <div key={org.slug} className="rounded-xl border p-6 shadow-sm">
-            <h3 className="mb-2 text-lg font-bold">{org.name}</h3>
-            <p className="mb-4 text-sm text-gray-600">{org.description}</p>
-            <Link
-              href={`/dashboard/${org.slug}`}
-              className="block w-full rounded-lg bg-blue-100 py-2 text-center text-blue-700 hover:bg-blue-200"
-            >
-              فتح
-            </Link>
-          </div>
+          <Link key={org.slug} href={`/${org.slug}`}>
+            <Card className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
+              <CardHeader className="relative flex-row items-center gap-3 space-y-0">
+                {org.visibility && (
+                  <span className="absolute end-6 top-0 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">
+                    {org.visibility === "PUBLIC" ? "عام" : "خاص"}
+                  </span>
+                )}
+                <OrgAvatar src={org.image} name={org.name} />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <CardTitle className="text-base">{org.name}</CardTitle>
+                  </div>
+                  {org.description && (
+                    <CardDescription className="line-clamp-2 text-xs">
+                      {org.description}
+                    </CardDescription>
+                  )}
+                </div>
+              </CardHeader>
+              {org.ownerName && (
+                <CardContent className="pt-0 text-xs text-muted-foreground">
+                  {org.ownerName}
+                </CardContent>
+              )}
+            </Card>
+          </Link>
         ))}
       </div>
-      <footer>
-<main className="flex min-h-dvh items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        <Avatar size="lg">
-          <AvatarImage src={me.picture ?? undefined} alt={me.name} />
-          <AvatarFallback>
-            <UserRound className="size-4" />
-          </AvatarFallback>
-        </Avatar>
-        <h1 className="mb-3 font-heading text-4xl">{me.name}</h1>
-        <LogoutButton />
-      </div>
-    </main>
-      </footer>
     </div>
   )
 }

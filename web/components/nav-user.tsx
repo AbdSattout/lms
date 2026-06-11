@@ -1,13 +1,9 @@
 "use client"
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -16,26 +12,26 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import {
-  EllipsisVerticalIcon,
-  CircleUserRoundIcon,
-  CreditCardIcon,
-  BellIcon,
-  LogOutIcon,
-} from "lucide-react"
-import Link from "next/link"
+import { OrganizationResponse, User } from "@/lib/api/types"
+import { LogOutIcon } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { OrgAvatar } from "./org-avatar"
 
 export function NavUser({
   user,
-  orgSlug,
+  org,
 }: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-} & { orgSlug?: string }) {
+  user?: User
+  org?: OrganizationResponse
+}) {
   const { isMobile } = useSidebar()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
+    router.push("/login")
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -45,17 +41,15 @@ export function NavUser({
               <SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
             }
           >
-            <Avatar className="size-8 rounded-lg grayscale">
-              <AvatarImage src={user.avatar} alt={orgSlug} />
-              <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-            </Avatar>
+            <OrgAvatar src={org?.image} name={org?.name} className="size-8" />
             <div className="grid flex-1 text-start text-sm leading-tight">
-              <span className="truncate font-medium">{orgSlug}</span>
+              <span className="truncate font-medium">
+                {org?.name ?? org?.slug}
+              </span>
               <span className="truncate text-xs text-foreground/70">
-                {user.email}
+                {user?.name}
               </span>
             </div>
-            <EllipsisVerticalIcon className="ms-auto size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="min-w-56"
@@ -63,43 +57,9 @@ export function NavUser({
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuGroup>
-              <DropdownMenuLabel className="p-0 font-normal">
-                <div className="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
-                  <Avatar className="size-8">
-                    <AvatarImage src={user.avatar} alt={orgSlug} />
-                    <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-start text-sm leading-tight">
-                    <span className="truncate font-medium">{orgSlug}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {user.email}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUserRoundIcon />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCardIcon />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <BellIcon />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href="/">
-                <LogOutIcon />
-                Log out
-              </Link>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOutIcon />
+              تسجيل الخروج
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
