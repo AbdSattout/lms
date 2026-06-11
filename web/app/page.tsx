@@ -1,8 +1,8 @@
 import { OrgAvatar } from "@/components/org-avatar"
 import {
   Card,
-  CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -17,7 +17,7 @@ export default async function HomePage() {
     <div className="p-8">
       <h1 className="mb-6 font-heading text-2xl">منظماتي</h1>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-4">
         <Link
           href="/new"
           className="flex flex-col items-center justify-center rounded-4xl border-2 border-dashed border-border p-8 text-center transition hover:bg-muted/50"
@@ -33,7 +33,7 @@ export default async function HomePage() {
 
         {organizations.map((org) => (
           <Link key={org.slug} href={`/${org.slug}`}>
-            <Card className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
+            <Card className="h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
               <CardHeader className="relative flex-row items-center gap-3 space-y-0">
                 {org.visibility && (
                   <span className="absolute inset-e-6 top-0 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">
@@ -53,9 +53,9 @@ export default async function HomePage() {
                 </div>
               </CardHeader>
               {org.ownerName && (
-                <CardContent className="pt-0 text-xs text-muted-foreground">
+                <CardFooter className="mt-auto text-xs text-muted-foreground">
                   {org.ownerName}
-                </CardContent>
+                </CardFooter>
               )}
             </Card>
           </Link>
