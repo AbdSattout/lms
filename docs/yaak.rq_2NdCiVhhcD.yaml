@@ -1,0 +1,24 @@
+type: http_request
+model: http_request
+id: rq_2NdCiVhhcD
+createdAt: 2026-06-11T19:21:36.670895200
+updatedAt: 2026-06-11T19:22:20.438614100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_jNg5STPbcB
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: GET
+name: get block by id
+sortPriority: 0.006
+url: http://localhost:8080/dashboard/blocks/2
+urlParameters: []

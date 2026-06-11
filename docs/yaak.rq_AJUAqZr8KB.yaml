@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_AJUAqZr8KB
 createdAt: 2026-06-01T13:44:06.438219200
-updatedAt: 2026-06-04T14:37:59.502119400
+updatedAt: 2026-06-11T18:16:45.315314
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication: {}
@@ -22,5 +22,9 @@ headers:
 method: GET
 name: Check Slug Availabilty
 sortPriority: 3000.0
-url: http://localhost:8080/courses/check-slug
-urlParameters: []
+url: http://localhost:8080/dashboard/organizations/my-org/courses/check-slug
+urlParameters:
+- enabled: true
+  name: courseSlug
+  value: intro-to-java
+  id: vk3IU9GCdC

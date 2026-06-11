@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_oB66ZiuV3d
 createdAt: 2026-05-31T19:49:05.500026200
-updatedAt: 2026-06-04T14:41:53.383321
+updatedAt: 2026-06-11T18:08:23.482445500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
 body:
   form:
@@ -14,13 +14,13 @@ body:
     enabled: true
     id: fVRMqnCW9R
     name: request
-    value: '{  "title": "Spring Boot Masterclass", "slug": "techs xx" , "description": "Learn Spring Boot"}'
-  - enabled: true
+    value: '{  "title": "Spring Boot Masterclass", "slug": "tech-company" , "description": "Learn Spring Boot"}'
+  - enabled: false
     file: C:\Users\ASUS\Desktop\photo_2026-05-03_07-02-04.jpg
     id: SeCKvKw3GU
     name: cover
   - enabled: true
-    id: 3QDHppkQyt
+    id: yvIErHUfKy
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -33,5 +33,5 @@ headers:
 method: POST
 name: Create Course
 sortPriority: 7000.0
-url: http://localhost:8080/organizations/tech-company/courses
+url: http://localhost:8080/dashboard/organizations/tech-company/courses
 urlParameters: []

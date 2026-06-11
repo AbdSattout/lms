@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_Q4mf4536K5
 createdAt: 2026-05-31T19:57:34.052054200
-updatedAt: 2026-06-04T14:37:59.485785
+updatedAt: 2026-06-11T18:13:17.568275200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -15,5 +15,5 @@ headers: []
 method: DELETE
 name: Delete Course
 sortPriority: 1000.0
-url: http://localhost:8080/courses/3
+url: http://localhost:8080/dashboard/courses/123
 urlParameters: []

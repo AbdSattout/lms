@@ -2,7 +2,7 @@ type: folder
 model: folder
 id: fl_ECvsVYsFmt
 createdAt: 2026-05-31T19:48:52.304941800
-updatedAt: 2026-05-31T19:58:10.541523100
+updatedAt: 2026-06-11T19:46:32.981531900
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication: {}
@@ -10,4 +10,4 @@ authenticationType: null
 description: ''
 headers: []
 name: Course
-sortPriority: 3000.0
+sortPriority: 6000.0
