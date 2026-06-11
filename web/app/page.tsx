@@ -1,12 +1,4 @@
-import { OrgAvatar } from "@/components/org-avatar"
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { OrgCard } from "@/components/org-card"
 import { api } from "@/lib/api"
 import { PlusIcon } from "lucide-react"
 import Link from "next/link"
@@ -33,33 +25,7 @@ export default async function HomePage() {
         </Link>
 
         {organizations.map((org) => (
-          <Link key={org.slug} href={`/${org.slug}`}>
-            <Card className="h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
-              <CardHeader className="relative flex-row items-center gap-3 space-y-0">
-                {org.visibility && (
-                  <Badge variant="secondary" className="absolute inset-e-6 top-0">
-                    {org.visibility === "PUBLIC" ? "عام" : "خاص"}
-                  </Badge>
-                )}
-                <OrgAvatar src={org.image} name={org.name} />
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-base">{org.name}</CardTitle>
-                  </div>
-                  {org.description && (
-                    <CardDescription className="line-clamp-2 text-xs">
-                      {org.description}
-                    </CardDescription>
-                  )}
-                </div>
-              </CardHeader>
-              {org.ownerName && (
-                <CardFooter className="mt-auto text-xs text-muted-foreground">
-                  {org.ownerName}
-                </CardFooter>
-              )}
-            </Card>
-          </Link>
+          <OrgCard key={org.slug} org={org} />
         ))}
       </div>
     </div>
