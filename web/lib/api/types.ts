@@ -1,10 +1,6 @@
 export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
 export type FileType = "IMAGE" | "VIDEO" | "FILE"
 
-export interface LoginRequest {
-  idToken: string
-}
-
 export interface User {
   id?: number
   name?: string
@@ -85,25 +81,6 @@ export interface CourseResponse {
   organizationName?: string
 }
 
-export interface CourseDetailsResponse {
-  id?: number
-  title?: string
-  slug?: string
-  description?: string
-  coverUrl?: string
-  organizationName?: string
-  chapters?: ChapterResponse[]
-  progress?: CourseProgressResponse
-}
-
-export interface CourseProgressResponse {
-  lastLessonId?: number
-  lastBlockId?: number
-  progressPercentage?: number
-  completed?: boolean
-  completedAt?: string
-}
-
 export interface EnrollmentResponse {
   courseId?: number
   courseTitle?: string
@@ -142,6 +119,7 @@ export interface LessonResponse {
   id?: number
   title?: string
   position?: number
+  isPublished?: boolean
 }
 
 export interface ReorderLessonsRequest {
@@ -300,6 +278,5 @@ export interface UpdateQuestionRequest {
   correctAnswerIndex?: number
 }
 
-export type PageCourseResponse = Page<CourseResponse>
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>

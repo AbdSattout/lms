@@ -6,7 +6,7 @@ import type { ChapterResponse, UpdateChapterRequest } from "@/lib/api/types"
 
 export const byId = defineApiRoute({
   delete: (chapterId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/chapters/${chapterId}`, {
+    backend<void>(`/dashboard/chapters/${chapterId}`, {
       method: "DELETE",
       ...options,
     }),
@@ -15,7 +15,7 @@ export const byId = defineApiRoute({
     request: UpdateChapterRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<ChapterResponse>(`/chapters/${chapterId}`, {
+    backend<ChapterResponse>(`/dashboard/chapters/${chapterId}`, {
       method: "PATCH",
       body: request,
       ...options,

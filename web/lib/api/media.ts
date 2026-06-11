@@ -22,7 +22,7 @@ function toQueryString(pageable: Pageable) {
 export const byCourse = defineApiRoute({
   get: (courseId: number, pageable: Pageable, options?: BackendFetchOptions) =>
     backend<PageCourseMediaResponse>(
-      `/courses/${courseId}/media${toQueryString(pageable)}`,
+      `/dashboard/courses/${courseId}/media${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
   post: (courseId: number, file: File, options?: BackendFetchOptions) => {
@@ -30,7 +30,7 @@ export const byCourse = defineApiRoute({
 
     body.set("file", file)
 
-    return backend<CourseMediaResponse>(`/courses/${courseId}/media`, {
+    return backend<CourseMediaResponse>(`/dashboard/courses/${courseId}/media`, {
       method: "POST",
       body,
       ...options,
@@ -40,7 +40,7 @@ export const byCourse = defineApiRoute({
 
 export const byId = defineApiRoute({
   get: (mediaId: number, options?: BackendFetchOptions) =>
-    backend<CourseMediaResponse>(`/media/${mediaId}`, {
+    backend<CourseMediaResponse>(`/dashboard/media/${mediaId}`, {
       method: "GET",
       ...options,
     }),
@@ -49,14 +49,14 @@ export const byId = defineApiRoute({
 
     body.set("file", file)
 
-    return backend<CourseMediaResponse>(`/media/${mediaId}`, {
+    return backend<CourseMediaResponse>(`/dashboard/media/${mediaId}`, {
       method: "PATCH",
       body,
       ...options,
     })
   },
   delete: (mediaId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/media/${mediaId}`, {
+    backend<void>(`/dashboard/media/${mediaId}`, {
       method: "DELETE",
       ...options,
     }),

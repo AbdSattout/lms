@@ -30,7 +30,7 @@ export const byCourse = defineApiRoute({
     options?: BackendFetchOptions
   ) =>
     backend<PagePostResponse>(
-      `/courses/${courseId}/posts${toQueryString(pageable)}`,
+      `/dashboard/courses/${courseId}/posts${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
   post: (
@@ -38,7 +38,7 @@ export const byCourse = defineApiRoute({
     request: CreatePostRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<PostResponse>(`/courses/${courseId}/posts`, {
+    backend<PostResponse>(`/dashboard/courses/${courseId}/posts`, {
       method: "POST",
       body: request,
       ...options,
@@ -47,7 +47,7 @@ export const byCourse = defineApiRoute({
 
 export const byId = defineApiRoute({
   get: (postId: number, options?: BackendFetchOptions) =>
-    backend<PostResponse>(`/posts/${postId}`, {
+    backend<PostResponse>(`/dashboard/posts/${postId}`, {
       method: "GET",
       ...options,
     }),
@@ -56,13 +56,13 @@ export const byId = defineApiRoute({
     request: UpdatePostRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<PostResponse>(`/posts/${postId}`, {
+    backend<PostResponse>(`/dashboard/posts/${postId}`, {
       method: "PATCH",
       body: request,
       ...options,
     }),
   delete: (postId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/posts/${postId}`, {
+    backend<void>(`/dashboard/posts/${postId}`, {
       method: "DELETE",
       ...options,
     }),
@@ -70,12 +70,12 @@ export const byId = defineApiRoute({
 
 export const likes = defineApiRoute({
   post: (postId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/posts/${postId}/likes`, {
+    backend<void>(`/dashboard/posts/${postId}/likes`, {
       method: "POST",
       ...options,
     }),
   delete: (postId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/posts/${postId}/likes`, {
+    backend<void>(`/dashboard/posts/${postId}/likes`, {
       method: "DELETE",
       ...options,
     }),
@@ -83,7 +83,7 @@ export const likes = defineApiRoute({
 
 export const comments = defineApiRoute({
   get: (postId: number, options?: BackendFetchOptions) =>
-    backend<CommentResponse[]>(`/posts/${postId}/comments`, {
+    backend<CommentResponse[]>(`/dashboard/posts/${postId}/comments`, {
       method: "GET",
       ...options,
     }),
@@ -92,7 +92,7 @@ export const comments = defineApiRoute({
     request: CreateCommentRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<CommentResponse>(`/posts/${postId}/comments`, {
+    backend<CommentResponse>(`/dashboard/posts/${postId}/comments`, {
       method: "POST",
       body: request,
       ...options,
@@ -101,7 +101,7 @@ export const comments = defineApiRoute({
 
 export const deleteComment = defineApiRoute({
   delete: (commentId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/comments/${commentId}`, {
+    backend<void>(`/dashboard/comments/${commentId}`, {
       method: "DELETE",
       ...options,
     }),

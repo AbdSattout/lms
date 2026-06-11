@@ -26,7 +26,7 @@ export async function createOrganization(
   const image = formData.get("image") as File | null
   const imageFile = image && image.size > 0 ? image : undefined
 
-  const org = await api.organizations.list
+  const org = await api.dashboard.organizations.create
     .post({ name, slug, description, visibility }, imageFile)
     .catch(() => null)
 
@@ -40,5 +40,5 @@ export async function checkSlugAvailability(slug: string) {
   if (!slug || !slugSchema.safeParse(slug).success) {
     return false
   }
-  return api.organizations.checkSlugAvailability(slug)
+  return api.dashboard.organizations.checkSlugAvailability(slug)
 }

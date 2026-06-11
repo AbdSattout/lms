@@ -16,7 +16,13 @@ import {
 } from "@/lib/api/courses"
 import { byId as lessonsById, create as createLesson, reorder as reorderLessons } from "@/lib/api/lessons"
 import { byCourse, byId as mediaById } from "@/lib/api/media"
-import { bySlug, checkSlugAvailability, courses, list } from "@/lib/api/organizations"
+import {
+  bySlug,
+  checkSlugAvailability,
+  courses,
+  create as createOrg,
+  list,
+} from "@/lib/api/organizations"
 import { submitAnswer } from "@/lib/api/progress"
 import { update as updateQuestion } from "@/lib/api/questions"
 import {
@@ -34,55 +40,65 @@ export const api = {
   auth: {
     login,
   },
-  profile: {
-    create,
-    me: profileMe,
+  organizations: {
+    list,
   },
   users: {
     me,
     picture,
   },
-  organizations: {
-    list,
-    bySlug,
-    courses,
-    checkSlugAvailability,
+  profile: {
+    create,
+    me: profileMe,
   },
   courses: {
-    byId: coursesById,
-    publish,
     enroll,
-    chapters,
-  },
-  chapters: {
-    byId: chaptersById,
-  },
-  lessons: {
-    create: createLesson,
-    byId: lessonsById,
-    reorder: reorderLessons,
   },
   blocks: {
-    create: createBlock,
-    byId: blocksById,
-    reorder: reorderBlocks,
     getPublic: getPublicBlock,
-  },
-  media: {
-    byCourse,
-    byId: mediaById,
   },
   progress: {
     submitAnswer,
   },
-  questions: {
-    update: updateQuestion,
-  },
-  posts: {
-    byCourse: postsByCourse,
-    byId: postsById,
-    likes,
-    comments,
-    deleteComment,
+
+  dashboard: {
+    organizations: {
+      create: createOrg,
+      bySlug,
+      courses,
+      checkSlugAvailability,
+    },
+    courses: {
+      byId: coursesById,
+      publish,
+      chapters,
+    },
+    chapters: {
+      byId: chaptersById,
+    },
+    lessons: {
+      create: createLesson,
+      byId: lessonsById,
+      reorder: reorderLessons,
+    },
+    blocks: {
+      create: createBlock,
+      byId: blocksById,
+      reorder: reorderBlocks,
+    },
+    media: {
+      byCourse,
+      byId: mediaById,
+    },
+    questions: {
+      update: updateQuestion,
+    },
+    posts: {
+      byCourse: postsByCourse,
+      byId: postsById,
+      likes,
+      comments,
+      deleteComment,
+    },
   },
 } satisfies ApiTree

@@ -7,21 +7,8 @@ import type {
   CreateCourseRequest,
   CreateOrganizationRequest,
   OrganizationResponse,
-  Pageable,
-  PageCourseResponse,
   UpdateOrganizationRequest,
 } from "@/lib/api/types"
-
-function toQueryString(pageable: Pageable) {
-  const params = new URLSearchParams()
-
-  if (pageable.page !== undefined) params.set("page", String(pageable.page))
-  if (pageable.size !== undefined) params.set("size", String(pageable.size))
-  for (const sort of pageable.sort ?? []) params.append("sort", sort)
-
-  const query = params.toString()
-  return query ? `?${query}` : ""
-}
 
 export const list = defineApiRoute({
   get: (options?: BackendFetchOptions) =>
@@ -29,6 +16,9 @@ export const list = defineApiRoute({
       method: "GET",
       ...options,
     }),
+})
+
+export const create = defineApiRoute({
   post: (
     request: CreateOrganizationRequest,
     image?: File,
@@ -96,9 +86,9 @@ export const checkSlugAvailability = defineApiRoute({
 })
 
 export const courses = defineApiRoute({
-  get: (slug: string, pageable: Pageable, options?: BackendFetchOptions) =>
-    backend<PageCourseResponse>(
-      `/organizations/${slug}/courses${toQueryString(pageable)}`,
+  get: (slug: string, options?: BackendFetchOptions) =>
+    backend<CourseResponse[]>(
+      `/dashboard/organizations/${slug}/courses`,
       {
         method: "GET",
         ...options,
