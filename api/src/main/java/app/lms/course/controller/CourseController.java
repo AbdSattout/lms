@@ -57,15 +57,20 @@ public class CourseController {
 
 
 
-    @GetMapping("/courses/slug/{slug}")
+    @GetMapping(
+            "/organizations/{organizationSlug}/courses/{courseSlug}"
+    )
     public ResponseEntity<CourseResponse> getBySlug(
 
-            @PathVariable String slug
+            @PathVariable String organizationSlug,
+
+            @PathVariable String courseSlug
     ) {
 
         return ResponseEntity.ok(
                 courseService.getBySlug(
-                        slug
+                        organizationSlug,
+                        courseSlug
                 )
         );
     }

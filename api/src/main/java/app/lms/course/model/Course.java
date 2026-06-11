@@ -10,7 +10,17 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "courses")
+@Table(
+        name = "courses",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {
+                                "organization_id",
+                                "slug"
+                        }
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,7 +35,7 @@ public class Course extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false , unique = true)
+    @Column(nullable = false )
     private String slug;
 
     private String coverUrl;
