@@ -34,11 +34,15 @@ public class CourseAccessService {
     }
 
     private Course getBySlug(
+            Long organizationId,
             String slug
     ) {
 
         return courseRepository
-                .findBySlug(slug)
+                .findByOrganizationIdAndSlug(
+                        organizationId,
+                        slug
+                )
                 .orElseThrow(
                         () -> new NotFoundException(
                                 "Course not found"
@@ -46,11 +50,15 @@ public class CourseAccessService {
                 );
     }
     public Course getPublishedBySlug(
+            Long organizationId,
             String slug
     ) {
 
         Course course =
-                getBySlug(slug);
+                getBySlug(
+                        organizationId,
+                        slug
+                );
 
         if (
                 course.getStatus()
@@ -144,16 +152,20 @@ public class CourseAccessService {
         return course;
     }
     public Course getManageableCourse(
+            Long organizationId,
             String slug,
             User user
     ) {
 
         Course course =
-                getBySlug(slug);
+                getBySlug(
+                        organizationId,
+                        slug
+                );
 
         organizationMemberAccessService
                 .validateManager(
-                        course.getOrganization().getId(),
+                        organizationId,
                         user.getId()
                 );
 

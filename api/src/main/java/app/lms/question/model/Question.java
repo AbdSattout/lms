@@ -44,4 +44,8 @@ public class Question extends BaseEntity {
     )
     private Block block;
 
+    @Column(name = "shuffle_options", nullable = false)
+    @Builder.Default
+    private Boolean shuffleOptions = false;
+
 }
