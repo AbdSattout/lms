@@ -13,9 +13,11 @@ import app.lms.common.exception.NotFoundException;
 import app.lms.lesson.model.Lesson;
 import app.lms.lesson.service.LessonAccessService;
 import app.lms.question.dto.CreateQuestionRequest;
+import app.lms.question.dto.UpdateQuestionRequest;
 import app.lms.question.model.Question;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,12 +26,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class DashboardBlockService {
 
-    BlockRepository blockRepository;
-    LessonAccessService lessonAccessService;
-    BlockMapper blockMapper;
-    BlockAccessService blockAccessService;
+    private final BlockRepository blockRepository;
+    private final LessonAccessService lessonAccessService;
+    private final BlockMapper blockMapper;
+    private final BlockAccessService blockAccessService;
     @Transactional
     public BlockResponse create(
             Long lessonId,
@@ -102,6 +105,49 @@ public class DashboardBlockService {
             block.setContent(
                     request.content()
             );
+        }
+        if (request.question() != null) {
+
+            Question question = block.getQuestion();
+
+            if (question == null) {
+                throw new BadRequestException(
+                        "Block has no question"
+                );
+            }
+
+            UpdateQuestionRequest q =
+                    request.question();
+
+            if (q.content() != null) {
+                question.setContent(
+                        q.content().trim()
+                );
+            }
+
+            if (q.options() != null) {
+                question.setOptions(
+                        q.options()
+                );
+            }
+
+            if (q.correctAnswerIndex() != null) {
+
+                int size =
+                        q.options() != null
+                                ? q.options().size()
+                                : question.getOptions().size();
+
+                if (q.correctAnswerIndex() >= size) {
+                    throw new BadRequestException(
+                            "Invalid correct answer index"
+                    );
+                }
+
+                question.setCorrectAnswerIndex(
+                        q.correctAnswerIndex()
+                );
+            }
         }
 
         return blockMapper.toResponse(
