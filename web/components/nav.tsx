@@ -7,22 +7,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import type { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 
-export function NavMain({
-  items,
-}: {
-  items: readonly {
-    title: string
-    url:
-      | `/${string}`
-      | `/${string}/settings`
-      | `/${string}/posts`
-      | `/${string}/courses`
-    icon: React.ReactNode
-  }[]
-}) {
+export interface NavItem {
+  title: string
+  url: Route
+  icon: React.ReactNode
+}
+
+export function Nav({ items }: { items: NavItem[] }) {
   const pathname = usePathname()
 
   return (

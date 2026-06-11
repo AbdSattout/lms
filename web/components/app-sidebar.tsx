@@ -2,8 +2,8 @@
 
 import * as React from "react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
+import { Nav, NavItem } from "@/components/nav"
+import { SidebarAccountDropdown } from "@/components/sidebar-account-dropdown"
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +12,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import type { Route } from "next"
 import { OrganizationResponse, User } from "@/lib/api/types"
 import {
   GraduationCap,
@@ -29,28 +30,28 @@ export function AppSidebar({
   org: OrganizationResponse
   user: User
 } & React.ComponentProps<typeof Sidebar>) {
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       title: "نظرة عامة",
-      url: `/${org?.slug}`,
+      url: `/${org.slug}` as Route,
       icon: <LayoutDashboardIcon />,
     },
     {
       title: "الدورات",
-      url: `/${org?.slug}/courses`,
+      url: `/${org.slug}/courses` as Route,
       icon: <GraduationCap />,
     },
     {
       title: "المنشورات",
-      url: `/${org?.slug}/posts`,
+      url: `/${org.slug}/posts` as Route,
       icon: <SquarePen />,
     },
     {
       title: "الاعدادات",
-      url: `/${org?.slug}/settings`,
+      url: `/${org.slug}/settings` as Route,
       icon: <Settings />,
     },
-  ] as const
+  ]
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -66,11 +67,15 @@ export function AppSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={navItems} />
+      <SidebarContent className="pb-0">
+        <Nav items={navItems} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} org={org} />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarAccountDropdown user={user} org={org} />
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   )

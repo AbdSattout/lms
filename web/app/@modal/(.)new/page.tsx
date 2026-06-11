@@ -1,6 +1,6 @@
 "use client"
 
-import { CreateOrganizationForm } from "@/components/create-oragnization-form"
+import { CreateOrganizationForm } from "@/components/create-organization-form"
 import {
   Dialog,
   DialogContent,
