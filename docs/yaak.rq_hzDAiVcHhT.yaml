@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_hzDAiVcHhT
 createdAt: 2026-05-31T19:55:43.054771400
-updatedAt: 2026-06-04T14:37:59.476696
+updatedAt: 2026-06-11T18:15:11.021042700
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -15,7 +15,7 @@ headers: []
 method: GET
 name: List Organization Course
 sortPriority: 0.0
-url: http://localhost:8080/organizations/tech-company/courses
+url: http://localhost:8080/dashboard/organizations/my-org/courses
 urlParameters:
 - enabled: true
   name: page
