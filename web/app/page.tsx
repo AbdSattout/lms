@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { api } from "@/lib/api"
 import { PlusIcon } from "lucide-react"
 import Link from "next/link"
@@ -36,9 +37,9 @@ export default async function HomePage() {
             <Card className="h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
               <CardHeader className="relative flex-row items-center gap-3 space-y-0">
                 {org.visibility && (
-                  <span className="absolute inset-e-6 top-0 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">
+                  <Badge variant="secondary" className="absolute inset-e-6 top-0">
                     {org.visibility === "PUBLIC" ? "عام" : "خاص"}
-                  </span>
+                  </Badge>
                 )}
                 <OrgAvatar src={org.image} name={org.name} />
                 <div className="min-w-0 flex-1">
