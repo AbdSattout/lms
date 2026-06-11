@@ -17,6 +17,8 @@ import {
 import { byId as lessonsById, create as createLesson, reorder as reorderLessons } from "@/lib/api/lessons"
 import { byCourse, byId as mediaById } from "@/lib/api/media"
 import { bySlug, checkSlugAvailability, courses, list } from "@/lib/api/organizations"
+import { submitAnswer } from "@/lib/api/progress"
+import { update as updateQuestion } from "@/lib/api/questions"
 import {
   byCourse as postsByCourse,
   byId as postsById,
@@ -69,6 +71,12 @@ export const api = {
   media: {
     byCourse,
     byId: mediaById,
+  },
+  progress: {
+    submitAnswer,
+  },
+  questions: {
+    update: updateQuestion,
   },
   posts: {
     byCourse: postsByCourse,
