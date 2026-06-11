@@ -9,12 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@/components/ui/sidebar"
+import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar"
 import { OrganizationResponse, User } from "@/lib/api/types"
 import { Loader2Icon, LogOutIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
