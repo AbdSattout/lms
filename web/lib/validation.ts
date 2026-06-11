@@ -117,9 +117,21 @@ export const updateBlockSchema = z.object({
 export type UpdateBlockInput = z.infer<typeof updateBlockSchema>
 
 export const reorderBlocksSchema = z.object({
-  blockIds: z.array(z.number().int()).optional(),
+  blockIds: z.array(z.number().int()).min(1, "يجب توفير معرف بلوك واحد على الأقل"),
 })
 export type ReorderBlocksInput = z.infer<typeof reorderBlocksSchema>
+
+export const submitBlockAnswerSchema = z.object({
+  answerIndex: z.number().int().min(0),
+})
+export type SubmitBlockAnswerInput = z.infer<typeof submitBlockAnswerSchema>
+
+export const updateQuestionSchema = z.object({
+  content: z.string().optional(),
+  options: z.array(z.string()).min(2, "يجب توفير خيارين على الأقل").optional(),
+  correctAnswerIndex: z.number().int().min(0).optional(),
+})
+export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>
 
 export const createPostSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
