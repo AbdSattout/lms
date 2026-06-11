@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_rwha8hmXBo
 createdAt: 2026-06-01T13:42:58.706906200
-updatedAt: 2026-06-04T14:37:59.509797600
+updatedAt: 2026-06-11T18:14:43.049700700
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication: {}
@@ -22,5 +22,5 @@ headers:
 method: GET
 name: Get Course By slug
 sortPriority: 4000.0
-url: http://localhost:8080/courses/check-slug
+url: http://localhost:8080/organizations/my-org/courses/intro-to-java
 urlParameters: []

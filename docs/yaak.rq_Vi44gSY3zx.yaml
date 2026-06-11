@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_Vi44gSY3zx
 createdAt: 2026-05-31T19:52:13.312508800
-updatedAt: 2026-06-04T14:38:07.175687100
+updatedAt: 2026-06-11T18:13:51.782511400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
@@ -15,5 +15,5 @@ headers: []
 method: GET
 name: Get Course By id
 sortPriority: 5000.0
-url: http://localhost:8080/courses/7
+url: http://localhost:8080/dashboard/courses/123
 urlParameters: []

@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_ap3JZY6rhs
 createdAt: 2026-05-31T19:53:07.299563300
-updatedAt: 2026-06-04T14:42:19.319388100
+updatedAt: 2026-06-11T18:12:37.378467900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_ECvsVYsFmt
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
 body:
   form:
@@ -15,12 +15,12 @@ body:
     id: P7EHBpSijN
     name: request
     value: '{  "title": "Spring Boot Advanced",  "slug": "Spring Boot Advanced", "description": "Updated description"}'
-  - enabled: true
+  - enabled: false
     file: C:\Users\ASUS\Desktop\photo_2026-05-18_19-38-54.jpg
     id: 6PhQebUVZn
     name: cover
   - enabled: true
-    id: ApVnB2QNeP
+    id: dV8HMXIeFk
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -33,5 +33,5 @@ headers:
 method: PATCH
 name: Update Course
 sortPriority: 6000.0
-url: http://localhost:8080/courses/8
+url: http://localhost:8080/dashboard/courses/11
 urlParameters: []
