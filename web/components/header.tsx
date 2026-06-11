@@ -13,6 +13,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { Fragment } from "react"
 
 const routeMapping: Record<string, string> = {
   posts: "المنشورات",
@@ -47,10 +48,10 @@ export function Header() {
               const isLast = index === breadcrumbs.length - 1
 
               return (
-                <>
+                <Fragment key={href}>
                   {index > 0 && <BreadcrumbSeparator />}
 
-                  <BreadcrumbItem key={href}>
+                  <BreadcrumbItem>
                     {isLast ? (
                       <BreadcrumbPage>{label}</BreadcrumbPage>
                     ) : (
@@ -63,7 +64,7 @@ export function Header() {
                       </BreadcrumbLink>
                     )}
                   </BreadcrumbItem>
-                </>
+                </Fragment>
               )
             })}
           </BreadcrumbList>
