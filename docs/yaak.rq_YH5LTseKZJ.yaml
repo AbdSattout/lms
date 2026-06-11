@@ -1,0 +1,33 @@
+type: http_request
+model: http_request
+id: rq_YH5LTseKZJ
+createdAt: 2026-06-11T19:18:42.633133200
+updatedAt: 2026-06-11T19:23:36.049386700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_jNg5STPbcB
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "title": "Advanced Java Quiz",
+      "content": "Test your advanced knowledge",
+      "question": {
+        "content": "What is JVM?",
+        "options": ["Java Virtual Machine", "Java Variable Method", "Java Version Manager", "None"],
+        "correctAnswerIndex": 0
+      }
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: PATCH
+name: update block
+sortPriority: 0.003
+url: http://localhost:8080/dashboard/blocks/3
+urlParameters: []
