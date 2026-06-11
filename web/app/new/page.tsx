@@ -1,4 +1,4 @@
-import { CreateOrganizationForm } from "@/components/create-oragnization-form"
+import { CreateOrganizationForm } from "@/components/create-organization-form"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRightIcon } from "lucide-react"
 import Link from "next/link"
