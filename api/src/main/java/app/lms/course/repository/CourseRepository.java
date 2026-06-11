@@ -28,7 +28,13 @@ public interface CourseRepository
             Pageable pageable
     );
 
-    boolean existsBySlug(String slug);
+    boolean existsByOrganizationIdAndSlug(
+            Long organizationId,
+            String slug
+    );
 
-    Optional<Course> findBySlug(String slug);
+    Optional<Course> findByOrganizationIdAndSlug(
+            Long organizationId,
+            String slug
+    );
 }
