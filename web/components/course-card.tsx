@@ -3,46 +3,26 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { deleteCourseCover } from "@/lib/actions/course"
 import type { CourseResponse } from "@/lib/api/types"
-import { EllipsisVertical, ImageMinus, Pen, Trash2 } from "lucide-react"
+import { EllipsisVertical, Pen, Trash2 } from "lucide-react"
 import Image from "next/image"
-import { useState, useTransition } from "react"
 
 interface CourseCardProps {
   course: CourseResponse
-  orgSlug: string
   onEdit: (course: CourseResponse) => void
   onDelete: (course: CourseResponse) => void
 }
 
 export function CourseCard({
   course,
-  orgSlug,
   onEdit,
   onDelete,
 }: CourseCardProps) {
-  const [deleteCoverOpen, setDeleteCoverOpen] = useState(false)
-  const [isDeletingCover, startDeleteCoverTransition] = useTransition()
-
-  function handleDeleteCoverSubmit() {
-    startDeleteCoverTransition(async () => {
-      const result = await deleteCourseCover(course.id!, orgSlug)
-      if (result.success) setDeleteCoverOpen(false)
-    })
-  }
   return (
     <>
       {course.coverUrl ? (
@@ -77,12 +57,6 @@ export function CourseCard({
                     <Pen />
                     تعديل
                   </DropdownMenuItem>
-                  {course.coverUrl && (
-                    <DropdownMenuItem onClick={() => setDeleteCoverOpen(true)}>
-                      <ImageMinus />
-                      حذف الغلاف
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => onDelete(course)}
@@ -118,12 +92,6 @@ export function CourseCard({
                     <Pen />
                     تعديل
                   </DropdownMenuItem>
-                  {course.coverUrl && (
-                    <DropdownMenuItem onClick={() => setDeleteCoverOpen(true)}>
-                      <ImageMinus />
-                      حذف الغلاف
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={() => onDelete(course)}
@@ -138,33 +106,6 @@ export function CourseCard({
         </Card>
       )}
 
-      <Dialog open={deleteCoverOpen} onOpenChange={setDeleteCoverOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>حذف الغلاف</DialogTitle>
-            <DialogDescription>
-              هل أنت متأكد من حذف غلاف الدورة؟ لا يمكن التراجع عن هذا الإجراء.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setDeleteCoverOpen(false)}
-            >
-              إلغاء
-            </Button>
-            <Button
-              type="submit"
-              variant="destructive"
-              disabled={isDeletingCover}
-              onClick={handleDeleteCoverSubmit}
-            >
-              {isDeletingCover ? "جاري الحذف..." : "حذف"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }

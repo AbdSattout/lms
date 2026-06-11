@@ -93,7 +93,6 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
             <CourseCard
               key={course.id}
               course={course}
-              orgSlug={orgSlug}
               onEdit={handleEdit}
               onDelete={handleDeleteClick}
             />

@@ -56,7 +56,6 @@ export const createCourseSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   slug: slugSchema.min(1, "الرابط مطلوب"),
   description: z.string().optional(),
-  coverUrl: z.url("الرابط غير صالح").optional(),
 })
 export type CreateCourseInput = z.infer<typeof createCourseSchema>
 
@@ -64,7 +63,6 @@ export const updateCourseSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب").optional(),
   slug: slugSchema.min(1, "الرابط مطلوب").optional(),
   description: z.string().optional(),
-  coverUrl: z.url("الرابط غير صالح").optional(),
 })
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>
 
