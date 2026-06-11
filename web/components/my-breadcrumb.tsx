@@ -1,8 +1,5 @@
 "use client"
 
-import React from "react"
-import { usePathname } from "next/navigation"
-import Link from "next/link"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,6 +8,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import React from "react"
 
 const routeMapping: Record<string, string> = {
   posts: "المنشورات",
@@ -48,6 +48,7 @@ export function MyBreadcrumb() {
                   <BreadcrumbPage>{label}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink
+                    // @ts-expect-error href is inferred from pathname
                     render={(props) => <Link href={href} {...props} />}
                   >
                     {label}
