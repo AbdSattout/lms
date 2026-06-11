@@ -98,7 +98,7 @@ export function CreateOrganizationForm() {
             disabled={isPending}
             className={slugStatus === "taken" ? "border-destructive" : ""}
           />
-          <span className="absolute start-3 top-1/2 -translate-y-1/2 transform">
+          <span className="absolute inset-s-3 top-1/2 -translate-y-1/2 transform">
             {slugStatus === "checking" && (
               <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
             )}

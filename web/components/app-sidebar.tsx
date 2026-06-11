@@ -26,8 +26,8 @@ export function AppSidebar({
   user,
   ...props
 }: {
-  org?: OrganizationResponse
-  user?: User
+  org: OrganizationResponse
+  user: User
 } & React.ComponentProps<typeof Sidebar>) {
   const navItems = [
     {

@@ -36,7 +36,7 @@ export default async function HomePage() {
             <Card className="cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
               <CardHeader className="relative flex-row items-center gap-3 space-y-0">
                 {org.visibility && (
-                  <span className="absolute end-6 top-0 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">
+                  <span className="absolute inset-e-6 top-0 shrink-0 rounded-full bg-muted px-2 py-0.5 text-xs">
                     {org.visibility === "PUBLIC" ? "عام" : "خاص"}
                   </span>
                 )}
