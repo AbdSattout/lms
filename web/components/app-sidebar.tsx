@@ -1,9 +1,9 @@
-"use client"
-
 import * as React from "react"
+import { Suspense } from "react"
 
 import { Nav, NavItem } from "@/components/nav"
 import { SidebarAccountDropdown } from "@/components/sidebar-account-dropdown"
+import { SidebarAccountDropdownSkeleton } from "@/components/skeletons/sidebar-account-dropdown-skeleton"
 import {
   Sidebar,
   SidebarContent,
@@ -12,43 +12,43 @@ import {
   SidebarMenu,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import type { Route } from "next"
-import { OrganizationResponse, User } from "@/lib/api/types"
+import type { OrganizationResponse } from "@/lib/api/types"
 import {
   GraduationCap,
   LayoutDashboardIcon,
   Settings,
   SquarePen,
 } from "lucide-react"
+import type { Route } from "next"
 import Link from "next/link"
 
 export function AppSidebar({
-  org,
-  user,
+  orgSlug,
+  orgPromise,
   ...props
 }: {
-  org: OrganizationResponse
-  user: User
+  orgSlug: string
+  orgPromise: Promise<OrganizationResponse>
 } & React.ComponentProps<typeof Sidebar>) {
   const navItems: NavItem[] = [
     {
       title: "نظرة عامة",
-      url: `/${org.slug}` as Route,
+      url: `/${orgSlug}` as Route,
       icon: <LayoutDashboardIcon />,
     },
     {
       title: "الدورات",
-      url: `/${org.slug}/courses` as Route,
+      url: `/${orgSlug}/courses` as Route,
       icon: <GraduationCap />,
     },
     {
       title: "المنشورات",
-      url: `/${org.slug}/posts` as Route,
+      url: `/${orgSlug}/posts` as Route,
       icon: <SquarePen />,
     },
     {
       title: "الاعدادات",
-      url: `/${org.slug}/settings` as Route,
+      url: `/${orgSlug}/settings` as Route,
       icon: <Settings />,
     },
   ]
@@ -73,7 +73,9 @@ export function AppSidebar({
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarAccountDropdown user={user} org={org} />
+            <Suspense fallback={<SidebarAccountDropdownSkeleton />}>
+              <SidebarAccountDropdown orgPromise={orgPromise} />
+            </Suspense>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

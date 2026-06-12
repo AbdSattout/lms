@@ -88,7 +88,7 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 *:aspect-video *:min-h-0 *:w-full">
           {courses.map((course) => (
             <CourseCard
               key={course.id}

@@ -18,15 +18,11 @@ interface CourseCardProps {
   onDelete: (course: CourseResponse) => void
 }
 
-export function CourseCard({
-  course,
-  onEdit,
-  onDelete,
-}: CourseCardProps) {
+export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
   return (
     <>
       {course.coverUrl ? (
-        <Card className="relative aspect-video overflow-hidden">
+        <Card className="group relative overflow-hidden">
           <Image
             src={course.coverUrl}
             alt={course.title ?? ""}
@@ -39,16 +35,24 @@ export function CourseCard({
           <CardHeader className="absolute inset-x-0 bottom-3 border-0">
             <div className="flex items-end justify-between gap-4">
               <div className="min-w-0 flex-1">
-                <CardTitle className="line-clamp-1">{course.title}</CardTitle>
+                <CardTitle className="line-clamp-1 text-white">
+                  {course.title}
+                </CardTitle>
                 {course.description && (
-                  <p className="line-clamp-2 text-sm text-muted-foreground">
+                  <p className="line-clamp-2 text-sm text-white/75">
                     {course.description}
                   </p>
                 )}
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={<Button variant="ghost" size="icon-sm" />}
+                  render={
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-white opacity-0 transition-opacity group-hover:opacity-100"
+                    />
+                  }
                 >
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
@@ -105,7 +109,6 @@ export function CourseCard({
           </CardHeader>
         </Card>
       )}
-
     </>
   )
 }
