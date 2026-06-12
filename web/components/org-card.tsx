@@ -1,4 +1,5 @@
 import { OrgAvatar } from "@/components/org-avatar"
+import { Badge } from "@/components/ui/badge"
 import {
   Card,
   CardDescription,
@@ -6,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { OrganizationResponse } from "@/lib/api/types"
 import Link from "next/link"
 

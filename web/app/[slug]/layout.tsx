@@ -1,8 +1,9 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import { OrgGuard } from "@/components/org-guard"
 import { Header } from "@/components/header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { api } from "@/lib/api"
-import { notFound } from "next/navigation"
+import { Suspense } from "react"
 
 export default async function DashboardLayout({
   params,
@@ -12,8 +13,7 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const { slug } = await params
-  const org = await api.dashboard.organizations.bySlug(slug).catch(notFound)
-  const user = await api.users.me()
+  const orgPromise = api.dashboard.organizations.bySlug(slug)
 
   return (
     <SidebarProvider
@@ -24,7 +24,10 @@ export default async function DashboardLayout({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" org={org} user={user} />
+      <Suspense fallback={null}>
+        <OrgGuard promise={orgPromise} />
+      </Suspense>
+      <AppSidebar variant="inset" orgSlug={slug} orgPromise={orgPromise} />
       <SidebarInset>
         <Header />
         <div className="flex flex-1 flex-col">
