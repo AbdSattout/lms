@@ -8,7 +8,9 @@ public record CreatePostRequest(
         String title,
 
         @NotBlank
-        String content
+        String content,
+
+        Long courseId
 
 ) {
 }
