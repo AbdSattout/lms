@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_9UyFJMRn2e
 createdAt: 2026-06-08T09:20:24.943386100
-updatedAt: 2026-06-08T09:42:28.858533300
+updatedAt: 2026-06-13T16:53:33.127917300
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_Tqpp3398L9
+folderId: fl_nXyjLY9rUx
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
@@ -14,6 +14,6 @@ description: ''
 headers: []
 method: POST
 name: Like post
-sortPriority: 7000.0
+sortPriority: 1000.0
 url: http://localhost:8080/posts/2/likes
 urlParameters: []

@@ -1,17 +1,14 @@
 type: http_request
 model: http_request
-id: rq_rwha8hmXBo
-createdAt: 2026-06-01T13:42:58.706906200
-updatedAt: 2026-06-13T16:47:26.846676400
+id: rq_zXLffKtHHm
+createdAt: 2026-06-13T17:01:24.124859300
+updatedAt: 2026-06-13T17:01:54.210193400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication: {}
 authenticationType: null
 body:
-  text: |-
-    {
-      "slug" : "java-spring-boot"
-    }
+  text: ''
 bodyType: application/json
 description: ''
 headers:
@@ -20,7 +17,7 @@ headers:
   value: application/json
   id: xgkBJ52siE
 method: GET
-name: Get Course By slug
-sortPriority: 1000.0
-url: http://localhost:8080/organizations/my-org/courses/intro-to-java
+name: Get course by id
+sortPriority: 1000.001
+url: http://localhost:8080/courses/123
 urlParameters: []

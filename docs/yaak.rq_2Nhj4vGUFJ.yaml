@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_2Nhj4vGUFJ
 createdAt: 2026-06-08T10:05:48.941987300
-updatedAt: 2026-06-08T10:06:32.850046200
+updatedAt: 2026-06-13T16:53:33.144036800
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_Tqpp3398L9
+folderId: fl_nXyjLY9rUx
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
@@ -19,6 +19,6 @@ headers:
   id: nK97MW9Nh3
 method: DELETE
 name: Delete Comment
-sortPriority: 7000.002
+sortPriority: 2000.0
 url: http://localhost:8080/comments/2
 urlParameters: []
