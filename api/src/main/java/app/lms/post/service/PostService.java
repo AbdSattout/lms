@@ -1,7 +1,10 @@
 package app.lms.post.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
+import app.lms.organization.model.Organization;
+import app.lms.organization.service.OrganizationAccessService;
 import app.lms.post.dto.CreatePostRequest;
 import app.lms.post.dto.PostResponse;
 import app.lms.post.dto.UpdatePostRequest;
@@ -23,26 +26,48 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostMapper postMapper;
     private final PostAccessService postAccessService;
+    private final OrganizationAccessService organizationAccessService;
 
     @Transactional
     public PostResponse create(
-            Long courseId,
+            String slug,
             CreatePostRequest request,
             User user
     ) {
 
-        Course course =
-                courseAccessService
-                        .getEditableCourse(
-                                courseId,
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
                                 user
                         );
+
+        Course course = null;
+
+        if (request.courseId() != null) {
+
+            course =
+                    courseAccessService
+                            .getEditableCourse(
+                                    request.courseId(),
+                                    user
+                            );
+
+            if (!course.getOrganization().getId()
+                    .equals(organization.getId())) {
+
+                throw new ConflictException(
+                        "Course does not belong to organization"
+                );
+            }
+        }
 
         Post post =
                 Post.builder()
                         .title(request.title())
                         .content(request.content())
                         .author(user)
+                        .organization(organization)
                         .course(course)
                         .likesCount(0L)
                         .commentsCount(0L)
@@ -102,14 +127,34 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public Page<PostResponse> getCoursePosts(Long courseId, Pageable pageable) {
-        return postRepository.findByCourseId(courseId, pageable)
+    public Page<PostResponse> getOrganizationPosts(String slug, Pageable pageable) {
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
+
+        return postRepository
+                .findByOrganizationIdAndCourseIsNull(
+                        organization.getId(),
+                        pageable
+                )
                 .map(postMapper::toResponse);
     }
 
     public PostResponse getById(Long postId) {
         Post post = postAccessService.getById(postId);
         return postMapper.toResponse(post);
+    }
+
+    public Page<PostResponse> getCoursePosts(
+            Long courseId,
+            Pageable pageable
+    ) {
+
+        return postRepository
+                .findByCourseId(
+                        courseId,
+                        pageable
+                )
+                .map(postMapper::toResponse);
     }
 
 }
