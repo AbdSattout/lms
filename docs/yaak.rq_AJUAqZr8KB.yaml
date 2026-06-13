@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_AJUAqZr8KB
 createdAt: 2026-06-01T13:44:06.438219200
-updatedAt: 2026-06-11T18:16:45.315314
+updatedAt: 2026-06-13T16:48:12.998651600
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_ECvsVYsFmt
+folderId: fl_bPEMGkkY8L
 authentication: {}
 authenticationType: null
 body:
@@ -21,7 +21,7 @@ headers:
   id: 0Cpsvz2BRZ
 method: GET
 name: Check Slug Availabilty
-sortPriority: 3000.0
+sortPriority: 4000.0
 url: http://localhost:8080/dashboard/organizations/my-org/courses/check-slug
 urlParameters:
 - enabled: true
