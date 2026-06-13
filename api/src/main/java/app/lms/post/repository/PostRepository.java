@@ -12,4 +12,9 @@ public interface PostRepository
             long courseId,
             Pageable pageable
     );
+
+    Page<Post> findByOrganizationIdAndCourseIsNull(
+            Long organizationId,
+            Pageable pageable
+    );
 }
