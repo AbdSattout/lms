@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_qFjXKeyY3a
 createdAt: 2026-06-08T09:17:19.897415200
-updatedAt: 2026-06-08T09:18:05.906428500
+updatedAt: 2026-06-13T16:51:50.753453800
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_Tqpp3398L9
+folderId: fl_GaHPXdypH6
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
@@ -23,6 +23,6 @@ headers:
   id: HEifKZ4kKx
 method: PATCH
 name: Update post
-sortPriority: 7000.0
+sortPriority: 0.0
 url: http://localhost:8080/posts/1
 urlParameters: []

@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_J6ZRnq3bss
-createdAt: 2026-06-08T09:14:14.008868400
-updatedAt: 2026-06-13T17:14:42.109678200
+id: rq_vmS2TDTGJD
+createdAt: 2026-06-13T17:14:26.880367500
+updatedAt: 2026-06-13T17:17:45.764795900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Tqpp3398L9
 authentication:
@@ -13,9 +13,9 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: Get all post of Organization
-sortPriority: 7000.0
-url: http://localhost:8080/organizations/my-org/posts
+name: Get all post of Course
+sortPriority: 7000.001
+url: http://localhost:8080/courses/2/posts
 urlParameters:
 - enabled: true
   name: page

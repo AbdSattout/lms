@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_qdeXviBWvH
 createdAt: 2026-06-08T09:10:35.874670300
-updatedAt: 2026-06-08T09:16:08.007475900
+updatedAt: 2026-06-13T17:11:13.742835100
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_Tqpp3398L9
+folderId: fl_GaHPXdypH6
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
@@ -12,7 +12,8 @@ body:
   text: |-
     {
         "title": "My Sec Post",
-        "content": "This is the content of my first post"
+        "content": "This is the content of my first post",
+        "courseId": null
     }
 bodyType: application/json
 description: ''
@@ -23,6 +24,6 @@ headers:
   id: NKR6bg03gt
 method: POST
 name: Create post
-sortPriority: 7000.0
-url: http://localhost:8080/courses/2/posts
+sortPriority: 1000.0
+url: http://localhost:8080/organizations/my-org/posts
 urlParameters: []

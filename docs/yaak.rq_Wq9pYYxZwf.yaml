@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_Wq9pYYxZwf
 createdAt: 2026-06-11T19:16:00.775985400
-updatedAt: 2026-06-11T19:48:31.182137900
+updatedAt: 2026-06-13T16:50:10.645063600
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_jNg5STPbcB
+folderId: fl_JG5a6RtbR8
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
@@ -19,6 +19,6 @@ headers:
   id: zuKz6GCjx7
 method: GET
 name: get dashboard block
-sortPriority: 0.002
+sortPriority: 0.0
 url: http://localhost:8080/dashboard/blocks/3
 urlParameters: []
