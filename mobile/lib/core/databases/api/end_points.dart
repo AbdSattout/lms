@@ -2,7 +2,7 @@ class EndPoints {
   // Base API URL for the backend
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://10.0.2.2:8080/',
+    defaultValue: 'https://lms.koyeb.app/',
   );
 
   // Telegram Client ID

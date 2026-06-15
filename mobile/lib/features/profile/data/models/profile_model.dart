@@ -1,12 +1,13 @@
 import '../../domain/entities/profile_entity.dart';
+import '../../../auth/data/models/user_model.dart';
 
 class ProfileModel extends ProfileEntity {
   const ProfileModel({
-    required super.phone,
     required super.name,
-    required super.email,
-    required super.university,
-    req
+    required super.user,
+    super.email,
+    super.phone,
+    super.university,
   });
 
   factory ProfileModel.fromJson(
@@ -14,9 +15,12 @@ class ProfileModel extends ProfileEntity {
       ) {
     return ProfileModel(
       email: json['email'],
-      name: json['name'],
+      name: json['name'] ?? '',
       phone: json['phone'],
       university: json['university'],
+      user: UserModel.fromJson(
+        json['user'],
+      ),
     );
   }
 }

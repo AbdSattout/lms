@@ -2,13 +2,18 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/databases/api/api_consumer.dart';
 import '../../../../core/databases/api/end_points.dart';
+import '../../domain/usecases/update_profile_params.dart';
 import '../models/profile_model.dart';
 import '../models/user_picture_model.dart';
 
 abstract class ProfileRemoteDataSource {
   Future<ProfileModel> getProfile();
 
-  Future<UserPictureModel> updateProfilePicture(
+  Future<ProfileModel> updateProfile(
+      UpdateProfileParams params,
+      );
+
+  Future<ProfileModel> updateProfilePicture(
       String imagePath,
       );
 }
@@ -30,7 +35,21 @@ class ProfileRemoteDataSourceImpl
   }
 
   @override
-  Future<UserPictureModel> updateProfilePicture(
+  Future<ProfileModel> updateProfile(
+      UpdateProfileParams params,
+      ) async {
+
+    final response = await api.put(
+      EndPoints.profile,
+      data: params.toJson(),
+    );
+
+    return ProfileModel.fromJson(
+      response,
+    );
+  }
+  @override
+  Future<ProfileModel> updateProfilePicture(
       String imagePath,
       ) async {
 
@@ -44,6 +63,6 @@ class ProfileRemoteDataSourceImpl
       isFormData: true,
     );
 
-    return UserPictureModel.fromJson(response);
+    return ProfileModel.fromJson(response);
   }
 }

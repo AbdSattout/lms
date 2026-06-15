@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/home/bloc/navbar_cubit.dart';
 import 'package:lms/features/profile/presentation/pages/profile_page.dart';
+
+import '../../../profile/presentation/bloc/profile_bloc.dart';
+import '../../../profile/presentation/bloc/profile_event.dart';
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
 
@@ -30,7 +34,11 @@ class MainHomeScreen extends StatelessWidget {
                   _buildHomeContent(context, user),
                   const Center(child: Text('كورساتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
                   const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-                  const ProfilePage(),                ],
+                  BlocProvider(
+                    create: (_) => sl<ProfileBloc>()
+                      ..add(GetProfileEvent()),
+                    child: const ProfilePage(),
+                  )],
               );
             },
           ),

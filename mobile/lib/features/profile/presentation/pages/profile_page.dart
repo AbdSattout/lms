@@ -15,17 +15,7 @@ class ProfilePage extends StatefulWidget {
       _ProfilePageState();
 }
 
-class _ProfilePageState
-    extends State<ProfilePage> {
-
-  @override
-  void initState() {
-    super.initState();
-
-    context.read<ProfileBloc>().add(
-      GetProfileEvent(),
-    );
-  }
+class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
@@ -82,177 +72,169 @@ class _ProfilePageState
             }
 
             if (state is ProfileLoaded) {
-
-              final profile =
-                  state.profile;
+              final profile = state.profile;
 
               return SafeArea(
-                child:
-                SingleChildScrollView(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 24,
+                  ),
                   child: Column(
                     children: [
-
-                      const SizedBox(
-                        height: 40,
-                      ),
-
                       CircleAvatar(
                         radius: 55,
                         backgroundColor: Colors.grey[200],
-                        backgroundImage: profile.picture != null && profile.picture.toString().startsWith('http')
-                            ? NetworkImage(profile.picture)
-                            : const AssetImage('assets/images/user.png') as ImageProvider,
+                        backgroundImage:
+                        profile.user.picture.isNotEmpty &&
+                            profile.user.picture.startsWith('http')
+                            ? NetworkImage(profile.user.picture)
+                            : const AssetImage(
+                          'assets/images/user.png',
+                        ) as ImageProvider,
                       ),
 
-                      const SizedBox(
-                        height: 12,
-                      ),
-
-                      /*TextButton.icon(
-                        onPressed: () {
-                          context
-                              .read<
-                              ProfileBloc>()
-                              .add(
-                            PickAndUploadPictureEvent(),
-                          );
-                        },
-
-                        icon: const Icon(
-                          Icons.camera_alt,
-                        ),
-
-                        label: const Text(
-                          "تغيير الصورة",
-                        ),
-                      ),*/
-
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 16),
 
                       Text(
                         profile.name,
-
-                        style:
-                        const TextStyle(
+                        style: const TextStyle(
                           fontSize: 26,
-                          fontWeight:
-                          FontWeight.w900,
-                          color:
-                          AppColors.dark,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.dark,
                         ),
                       ),
 
-                      const SizedBox(
-                        height: 8,
+                      const SizedBox(height: 32),
+
+                      _buildInfoCard(
+                        title: "البريد الإلكتروني",
+                        value: profile.email ?? "",
+                        icon: Icons.email_outlined,
                       ),
 
-                      if (profile.email!.isNotEmpty)
-                        Text(
-                          profile.email!,
-                          style:
-                          const TextStyle(
-                            color: AppColors
-                                .darkSoft,
-                          ),
-                        ),
-
-                      if (profile.phone!
-                          .isNotEmpty)
-                        Padding(
-                          padding:
-                          const EdgeInsets.only(
-                            top: 6,
-                          ),
-
-                          child: Text(
-                            profile.phone!,
-                            style:
-                            const TextStyle(
-                              color: AppColors
-                                  .darkSoft,
-                            ),
-                          ),
-                        ),
-
-                      if (profile.university !=
-                          null)
-                        Padding(
-                          padding:
-                          const EdgeInsets.only(
-                            top: 6,
-                          ),
-
-                          child: Text(
-                            profile.university!,
-                            style:
-                            const TextStyle(
-                              color: AppColors
-                                  .darkSoft,
-                            ),
-                          ),
-                        ),
-
-                      const SizedBox(
-                        height: 40,
+                      _buildInfoCard(
+                        title: "رقم الهاتف",
+                        value: profile.phone ?? "",
+                        icon: Icons.phone_outlined,
                       ),
+
+                      _buildInfoCard(
+                        title: "الجامعة",
+                        value: profile.university ?? "",
+                        icon: Icons.school_outlined,
+                      ),
+
+                      const SizedBox(height: 30),
 
                       ProfileOptionTile(
-                        title:
-                        "الإعدادات الشخصية",
-
-                        icon:
-                        Icons.settings_outlined,
-
-                        onTap: () {},
+                        title: "الإعدادات الشخصية",
+                        icon: Icons.edit_outlined,
+                        onTap: () {
+                          /*Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditProfilePage(
+                                profile: profile,
+                              ),
+                            ),
+                          );*/
+                        },
                       ),
 
                       ProfileOptionTile(
                         title: "المظهر",
-
-                        icon:
-                        Icons.palette_outlined,
-
+                        icon: Icons.palette_outlined,
                         onTap: () {},
                       ),
 
                       ProfileOptionTile(
                         title: "شهاداتي",
-
-                        icon: Icons
-                            .workspace_premium_outlined,
-
+                        icon: Icons.workspace_premium_outlined,
                         onTap: () {},
                       ),
 
                       ProfileOptionTile(
-                        title:
-                        "تسجيل الخروج",
-
-                        icon:
-                        Icons.logout_rounded,
-
+                        title: "تسجيل الخروج",
+                        icon: Icons.logout_rounded,
                         destructive: true,
-
                         onTap: () {
-                          // TODO Logout
+                          // logout logic
                         },
                       ),
 
-                      const SizedBox(
-                        height: 120,
-                      ),
+                      const SizedBox(height: 100),
                     ],
                   ),
                 ),
               );
             }
-
             return const SizedBox();
           },
         ),
       ),
     );
   }
+}
+Widget _buildInfoCard({
+  required String title,
+  required String value,
+  required IconData icon,
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(18),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.05),
+          blurRadius: 10,
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            color: AppColors.primary,
+          ),
+        ),
+
+        const SizedBox(width: 12),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: AppColors.darkSoft,
+                  fontSize: 13,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                value.isEmpty ? "غير مضاف" : value,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }

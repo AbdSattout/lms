@@ -9,3 +9,15 @@ class UpdateProfilePictureEvent extends ProfileEvent {
       this.imagePath,
       );
 }
+class UpdateProfileEvent extends ProfileEvent {
+
+  final String email;
+  final String phone;
+  final String university;
+
+  UpdateProfileEvent({
+    required this.email,
+    required this.phone,
+    required this.university,
+  });
+}
