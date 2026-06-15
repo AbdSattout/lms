@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_bPEMGkkY8L
+createdAt: 2026-06-13T16:47:11.586223200
+updatedAt: 2026-06-13T16:47:16.625382
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: dashboard
+sortPriority: 1000.0

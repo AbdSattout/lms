@@ -1,0 +1,33 @@
+type: http_request
+model: http_request
+id: rq_Ux2KR7jqLC
+createdAt: 2026-06-11T18:46:14.493142800
+updatedAt: 2026-06-13T16:50:10.661389100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_JG5a6RtbR8
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "title": "Java Variables Quiz",
+      "content": "Test your knowledge about Java variables",
+      "question": {
+        "content": "Which of the following is a valid variable name in Java?",
+        "options": ["myVariable", "2variable", "my-var", "class"],
+        "correctAnswerIndex": 0
+      }
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: POST
+name: create block
+sortPriority: 1000.0
+url: http://localhost:8080/dashboard/lessons/1/blocks
+urlParameters: []

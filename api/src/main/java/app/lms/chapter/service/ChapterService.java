@@ -16,6 +16,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -56,6 +57,9 @@ public class ChapterService {
                         position,
                         course
                 );
+        if (chapter.getLessons() == null) {
+            chapter.setLessons(new ArrayList<>());
+        }
         chapterRepository.save(chapter);
 
         return chapterMapper.toResponse(

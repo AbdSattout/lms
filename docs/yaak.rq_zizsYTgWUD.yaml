@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_zizsYTgWUD
+createdAt: 2026-06-08T09:16:13.138319700
+updatedAt: 2026-06-08T09:37:57.040387900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Tqpp3398L9
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get post by id
+sortPriority: 7000.0
+url: http://localhost:8080/posts/2
+urlParameters: []

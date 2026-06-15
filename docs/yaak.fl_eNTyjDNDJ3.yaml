@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_eNTyjDNDJ3
+createdAt: 2026-06-11T18:34:54.596740100
+updatedAt: 2026-06-11T19:46:33.018400
+workspaceId: wk_LvqrSfWmRY
+folderId: null
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: lesson
+sortPriority: 8000.0

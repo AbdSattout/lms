@@ -1,0 +1,28 @@
+type: http_request
+model: http_request
+id: rq_Ccr3DUXcaE
+createdAt: 2026-06-08T09:46:13.308519200
+updatedAt: 2026-06-08T10:14:11.388759400
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Tqpp3398L9
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: |-
+    {
+        "content": "Thank you for your comment!",
+        "parentCommentId": null
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: nK97MW9Nh3
+method: POST
+name: Create Comment
+sortPriority: 7000.0
+url: http://localhost:8080/posts/2/comments
+urlParameters: []

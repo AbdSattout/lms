@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_ntisnvy3fK
+createdAt: 2026-06-11T18:40:49.127148700
+updatedAt: 2026-06-11T18:42:04.597282900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_eNTyjDNDJ3
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "title": "Java Variables and Primitives"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: PATCH
+name: update lesson
+sortPriority: 3000.001
+url: http://localhost:8080/lessons/1
+urlParameters: []
