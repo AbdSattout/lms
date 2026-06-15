@@ -1,0 +1,24 @@
+type: http_request
+model: http_request
+id: rq_2gdkEpPja6
+createdAt: 2026-06-11T19:38:20.542312400
+updatedAt: 2026-06-11T19:38:44.253820900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_NRRWNohAxw
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: DELETE
+name: unenrol
+sortPriority: 0.001
+url: http://localhost:8080/courses/2/enroll
+urlParameters: []

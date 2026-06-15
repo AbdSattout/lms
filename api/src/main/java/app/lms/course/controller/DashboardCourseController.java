@@ -111,11 +111,14 @@ public class DashboardCourseController {
         );
     }
 
-    @GetMapping("/courses/slug/{slug}")
+    @GetMapping(
+            "/organizations/{organizationSlug}/courses/{courseSlug}"
+    )
     public ResponseEntity<CourseResponse> getBySlug(
 
-            @PathVariable
-            String slug,
+            @PathVariable String organizationSlug,
+
+            @PathVariable String courseSlug,
 
             @AuthenticationPrincipal
             UserPrincipal principal
@@ -123,7 +126,8 @@ public class DashboardCourseController {
 
         return ResponseEntity.ok(
                 dashboardCourseService.getBySlug(
-                        slug,
+                        organizationSlug,
+                        courseSlug,
                         principal.user()
                 )
         );
@@ -163,13 +167,26 @@ public class DashboardCourseController {
 
         return ResponseEntity.noContent().build();
     }
-    @GetMapping("/courses/check-slug")
+    @GetMapping(
+            "/organizations/{slug}/courses/check-slug"
+    )
     public ResponseEntity<Boolean> checkSlugAvailability(
-            @RequestBody String slug
-    ) {
-        boolean isAvailable = dashboardCourseService.isSlugAvailable(slug);
 
-        return ResponseEntity.ok(isAvailable);
+            @PathVariable String slug,
+
+            @RequestParam String courseSlug,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardCourseService.isSlugAvailable(
+                        slug,
+                        courseSlug,
+                        principal.user()
+                )
+        );
     }
 
 }

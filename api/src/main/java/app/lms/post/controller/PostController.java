@@ -20,11 +20,11 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("/courses/{courseId}/posts")
+    @PostMapping("/organizations/{slug}/posts")
     public ResponseEntity<PostResponse> create(
 
             @PathVariable
-            Long courseId,
+            String slug,
 
             @RequestBody
             @Valid
@@ -38,25 +38,25 @@ public class PostController {
                 .status(HttpStatus.CREATED)
                 .body(
                         postService.create(
-                                courseId,
+                                slug,
                                 request,
                                 principal.user()
                         )
                 );
     }
 
-    @GetMapping("/courses/{courseId}/posts")
-    public ResponseEntity<Page<PostResponse>> getCoursePosts(
+    @GetMapping("/organizations/{slug}/posts")
+    public ResponseEntity<Page<PostResponse>> getOrganizationPosts(
 
             @PathVariable
-            Long courseId,
+            String slug,
 
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
-                postService.getCoursePosts(
-                        courseId,
+                postService.getOrganizationPosts(
+                        slug,
                         pageable
                 )
         );
@@ -115,5 +115,22 @@ public class PostController {
         return ResponseEntity
                 .noContent()
                 .build();
+    }
+
+    @GetMapping("/courses/{courseId}/posts")
+    public ResponseEntity<Page<PostResponse>> getCoursePosts(
+
+            @PathVariable
+            Long courseId,
+
+            Pageable pageable
+    ) {
+
+        return ResponseEntity.ok(
+                postService.getCoursePosts(
+                        courseId,
+                        pageable
+                )
+        );
     }
 }
