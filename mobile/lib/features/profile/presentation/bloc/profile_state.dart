@@ -13,7 +13,7 @@ class ProfileLoaded extends ProfileState {
       this.profile,
       );
 }
-
+class ProfileUpdated extends ProfileState {}
 class ProfilePictureUpdated extends ProfileState {}
 
 class ProfileError extends ProfileState {
