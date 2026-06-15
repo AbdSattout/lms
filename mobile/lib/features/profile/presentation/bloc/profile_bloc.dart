@@ -1,7 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../domain/usecases/get_profile_usecase.dart';
+import '../../domain/usecases/update_profile_params.dart';
 import '../../domain/usecases/update_profile_picture_usecase.dart';
+import '../../domain/usecases/update_profile_usecase.dart';
 import 'profile_event.dart';
 import 'profile_state.dart';
 
@@ -10,10 +11,12 @@ class ProfileBloc
 
   final GetProfileUseCase getProfileUseCase;
   final UpdateProfilePictureUseCase updatePictureUseCase;
+  final UpdateProfileUseCase updateProfileUseCase;
 
   ProfileBloc({
     required this.getProfileUseCase,
     required this.updatePictureUseCase,
+    required this.updateProfileUseCase
   }) : super(ProfileInitial()) {
 
     on<GetProfileEvent>(
@@ -22,6 +25,9 @@ class ProfileBloc
 
     on<UpdateProfilePictureEvent>(
       _updatePicture,
+    );
+    on<UpdateProfileEvent>(
+      _updateProfile,
     );
   }
 
@@ -64,6 +70,38 @@ class ProfileBloc
         GetProfileEvent(),
       );
     } catch (e) {
+      emit(
+        ProfileError(
+          e.toString(),
+        ),
+      );
+    }
+  }
+  Future<void> _updateProfile(
+      UpdateProfileEvent event,
+      Emitter<ProfileState> emit,
+      ) async {
+
+    try {
+
+      await updateProfileUseCase(
+        UpdateProfileParams(
+          email: event.email,
+          phone: event.phone,
+          university: event.university,
+        ),
+      );
+
+      emit(
+        ProfileUpdated(),
+      );
+
+      add(
+        GetProfileEvent(),
+      );
+
+    } catch (e) {
+
       emit(
         ProfileError(
           e.toString(),
