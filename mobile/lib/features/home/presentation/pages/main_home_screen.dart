@@ -513,11 +513,9 @@ class MainHomeScreen extends StatelessWidget {
             snakeShape: SnakeShape.indicator,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
             backgroundColor: Colors.white,
-            // 🔥 سر الاختفاء: جعل لون الـ Snake نفس لون خلفية الـ Navbar
             snakeViewColor: AppColors.primary.withOpacity(0.10),
             height: 70,
             elevation: 10,
-            // ⚪️ لون النص المختار (أبيض كما طلبت)
             selectedItemColor: AppColors.primary,
             unselectedItemColor: AppColors.darkSoft.withOpacity(0.55),
             showSelectedLabels: true,
@@ -525,7 +523,7 @@ class MainHomeScreen extends StatelessWidget {
             currentIndex: state,
             onTap: (index) {
               context.read<NavbarCubit>().controller.animateToPage(
-                index, duration: const Duration(milliseconds: 400), curve: Curves.linear,
+                index, duration: const Duration(milliseconds: 100), curve: Curves.linear,
               );
               context.read<NavbarCubit>().update(index);
             },
