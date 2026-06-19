@@ -1,0 +1,111 @@
+@startuml
+
+title Masar LMS - Domain Model
+
+skinparam backgroundColor #FFFFFF
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontColor #0F5132
+skinparam ArrowColor #198754
+
+skinparam class {
+    BackgroundColor #E9F7EF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+class User {
+    id
+    name
+    telegramId
+}
+
+class Organization {
+    id
+    name
+    slug
+    visibility
+}
+
+class OrganizationMember {
+    id
+    role
+}
+
+class Course {
+    id
+    title
+    slug
+    status
+}
+
+class Chapter {
+    id
+    title
+    position
+}
+
+class Lesson {
+    id
+    title
+    position
+}
+
+class Block {
+    id
+    title
+    content
+    position
+}
+
+class Question {
+    id
+    content
+    options
+    correctAnswerIndex
+}
+
+class CourseEnrollment {
+    id
+    status
+    progressPercentage
+    enrolledAt
+    completedAt
+}
+
+class BlockProgress {
+    id
+    attempts
+    completed
+}
+
+class XPEvent {
+    id
+    type
+    amount
+    referenceId
+}
+
+User "1" -- "*" OrganizationMember
+Organization "1" -- "*" OrganizationMember
+
+Organization "1" -- "*" Course
+
+Course "1" -- "*" Chapter
+Chapter "1" -- "*" Lesson
+Lesson "1" -- "*" Block
+
+Block "1" -- "1" Question
+
+User "1" -- "*" CourseEnrollment
+Course "1" -- "*" CourseEnrollment
+
+User "1" -- "*" BlockProgress
+Block "1" -- "*" BlockProgress
+
+User "1" -- "*" XPEvent
+
+CourseEnrollment "*" --> "0..1" Lesson : lastAccessedLesson
+CourseEnrollment "*" --> "0..1" Block : lastAccessedBlock
+
+@enduml
