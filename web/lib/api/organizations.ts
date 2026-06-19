@@ -12,7 +12,7 @@ import type {
 
 export const list = defineApiRoute({
   get: (options?: BackendFetchOptions) =>
-    backend<OrganizationResponse[]>("/organizations", {
+    backend<OrganizationResponse[]>("/dashboard/organizations", {
       method: "GET",
       ...options,
     }),
@@ -87,13 +87,10 @@ export const checkSlugAvailability = defineApiRoute({
 
 export const courses = defineApiRoute({
   get: (slug: string, options?: BackendFetchOptions) =>
-    backend<CourseResponse[]>(
-      `/dashboard/organizations/${slug}/courses`,
-      {
-        method: "GET",
-        ...options,
-      }
-    ),
+    backend<CourseResponse[]>(`/dashboard/organizations/${slug}/courses`, {
+      method: "GET",
+      ...options,
+    }),
   post: async (
     slug: string,
     request: CreateCourseRequest,
@@ -115,4 +112,24 @@ export const courses = defineApiRoute({
       })(),
       ...options,
     }),
+})
+
+export const getCourseBySlug = defineApiRoute({
+  get: (
+    organizationSlug: string,
+    courseSlug: string,
+    options?: BackendFetchOptions
+  ) =>
+    backend<CourseResponse>(
+      `/dashboard/organizations/${organizationSlug}/courses/${courseSlug}`,
+      { method: "GET", ...options }
+    ),
+})
+
+export const checkCourseSlugAvailability = defineApiRoute({
+  get: (slug: string, courseSlug: string, options?: BackendFetchOptions) =>
+    backend<boolean>(
+      `/dashboard/organizations/${slug}/courses/check-slug?courseSlug=${encodeURIComponent(courseSlug)}`,
+      { method: "GET", ...options }
+    ),
 })
