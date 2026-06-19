@@ -1,0 +1,107 @@
+@startuml
+
+title Masar LMS - High Level Architecture
+
+skinparam backgroundColor #FFFFFF
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam defaultFontColor #0F5132
+skinparam ArrowColor #198754
+
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+skinparam component {
+    BackgroundColor #E9F7EF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+skinparam database {
+    BackgroundColor #E9F7EF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+skinparam actor {
+    FontColor #0F5132
+    BorderColor #198754
+}
+
+skinparam cloud {
+    BackgroundColor #E9F7EF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+actor "Student" as Student
+actor "Organization Manager" as Manager
+actor "Admin" as Admin
+
+rectangle "Frontend Layer" {
+
+    component "Mobile App\n(Student)" as MobileApp
+
+    component "Web Dashboard\n(Organizations)" as WebDashboard
+}
+
+rectangle "Backend Layer\nSpring Boot REST API" {
+
+    component "Auth Module\nJWT / OAuth" as Auth
+
+    component "Organization Module\nOrganizations / Members / Roles" as Organization
+
+    component "Course Module\nCourses / Publishing" as Course
+
+    component "Content Module\nChapters / Lessons / Blocks" as Content
+
+    component "Question Module\nQuestions / Answers" as Question
+
+    component "Enrollment Module\nEnroll / Unenroll" as Enrollment
+
+    component "Progress Module\nBlock Progress / Course Progress" as Progress
+
+    component "Gamification Module\nXP / Streak / Levels" as XP
+
+    component "Media Module\nFiles / Images / Covers" as Media
+}
+
+database "PostgreSQL Database" as DB
+
+cloud "External Storage\nMedia Files" as Storage
+
+Student --> MobileApp
+Manager --> WebDashboard
+Admin --> WebDashboard
+
+MobileApp --> Auth
+MobileApp --> Course
+MobileApp --> Enrollment
+MobileApp --> Content
+MobileApp --> Question
+MobileApp --> Progress
+MobileApp --> XP
+
+WebDashboard --> Auth
+WebDashboard --> Organization
+WebDashboard --> Course
+WebDashboard --> Content
+WebDashboard --> Question
+WebDashboard --> Media
+
+Auth --> DB
+Organization --> DB
+Course --> DB
+Content --> DB
+Question --> DB
+Enrollment --> DB
+Progress --> DB
+XP --> DB
+Media --> DB
+
+Media --> Storage
+
+@enduml
