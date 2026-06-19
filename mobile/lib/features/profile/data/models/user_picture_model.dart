@@ -9,11 +9,13 @@ class UserPictureModel {
     required this.picture,
   });
 
-  factory UserPictureModel.fromJson(Map<String, dynamic> json) {
+  factory UserPictureModel.fromJson(
+      Map<String, dynamic> json,
+      ) {
     return UserPictureModel(
-      id: json['id'],
-      name: json['name'],
-      picture: json['picture'],
+      id: json["id"],
+      name: json["name"],
+      picture: json["picture"] ?? "",
     );
   }
 }

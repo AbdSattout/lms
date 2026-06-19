@@ -13,7 +13,7 @@ abstract class ProfileRemoteDataSource {
       UpdateProfileParams params,
       );
 
-  Future<ProfileModel> updateProfilePicture(
+  Future<UserPictureModel> updateProfilePicture(
       String imagePath,
       );
 }
@@ -49,10 +49,9 @@ class ProfileRemoteDataSourceImpl
     );
   }
   @override
-  Future<ProfileModel> updateProfilePicture(
+  Future<UserPictureModel> updateProfilePicture(
       String imagePath,
       ) async {
-
     final response = await api.patch(
       EndPoints.updateProfilePicture,
       data: {
@@ -63,6 +62,8 @@ class ProfileRemoteDataSourceImpl
       isFormData: true,
     );
 
-    return ProfileModel.fromJson(response);
+    return UserPictureModel.fromJson(
+      response,
+    );
   }
 }
