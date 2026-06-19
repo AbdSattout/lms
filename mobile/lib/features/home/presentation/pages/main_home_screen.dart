@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/home/bloc/navbar_cubit.dart';
+import 'package:lms/features/profile/presentation/pages/profile_page.dart';
 
+import '../../../profile/presentation/bloc/profile_bloc.dart';
+import '../../../profile/presentation/bloc/profile_event.dart';
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
 
@@ -29,9 +33,12 @@ class MainHomeScreen extends StatelessWidget {
                 children: [
                   _buildHomeContent(context, user),
                   const Center(child: Text('كورساتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-                  const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))), 
-                  ProfileView(user: user),
-                ],
+                  const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                  BlocProvider(
+                    create: (_) => sl<ProfileBloc>()
+                      ..add(GetProfileEvent()),
+                    child: const ProfilePage(),
+                  )],
               );
             },
           ),
@@ -460,17 +467,17 @@ class MainHomeScreen extends StatelessWidget {
                           children: [
 
                             Icon(
-                              Icons.edit_outlined,
+                              Icons.menu_book_outlined,
                               size: 18,
-                              color: Color(0xffff8900),
+                              color: AppColors.primary,
                             ),
 
                             SizedBox(width: 6),
 
                             Text(
-                              "تعديل",
+                              "تسجيل",
                               style: TextStyle(
-                                color: Color(0xffff8900),
+                                color: AppColors.primary,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -506,11 +513,9 @@ class MainHomeScreen extends StatelessWidget {
             snakeShape: SnakeShape.indicator,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
             backgroundColor: Colors.white,
-            // 🔥 سر الاختفاء: جعل لون الـ Snake نفس لون خلفية الـ Navbar
             snakeViewColor: AppColors.primary.withOpacity(0.10),
             height: 70,
             elevation: 10,
-            // ⚪️ لون النص المختار (أبيض كما طلبت)
             selectedItemColor: AppColors.primary,
             unselectedItemColor: AppColors.darkSoft.withOpacity(0.55),
             showSelectedLabels: true,
@@ -518,7 +523,7 @@ class MainHomeScreen extends StatelessWidget {
             currentIndex: state,
             onTap: (index) {
               context.read<NavbarCubit>().controller.animateToPage(
-                index, duration: const Duration(milliseconds: 400), curve: Curves.linear,
+                index, duration: const Duration(milliseconds: 100), curve: Curves.linear,
               );
               context.read<NavbarCubit>().update(index);
             },
@@ -626,10 +631,10 @@ class ProfileView extends StatelessWidget {
               color: isDestructive ? Colors.red.withOpacity(0.1) : const Color(0xffff8900).withOpacity(0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(iconData, color: isDestructive ? Colors.red : const Color(0xffff8900), size: 22),
+            child: Icon(iconData, color: isDestructive ? Colors.red : AppColors.primary, size: 22),
           ),
-          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : const Color(0xff040415))),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey),
+          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : AppColors.dark)),
+          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.darkSoft),
           onTap: () {},
         ),
       ),
