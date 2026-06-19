@@ -65,9 +65,24 @@ public class DashboardCourseService {
                         .trim()
                         .toLowerCase();
 
-        if (courseRepository.existsBySlug(slugValue)) {
+        if (
+                slugValue.equals(
+                        organization.getSlug()
+                )
+        ) {
             throw new ConflictException(
-                    "Slug already exists"
+                    "Course slug cannot be the same as organization slug"
+            );
+        }
+
+        if (
+                courseRepository.existsByOrganizationIdAndSlug(
+                        organization.getId(),
+                        slugValue
+                )
+        ) {
+            throw new ConflictException(
+                    "Slug already exists in this organization"
             );
         }
 
@@ -156,9 +171,38 @@ public class DashboardCourseService {
                 course
         );
     }
-    public boolean isSlugAvailable(String slug) {
-        return !courseRepository.existsBySlug(slug);
+    public boolean isSlugAvailable(
+            String organizationSlug,
+            String courseSlug,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
+                        );
+
+        courseSlug =
+                courseSlug.trim()
+                        .toLowerCase();
+
+        if (
+                courseSlug.equals(
+                        organization.getSlug()
+                )
+        ) {
+            return false;
+        }
+
+        return !courseRepository
+                .existsByOrganizationIdAndSlug(
+                        organization.getId(),
+                        courseSlug
+                );
     }
+
     @Transactional
     public void publish(
             Long courseId,
@@ -265,23 +309,32 @@ public class DashboardCourseService {
     ) {
 
         if (
-                !newSlug.equals(
-                        course.getSlug()
+                newSlug.equals(
+                        course.getOrganization().getSlug()
                 )
-                        &&
-                        courseRepository.existsBySlug(
-                                newSlug
-                        )
         ) {
 
             throw new ConflictException(
-                    "Slug already exists"
+                    "Course slug cannot be the same as organization slug"
             );
         }
 
-        course.setSlug(
-                newSlug
-        );
+        if (
+                !newSlug.equals(course.getSlug())
+                        &&
+                        courseRepository
+                                .existsByOrganizationIdAndSlug(
+                                        course.getOrganization().getId(),
+                                        newSlug
+                                )
+        ) {
+
+            throw new ConflictException(
+                    "Slug already exists in this organization"
+            );
+        }
+
+        course.setSlug(newSlug);
     }
 
 
@@ -318,20 +371,27 @@ public class DashboardCourseService {
     }
 
     public CourseResponse getBySlug(
-            String slug,
+            String organizationSlug,
+            String courseSlug,
             User user
     ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
+                        );
 
         Course course =
                 courseAccessService
                         .getManageableCourse(
-                                slug,
+                                organization.getId(),
+                                courseSlug,
                                 user
                         );
 
-        return courseMapper.toResponse(
-                course
-        );
+        return courseMapper.toResponse(course);
     }
 
     public List<CourseResponse> list(

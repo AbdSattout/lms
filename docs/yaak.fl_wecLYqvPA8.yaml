@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_wecLYqvPA8
+createdAt: 2026-06-13T16:45:56.262440200
+updatedAt: 2026-06-13T16:47:16.643944200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ECvsVYsFmt
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: mobile
+sortPriority: 2000.0

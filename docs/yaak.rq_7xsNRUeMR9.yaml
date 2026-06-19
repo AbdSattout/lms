@@ -1,0 +1,24 @@
+type: http_request
+model: http_request
+id: rq_7xsNRUeMR9
+createdAt: 2026-06-13T16:53:06.566917700
+updatedAt: 2026-06-13T16:53:11.482140900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_GaHPXdypH6
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: nK97MW9Nh3
+method: DELETE
+name: Delete Comment Copy
+sortPriority: 111.1111111111111
+url: http://localhost:8080/comments/2
+urlParameters: []

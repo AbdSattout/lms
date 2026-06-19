@@ -1,0 +1,31 @@
+type: http_request
+model: http_request
+id: rq_vmS2TDTGJD
+createdAt: 2026-06-13T17:14:26.880367500
+updatedAt: 2026-06-13T17:17:45.764795900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Tqpp3398L9
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get all post of Course
+sortPriority: 7000.001
+url: http://localhost:8080/courses/2/posts
+urlParameters:
+- enabled: true
+  name: page
+  value: '0'
+  id: 2shAhPSGbp
+- enabled: true
+  name: size
+  value: '10'
+  id: TahnbT69Kn
+- enabled: true
+  name: sort
+  value: createdAt,desc
+  id: k2y2dgxPBC

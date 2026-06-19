@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_Q4mf4536K5
 createdAt: 2026-05-31T19:57:34.052054200
-updatedAt: 2026-06-04T14:37:59.485785
+updatedAt: 2026-06-13T16:48:12.928757200
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_ECvsVYsFmt
+folderId: fl_bPEMGkkY8L
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
@@ -14,6 +14,6 @@ description: ''
 headers: []
 method: DELETE
 name: Delete Course
-sortPriority: 1000.0
-url: http://localhost:8080/courses/3
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/courses/123
 urlParameters: []

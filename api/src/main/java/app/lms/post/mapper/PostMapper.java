@@ -14,14 +14,23 @@ public class PostMapper {
                 post.getId(),
                 post.getTitle(),
                 post.getContent(),
+
                 new AuthorResponse(
                         post.getAuthor().getId(),
                         post.getAuthor().getName(),
                         post.getAuthor().getPicture()
                 ),
-                post.getCourse().getId(),
+
+                post.getOrganization().getId(),
+
+                post.getCourse() != null
+                        ? post.getCourse().getId()
+                        : null,
+
                 post.getLikesCount(),
+
                 post.getCommentsCount(),
+
                 post.getCreatedAt()
         );
     }

@@ -1,0 +1,24 @@
+type: http_request
+model: http_request
+id: rq_7E6a6dVtWe
+createdAt: 2026-06-08T10:04:37.708007900
+updatedAt: 2026-06-08T10:05:14.595534900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Tqpp3398L9
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: nK97MW9Nh3
+method: GET
+name: Get all comment for post
+sortPriority: 7000.001
+url: http://localhost:8080/posts/2/comments
+urlParameters: []
