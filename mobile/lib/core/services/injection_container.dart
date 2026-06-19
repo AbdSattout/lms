@@ -6,6 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Import Core
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/profile/data/datasources/profile_remote_datasource.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/usecases/get_profile_usecase.dart';
+import '../../features/profile/domain/usecases/update_profile_picture_usecase.dart';
+import '../../features/profile/domain/usecases/update_profile_usecase.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
 import '../databases/api/dio_consumer.dart';
@@ -48,10 +55,15 @@ Future<void> init() async {
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
-  
 
-  sl.registerLazySingleton<ApiConsumer>(() => DioConsumer(dio: sl()));
-  
+
+  sl.registerLazySingleton<ApiConsumer>(
+        () => DioConsumer(
+      dio: sl(),
+      authLocalDataSource: sl(),
+    ),
+  );
+
   
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
@@ -61,12 +73,46 @@ Future<void> init() async {
     ),
   ));
   
-  sl.registerLazySingleton(() => CacheHelper());
+
+
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+        () => ProfileRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<ProfileRepository>(
+        () => ProfileRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(
+        () => GetProfileUseCase(sl()),
+  );
+
+  sl.registerLazySingleton(
+        () => UpdateProfilePictureUseCase(sl()),
+  );
+  sl.registerLazySingleton(
+        () => UpdateProfileUseCase(
+      sl(),
+    ),
+  );
+
+  sl.registerFactory(
+      () => ProfileBloc(
+          getProfileUseCase: sl(),
+          updatePictureUseCase: sl(),
+          updateProfileUseCase: sl())
+  );
 
   //! External
   
   // SharedPreferences initialization
   final sharedPreferences = await SharedPreferences.getInstance();
+  final cacheHelper = CacheHelper();
+  await cacheHelper.init();
+
+  sl.registerLazySingleton<CacheHelper>(
+        () => cacheHelper,
+  );
   sl.registerLazySingleton(() => sharedPreferences);
 
   

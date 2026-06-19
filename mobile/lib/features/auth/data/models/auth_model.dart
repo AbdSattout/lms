@@ -14,6 +14,7 @@ class AuthModel extends AuthEntity {
   }
 
   Map<String, dynamic> toJson() {
+    print(token);
     return {
       'token': token,
       'user': (user as UserModel).toJson(),
