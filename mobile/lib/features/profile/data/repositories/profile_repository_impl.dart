@@ -27,7 +27,7 @@ class ProfileRepositoryImpl
     );
   }
   @override
-  Future<ProfileModel> updateProfilePicture(
+  Future<UserPictureModel> updateProfilePicture(
       String imagePath,
       ) {
     return remote.updateProfilePicture(

@@ -62,12 +62,11 @@ class ProfileBloc
         event.imagePath,
       );
 
-      emit(
-        ProfilePictureUpdated(),
-      );
+      final profile =
+      await getProfileUseCase();
 
-      add(
-        GetProfileEvent(),
+      emit(
+        ProfileLoaded(profile),
       );
     } catch (e) {
       emit(

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import 'package:image_picker/image_picker.dart';
+import '../../../../core/databases/cache/cache_helper.dart';
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/pages/telegram_login_page.dart';
+import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
 import '../bloc/profile_state.dart';
@@ -71,6 +75,15 @@ class _ProfilePageState extends State<ProfilePage> {
               );
             }
 
+            if (state is ProfileUpdated) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'تم تحديث البيانات بنجاح',
+                  ),
+                ),
+              );
+            }
             if (state is ProfileLoaded) {
               final profile = state.profile;
 
@@ -82,36 +95,109 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 55,
-                        backgroundColor: Colors.grey[200],
-                        backgroundImage:
-                        profile.user.picture.isNotEmpty &&
-                            profile.user.picture.startsWith('http')
-                            ? NetworkImage(profile.user.picture)
-                            : const AssetImage(
-                          'assets/images/user.png',
-                        ) as ImageProvider,
+
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            height: 180,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topRight,
+                                end: Alignment.bottomLeft,
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primaryLight,
+                                ],
+                              ),
+                              borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(35),
+                              ),
+                            ),
+                          ),
+
+                          Positioned(
+                            bottom: -55,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 55,
+                                      backgroundImage:
+                                      profile.user.picture.isNotEmpty
+                                          ? NetworkImage(profile.user.picture)
+                                          : const AssetImage(
+                                        'assets/images/user.png',
+                                      ) as ImageProvider,
+                                    ),
+
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _pickImage(context);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.camera_alt,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 70),
 
                       Text(
                         profile.name,
                         style: const TextStyle(
-                          fontSize: 26,
+                          fontSize: 28,
                           fontWeight: FontWeight.w900,
                           color: AppColors.dark,
                         ),
                       ),
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: 6),
 
-                      _buildInfoCard(
-                        title: "البريد الإلكتروني",
-                        value: profile.email ?? "",
-                        icon: Icons.email_outlined,
+                      Text(
+                        profile.email ?? "لم يتم إضافة البريد الإلكتروني",
+                        style: const TextStyle(
+                          color: AppColors.darkSoft,
+                        ),
                       ),
+
+                      const SizedBox(height: 24),
 
                       _buildInfoCard(
                         title: "رقم الهاتف",
@@ -131,14 +217,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: "الإعدادات الشخصية",
                         icon: Icons.edit_outlined,
                         onTap: () {
-                          /*Navigator.push(
+                          _showEditProfileSheet(
                             context,
-                            MaterialPageRoute(
-                              builder: (_) => EditProfilePage(
-                                profile: profile,
-                              ),
-                            ),
-                          );*/
+                            profile,
+                          );
                         },
                       ),
 
@@ -159,13 +241,51 @@ class _ProfilePageState extends State<ProfilePage> {
                         icon: Icons.logout_rounded,
                         destructive: true,
                         onTap: () {
-                          // logout logic
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text(
+                                'تسجيل الخروج',
+                              ),
+                              content: const Text(
+                                'هل أنت متأكد؟',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('إلغاء'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    await sl<CacheHelper>().removeData(
+                                      key: "CachedAuthToken",
+                                    );
+
+                                    if (!context.mounted) return;
+
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                        const TelegramLoginPage(),
+                                      ),
+                                          (route) => false,
+                                    );
+                                  },
+                                  child: const Text('خروج'),
+                                ),
+                              ],
+                            ),
+                          );
                         },
                       ),
 
                       const SizedBox(height: 100),
                     ],
-                  ),
+                  )
+
                 ),
               );
             }
@@ -182,25 +302,33 @@ Widget _buildInfoCard({
   required IconData icon,
 }) {
   return Container(
-    margin: const EdgeInsets.only(bottom: 12),
-    padding: const EdgeInsets.all(16),
+    margin: const EdgeInsets.only(
+      bottom: 14,
+    ),
+    padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: BorderRadius.circular(22),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.05),
-          blurRadius: 10,
+          color: Colors.black.withOpacity(0.04),
+          blurRadius: 20,
+          offset: const Offset(0, 6),
         ),
       ],
     ),
     child: Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(10),
+          width: 48,
+          height: 48,
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
-            shape: BoxShape.circle,
+            color:
+            AppColors.primary.withOpacity(
+              0.1,
+            ),
+            borderRadius:
+            BorderRadius.circular(14),
           ),
           child: Icon(
             icon,
@@ -208,11 +336,12 @@ Widget _buildInfoCard({
           ),
         ),
 
-        const SizedBox(width: 12),
+        const SizedBox(width: 14),
 
         Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+            CrossAxisAlignment.start,
             children: [
               Text(
                 title,
@@ -225,16 +354,152 @@ Widget _buildInfoCard({
               const SizedBox(height: 4),
 
               Text(
-                value.isEmpty ? "غير مضاف" : value,
-                style: const TextStyle(
+                value.isEmpty
+                    ? "غير مضاف"
+                    : value,
+                style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  fontWeight:
+                  FontWeight.w700,
+                  color: value.isEmpty
+                      ? Colors.grey
+                      : AppColors.dark,
                 ),
               ),
             ],
           ),
         ),
       ],
+    ),
+  );
+}
+void _showEditProfileSheet(
+    BuildContext context,
+    ProfileEntity profile,
+    ) {
+  final emailController =
+  TextEditingController(
+    text: profile.email ?? '',
+  );
+
+  final phoneController =
+  TextEditingController(
+    text: profile.phone ?? '',
+  );
+
+  final universityController =
+  TextEditingController(
+    text: profile.university ?? '',
+  );
+
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(24),
+      ),
+    ),
+    builder: (_) {
+      return Padding(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 24,
+          bottom:
+          MediaQuery.of(context)
+              .viewInsets
+              .bottom +
+              20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+
+            const Text(
+              "تعديل الملف الشخصي",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            TextField(
+              controller: emailController,
+              decoration: const InputDecoration(
+                labelText: "البريد الإلكتروني",
+                  hintText: "example@gmail.com"
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: phoneController,
+              decoration: const InputDecoration(
+                labelText: "رقم الهاتف",
+                hintText: "09XXXXXXXX"
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            TextField(
+              controller: universityController,
+              decoration: const InputDecoration(
+                labelText: "الجامعة",
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+
+                  context.read<ProfileBloc>().add(
+                    UpdateProfileEvent(
+                      email: emailController.text,
+                      phone: phoneController.text,
+                      university: universityController.text,
+                    ),
+                  );
+
+                  Navigator.pop(
+                    context,
+                  );
+                },
+                child: const Text(
+                  "حفظ التعديلات",
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+Future<void> _pickImage(
+    BuildContext context,
+    ) async {
+
+  final ImagePicker picker =
+  ImagePicker();
+
+  final XFile? image = await picker.pickImage(
+    source: ImageSource.gallery,
+    imageQuality: 70,
+  );
+
+  if (image == null) return;
+
+  context.read<ProfileBloc>().add(
+    UpdateProfilePictureEvent(
+      image.path,
     ),
   );
 }
