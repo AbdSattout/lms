@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_zXLffKtHHm
+createdAt: 2026-06-13T17:01:24.124859300
+updatedAt: 2026-06-13T17:01:54.210193400
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_wecLYqvPA8
+authentication: {}
+authenticationType: null
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: xgkBJ52siE
+method: GET
+name: Get course by id
+sortPriority: 1000.001
+url: http://localhost:8080/courses/123
+urlParameters: []

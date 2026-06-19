@@ -2,6 +2,7 @@ package app.lms.post.service;
 
 import app.lms.common.exception.NotFoundException;
 import app.lms.course.service.CourseAccessService;
+import app.lms.organization.service.OrganizationAccessService;
 import app.lms.post.model.Post;
 import app.lms.post.repository.PostRepository;
 import app.lms.user.model.User;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class PostAccessService {
 
     private final PostRepository postRepository;
-    private final CourseAccessService courseAccessService;
+    private final OrganizationAccessService organizationAccessService;
 
     public Post getById(Long postId) {
 
@@ -33,10 +34,11 @@ public class PostAccessService {
 
         Post post = getById(postId);
 
-        courseAccessService.getEditableCourse(
-                post.getCourse().getId(),
-                user
-        );
+        organizationAccessService
+                .getManageableOrganization(
+                        post.getOrganization().getSlug(),
+                        user
+                );
 
         return post;
     }

@@ -30,19 +30,28 @@ public class CourseService {
 
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
-        public CourseResponse getBySlug(
-                String slug
-        ) {
+    public CourseResponse getBySlug(
+            String organizationSlug,
+            String courseSlug
+    ) {
 
-            Course course =
-                    courseAccessService.getPublishedBySlug(
-                            slug
-                    );
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(
+                                organizationSlug
+                        );
 
-            return courseMapper.toResponse(
-                    course
-            );
-        }
+        Course course =
+                courseAccessService
+                        .getPublishedBySlug(
+                                organization.getId(),
+                                courseSlug
+                        );
+
+        return courseMapper.toResponse(
+                course
+        );
+    }
 
 
     public CourseDetailsResponse getById(

@@ -12,6 +12,8 @@ public record PostResponse(
 
         AuthorResponse author,
 
+        Long organizationId,
+
         long courseId,
 
         Long likesCount,

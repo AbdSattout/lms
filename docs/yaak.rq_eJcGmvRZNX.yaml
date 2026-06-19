@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_eJcGmvRZNX
 createdAt: 2026-06-01T08:49:29.084483900
-updatedAt: 2026-06-01T09:46:39.942924
+updatedAt: 2026-06-11T18:18:41.262316100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
 body:
   form:
@@ -36,5 +36,5 @@ headers:
 method: POST
 name: create chapter
 sortPriority: 0.0
-url: http://localhost:8080/courses/5/chapters
+url: http://localhost:8080/courses/3/chapters
 urlParameters: []

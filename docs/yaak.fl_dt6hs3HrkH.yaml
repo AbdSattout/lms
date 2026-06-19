@@ -2,7 +2,7 @@ type: folder
 model: folder
 id: fl_dt6hs3HrkH
 createdAt: 2026-06-01T08:49:25.052103400
-updatedAt: 2026-06-01T08:49:25.052103900
+updatedAt: 2026-06-11T19:46:32.905836600
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication: {}
@@ -10,4 +10,4 @@ authenticationType: null
 description: ''
 headers: []
 name: Chapter
-sortPriority: -1780303765050.0
+sortPriority: 2000.0
