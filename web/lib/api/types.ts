@@ -135,6 +135,7 @@ export interface CreateBlockRequest {
 export interface UpdateBlockRequest {
   title?: string
   content?: string
+  question?: UpdateQuestionRequest
 }
 
 export interface BlockResponse {
@@ -179,6 +180,7 @@ export interface QuestionPublicResponse {
 export interface CreatePostRequest {
   title: string
   content: string
+  courseId: number
 }
 
 export interface UpdatePostRequest {
@@ -191,6 +193,7 @@ export interface PostResponse {
   title?: string
   content?: string
   author?: AuthorResponse
+  organizationId?: number
   courseId: number
   likesCount?: number
   commentsCount?: number
@@ -256,6 +259,39 @@ export interface Page<T> {
   first?: boolean
   last?: boolean
   numberOfElements?: number
+  empty?: boolean
+}
+
+export interface CourseDetailsResponse {
+  id?: number
+  title?: string
+  slug?: string
+  description?: string
+  coverUrl?: string
+  organizationName?: string
+  chapters?: ChapterResponse[]
+  progress?: CourseProgressResponse
+}
+
+export interface CourseProgressResponse {
+  lastLessonId?: number
+  lastBlockId?: number
+  progressPercentage?: number
+  completed?: boolean
+  completedAt?: string
+}
+
+export interface PageCourseResponse {
+  totalElements?: number
+  totalPages?: number
+  size?: number
+  content?: CourseResponse[]
+  number?: number
+  pageable?: PageableObject
+  sort?: SortObject
+  numberOfElements?: number
+  first?: boolean
+  last?: boolean
   empty?: boolean
 }
 

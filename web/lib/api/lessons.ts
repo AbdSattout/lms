@@ -15,7 +15,7 @@ export const create = defineApiRoute({
     request: CreateLessonRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<LessonResponse>(`/dashboard/chapters/${chapterId}/lessons`, {
+    backend<LessonResponse>(`/chapters/${chapterId}/lessons`, {
       method: "POST",
       body: request,
       ...options,
@@ -28,7 +28,7 @@ export const reorder = defineApiRoute({
     request: ReorderLessonsRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<void>(`/dashboard/chapters/${chapterId}/lessons/reorder`, {
+    backend<void>(`/chapters/${chapterId}/lessons/reorder`, {
       method: "PATCH",
       body: request,
       ...options,
@@ -41,13 +41,13 @@ export const byId = defineApiRoute({
     request: UpdateLessonRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<LessonResponse>(`/dashboard/lessons/${lessonId}`, {
+    backend<LessonResponse>(`/lessons/${lessonId}`, {
       method: "PATCH",
       body: request,
       ...options,
     }),
   delete: (lessonId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/dashboard/lessons/${lessonId}`, {
+    backend<void>(`/lessons/${lessonId}`, {
       method: "DELETE",
       ...options,
     }),
