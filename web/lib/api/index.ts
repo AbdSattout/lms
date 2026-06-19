@@ -9,32 +9,39 @@ import {
 } from "@/lib/api/blocks"
 import { byId as chaptersById } from "@/lib/api/chapters"
 import {
-  byId as coursesById,
   chapters,
+  byId as coursesById,
   enroll,
   publish,
 } from "@/lib/api/courses"
-import { byId as lessonsById, create as createLesson, reorder as reorderLessons } from "@/lib/api/lessons"
+import {
+  create as createLesson,
+  byId as lessonsById,
+  reorder as reorderLessons,
+} from "@/lib/api/lessons"
 import { byCourse, byId as mediaById } from "@/lib/api/media"
 import {
   bySlug,
+  checkCourseSlugAvailability,
   checkSlugAvailability,
   courses,
   create as createOrg,
+  getCourseBySlug,
   list,
 } from "@/lib/api/organizations"
-import { submitAnswer } from "@/lib/api/progress"
-import { update as updateQuestion } from "@/lib/api/questions"
 import {
-  byCourse as postsByCourse,
-  byId as postsById,
   comments,
   deleteComment,
   likes,
+  byCourse as postsByCourse,
+  byId as postsById,
+  byOrg as postsByOrg,
 } from "@/lib/api/posts"
 import { create, me as profileMe } from "@/lib/api/profile"
-import { me, picture } from "@/lib/api/users"
+import { submitAnswer } from "@/lib/api/progress"
+import { update as updateQuestion } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
+import { me, picture } from "@/lib/api/users"
 
 export const api = {
   auth: {
@@ -67,6 +74,8 @@ export const api = {
       bySlug,
       courses,
       checkSlugAvailability,
+      getCourseBySlug,
+      checkCourseSlugAvailability,
     },
     courses: {
       byId: coursesById,
@@ -96,6 +105,7 @@ export const api = {
     posts: {
       byCourse: postsByCourse,
       byId: postsById,
+      byOrg: postsByOrg,
       likes,
       comments,
       deleteComment,
