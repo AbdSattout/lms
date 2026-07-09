@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
       new URL(`${imageKitUrl}/**`),
     ],
   },
+  experimental: {
+    instantInsights: {
+      validationLevel: "manual-warning",
+    },
+  },
 }
 
 export default nextConfig
