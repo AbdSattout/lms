@@ -2,6 +2,7 @@ package app.lms.question.model;
 
 import app.lms.block.model.Block;
 import app.lms.common.model.BaseEntity;
+import app.lms.quiz.model.Quiz;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -43,6 +44,10 @@ public class Question extends BaseEntity {
             unique = true
     )
     private Block block;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "quiz_id", nullable = true)
+    private Quiz quiz;
 
     @Column(name = "shuffle_options", nullable = false)
     @Builder.Default
