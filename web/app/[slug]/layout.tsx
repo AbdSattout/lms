@@ -1,11 +1,11 @@
 import { AppSidebar } from "@/components/app-sidebar"
-import { OrgGuard } from "@/components/org-guard"
 import { Header } from "@/components/header"
+import { OrgGuard } from "@/components/org-guard"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { api } from "@/lib/api"
 import { Suspense } from "react"
 
-export default async function DashboardLayout({
+async function DashboardShell({
   params,
   children,
 }: {
@@ -39,5 +39,19 @@ export default async function DashboardLayout({
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+export default function DashboardLayout({
+  params,
+  children,
+}: {
+  params: Promise<{ slug: string }>
+  children: React.ReactNode
+}) {
+  return (
+    <Suspense fallback={null}>
+      <DashboardShell params={params}>{children}</DashboardShell>
+    </Suspense>
   )
 }

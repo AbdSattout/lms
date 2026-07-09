@@ -3,6 +3,7 @@ import { Suspense } from "react"
 
 import { Nav, NavItem } from "@/components/nav"
 import { SidebarAccountDropdown } from "@/components/sidebar-account-dropdown"
+import { NavSkeleton } from "@/components/skeletons/nav-skeleton"
 import { SidebarAccountDropdownSkeleton } from "@/components/skeletons/sidebar-account-dropdown-skeleton"
 import {
   Sidebar,
@@ -68,7 +69,9 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="pb-0">
-        <Nav items={navItems} />
+        <Suspense fallback={<NavSkeleton />}>
+          <Nav items={navItems} />
+        </Suspense>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
