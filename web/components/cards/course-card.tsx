@@ -1,24 +1,98 @@
 "use client"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { CourseResponse } from "@/lib/api/types"
-import { EllipsisVertical, Pen, Trash2 } from "lucide-react"
+import { Check, EllipsisVertical, Pen, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { useState } from "react"
 
 interface CourseCardProps {
   course: CourseResponse
   onEdit: (course: CourseResponse) => void
   onDelete: (course: CourseResponse) => void
+  onPublish: (course: CourseResponse) => void
 }
 
-export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
+function CourseCardMenu({
+  course,
+  onEdit,
+  onDelete,
+  onPublish,
+}: CourseCardProps) {
+  const [publishOpen, setPublishOpen] = useState(false)
+
+  return (
+    <>
+      <DropdownMenuContent>
+        {course.status === "DRAFT" && (
+          <DropdownMenuItem onClick={() => setPublishOpen(true)}>
+            <Check />
+            نشر
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem onClick={() => onEdit(course)}>
+          <Pen />
+          تعديل
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          variant="destructive"
+          onClick={() => onDelete(course)}
+        >
+          <Trash2 />
+          حذف
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+
+      <AlertDialog open={publishOpen} onOpenChange={setPublishOpen}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>نشر الدورة</AlertDialogTitle>
+            <AlertDialogDescription>
+              نشر الدورة سيمنعك من تعديل المحتوى (الدروس والبلوكات
+              والأسئلة) لاحقاً. هل أنت متأكد؟
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">
+              إلغاء
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setPublishOpen(false)
+                onPublish(course)
+              }}
+            >
+              نشر
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}
+
+export function CourseCard(props: CourseCardProps) {
+  const { course } = props
+
   return (
     <>
       {course.coverUrl ? (
@@ -56,19 +130,7 @@ export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
                 >
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => onEdit(course)}>
-                    <Pen />
-                    تعديل
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onDelete(course)}
-                  >
-                    <Trash2 />
-                    حذف
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <CourseCardMenu {...props} />
               </DropdownMenu>
             </div>
           </CardHeader>
@@ -91,19 +153,7 @@ export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
                 >
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => onEdit(course)}>
-                    <Pen />
-                    تعديل
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => onDelete(course)}
-                  >
-                    <Trash2 />
-                    حذف
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+                <CourseCardMenu {...props} />
               </DropdownMenu>
             </div>
           </CardHeader>
