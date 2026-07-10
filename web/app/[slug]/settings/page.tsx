@@ -15,7 +15,6 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   let organizationData
   try {
     organizationData = await api.dashboard.organizations.bySlug.get(slug)
-    console.log(organizationData)
     if (!organizationData) notFound()
   } catch {
     notFound()

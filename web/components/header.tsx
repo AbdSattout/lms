@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import type { OrganizationResponse } from "@/lib/api/types"
 import { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Fragment, Suspense } from "react"
+import { Fragment, Suspense, use } from "react"
 import { Skeleton } from "./ui/skeleton"
 
 const routeMapping: Record<string, string> = {
@@ -22,47 +23,47 @@ const routeMapping: Record<string, string> = {
   settings: "الإعدادات",
 }
 
-function BreadcrumbNav() {
+function BreadcrumbNav({
+  orgPromise,
+}: {
+  orgPromise: Promise<OrganizationResponse>
+}) {
+  const org = use(orgPromise)
   const pathname = usePathname()
 
   const segments = pathname.split("/").filter(Boolean)
-  const start = Math.max(segments.indexOf("dashboard") + 1, 0)
-
-  const breadcrumbs = segments.slice(start).map((segment, index) => ({
-    href: `/${segments.slice(0, start + index + 1).join("/")}`,
-    label: routeMapping[segment] ?? decodeURIComponent(segment),
-  }))
+  const pageSegment = segments.length > 1 ? segments[1] : null
 
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {breadcrumbs.map(({ href, label }, index) => {
-          const isLast = index === breadcrumbs.length - 1
-
-          return (
-            <Fragment key={href}>
-              {index > 0 && <BreadcrumbSeparator />}
-
-              <BreadcrumbItem>
-                {isLast ? (
-                  <BreadcrumbPage>{label}</BreadcrumbPage>
-                ) : (
-                  <BreadcrumbLink
-                    render={(props) => <Link href={href as Route} {...props} />}
-                  >
-                    {label}
-                  </BreadcrumbLink>
-                )}
-              </BreadcrumbItem>
-            </Fragment>
-          )
-        })}
+        <BreadcrumbItem>
+          <BreadcrumbLink
+            render={(props) => <Link href={`/${org.slug}` as Route} {...props} />}
+          >
+            {org.name}
+          </BreadcrumbLink>
+        </BreadcrumbItem>
+        {pageSegment && (
+          <Fragment>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>
+                {routeMapping[pageSegment] ?? pageSegment}
+              </BreadcrumbPage>
+            </BreadcrumbItem>
+          </Fragment>
+        )}
       </BreadcrumbList>
     </Breadcrumb>
   )
 }
 
-export function Header() {
+export function Header({
+  orgPromise,
+}: {
+  orgPromise: Promise<OrganizationResponse>
+}) {
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
@@ -74,7 +75,7 @@ export function Header() {
         />
 
         <Suspense fallback={<Skeleton className="h-4 w-16" />}>
-          <BreadcrumbNav />
+          <BreadcrumbNav orgPromise={orgPromise} />
         </Suspense>
       </div>
     </header>
