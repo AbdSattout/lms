@@ -7,19 +7,9 @@ export interface User {
   picture?: string
 }
 
-export interface UpdateUserRequest {
-  name?: string
-}
-
 export interface AuthResponse {
   token?: string
   user?: User
-}
-
-export interface CreateProfileRequest {
-  email?: string
-  phone?: string
-  university?: string
 }
 
 export interface ProfileResponse {
@@ -30,26 +20,6 @@ export interface ProfileResponse {
   user?: User
 }
 
-export interface UpdateProfile {
-  email?: string
-  phone?: string
-  university?: string
-}
-
-export interface CreateOrganizationRequest {
-  name: string
-  slug: string
-  description?: string
-  visibility?: OrganizationVisibility
-}
-
-export interface UpdateOrganizationRequest {
-  name?: string
-  slug?: string
-  description?: string
-  visibility?: OrganizationVisibility
-}
-
 export interface OrganizationResponse {
   id?: number
   name?: string
@@ -58,18 +28,6 @@ export interface OrganizationResponse {
   image?: string
   visibility?: OrganizationVisibility
   ownerName?: string
-}
-
-export interface CreateCourseRequest {
-  title: string
-  slug: string
-  description?: string
-}
-
-export interface UpdateCourseRequest {
-  title?: string
-  slug?: string
-  description?: string
 }
 
 export interface CourseResponse {
@@ -88,14 +46,6 @@ export interface EnrollmentResponse {
   enrolledAt?: string
 }
 
-export interface CreateChapterRequest {
-  title: string
-}
-
-export interface UpdateChapterRequest {
-  title: string
-}
-
 export interface ChapterResponse {
   id?: number
   title?: string
@@ -103,39 +53,10 @@ export interface ChapterResponse {
   lessons?: LessonResponse[]
 }
 
-export interface ReorderChaptersRequest {
-  chapterIds: number[]
-}
-
-export interface CreateLessonRequest {
-  title: string
-}
-
-export interface UpdateLessonRequest {
-  title?: string
-  isPublished?: boolean
-}
-
 export interface LessonResponse {
   id?: number
   title?: string
   position?: number
-}
-
-export interface ReorderLessonsRequest {
-  lessonIds: number[]
-}
-
-export interface CreateBlockRequest {
-  title: string
-  content?: string
-  question?: CreateQuestionRequest
-}
-
-export interface UpdateBlockRequest {
-  title?: string
-  content?: string
-  question?: UpdateQuestionRequest
 }
 
 export interface BlockResponse {
@@ -152,16 +73,6 @@ export interface BlockPublicResponse {
   content?: string
   position?: number
   question?: QuestionPublicResponse
-}
-
-export interface ReorderBlocksRequest {
-  blockIds: number[]
-}
-
-export interface CreateQuestionRequest {
-  content: string
-  options: string[]
-  correctAnswerIndex: number
 }
 
 export interface QuestionResponse {
@@ -184,17 +95,6 @@ export interface QuizResponse {
   questions?: QuestionResponse[]
 }
 
-export interface CreatePostRequest {
-  title: string
-  content: string
-  courseId: number
-}
-
-export interface UpdatePostRequest {
-  title?: string
-  content?: string
-}
-
 export interface PostResponse {
   id: number
   title?: string
@@ -213,11 +113,6 @@ export interface AuthorResponse {
   picture?: string
 }
 
-export interface CreateCommentRequest {
-  content: string
-  parentCommentId?: number
-}
-
 export interface CommentResponse {
   id: number
   content?: string
@@ -232,12 +127,6 @@ export interface CourseMediaResponse {
   url?: string
   type?: FileType
   courseId?: number
-}
-
-export interface Pageable {
-  page?: number
-  size?: number
-  sort?: string[]
 }
 
 export interface PageableObject {
@@ -302,10 +191,6 @@ export interface PageCourseResponse {
   empty?: boolean
 }
 
-export interface SubmitBlockAnswerRequest {
-  answerIndex: number
-}
-
 export interface SubmitBlockAnswerResponse {
   correct?: boolean
   completed?: boolean
@@ -313,12 +198,6 @@ export interface SubmitBlockAnswerResponse {
   nextLessonId?: number
   nextChapterId?: number
   courseCompleted?: boolean
-}
-
-export interface UpdateQuestionRequest {
-  content?: string
-  options?: string[]
-  correctAnswerIndex?: number
 }
 
 export type PagePostResponse = Page<PostResponse>

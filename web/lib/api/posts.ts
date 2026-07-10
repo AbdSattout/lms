@@ -4,15 +4,17 @@ import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
   CommentResponse,
-  CreateCommentRequest,
-  CreatePostRequest,
   PagePostResponse,
-  Pageable,
   PostResponse,
-  UpdatePostRequest,
 } from "@/lib/api/types"
+import type {
+  CreateCommentInput,
+  CreatePostInput,
+  PageableInput,
+  UpdatePostInput,
+} from "@/lib/validation"
 
-function toQueryString(pageable: Pageable) {
+function toQueryString(pageable: PageableInput) {
   const params = new URLSearchParams()
 
   if (pageable.page !== undefined) params.set("page", String(pageable.page))
@@ -26,7 +28,7 @@ function toQueryString(pageable: Pageable) {
 export const byCourse = defineApiRoute({
   get: (
     courseId: number,
-    pageable: Pageable,
+    pageable: PageableInput,
     options?: BackendFetchOptions
   ) =>
     backend<PagePostResponse>(
@@ -35,7 +37,7 @@ export const byCourse = defineApiRoute({
     ),
   post: (
     slug: string,
-    request: CreatePostRequest,
+    request: CreatePostInput,
     options?: BackendFetchOptions
   ) =>
     backend<PostResponse>(`/organizations/${slug}/posts`, {
@@ -53,7 +55,7 @@ export const byId = defineApiRoute({
     }),
   patch: (
     postId: number,
-    request: UpdatePostRequest,
+    request: UpdatePostInput,
     options?: BackendFetchOptions
   ) =>
     backend<PostResponse>(`/posts/${postId}`, {
@@ -89,7 +91,7 @@ export const comments = defineApiRoute({
     }),
   post: (
     postId: number,
-    request: CreateCommentRequest,
+    request: CreateCommentInput,
     options?: BackendFetchOptions
   ) =>
     backend<CommentResponse>(`/posts/${postId}/comments`, {
@@ -110,7 +112,7 @@ export const deleteComment = defineApiRoute({
 export const byOrg = defineApiRoute({
   get: (
     slug: string,
-    pageable: Pageable,
+    pageable: PageableInput,
     options?: BackendFetchOptions
   ) =>
     backend<PagePostResponse>(
@@ -119,7 +121,7 @@ export const byOrg = defineApiRoute({
     ),
   post: (
     slug: string,
-    request: CreatePostRequest,
+    request: CreatePostInput,
     options?: BackendFetchOptions
   ) =>
     backend<PostResponse>(`/organizations/${slug}/posts`, {
