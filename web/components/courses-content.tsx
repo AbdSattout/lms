@@ -1,7 +1,7 @@
 "use client"
 
-import { CourseCard } from "@/components/course-card"
-import { CourseFormDialog } from "@/components/course-form-dialog"
+import { CourseCard } from "@/components/cards/course-card"
+import { CourseFormDialog } from "@/components/forms/course-form-dialog"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,

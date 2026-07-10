@@ -70,7 +70,7 @@ export const chapters = {
       request: CreateChapterRequest,
       options?: BackendFetchOptions
     ) =>
-      backend<ChapterResponse>(`/dashboard/courses/${courseId}/chapters`, {
+      backend<ChapterResponse>(`/courses/${courseId}/chapters`, {
         method: "POST",
         body: request,
         ...options,
@@ -82,7 +82,7 @@ export const chapters = {
       request: ReorderChaptersRequest,
       options?: BackendFetchOptions
     ) =>
-      backend<void>(`/dashboard/courses/${courseId}/chapters/reorder`, {
+      backend<void>(`/courses/${courseId}/chapters/reorder`, {
         method: "PATCH",
         body: request,
         ...options,

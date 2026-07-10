@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_jhfq9bt9YF
+createdAt: 2026-06-11T19:46:52.764703100
+updatedAt: 2026-06-11T19:48:19.165881300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_NCK5KyGZSo
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "answerIndex": 0
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: POST
+name: progress
+sortPriority: 0.0
+url: http://localhost:8080/blocks/3/submit
+urlParameters: []

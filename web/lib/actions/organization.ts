@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import type { UpdateOrganizationRequest } from "@/lib/api/types"
 export async function createOrganization(
-  _prevState: { error?: string },
+  _prevState: { error?: string; success?: boolean; slug?: string },
   formData: FormData
 ) {
   const result = createOrganizationSchema.safeParse({
@@ -33,7 +33,7 @@ export async function createOrganization(
   if (!org) return { error: "حدث خطأ أثناء إنشاء المنظمة." }
 
   revalidatePath("/")
-  redirect(`/${slug}`)
+  return { success: true, slug }
 }
 
 export async function checkSlugAvailability(slug: string) {

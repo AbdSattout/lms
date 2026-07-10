@@ -1,11 +1,13 @@
-import { AppSidebar } from "@/components/app-sidebar"
-import { OrgGuard } from "@/components/org-guard"
+import { BreadcrumbProvider } from "@/components/breadcrumb-context"
 import { Header } from "@/components/header"
+import { OrgGuard } from "@/components/org-guard"
+import { AppSidebar } from "@/components/sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { api } from "@/lib/api"
+import { Loader } from "lucide-react"
 import { Suspense } from "react"
 
-export default async function DashboardLayout({
+async function DashboardShell({
   params,
   children,
 }: {
@@ -29,15 +31,39 @@ export default async function DashboardLayout({
       </Suspense>
       <AppSidebar variant="inset" orgSlug={slug} orgPromise={orgPromise} />
       <SidebarInset>
-        <Header />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
-              {children}
+        <BreadcrumbProvider>
+          <Header orgPromise={orgPromise} />
+          <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col gap-2">
+              <div className="flex flex-col gap-4 p-4 md:gap-6 md:p-6">
+                {children}
+              </div>
             </div>
           </div>
-        </div>
+        </BreadcrumbProvider>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+function DashboardLoader() {
+  return (
+    <div className="absolute inset-0 grid place-items-center">
+      <Loader className="animate-spin" />
+    </div>
+  )
+}
+
+export default function DashboardLayout({
+  params,
+  children,
+}: {
+  params: Promise<{ slug: string }>
+  children: React.ReactNode
+}) {
+  return (
+    <Suspense fallback={<DashboardLoader />}>
+      <DashboardShell params={params}>{children}</DashboardShell>
+    </Suspense>
   )
 }

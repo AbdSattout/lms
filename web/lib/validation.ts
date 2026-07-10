@@ -108,9 +108,17 @@ export const createBlockSchema = z.object({
 })
 export type CreateBlockInput = z.infer<typeof createBlockSchema>
 
+export const updateQuestionSchema = z.object({
+  content: z.string().optional(),
+  options: z.array(z.string()).min(2, "يجب توفير خيارين على الأقل").optional(),
+  correctAnswerIndex: z.number().int().min(0).optional(),
+})
+export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>
+
 export const updateBlockSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب").optional(),
   content: z.string().optional(),
+  question: updateQuestionSchema.optional(),
 })
 export type UpdateBlockInput = z.infer<typeof updateBlockSchema>
 
@@ -124,16 +132,10 @@ export const submitBlockAnswerSchema = z.object({
 })
 export type SubmitBlockAnswerInput = z.infer<typeof submitBlockAnswerSchema>
 
-export const updateQuestionSchema = z.object({
-  content: z.string().optional(),
-  options: z.array(z.string()).min(2, "يجب توفير خيارين على الأقل").optional(),
-  correctAnswerIndex: z.number().int().min(0).optional(),
-})
-export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>
-
 export const createPostSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   content: z.string().min(1, "المحتوى مطلوب"),
+  courseId: z.number().int(),
 })
 export type CreatePostInput = z.infer<typeof createPostSchema>
 
