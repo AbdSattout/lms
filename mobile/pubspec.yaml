@@ -45,6 +45,7 @@ dependencies:
   lottie: ^3.3.2
   equatable: ^2.0.8
   flutter_snake_navigationbar: ^0.6.1
+  image_picker: ^1.1.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

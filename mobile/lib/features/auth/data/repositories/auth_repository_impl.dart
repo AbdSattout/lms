@@ -43,6 +43,11 @@ class AuthRepositoryImpl extends AuthRepository {
 
         await localDataSource.cacheAuthData(remoteAuthData);
 
+        final auth =
+        await localDataSource.getCachedAuthData();
+
+        print("TOKEN = ${auth.token}");
+
         print("CACHE FINISHED");
 
         return Right(remoteAuthData);

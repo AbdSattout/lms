@@ -1,0 +1,123 @@
+@startuml
+
+title Masar LMS - Use Case Diagram
+
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontColor #0F5132
+
+skinparam actor {
+    FontColor #0F5132
+    BorderColor #198754
+    BackgroundColor #FFFFFF
+}
+
+skinparam usecase {
+    BackgroundColor #E9F7EF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+skinparam package {
+    BackgroundColor #FFFFFF
+    BorderColor #198754
+    FontColor #0F5132
+}
+
+skinparam ArrowColor #198754
+
+actor "Student\n(Mobile App)" as Student
+actor "Organization Manager\n(Web Dashboard)" as Manager
+actor "System Admin" as Admin
+
+rectangle "Masar LMS Platform" {
+
+    package "Student Mobile Application" {
+
+        usecase "Register / Login" as S_Login
+        usecase "Browse Organizations" as S_BrowseOrganizations
+        usecase "View Published Courses" as S_ViewCourses
+        usecase "View Course Details" as S_ViewCourseDetails
+        usecase "Enroll in Course" as S_Enroll
+        usecase "Continue Learning" as S_ContinueLearning
+        usecase "View Lesson Content" as S_ViewLessonContent
+        usecase "Submit Block Answer" as S_SubmitAnswer
+        usecase "Move to Next Block" as S_NextBlock
+        usecase "Track Course Progress" as S_TrackProgress
+        usecase "Earn XP and Streak" as S_EarnRewards
+    }
+
+    package "Organization Web Dashboard" {
+
+        usecase "Login" as M_Login
+        usecase "Create Organization" as M_CreateOrganization
+        usecase "Update Organization Profile" as M_UpdateOrganization
+        usecase "Check Slug Availability" as M_CheckSlug
+        usecase "Manage Members" as M_ManageMembers
+        usecase "Assign Member Roles" as M_AssignRoles
+
+        usecase "Create Course" as M_CreateCourse
+        usecase "Update Course" as M_UpdateCourse
+        usecase "Delete Course" as M_DeleteCourse
+        usecase "Publish Course" as M_PublishCourse
+        usecase "View Managed Courses" as M_ViewManagedCourses
+
+        usecase "Manage Chapters" as M_ManageChapters
+        usecase "Manage Lessons" as M_ManageLessons
+        usecase "Manage Blocks" as M_ManageBlocks
+        usecase "Manage Questions" as M_ManageQuestions
+        usecase "Manage Media Library" as M_ManageMedia
+    }
+
+    package "Administration" {
+
+        usecase "Login" as A_Login
+        usecase "Monitor Platform" as A_MonitorPlatform
+        usecase "Manage Users" as A_ManageUsers
+        usecase "Review Organizations" as A_ReviewOrganizations
+    }
+}
+
+Student --> S_Login
+Student --> S_BrowseOrganizations
+Student --> S_ViewCourses
+Student --> S_ViewCourseDetails
+Student --> S_Enroll
+Student --> S_ContinueLearning
+Student --> S_ViewLessonContent
+Student --> S_SubmitAnswer
+Student --> S_NextBlock
+Student --> S_TrackProgress
+Student --> S_EarnRewards
+
+Manager --> M_Login
+Manager --> M_CreateOrganization
+Manager --> M_UpdateOrganization
+Manager --> M_CheckSlug
+Manager --> M_ManageMembers
+Manager --> M_AssignRoles
+Manager --> M_CreateCourse
+Manager --> M_UpdateCourse
+Manager --> M_DeleteCourse
+Manager --> M_PublishCourse
+Manager --> M_ViewManagedCourses
+Manager --> M_ManageChapters
+Manager --> M_ManageLessons
+Manager --> M_ManageBlocks
+Manager --> M_ManageQuestions
+Manager --> M_ManageMedia
+
+Admin --> A_Login
+Admin --> A_MonitorPlatform
+Admin --> A_ManageUsers
+Admin --> A_ReviewOrganizations
+
+@enduml

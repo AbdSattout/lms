@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'package:lms/features/home/presentation/pages/main_home_screen.dart';
-
-// ألوان الثيم التي زودتني بها
-Color kLightPrimaryColor = const Color(0xffff8900);
-Color kLightSecondaryColor = const Color(0xff040415);
+Color kLightPrimaryColor =  AppColors.primary;
+Color kLightSecondaryColor = AppColors.pink;
 
 class TelegramLoginPage extends StatelessWidget {
   const TelegramLoginPage({super.key});

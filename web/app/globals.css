@@ -127,3 +127,9 @@
     @apply font-sans;
   }
 }
+
+@utility mask-fade-bottom {
+  mask-image: linear-gradient(to bottom, black 0%, transparent 75%);
+
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 75%);
+}

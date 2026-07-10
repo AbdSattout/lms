@@ -13,12 +13,12 @@ import type {
 
 export const byId = defineApiRoute({
   get: (courseId: number, options?: BackendFetchOptions) =>
-    backend<CourseResponse>(`/courses/${courseId}`, {
+    backend<CourseResponse>(`/dashboard/courses/${courseId}`, {
       method: "GET",
       ...options,
     }),
   delete: (courseId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/courses/${courseId}`, {
+    backend<void>(`/dashboard/courses/${courseId}`, {
       method: "DELETE",
       ...options,
     }),
@@ -28,7 +28,7 @@ export const byId = defineApiRoute({
     cover?: File,
     options?: BackendFetchOptions
   ) =>
-    backend<CourseResponse>(`/courses/${courseId}`, {
+    backend<CourseResponse>(`/dashboard/courses/${courseId}`, {
       method: "PATCH",
       body: (() => {
         const body = new FormData()
@@ -44,7 +44,7 @@ export const byId = defineApiRoute({
 
 export const publish = defineApiRoute({
   post: (courseId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/courses/${courseId}/publish`, {
+    backend<void>(`/dashboard/courses/${courseId}/publish`, {
       method: "POST",
       ...options,
     }),
