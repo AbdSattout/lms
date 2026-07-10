@@ -5,15 +5,17 @@ import { defineApiRoute } from "@/lib/api/route"
 import type {
   BlockPublicResponse,
   BlockResponse,
-  CreateBlockRequest,
-  ReorderBlocksRequest,
-  UpdateBlockRequest,
 } from "@/lib/api/types"
+import type {
+  CreateBlockInput,
+  ReorderBlocksInput,
+  UpdateBlockInput,
+} from "@/lib/validation"
 
 export const create = defineApiRoute({
   post: (
     lessonId: number,
-    request: CreateBlockRequest,
+    request: CreateBlockInput,
     options?: BackendFetchOptions
   ) =>
     backend<BlockResponse>(`/dashboard/lessons/${lessonId}/blocks`, {
@@ -26,7 +28,7 @@ export const create = defineApiRoute({
 export const reorder = defineApiRoute({
   patch: (
     lessonId: number,
-    request: ReorderBlocksRequest,
+    request: ReorderBlocksInput,
     options?: BackendFetchOptions
   ) =>
     backend<void>(`/dashboard/lessons/${lessonId}/blocks/reorder`, {
@@ -44,7 +46,7 @@ export const byId = defineApiRoute({
     }),
   patch: (
     blockId: number,
-    request: UpdateBlockRequest,
+    request: UpdateBlockInput,
     options?: BackendFetchOptions
   ) =>
     backend<BlockResponse>(`/dashboard/blocks/${blockId}`, {

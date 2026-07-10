@@ -2,7 +2,8 @@ import "server-only"
 
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
-import type { ChapterResponse, UpdateChapterRequest } from "@/lib/api/types"
+import type { ChapterResponse } from "@/lib/api/types"
+import type { UpdateChapterInput } from "@/lib/validation"
 
 export const byId = defineApiRoute({
   delete: (chapterId: number, options?: BackendFetchOptions) =>
@@ -12,7 +13,7 @@ export const byId = defineApiRoute({
     }),
   patch: (
     chapterId: number,
-    request: UpdateChapterRequest,
+    request: UpdateChapterInput,
     options?: BackendFetchOptions
   ) =>
     backend<ChapterResponse>(`/chapters/${chapterId}`, {

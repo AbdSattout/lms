@@ -6,10 +6,12 @@ import type {
   ChapterResponse,
   EnrollmentResponse,
   CourseResponse,
-  CreateChapterRequest,
-  ReorderChaptersRequest,
-  UpdateCourseRequest,
 } from "@/lib/api/types"
+import type {
+  CreateChapterInput,
+  ReorderChaptersInput,
+  UpdateCourseInput,
+} from "@/lib/validation"
 
 export const byId = defineApiRoute({
   get: (courseId: number, options?: BackendFetchOptions) =>
@@ -24,7 +26,7 @@ export const byId = defineApiRoute({
     }),
   patch: async (
     courseId: number,
-    request: UpdateCourseRequest,
+    request: UpdateCourseInput,
     cover?: File,
     options?: BackendFetchOptions
   ) =>
@@ -67,7 +69,7 @@ export const chapters = {
   create: defineApiRoute({
     post: (
       courseId: number,
-      request: CreateChapterRequest,
+      request: CreateChapterInput,
       options?: BackendFetchOptions
     ) =>
       backend<ChapterResponse>(`/courses/${courseId}/chapters`, {
@@ -79,7 +81,7 @@ export const chapters = {
   reorder: defineApiRoute({
     patch: (
       courseId: number,
-      request: ReorderChaptersRequest,
+      request: ReorderChaptersInput,
       options?: BackendFetchOptions
     ) =>
       backend<void>(`/courses/${courseId}/chapters/reorder`, {
