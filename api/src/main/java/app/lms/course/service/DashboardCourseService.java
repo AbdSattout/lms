@@ -14,6 +14,8 @@ import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.quiz.model.Quiz;
+import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +42,10 @@ public class DashboardCourseService {
 
     private final CourseAccessService
             courseAccessService;
+
+    private final QuizRepository
+            quizRepository;
+
     @Transactional
     public CourseResponse create(
 
@@ -93,6 +99,13 @@ public class DashboardCourseService {
 
         Course savedCourse =
                 courseRepository.save(course);
+
+        Quiz quiz = Quiz.builder()
+                .title("Quiz for " + savedCourse.getTitle())
+                .course(savedCourse)
+                .build();
+
+        quizRepository.save(quiz);
 
         return courseMapper.toResponse(
                 savedCourse
