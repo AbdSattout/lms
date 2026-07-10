@@ -1,5 +1,17 @@
 import { NextConfig } from "next"
 
-const nextConfig: NextConfig = {}
+const imageKitUrl =
+  process.env.IMAGEKIT_URL ?? "https://ik.imagekit.io/lmsgoesboom"
+
+const nextConfig: NextConfig = {
+  reactCompiler: true,
+  typedRoutes: true,
+  images: {
+    remotePatterns: [
+      new URL("https://t.me/i/userpic/**"),
+      new URL(`${imageKitUrl}/**`),
+    ],
+  },
+}
 
 export default nextConfig

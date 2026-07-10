@@ -3,11 +3,39 @@ import 'package:lms/core/databases/api/api_consumer.dart';
 import 'package:lms/core/databases/api/end_points.dart';
 import 'package:lms/core/errors/exceptions.dart';
 
+import '../../../features/auth/data/datasources/auth_local_datasource.dart';
+
 class DioConsumer extends ApiConsumer {
   final Dio dio;
-
-  DioConsumer({required this.dio}) {
+  final AuthLocalDataSource authLocalDataSource;
+  DioConsumer({required this.dio,required this.authLocalDataSource}) {
     dio.options.baseUrl = EndPoints.baseUrl;
+    dio.options.baseUrl = EndPoints.baseUrl;
+
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+
+          print("INTERCEPTOR RUNNING");
+
+          try {
+            final auth =
+            await authLocalDataSource.getCachedAuthData();
+
+            print("TOKEN FOUND:");
+            print(auth.token);
+
+            options.headers["Authorization"] =
+            "Bearer ${auth.token}";
+          } catch (e) {
+            print("TOKEN ERROR:");
+            print(e);
+          }
+
+          handler.next(options);
+        },
+      ),
+    );
   }
 
 //!POST
@@ -41,6 +69,30 @@ class DioConsumer extends ApiConsumer {
     }
   }
 
+  @override
+  Future put(
+      String path, {
+        dynamic data,
+        Map<String, dynamic>? queryParameters,
+        bool isFormData = false,
+      }) async {
+
+    try {
+
+      var res = await dio.put(
+        path,
+        data: isFormData
+            ? FormData.fromMap(data)
+            : data,
+        queryParameters: queryParameters,
+      );
+
+      return res.data;
+
+    } on DioException catch (e) {
+      handleDioException(e);
+    }
+  }
 //!DELETE
   @override
   Future delete(String path,
