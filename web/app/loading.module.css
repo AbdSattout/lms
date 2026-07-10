@@ -1,29 +1,38 @@
-.animatedMask {
-  /* Use the dynamic length calculated by React */
-  stroke-dasharray: var(--path-length);
-  stroke-dashoffset: var(--path-length);
-
-  /* 2.5s duration, stays at the end for a moment, repeats */
-  animation: revealText 3s infinite ease-in-out;
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
 }
 
-@keyframes revealText {
+.logoSvg {
+  width: 340px;
+  overflow: visible;
+}
+
+.logo {
+  transform-origin: center;
+  animation: breathe 2.2s ease-in-out infinite;
+}
+
+@keyframes breathe {
   0% {
-    /* Mask is fully pulled back, text is invisible */
-    stroke-dashoffset: var(--path-length);
+    opacity: 0.45;
+    transform: translateY(6px) scale(0.98);
+    filter: drop-shadow(0 0 0 rgba(39, 41, 146, 0));
   }
-  60% {
-    /* Mask is fully drawn, revealing all text */
-    stroke-dashoffset: 0;
-  }
-  80% {
-    /* Hold the fully revealed word for viewers to read */
-    stroke-dashoffset: 0;
+
+  50% {
     opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 12px rgba(39, 41, 146, 0.25));
   }
+
   100% {
-    /* Fade out the mask (which hides the text) before restarting */
-    stroke-dashoffset: 0;
-    opacity: 0;
+    opacity: 0.45;
+    transform: translateY(6px) scale(0.98);
+    filter: drop-shadow(0 0 0 rgba(39, 41, 146, 0));
   }
 }
