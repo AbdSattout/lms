@@ -13,7 +13,7 @@ export const update = defineApiRoute({
     request: UpdateQuestionRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<QuestionResponse>(`/dashboard/questions/${questionId}`, {
+    backend<QuestionResponse>(`/questions/${questionId}`, {
       method: "PATCH",
       body: request,
       ...options,

@@ -39,6 +39,11 @@ import {
 } from "@/lib/api/posts"
 import { create, me as profileMe } from "@/lib/api/profile"
 import { submitAnswer } from "@/lib/api/progress"
+import {
+  addQuestion,
+  byId as quizById,
+  deleteQuestion,
+} from "@/lib/api/quizzes"
 import { update as updateQuestion } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture } from "@/lib/api/users"
@@ -101,6 +106,11 @@ export const api = {
     },
     questions: {
       update: updateQuestion,
+    },
+    quizzes: {
+      byId: quizById,
+      addQuestion,
+      deleteQuestion,
     },
     posts: {
       byCourse: postsByCourse,

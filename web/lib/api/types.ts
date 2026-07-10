@@ -78,6 +78,7 @@ export interface CourseResponse {
   slug?: string
   description?: string
   coverUrl?: string
+  status: "DRAFT" | "PUBLISHED"
   organizationName?: string
 }
 
@@ -119,7 +120,6 @@ export interface LessonResponse {
   id?: number
   title?: string
   position?: number
-  isPublished?: boolean
 }
 
 export interface ReorderLessonsRequest {
@@ -175,6 +175,13 @@ export interface QuestionPublicResponse {
   id?: number
   content?: string
   options?: string[]
+}
+
+export interface QuizResponse {
+  id?: number
+  title?: string
+  courseId?: number
+  questions?: QuestionResponse[]
 }
 
 export interface CreatePostRequest {
