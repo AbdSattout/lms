@@ -13,15 +13,9 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import type { OrganizationResponse } from "@/lib/api/types"
 import { Route } from "next"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Fragment, Suspense, use } from "react"
+import { Fragment, Suspense, useContext, use } from "react"
 import { Skeleton } from "./ui/skeleton"
-
-const routeMapping: Record<string, string> = {
-  posts: "المنشورات",
-  courses: "الدورات",
-  settings: "الإعدادات",
-}
+import { BreadcrumbContext } from "./breadcrumb-context"
 
 function BreadcrumbNav({
   orgPromise,
@@ -29,10 +23,7 @@ function BreadcrumbNav({
   orgPromise: Promise<OrganizationResponse>
 }) {
   const org = use(orgPromise)
-  const pathname = usePathname()
-
-  const segments = pathname.split("/").filter(Boolean)
-  const pageSegment = segments.length > 1 ? segments[1] : null
+  const { trail } = useContext(BreadcrumbContext)
 
   return (
     <Breadcrumb>
@@ -44,16 +35,24 @@ function BreadcrumbNav({
             {org.name}
           </BreadcrumbLink>
         </BreadcrumbItem>
-        {pageSegment && (
-          <Fragment>
+        {trail.map((item, index) => (
+          <Fragment key={index}>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>
-                {routeMapping[pageSegment] ?? pageSegment}
-              </BreadcrumbPage>
+              {item.href ? (
+                <BreadcrumbLink
+                  render={(props) => (
+                    <Link href={item.href as Route} {...props} />
+                  )}
+                >
+                  {item.label}
+                </BreadcrumbLink>
+              ) : (
+                <BreadcrumbPage>{item.label}</BreadcrumbPage>
+              )}
             </BreadcrumbItem>
           </Fragment>
-        )}
+        ))}
       </BreadcrumbList>
     </Breadcrumb>
   )

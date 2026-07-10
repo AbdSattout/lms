@@ -1,3 +1,4 @@
+import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
 import DeleteOrgCard from "@/components/cards/delete-org-card"
 import { ProfileCard } from "@/components/cards/profile-card"
 import { api } from "@/lib/api"
@@ -22,6 +23,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
 
   return (
     <div className="flex h-full flex-col" dir="rtl">
+      <BreadcrumbTrail items={[{ label: "الإعدادات" }]} />
       <header className="mb-8 shrink-0">
         <h1 className="text-center text-xl font-bold text-primary">
           إعدادات المؤسسة
