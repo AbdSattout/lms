@@ -1,8 +1,8 @@
-package app.lms.ai.service;
+package app.lms.ai.dashboard.text.service;
 
-import app.lms.ai.dto.AiTextRequest;
-import app.lms.ai.dto.AiTextResponse;
-import app.lms.ai.exception.AiServiceException;
+import app.lms.ai.dashboard.text.dto.AiTextRequest;
+import app.lms.ai.dashboard.text.dto.AiTextResponse;
+import app.lms.ai.common.exception.AiServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class AiTextService {
+public class DashboardAiTextService {
 
     private final ChatClient.Builder chatClientBuilder;
-    private final AiPromptService aiPromptService;
+    private final DashboardAiTextPromptService dashboardAiTextPromptService;
 
     public AiTextResponse transform(AiTextRequest request) {
         try {
@@ -23,8 +23,8 @@ public class AiTextService {
 
             String result = chatClient
                     .prompt()
-                    .system(aiPromptService.systemPrompt())
-                    .user(aiPromptService.buildUserPrompt(request))
+                    .system(dashboardAiTextPromptService.systemPrompt())
+                    .user(dashboardAiTextPromptService.buildUserPrompt(request))
                     .call()
                     .content();
 

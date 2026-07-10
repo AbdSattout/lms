@@ -1,4 +1,4 @@
-package app.lms.ai.exception;
+package app.lms.ai.common.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

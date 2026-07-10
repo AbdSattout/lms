@@ -1,4 +1,4 @@
-package app.lms.ai.enums;
+package app.lms.ai.dashboard.text.enums;
 
 public enum AiTextTone {
     PROFESSIONAL,
