@@ -1,9 +1,6 @@
 package app.lms.lesson.controller;
 
-import app.lms.lesson.dto.CreateLessonRequest;
-import app.lms.lesson.dto.LessonResponse;
-import app.lms.lesson.dto.ReorderLessonsRequest;
-import app.lms.lesson.dto.UpdateLessonRequest;
+import app.lms.lesson.dto.*;
 import app.lms.lesson.service.LessonService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -18,6 +15,24 @@ import org.springframework.web.bind.annotation.*;
 public class LessonController {
 
     private final LessonService lessonService;
+
+    @GetMapping("/lessons/{lessonId}")
+    public ResponseEntity<LessonDetailsResponse> getById(
+
+            @PathVariable
+            Long lessonId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                lessonService.getById(
+                        lessonId,
+                        principal.user()
+                )
+        );
+    }
 
     @PostMapping(
             "/chapters/{chapterId}/lessons"

@@ -235,5 +235,15 @@ public class GlobalExceptionHandler {
         );
     }
 
-
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> handleBadRequestException(
+            BadRequestException ex
+    ) {
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "status", 400,
+                        "error", ex.getMessage()
+                )
+        );
+    }
 }
