@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TriangleAlert } from "lucide-react"
-import { DeleteOrgButton } from "./deleteOrgButton"
+import { DeleteOrgButton } from "../delete-org-button"
 
 interface deleteOrgProps {
   slug: string

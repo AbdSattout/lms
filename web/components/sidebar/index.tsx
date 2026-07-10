@@ -1,8 +1,8 @@
 import * as React from "react"
 import { Suspense } from "react"
 
-import { Nav, NavItem } from "@/components/nav"
-import { SidebarAccountDropdown } from "@/components/sidebar-account-dropdown"
+import { Nav, NavItem } from "@/components/sidebar/nav"
+import { SidebarAccountDropdown } from "@/components/sidebar/sidebar-account-dropdown"
 import { NavSkeleton } from "@/components/skeletons/nav-skeleton"
 import { SidebarAccountDropdownSkeleton } from "@/components/skeletons/sidebar-account-dropdown-skeleton"
 import {

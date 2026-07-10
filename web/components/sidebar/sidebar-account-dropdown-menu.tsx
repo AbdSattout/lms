@@ -14,9 +14,9 @@ import { OrganizationResponse, User } from "@/lib/api/types"
 import { LogOutIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-import { OrgAvatar } from "./org-avatar"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Button } from "./ui/button"
+import { OrgAvatar } from "../org-avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Button } from "../ui/button"
 
 export function SidebarAccountDropdownMenu({
   user,

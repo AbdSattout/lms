@@ -1,5 +1,5 @@
-import DeleteOrgCard from "@/components/deleteOrgCard"
-import { ProfileCard } from "@/components/profileCard"
+import DeleteOrgCard from "@/components/cards/delete-org-card"
+import { ProfileCard } from "@/components/cards/profile-card"
 import { api } from "@/lib/api"
 import { notFound } from "next/navigation"
 
