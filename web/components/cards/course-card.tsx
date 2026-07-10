@@ -22,10 +22,12 @@ import {
 import type { CourseResponse } from "@/lib/api/types"
 import { Check, EllipsisVertical, Pen, Trash2 } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 
 interface CourseCardProps {
   course: CourseResponse
+  orgSlug: string
   onEdit: (course: CourseResponse) => void
   onDelete: (course: CourseResponse) => void
   onPublish: (course: CourseResponse) => void
@@ -67,8 +69,8 @@ function CourseCardMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>نشر الدورة</AlertDialogTitle>
             <AlertDialogDescription>
-              نشر الدورة سيمنعك من تعديل المحتوى (الدروس والبلوكات
-              والأسئلة) لاحقاً. هل أنت متأكد؟
+              نشر الدورة سيمنعك من تعديل المحتوى (الدروس والبلوكات والأسئلة)
+              لاحقاً. هل أنت متأكد؟
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -90,34 +92,34 @@ function CourseCardMenu({
   )
 }
 
-export function CourseCard(props: CourseCardProps) {
+function CourseCardContent(props: CourseCardProps) {
   const { course } = props
 
-  return (
-    <>
-      {course.coverUrl ? (
-        <Card className="group relative overflow-hidden">
-          <Image
-            src={course.coverUrl}
-            alt={course.title ?? ""}
-            fill
-            priority
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
-          <CardHeader className="absolute inset-x-0 bottom-3 border-0">
-            <div className="flex items-end justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <CardTitle className="line-clamp-1 text-white">
-                  {course.title}
-                </CardTitle>
-                {course.description && (
-                  <p className="line-clamp-2 text-sm text-white/75">
-                    {course.description}
-                  </p>
-                )}
-              </div>
+  if (course.coverUrl) {
+    return (
+      <Card className="group relative size-full overflow-hidden">
+        <Image
+          src={course.coverUrl}
+          alt={course.title ?? ""}
+          fill
+          priority
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/30 to-transparent" />
+        <CardHeader className="absolute inset-x-0 bottom-3 border-0">
+          <div className="flex items-end justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <CardTitle className="line-clamp-1 text-white">
+                {course.title}
+              </CardTitle>
+              {course.description && (
+                <p className="line-clamp-2 text-sm text-white/75">
+                  {course.description}
+                </p>
+              )}
+            </div>
+            <span onClick={(e) => e.stopPropagation()}>
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
@@ -132,33 +134,60 @@ export function CourseCard(props: CourseCardProps) {
                 </DropdownMenuTrigger>
                 <CourseCardMenu {...props} />
               </DropdownMenu>
-            </div>
-          </CardHeader>
-        </Card>
-      ) : (
-        <Card className="overflow-hidden py-3">
-          <CardHeader className="mt-auto">
-            <div className="flex items-end justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <CardTitle className="line-clamp-1">{course.title}</CardTitle>
-                {course.description && (
-                  <p className="line-clamp-2 text-sm text-muted-foreground">
-                    {course.description}
-                  </p>
-                )}
-              </div>
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={<Button variant="ghost" size="icon-sm" />}
-                >
-                  <EllipsisVertical />
-                </DropdownMenuTrigger>
-                <CourseCardMenu {...props} />
-              </DropdownMenu>
-            </div>
-          </CardHeader>
-        </Card>
-      )}
-    </>
+            </span>
+          </div>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  return (
+    <Card className="size-full overflow-hidden py-3">
+      <CardHeader className="mt-auto">
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <CardTitle className="line-clamp-1">{course.title}</CardTitle>
+            {course.description && (
+              <p className="line-clamp-2 text-sm text-muted-foreground">
+                {course.description}
+              </p>
+            )}
+          </div>
+          <span onClick={(e) => e.stopPropagation()}>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={<Button variant="ghost" size="icon-sm" />}
+              >
+                <EllipsisVertical />
+              </DropdownMenuTrigger>
+              <CourseCardMenu {...props} />
+            </DropdownMenu>
+          </span>
+        </div>
+      </CardHeader>
+    </Card>
+  )
+}
+
+export function CourseCard(props: CourseCardProps) {
+  const router = useRouter()
+  const { course, orgSlug } = props
+  const href = `/${orgSlug}/courses/${course.slug}`
+
+  return (
+    <div
+      role="link"
+      tabIndex={0}
+      className="cursor-pointer"
+      onClick={() =>
+        router.push(href as unknown as Parameters<typeof router.push>[0])
+      }
+      onKeyDown={(e) => {
+        if (e.key === "Enter")
+          router.push(href as unknown as Parameters<typeof router.push>[0])
+      }}
+    >
+      <CourseCardContent {...props} />
+    </div>
   )
 }
