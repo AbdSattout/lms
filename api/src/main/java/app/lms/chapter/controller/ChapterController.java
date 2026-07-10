@@ -1,9 +1,6 @@
 package app.lms.chapter.controller;
 
-import app.lms.chapter.dto.ChapterResponse;
-import app.lms.chapter.dto.CreateChapterRequest;
-import app.lms.chapter.dto.ReorderChaptersRequest;
-import app.lms.chapter.dto.UpdateChapterRequest;
+import app.lms.chapter.dto.*;
 import app.lms.chapter.service.ChapterService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -18,6 +15,25 @@ import org.springframework.web.bind.annotation.*;
 public class ChapterController {
 
     private final ChapterService chapterService;
+
+
+    @GetMapping("/chapters/{chapterId}")
+    public ResponseEntity<ChapterDetailsResponse> getById(
+
+            @PathVariable
+            Long chapterId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                chapterService.getById(
+                        chapterId,
+                        principal.user()
+                )
+        );
+    }
 
     @PostMapping("/courses/{courseId}/chapters")
     public ResponseEntity<ChapterResponse> create(

@@ -1,13 +1,12 @@
     package app.lms.lesson.service;
 
     import app.lms.chapter.model.Chapter;
+    import app.lms.chapter.repository.ChapterRepository;
     import app.lms.chapter.service.ChapterAccessService;
+    import app.lms.common.exception.BadRequestException;
     import app.lms.common.exception.ConflictException;
     import app.lms.common.exception.NotFoundException;
-    import app.lms.lesson.dto.CreateLessonRequest;
-    import app.lms.lesson.dto.LessonResponse;
-    import app.lms.lesson.dto.ReorderLessonsRequest;
-    import app.lms.lesson.dto.UpdateLessonRequest;
+    import app.lms.lesson.dto.*;
     import app.lms.lesson.mapper.LessonMapper;
     import app.lms.lesson.model.Lesson;
     import app.lms.lesson.repository.LessonRepository;
@@ -25,10 +24,28 @@
     @RequiredArgsConstructor
     public class LessonService {
 
+        private final ChapterRepository chapterRepository;
         private final LessonRepository lessonRepository;
         private final LessonMapper lessonMapper;
         private final LessonAccessService lessonAccessService;
         private final ChapterAccessService chapterAccessService;
+
+
+        @Transactional
+        public LessonDetailsResponse getById(
+                Long lessonId,
+                User user
+        ) {
+
+            Lesson lesson =
+                    lessonAccessService
+                            .getEditableLesson(
+                                    lessonId,
+                                    user
+                            );
+
+            return lessonMapper.toDetailsResponse(lesson);
+        }
 
         @Transactional
         public LessonResponse create(
@@ -89,7 +106,12 @@
 
 
 
-
+            if (request.chapterId() != null) {
+                moveLessonToChapter(
+                        lesson,
+                        request.chapterId()
+                );
+            }
             return lessonMapper.toResponse(
                     lesson
             );
@@ -184,6 +206,46 @@
                         position++
                 );
             }
+        }
+        private void moveLessonToChapter(
+                Lesson lesson,
+                Long newChapterId
+        ) {
+
+            Chapter currentChapter =
+                    lesson.getChapter();
+
+            if (currentChapter.getId().equals(newChapterId)) {
+                return;
+            }
+
+            Chapter newChapter =
+                    chapterRepository.findById(newChapterId)
+                            .orElseThrow(() ->
+                                    new NotFoundException(
+                                            "Chapter not found"
+                                    )
+                            );
+
+            Long currentCourseId =
+                    currentChapter
+                            .getCourse()
+                            .getId();
+
+            Long newCourseId =
+                    newChapter
+                            .getCourse()
+                            .getId();
+
+            if (!currentCourseId.equals(newCourseId)) {
+                throw new BadRequestException(
+                        "Lesson can only be moved to a chapter in the same course"
+                );
+            }
+
+            lesson.setChapter(
+                    newChapter
+            );
         }
         private Lesson buildLesson(
                 String title,
