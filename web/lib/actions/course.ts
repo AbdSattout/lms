@@ -73,6 +73,20 @@ export async function updateCourse(
   return { success: true }
 }
 
+export async function publishCourse(
+  courseId: number,
+  orgSlug: string
+): Promise<ActionState> {
+  const published = await api.dashboard.courses.publish
+    .post(courseId)
+    .catch(() => null)
+
+  if (published === null) return { error: "حدث خطأ أثناء نشر الدورة." }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return { success: true }
+}
+
 export async function deleteCourse(
   _prevState: ActionState,
   formData: FormData

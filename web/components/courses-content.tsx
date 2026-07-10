@@ -17,7 +17,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty"
-import { deleteCourse } from "@/lib/actions/course"
+import { deleteCourse, publishCourse } from "@/lib/actions/course"
 import type { CourseResponse } from "@/lib/api/types"
 import { BookOpen, Plus } from "lucide-react"
 import { useState, useTransition } from "react"
@@ -25,6 +25,43 @@ import { useState, useTransition } from "react"
 interface CoursesContentProps {
   orgSlug: string
   courses: CourseResponse[]
+}
+
+function SectionGrid({
+  title,
+  items,
+  onEdit,
+  onDelete,
+  onPublish,
+}: {
+  title: string
+  items: CourseResponse[]
+  onEdit: (course: CourseResponse) => void
+  onDelete: (course: CourseResponse) => void
+  onPublish: (course: CourseResponse) => void
+}) {
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          لا توجد دورات في هذا القسم
+        </p>
+      ) : (
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 *:aspect-video *:min-h-0 *:w-full">
+          {items.map((course) => (
+            <CourseCard
+              key={course.id}
+              course={course}
+              onEdit={onEdit}
+              onDelete={onDelete}
+              onPublish={onPublish}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  )
 }
 
 export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
@@ -38,9 +75,17 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
   const [isDeleting, startDeleteTransition] = useTransition()
   const [deleteError, setDeleteError] = useState<string | null>(null)
 
+  const published = courses.filter((c) => c.status === "PUBLISHED")
+  const draft = courses.filter((c) => c.status === "DRAFT")
+
   function handleEdit(course: CourseResponse) {
     setSelectedCourse(course)
     setEditOpen(true)
+  }
+
+  async function handlePublish(course: CourseResponse) {
+    if (!course.id) return
+    await publishCourse(course.id, orgSlug)
   }
 
   function handleDeleteClick(course: CourseResponse) {
@@ -88,15 +133,21 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
           </EmptyContent>
         </Empty>
       ) : (
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 *:aspect-video *:min-h-0 *:w-full">
-          {courses.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              onEdit={handleEdit}
-              onDelete={handleDeleteClick}
-            />
-          ))}
+        <div className="flex flex-col gap-8">
+          <SectionGrid
+            title="المنشورة"
+            items={published}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            onPublish={handlePublish}
+          />
+          <SectionGrid
+            title="المسودات"
+            items={draft}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            onPublish={handlePublish}
+          />
         </div>
       )}
 
