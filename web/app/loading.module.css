@@ -4,7 +4,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: white;
 }
 
 .logoSvg {
@@ -27,7 +26,7 @@
   50% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: drop-shadow(0 0 12px rgba(39, 41, 146, 0.25));
+    filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
   }
 
   100% {

@@ -4,7 +4,6 @@ import { OrgGuard } from "@/components/org-guard"
 import { AppSidebar } from "@/components/sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { api } from "@/lib/api"
-import { Loader } from "lucide-react"
 import { Suspense } from "react"
 import MasarLoader from "../loading"
 
@@ -49,7 +48,7 @@ async function DashboardShell({
 
 function DashboardLoader() {
   return (
-    <div className="absolute inset-0 grid place-items-center bg-white">
+    <div className="absolute inset-0 z-50">
       <MasarLoader />
     </div>
   )
