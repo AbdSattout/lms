@@ -1,6 +1,6 @@
 package app.lms.common.exception;
 
-import app.lms.ai.exception.AiServiceException;
+import app.lms.ai.common.exception.AiServiceException;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.exception.ImageUploadException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +13,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -222,6 +223,17 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<?> handleMethodArgumentTypeMismatch(
+            MethodArgumentTypeMismatchException ex
+    ) {
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "status", 400,
+                        "error", "Invalid path parameter: " + ex.getName()
+                )
+        );
+    }
 
 
 }

@@ -1,13 +1,13 @@
-package app.lms.ai.service;
+package app.lms.ai.dashboard.text.service;
 
-import app.lms.ai.dto.AiTextRequest;
-import app.lms.ai.enums.AiTextAction;
-import app.lms.ai.enums.AiTextTone;
+import app.lms.ai.dashboard.text.dto.AiTextRequest;
+import app.lms.ai.dashboard.text.enums.AiTextAction;
+import app.lms.ai.dashboard.text.enums.AiTextTone;
 import app.lms.common.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AiPromptService {
+public class DashboardAiTextPromptService {
 
     public String systemPrompt() {
         return """
@@ -104,4 +104,6 @@ public class AiPromptService {
             case MOTIVATIONAL -> "motivational and encouraging";
         };
     }
+
+
 }
