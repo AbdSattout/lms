@@ -10,7 +10,6 @@ interface SettingsPageProps {
 }
 
 export default async function SettingsPage({ params }: SettingsPageProps) {
-  await new Promise((resolve) => setTimeout(resolve, 10000))
   const { slug } = await params
   let organizationData
   try {
