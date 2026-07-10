@@ -20,7 +20,7 @@ export default async function CoursePage({
       <BreadcrumbTrail
         items={[
           { label: "الدورات", href: `/${slug}/courses` },
-          { label: course.title ?? "" },
+          { label: course.title },
         ]}
       />
       <h1 className="text-2xl font-bold">{course.title}</h1>

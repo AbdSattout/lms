@@ -100,7 +100,7 @@ function CourseCardContent(props: CourseCardProps) {
       <Card className="group relative size-full overflow-hidden">
         <Image
           src={course.coverUrl}
-          alt={course.title ?? ""}
+          alt={course.title}
           fill
           priority
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

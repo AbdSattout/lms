@@ -87,7 +87,6 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
   }
 
   async function handlePublish(course: CourseResponse) {
-    if (!course.id) return
     await publishCourse(course.id, orgSlug)
   }
 
