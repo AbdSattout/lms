@@ -1,5 +1,6 @@
 package app.lms.common.exception;
 
+import app.lms.ai.exception.AiServiceException;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.exception.ImageUploadException;
 import org.springframework.http.HttpStatus;
@@ -209,6 +210,17 @@ public class GlobalExceptionHandler {
                 );
     }
 
+    @ExceptionHandler(AiServiceException.class)
+    public ResponseEntity<?> handleAiServiceException(
+            AiServiceException ex
+    ) {
+        return ResponseEntity.status(ex.getStatus()).body(
+                Map.of(
+                        "status", ex.getStatus().value(),
+                        "error", ex.getMessage()
+                )
+        );
+    }
 
 
 
