@@ -30,12 +30,14 @@ interface CoursesContentProps {
 function SectionGrid({
   title,
   items,
+  orgSlug,
   onEdit,
   onDelete,
   onPublish,
 }: {
   title: string
   items: CourseResponse[]
+  orgSlug: string
   onEdit: (course: CourseResponse) => void
   onDelete: (course: CourseResponse) => void
   onPublish: (course: CourseResponse) => void
@@ -53,6 +55,7 @@ function SectionGrid({
             <CourseCard
               key={course.id}
               course={course}
+              orgSlug={orgSlug}
               onEdit={onEdit}
               onDelete={onDelete}
               onPublish={onPublish}
@@ -137,6 +140,7 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
           <SectionGrid
             title="المنشورة"
             items={published}
+            orgSlug={orgSlug}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
             onPublish={handlePublish}
@@ -144,6 +148,7 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
           <SectionGrid
             title="المسودات"
             items={draft}
+            orgSlug={orgSlug}
             onEdit={handleEdit}
             onDelete={handleDeleteClick}
             onPublish={handlePublish}
