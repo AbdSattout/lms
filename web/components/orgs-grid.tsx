@@ -1,7 +1,7 @@
 import { PlusIcon } from "lucide-react"
 import Link from "next/link"
 
-import { OrgCard } from "@/components/org-card"
+import { OrgCard } from "@/components/cards/org-card"
 import { api } from "@/lib/api"
 
 export async function OrgsGrid() {

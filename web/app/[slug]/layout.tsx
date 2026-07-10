@@ -1,6 +1,6 @@
-import { AppSidebar } from "@/components/app-sidebar"
 import { Header } from "@/components/header"
 import { OrgGuard } from "@/components/org-guard"
+import { AppSidebar } from "@/components/sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { api } from "@/lib/api"
 import { Suspense } from "react"
