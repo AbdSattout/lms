@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_ZezsqWyD9F
+createdAt: 2026-06-13T17:03:44.076902400
+updatedAt: 2026-06-13T17:06:35.537658700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_bPEMGkkY8L
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "slug" : "java-spring-boot"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zIRX485deD
+method: GET
+name: Get Course by course slug and org slug
+sortPriority: 3000.001
+url: http://localhost:8080/dashboard/organizations/my-org/courses/intro-to-java
+urlParameters: []

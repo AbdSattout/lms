@@ -2,6 +2,7 @@ package app.lms.block.controller;
 
 import app.lms.block.dto.*;
 import app.lms.block.service.BlockService;
+import app.lms.security.UserPrincipal;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,18 @@ public class BlockController {
 
     @GetMapping("/{blockId}")
     public ResponseEntity<BlockPublicResponse> getBlock(
+
             @PathVariable Long blockId,
-            @AuthenticationPrincipal User user
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
 
-      BlockPublicResponse blockPublicResponse =  blockService.getBlock(blockId , user);
-       return ResponseEntity.ok(blockPublicResponse);
-
+        return ResponseEntity.ok(
+                blockService.getBlock(
+                        blockId,
+                        principal.user()
+                )
+        );
     }
 }

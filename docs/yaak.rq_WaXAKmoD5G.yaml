@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_WaXAKmoD5G
+createdAt: 2026-06-11T18:43:22.415022500
+updatedAt: 2026-06-11T18:43:56.750713200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_eNTyjDNDJ3
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "lessonIds": [103, 102, 101]
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: zuKz6GCjx7
+method: PATCH
+name: reorder lesson
+sortPriority: 3000.0030000000006
+url: http://localhost:8080/chapters/5/lessons/reorder
+urlParameters: []

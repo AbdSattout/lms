@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_hzDAiVcHhT
 createdAt: 2026-05-31T19:55:43.054771400
-updatedAt: 2026-06-04T14:37:59.476696
+updatedAt: 2026-06-13T16:48:13.027824
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_ECvsVYsFmt
+folderId: fl_bPEMGkkY8L
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
 authenticationType: bearer
@@ -14,8 +14,8 @@ description: ''
 headers: []
 method: GET
 name: List Organization Course
-sortPriority: 0.0
-url: http://localhost:8080/organizations/tech-company/courses
+sortPriority: 6000.0
+url: http://localhost:8080/dashboard/organizations/my-org/courses
 urlParameters:
 - enabled: true
   name: page

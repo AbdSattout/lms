@@ -35,7 +35,7 @@ public class Post extends BaseEntity {
     private User author;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "organization_id" ,nullable = true)
+    @JoinColumn(name = "organization_id" ,nullable = false)
     private Organization organization;
 
     @ManyToOne(fetch = FetchType.LAZY)
