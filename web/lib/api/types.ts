@@ -2,65 +2,65 @@ export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
 export type FileType = "IMAGE" | "VIDEO" | "FILE"
 
 export interface User {
-  id?: number
+  id: number
   name?: string
   picture?: string
 }
 
 export interface AuthResponse {
-  token?: string
-  user?: User
+  token: string
+  user: User
 }
 
 export interface ProfileResponse {
-  name?: string
+  name: string
   email?: string
   phone?: string
   university?: string
-  user?: User
+  user: User
 }
 
 export interface OrganizationResponse {
-  id?: number
-  name?: string
-  slug?: string
+  id: number
+  name: string
+  slug: string
   description?: string
   image?: string
-  visibility?: OrganizationVisibility
-  ownerName?: string
+  visibility: OrganizationVisibility
+  ownerName: string
 }
 
 export interface CourseResponse {
-  id?: number
-  title?: string
-  slug?: string
+  id: number
+  title: string
+  slug: string
   description?: string
   coverUrl?: string
   status: "DRAFT" | "PUBLISHED"
-  organizationName?: string
+  organizationName: string
 }
 
 export interface EnrollmentResponse {
-  courseId?: number
-  courseTitle?: string
-  enrolledAt?: string
+  courseId: number
+  courseTitle: string
+  enrolledAt: string
 }
 
 export interface ChapterResponse {
-  id?: number
-  title?: string
+  id: number
+  title: string
   position?: number
-  lessons?: LessonResponse[]
+  lessons: LessonResponse[]
 }
 
 export interface LessonResponse {
-  id?: number
-  title?: string
+  id: number
+  title: string
   position?: number
 }
 
 export interface BlockResponse {
-  id?: number
+  id: number
   title?: string
   content?: string
   position?: number
@@ -68,7 +68,7 @@ export interface BlockResponse {
 }
 
 export interface BlockPublicResponse {
-  id?: number
+  id: number
   title?: string
   content?: string
   position?: number
@@ -76,15 +76,15 @@ export interface BlockPublicResponse {
 }
 
 export interface QuestionResponse {
-  id?: number
-  content?: string
+  id: number
+  content: string
   options?: string[]
-  correctAnswerIndex?: number
+  correctAnswerIndex: number
 }
 
 export interface QuestionPublicResponse {
-  id?: number
-  content?: string
+  id: number
+  content: string
   options?: string[]
 }
 
@@ -97,14 +97,14 @@ export interface QuizResponse {
 
 export interface PostResponse {
   id: number
-  title?: string
+  title: string
   content?: string
-  author?: AuthorResponse
-  organizationId?: number
+  author: AuthorResponse
+  organizationId: number
   courseId: number
-  likesCount?: number
-  commentsCount?: number
-  createdAt?: string
+  likesCount: number
+  commentsCount: number
+  createdAt: string
 }
 
 export interface AuthorResponse {
@@ -115,18 +115,18 @@ export interface AuthorResponse {
 
 export interface CommentResponse {
   id: number
-  content?: string
-  author?: AuthorResponse
+  content: string
+  author: AuthorResponse
   parentCommentId?: number
-  createdAt?: string
+  createdAt: string
 }
 
 export interface CourseMediaResponse {
-  id?: number
-  name?: string
-  url?: string
-  type?: FileType
-  courseId?: number
+  id: number
+  name: string
+  url: string
+  type: FileType
+  courseId: number
 }
 
 export interface PageableObject {
@@ -159,21 +159,21 @@ export interface Page<T> {
 }
 
 export interface CourseDetailsResponse {
-  id?: number
-  title?: string
-  slug?: string
+  id: number
+  title: string
+  slug: string
   description?: string
   coverUrl?: string
-  organizationName?: string
-  chapters?: ChapterResponse[]
-  progress?: CourseProgressResponse
+  organizationName: string
+  chapters: ChapterResponse[]
+  progress: CourseProgressResponse
 }
 
 export interface CourseProgressResponse {
   lastLessonId?: number
   lastBlockId?: number
-  progressPercentage?: number
-  completed?: boolean
+  progressPercentage: number
+  completed: boolean
   completedAt?: string
 }
 
@@ -192,12 +192,12 @@ export interface PageCourseResponse {
 }
 
 export interface SubmitBlockAnswerResponse {
-  correct?: boolean
-  completed?: boolean
+  correct: boolean
+  completed: boolean
   nextBlockId?: number
   nextLessonId?: number
   nextChapterId?: number
-  courseCompleted?: boolean
+  courseCompleted: boolean
 }
 
 export type PagePostResponse = Page<PostResponse>
