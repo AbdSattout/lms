@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { deleteOrganizationAction } from "@/lib/actions/organization"
+import { buttonVariants } from "./ui/button"
 
 export function DeleteOrgButton({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false)
@@ -25,7 +26,9 @@ export function DeleteOrgButton({ slug }: { slug: string }) {
 
   return (
     <AlertDialog>
-      <AlertDialogTrigger className="text-destructive-foreground inline-flex h-10 shrink-0 cursor-pointer items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium shadow-none ring-offset-background transition-colors hover:bg-destructive/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50">
+      <AlertDialogTrigger
+        className={buttonVariants({ variant: "destructive" })}
+      >
         حذف المؤسسة
       </AlertDialogTrigger>
 
@@ -41,10 +44,7 @@ export function DeleteOrgButton({ slug }: { slug: string }) {
           <AlertDialogCancel className="cursor-pointer">
             إلغاء
           </AlertDialogCancel>
-          <AlertDialogAction
-            onClick={handleDelete}
-            className="cursor-pointer bg-destructive hover:bg-destructive/90"
-          >
+          <AlertDialogAction onClick={handleDelete} variant="destructive">
             {loading ? "جاري الحذف..." : "حذف"}
           </AlertDialogAction>
         </AlertDialogFooter>
