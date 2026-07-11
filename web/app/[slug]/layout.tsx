@@ -2,10 +2,10 @@ import { BreadcrumbProvider } from "@/components/breadcrumb-context"
 import { Header } from "@/components/header"
 import { OrgGuard } from "@/components/org-guard"
 import { AppSidebar } from "@/components/sidebar"
+import { DashboardSkeleton } from "@/components/skeletons/dashboard-skeleton"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { api } from "@/lib/api"
 import { Suspense } from "react"
-import MasarLoader from "../loading"
 
 async function DashboardShell({
   params,
@@ -46,14 +46,6 @@ async function DashboardShell({
   )
 }
 
-function DashboardLoader() {
-  return (
-    <div className="absolute inset-0 z-50">
-      <MasarLoader />
-    </div>
-  )
-}
-
 export default function DashboardLayout({
   params,
   children,
@@ -62,7 +54,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   return (
-    <Suspense fallback={<DashboardLoader />}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <DashboardShell params={params}>{children}</DashboardShell>
     </Suspense>
   )
