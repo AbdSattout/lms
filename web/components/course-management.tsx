@@ -392,6 +392,7 @@ export function CourseManagement({
       const newChapter: ChapterResponse = { ...result.chapter, lessons: [] }
       setChapters((prev) => [...prev, newChapter])
       setSelectedChapterId(newChapter.id)
+      toast.success("تم إنشاء الفصل بنجاح")
     }
   }
 
@@ -414,7 +415,7 @@ export function CourseManagement({
     setChapters((prev) =>
       prev.map((ch) => (ch.id === id ? { ...ch, title } : ch))
     )
-    const result = await updateChapterAction(id, title, orgSlug)
+          const result = await updateChapterAction(id, title, orgSlug)
     if (result.error) toast.error(result.error)
   }
 
@@ -427,6 +428,7 @@ export function CourseManagement({
     setDeletingChapter(null)
     const result = await deleteChapterAction(chapter.id, orgSlug)
     if (result.error) toast.error(result.error)
+    else toast.success("تم حذف الفصل بنجاح")
   }
 
   async function handleCreateLesson(title: string) {
@@ -449,6 +451,7 @@ export function CourseManagement({
             : ch
         )
       )
+      toast.success("تم إنشاء الدرس بنجاح")
     }
   }
 
@@ -492,6 +495,7 @@ export function CourseManagement({
     setDeletingLesson(null)
     const result = await deleteLessonAction(lesson.id, orgSlug)
     if (result.error) toast.error(result.error)
+    else toast.success("تم حذف الدرس بنجاح")
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -575,6 +579,7 @@ export function CourseManagement({
           orgSlug
         )
         if (result.error) toast.error(result.error)
+        else toast.success("تم نقل الدرس بنجاح")
       } else if (overType === "lesson" && selectedChapter) {
         const overLessonId = parseInt(overIdStr.split(":")[1])
         const oldIndex = lessons.findIndex((l) => l.id === numericId)
