@@ -56,8 +56,12 @@ public class CourseMediaController {
             @PathVariable
             Long mediaId,
 
-            @RequestPart("file")
+            @RequestPart(value = "file", required = false)
             MultipartFile file,
+
+            @RequestPart(value = "name", required = false)
+            String name,
+
             @AuthenticationPrincipal
             UserPrincipal principal
     ) {
@@ -66,6 +70,7 @@ public class CourseMediaController {
                 courseMediaService.update(
                         mediaId,
                         file,
+                        name,
                         principal.user()
                 )
         );
