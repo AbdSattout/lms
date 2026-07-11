@@ -4,6 +4,10 @@ import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
 import app.lms.block.service.BlockAccessService;
 import app.lms.chapter.repository.ChapterRepository;
+import app.lms.common.exception.ForbiddenException;
+import app.lms.common.exception.NotFoundException;
+import app.lms.courceEnrollment.model.CourseEnrollment;
+import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.courceEnrollment.service.CourseEnrollmentService;
 import app.lms.lesson.repository.LessonRepository;
 import app.lms.progress.dto.SubmitBlockAnswerRequest;
@@ -12,6 +16,7 @@ import app.lms.progress.mapper.ProgressMapper;
 import app.lms.progress.model.BlockProgress;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.question.model.Question;
+import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +33,8 @@ public class ProgressService {
     private final LessonRepository lessonRepository;
     private final ChapterRepository chapterRepository;
     private final CourseEnrollmentService courseEnrollmentService;
+    private final CourseEnrollmentAccessService courseEnrollmentAccessService;
+    private final QuizRepository quizRepository;
 
     @Transactional
     public SubmitBlockAnswerResponse submitAnswer(
@@ -41,6 +48,11 @@ public class ProgressService {
                         blockId,
                         user
                 );
+
+        validateCanSubmitBlock(
+                block,
+                user
+        );
 
         Question question =
                 block.getQuestion();
@@ -68,7 +80,9 @@ public class ProgressService {
         );
 
         if (correct) {
-            progress.setCompleted(true);
+            progress.setCompleted(
+                    true
+            );
         }
 
         blockProgressRepository.save(
@@ -92,6 +106,94 @@ public class ProgressService {
                 );
 
         return nextStep;
+    }
+
+    private void validateCanSubmitBlock(
+            Block block,
+            User user
+    ) {
+
+        BlockProgress existingProgress =
+                blockProgressRepository
+                        .findByUserIdAndBlockId(
+                                user.getId(),
+                                block.getId()
+                        )
+                        .orElse(null);
+
+        if (
+                existingProgress != null &&
+                        Boolean.TRUE.equals(
+                                existingProgress.getCompleted()
+                        )
+        ) {
+            return;
+        }
+
+        Long courseId =
+                block.getLesson()
+                        .getChapter()
+                        .getCourse()
+                        .getId();
+
+        CourseEnrollment enrollment =
+                courseEnrollmentAccessService
+                        .getEnrollment(
+                                courseId,
+                                user
+                        );
+
+        Block lastAccessedBlock =
+                enrollment.getLastAccessedBlock();
+
+        if (lastAccessedBlock == null) {
+
+            Block firstBlock =
+                    getFirstBlockInCourse(
+                            courseId
+                    );
+
+            if (!firstBlock.getId().equals(block.getId())) {
+                throw new ForbiddenException(
+                        "You cannot submit this block yet"
+                );
+            }
+
+            return;
+        }
+
+        if (!lastAccessedBlock.getId().equals(block.getId())) {
+            throw new ForbiddenException(
+                    "You cannot submit this block yet"
+            );
+        }
+    }
+
+    private Block getFirstBlockInCourse(
+            Long courseId
+    ) {
+
+        return chapterRepository
+                .findFirstByCourseIdOrderByPositionAsc(
+                        courseId
+                )
+                .flatMap(chapter ->
+                        lessonRepository
+                                .findFirstByChapterIdOrderByPositionAsc(
+                                        chapter.getId()
+                                )
+                )
+                .flatMap(lesson ->
+                        blockRepository
+                                .findFirstByLessonIdOrderByPositionAsc(
+                                        lesson.getId()
+                                )
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Course has no blocks"
+                        )
+                );
     }
 
     private BlockProgress getOrCreateProgress(
@@ -165,12 +267,15 @@ public class ProgressService {
             Block currentBlock
     ) {
 
+        Long courseId =
+                currentBlock.getLesson()
+                        .getChapter()
+                        .getCourse()
+                        .getId();
+
         return chapterRepository
                 .findFirstByCourseIdAndPositionGreaterThanOrderByPositionAsc(
-                        currentBlock.getLesson()
-                                .getChapter()
-                                .getCourse()
-                                .getId(),
+                        courseId,
                         currentBlock.getLesson()
                                 .getChapter()
                                 .getPosition()
@@ -189,6 +294,24 @@ public class ProgressService {
                 )
                 .map(
                         progressMapper::toNextStepResponse
+                )
+                .orElseGet(() ->
+                        resolveFinalQuizOrCompleteCourse(
+                                courseId
+                        )
+                );
+    }
+
+    private SubmitBlockAnswerResponse resolveFinalQuizOrCompleteCourse(
+            Long courseId
+    ) {
+
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .map(
+                        progressMapper::toFinalQuizResponse
                 )
                 .orElseGet(
                         progressMapper::courseCompleted

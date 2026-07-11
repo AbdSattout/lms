@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_hT9gjAyUWB
+createdAt: 2026-07-10T16:11:25.369083500
+updatedAt: 2026-07-11T12:55:00.445958700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_GkMNXFRG5u
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNjkxNTI2LCJleHAiOjE3ODQyOTYzMjZ9.4HKnUXr3f7EKGmNdLcDEQc1nfed1y73sKdnFQapInv4
+authenticationType: bearer
+body:
+  text: |
+    {
+      "blockContent": "## What is Object-Oriented Programming?\n\nObject-Oriented Programming, or OOP, is a programming style that organizes code around objects.\n\nAn object combines two main things:\n\n- **Data**, also called attributes or fields.\n- **Behavior**, also called methods or functions.\n\nFor example, in a learning management system, a `Course` can be represented as an object. It may have data such as `title`, `description`, and `status`. It may also have behavior such as `publishCourse()` or `updateCourse()`.\n\nOOP helps developers write cleaner code because related data and behavior are kept together. It also makes large systems easier to maintain, extend, and understand."
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 8QYnMtSnrB
+method: POST
+name: generate question
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/ai/questions/from-block-content
+urlParameters: []

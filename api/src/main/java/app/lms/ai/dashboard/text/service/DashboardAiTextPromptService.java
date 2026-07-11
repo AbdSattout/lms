@@ -1,6 +1,6 @@
 package app.lms.ai.dashboard.text.service;
 
-import app.lms.ai.dashboard.text.dto.AiTextRequest;
+import app.lms.ai.dashboard.text.dto.GenerateAiTextRequest;
 import app.lms.ai.dashboard.text.enums.AiTextAction;
 import app.lms.ai.dashboard.text.enums.AiTextTone;
 import app.lms.common.exception.BadRequestException;
@@ -27,10 +27,24 @@ public class DashboardAiTextPromptService {
                 """;
     }
 
-    public String buildUserPrompt(AiTextRequest request) {
+    public String buildUserPrompt(GenerateAiTextRequest request) {
         validate(request);
 
         return switch (request.action()) {
+                case WRITE -> """
+            Write a clear educational paragraph based on the following topic or instructions.
+            Keep it accurate and useful for lesson content.
+            Do not invent unsupported facts.
+            Do not explain what you did.
+            Do not translate the input.
+            Write the paragraph in the same language as the topic or instructions.
+            Return only the final paragraph.
+    
+            Topic or instructions:
+            %s
+            """.formatted(request.text());
+
+
             case PROOFREAD -> """
                     Correct spelling, grammar, punctuation, and wording mistakes in the following text.
                     Do not change the meaning.
@@ -89,7 +103,7 @@ public class DashboardAiTextPromptService {
         };
     }
 
-    private void validate(AiTextRequest request) {
+    private void validate(GenerateAiTextRequest request) {
         if (request.action() == AiTextAction.CHANGE_TONE && request.tone() == null) {
             throw new BadRequestException("Tone is required when action is CHANGE_TONE");
         }
