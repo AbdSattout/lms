@@ -7,7 +7,15 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "course_media")
+@Table(
+        name = "course_media",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_course_media_course_name",
+                        columnNames = {"course_id", "name"}
+                )
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
