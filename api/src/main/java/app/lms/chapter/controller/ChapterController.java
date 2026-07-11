@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class ChapterController {
@@ -35,6 +37,23 @@ public class ChapterController {
         );
     }
 
+    @GetMapping("/courses/{courseId}/chapters")
+    public ResponseEntity<List<ChapterResponse>> getChaptersByCourseId(
+
+            @PathVariable
+            Long courseId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                chapterService.getChaptersByCourseId(
+                        courseId,
+                        principal.user()
+                )
+        );
+    }
     @PostMapping("/courses/{courseId}/chapters")
     public ResponseEntity<ChapterResponse> create(
 

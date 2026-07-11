@@ -1,8 +1,6 @@
 package app.lms.block.dto;
 
-
-import app.lms.question.dto.UpdateQuestionRequest;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 
 public record UpdateBlockRequest(
 
@@ -10,8 +8,8 @@ public record UpdateBlockRequest(
 
         String content,
 
-        @Valid
-        UpdateQuestionRequest question
+        @Positive
+        Long questionId
 
 ) {
 }
