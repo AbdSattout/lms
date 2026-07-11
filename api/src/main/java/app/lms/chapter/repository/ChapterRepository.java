@@ -31,4 +31,7 @@ public interface ChapterRepository
             Long courseId,
             Integer position
     );
+    Optional<Chapter> findFirstByCourseIdOrderByPositionAsc(
+            Long courseId
+    );
 }
