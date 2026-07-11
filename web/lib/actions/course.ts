@@ -4,8 +4,9 @@ import { api } from "@/lib/api"
 import type { ChapterResponse, LessonResponse } from "@/lib/api/types"
 import { createCourseSchema, updateCourseSchema } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
-type ActionState = { error?: string; success?: boolean }
+type ActionState = { error?: string; success?: boolean; slug?: string }
 
 export async function createCourse(
   _prevState: ActionState,
@@ -46,6 +47,7 @@ export async function updateCourse(
 ): Promise<ActionState> {
   const courseId = Number(formData.get("courseId"))
   const orgSlug = formData.get("orgSlug") as string
+  const oldSlug = formData.get("oldSlug") as string | null
 
   if (isNaN(courseId) || !orgSlug) return { error: "بيانات غير صالحة" }
 
@@ -70,7 +72,14 @@ export async function updateCourse(
 
   if (!updated) return { error: "حدث خطأ أثناء تحديث الدورة." }
 
+  const newSlug = updated.slug
   revalidatePath(`/${orgSlug}/courses`)
+  revalidatePath(`/${orgSlug}/courses/${newSlug}`)
+
+  if (oldSlug && oldSlug !== newSlug) {
+    redirect(`/${orgSlug}/courses/${newSlug}`)
+  }
+
   return { success: true }
 }
 
