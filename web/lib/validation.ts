@@ -90,7 +90,7 @@ export type CreateLessonInput = z.infer<typeof createLessonSchema>
 
 export const updateLessonSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب").optional(),
-  isPublished: z.boolean().optional(),
+  chapterId: z.number().int().positive("معرف الفصل غير صالح").optional(),
 })
 export type UpdateLessonInput = z.infer<typeof updateLessonSchema>
 
@@ -104,7 +104,7 @@ export type ReorderLessonsInput = z.infer<typeof reorderLessonsSchema>
 export const createBlockSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   content: z.string().optional(),
-  question: createQuestionSchema.optional(),
+  questionId: z.number().int().positive("معرف السؤال مطلوب"),
 })
 export type CreateBlockInput = z.infer<typeof createBlockSchema>
 
@@ -118,12 +118,14 @@ export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>
 export const updateBlockSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب").optional(),
   content: z.string().optional(),
-  question: updateQuestionSchema.optional(),
+  questionId: z.number().int().positive("معرف السؤال غير صالح").optional(),
 })
 export type UpdateBlockInput = z.infer<typeof updateBlockSchema>
 
 export const reorderBlocksSchema = z.object({
-  blockIds: z.array(z.number().int()).min(1, "يجب توفير معرف بلوك واحد على الأقل"),
+  blockIds: z
+    .array(z.number().int())
+    .min(1, "يجب توفير معرف بلوك واحد على الأقل"),
 })
 export type ReorderBlocksInput = z.infer<typeof reorderBlocksSchema>
 
@@ -157,3 +159,34 @@ export const pageableSchema = z.object({
   sort: z.array(z.string()).optional(),
 })
 export type PageableInput = z.infer<typeof pageableSchema>
+
+export const generateQuestionFromBlockContentSchema = z.object({
+  blockContent: z.string().min(1).max(15000),
+})
+export type GenerateQuestionFromBlockContentInput = z.infer<
+  typeof generateQuestionFromBlockContentSchema
+>
+
+export const aiTextActionSchema = z.enum([
+  "PROOFREAD",
+  "REWRITE",
+  "SUMMARIZE",
+  "EXPAND",
+  "CHANGE_TONE",
+  "WRITE",
+])
+
+export const aiTextToneSchema = z.enum([
+  "PROFESSIONAL",
+  "FRIENDLY",
+  "SIMPLE",
+  "ACADEMIC",
+  "MOTIVATIONAL",
+])
+
+export const generateAiTextSchema = z.object({
+  text: z.string().min(1).max(10000),
+  action: aiTextActionSchema,
+  tone: aiTextToneSchema.optional(),
+})
+export type GenerateAiTextInput = z.infer<typeof generateAiTextSchema>

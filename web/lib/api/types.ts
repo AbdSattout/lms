@@ -77,6 +77,7 @@ export interface BlockPublicResponse {
 
 export interface QuestionResponse {
   id: number
+  courseId: number
   content: string
   options?: string[]
   correctAnswerIndex: number
@@ -89,10 +90,10 @@ export interface QuestionPublicResponse {
 }
 
 export interface QuizResponse {
-  id?: number
-  title?: string
-  courseId?: number
-  questions?: QuestionResponse[]
+  id: number
+  title: string
+  courseId: number
+  questions: QuestionResponse[]
 }
 
 export interface PostResponse {
@@ -199,6 +200,60 @@ export interface SubmitBlockAnswerResponse {
   nextChapterId?: number
   courseCompleted: boolean
 }
+
+export interface ChapterDetailsResponse {
+  id: number
+  title: string
+  position?: number
+  courseId: number
+  organizationId: number
+}
+
+export interface LessonDetailsResponse {
+  id: number
+  title: string
+  position?: number
+  chapterId: number
+  courseId: number
+  organizationId: number
+}
+
+export interface GenerateQuestionFromBlockContentRequest {
+  blockContent: string
+}
+
+export interface GeneratedQuestionResponse {
+  content: string
+  options: string[]
+  correctAnswerIndex: number
+}
+
+export interface GenerateAiTextRequest {
+  text: string
+  action: AiTextAction
+  tone?: AiTextTone
+}
+
+export interface GeneratedAiTextResponse {
+  action: AiTextAction
+  tone?: AiTextTone
+  result: string
+}
+
+export type AiTextAction =
+  | "PROOFREAD"
+  | "REWRITE"
+  | "SUMMARIZE"
+  | "EXPAND"
+  | "CHANGE_TONE"
+  | "WRITE"
+
+export type AiTextTone =
+  | "PROFESSIONAL"
+  | "FRIENDLY"
+  | "SIMPLE"
+  | "ACADEMIC"
+  | "MOTIVATIONAL"
 
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>

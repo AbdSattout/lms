@@ -44,10 +44,11 @@ export const byId = defineApiRoute({
       method: "GET",
       ...options,
     }),
-  patch: (mediaId: number, file: File, options?: BackendFetchOptions) => {
+  patch: (mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
-    body.set("file", file)
+    if (file) body.set("file", file)
+    if (name) body.set("name", name)
 
     return backend<CourseMediaResponse>(`/media/${mediaId}`, {
       method: "PATCH",

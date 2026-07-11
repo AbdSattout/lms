@@ -7,7 +7,10 @@ import {
   getPublic as getPublicBlock,
   reorder as reorderBlocks,
 } from "@/lib/api/blocks"
-import { byId as chaptersById } from "@/lib/api/chapters"
+import {
+  byId as chaptersById,
+  getLessons as chapterLessons,
+} from "@/lib/api/chapters"
 import {
   chapters,
   byId as coursesById,
@@ -42,11 +45,20 @@ import { submitAnswer } from "@/lib/api/progress"
 import {
   addQuestion,
   byId as quizById,
-  deleteQuestion,
+  deleteQuestion as deleteQuizQuestion,
 } from "@/lib/api/quizzes"
-import { update as updateQuestion } from "@/lib/api/questions"
+import {
+  byCourse as questionsByCourse,
+  create as createQuestion,
+  remove as deleteQuestion,
+  update as updateQuestion,
+} from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture } from "@/lib/api/users"
+import {
+  generateQuestionFromBlock,
+  transformText,
+} from "@/lib/api/ai"
 
 export const api = {
   auth: {
@@ -89,6 +101,7 @@ export const api = {
     },
     chapters: {
       byId: chaptersById,
+      getLessons: chapterLessons,
     },
     lessons: {
       create: createLesson,
@@ -105,12 +118,15 @@ export const api = {
       byId: mediaById,
     },
     questions: {
+      create: createQuestion,
+      byCourse: questionsByCourse,
       update: updateQuestion,
+      delete: deleteQuestion,
     },
     quizzes: {
       byId: quizById,
       addQuestion,
-      deleteQuestion,
+      deleteQuestion: deleteQuizQuestion,
     },
     posts: {
       byCourse: postsByCourse,
@@ -119,6 +135,10 @@ export const api = {
       likes,
       comments,
       deleteComment,
+    },
+    ai: {
+      generateQuestionFromBlock,
+      transformText,
     },
   },
 } satisfies ApiTree

@@ -2,7 +2,7 @@ import "server-only"
 
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
-import type { LessonResponse } from "@/lib/api/types"
+import type { LessonDetailsResponse, LessonResponse } from "@/lib/api/types"
 import type {
   CreateLessonInput,
   ReorderLessonsInput,
@@ -36,6 +36,11 @@ export const reorder = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
+  get: (lessonId: number, options?: BackendFetchOptions) =>
+    backend<LessonDetailsResponse>(`/lessons/${lessonId}`, {
+      method: "GET",
+      ...options,
+    }),
   patch: (
     lessonId: number,
     request: UpdateLessonInput,

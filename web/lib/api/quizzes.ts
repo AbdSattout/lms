@@ -9,7 +9,7 @@ import type {
 
 export const byId = defineApiRoute({
   get: (quizId: number, options?: BackendFetchOptions) =>
-    backend<QuizResponse>(`/quizzes/${quizId}`, {
+    backend<QuizResponse>(`/dashboard/quizzes/${quizId}`, {
       method: "GET",
       ...options,
     }),
@@ -21,7 +21,7 @@ export const addQuestion = defineApiRoute({
     questionId: number,
     options?: BackendFetchOptions
   ) =>
-    backend<QuestionResponse>(`/${quizId}/questions/${questionId}`, {
+    backend<QuestionResponse>(`/dashboard/quizzes/${quizId}/questions/${questionId}`, {
       method: "POST",
       ...options,
     }),
@@ -33,7 +33,7 @@ export const deleteQuestion = defineApiRoute({
     questionId: number,
     options?: BackendFetchOptions
   ) =>
-    backend<void>(`/quizzes/${quizId}/questions/${questionId}`, {
+    backend<void>(`/dashboard/quizzes/${quizId}/questions/${questionId}`, {
       method: "DELETE",
       ...options,
     }),

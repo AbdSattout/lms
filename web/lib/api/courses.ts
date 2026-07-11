@@ -66,6 +66,13 @@ export const enroll = defineApiRoute({
 })
 
 export const chapters = {
+  list: defineApiRoute({
+    get: (courseId: number, options?: BackendFetchOptions) =>
+      backend<ChapterResponse[]>(`/courses/${courseId}/chapters`, {
+        method: "GET",
+        ...options,
+      }),
+  }),
   create: defineApiRoute({
     post: (
       courseId: number,
