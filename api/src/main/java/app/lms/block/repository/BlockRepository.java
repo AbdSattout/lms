@@ -55,4 +55,8 @@ import java.util.Optional;
         long countByLessonChapterCourseId(
                 Long courseId
         );
+
+        boolean existsByQuestionId(
+                Long questionId
+        );
 }

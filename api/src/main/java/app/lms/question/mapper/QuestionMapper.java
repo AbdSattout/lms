@@ -11,9 +11,9 @@ public class QuestionMapper {
     public QuestionResponse toResponse(
             Question question
     ) {
-
         return new QuestionResponse(
                 question.getId(),
+                question.getCourse().getId(),
                 question.getContent(),
                 question.getOptions(),
                 question.getCorrectAnswerIndex()

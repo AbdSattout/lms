@@ -1,9 +1,6 @@
 package app.lms.chapter.service;
 
-import app.lms.chapter.dto.ChapterResponse;
-import app.lms.chapter.dto.CreateChapterRequest;
-import app.lms.chapter.dto.ReorderChaptersRequest;
-import app.lms.chapter.dto.UpdateChapterRequest;
+import app.lms.chapter.dto.*;
 import app.lms.chapter.mapper.ChapterMapper;
 import app.lms.chapter.model.Chapter;
 import app.lms.chapter.repository.ChapterRepository;
@@ -17,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -30,6 +28,23 @@ public class ChapterService {
     private final ChapterRepository chapterRepository;
     private final ChapterMapper chapterMapper;
     private final ChapterAccessService chapterAccessService;
+
+    @Transactional
+    public ChapterDetailsResponse getById(
+            Long chapterId,
+            User user
+    ) {
+
+        Chapter chapter =
+                chapterAccessService
+                        .getEditableChapter(
+                                chapterId,
+                                user
+                        );
+
+        return chapterMapper.toDetailsResponse(chapter);
+    }
+
     @Transactional
     public ChapterResponse create(
             Long courseId,
@@ -201,5 +216,31 @@ public class ChapterService {
 
             chapter.setPosition(position++);
         }
+    }
+
+    @Transactional
+    public List<ChapterResponse> getChaptersByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                courseId,
+                                user
+                        );
+
+        return course.getChapters()
+                .stream()
+                .sorted(
+                        Comparator.comparing(
+                                Chapter::getPosition
+                        )
+                )
+                .map(
+                        chapterMapper::toResponse
+                )
+                .toList();
     }
 }

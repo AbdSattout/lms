@@ -13,7 +13,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Block extends BaseEntity{
+public class Block extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,25 +21,16 @@ public class Block extends BaseEntity{
 
     private String title;
 
-
-
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String content;
-
-
-
 
     private Integer position;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lesson_id")
+    @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
-
-    @OneToOne(
-            mappedBy = "block",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id", nullable = false)
     private Question question;
 }

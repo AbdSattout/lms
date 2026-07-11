@@ -1,9 +1,6 @@
 package app.lms.lesson.controller;
 
-import app.lms.lesson.dto.CreateLessonRequest;
-import app.lms.lesson.dto.LessonResponse;
-import app.lms.lesson.dto.ReorderLessonsRequest;
-import app.lms.lesson.dto.UpdateLessonRequest;
+import app.lms.lesson.dto.*;
 import app.lms.lesson.service.LessonService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -13,11 +10,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class LessonController {
 
     private final LessonService lessonService;
+
+    @GetMapping("/lessons/{lessonId}")
+    public ResponseEntity<LessonDetailsResponse> getById(
+
+            @PathVariable
+            Long lessonId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                lessonService.getById(
+                        lessonId,
+                        principal.user()
+                )
+        );
+    }
 
     @PostMapping(
             "/chapters/{chapterId}/lessons"
@@ -118,5 +135,23 @@ public class LessonController {
         return ResponseEntity
                 .noContent()
                 .build();
+    }
+
+    @GetMapping("/chapters/{chapterId}/lessons")
+    public ResponseEntity<List<LessonResponse>> getLessonsByChapterId(
+
+            @PathVariable
+            Long chapterId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                lessonService.getLessonsByChapterId(
+                        chapterId,
+                        principal.user()
+                )
+        );
     }
 }
