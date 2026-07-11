@@ -1,5 +1,6 @@
 package app.lms.course.dto;
 
+import app.lms.course.enums.CourseStatus;
 import lombok.Builder;
 
 @Builder
@@ -10,6 +11,7 @@ public record CourseResponse(
         String slug,
         String description,
         String coverUrl,
-        String organizationName
+        String organizationName,
+        CourseStatus status
 
 ) {}

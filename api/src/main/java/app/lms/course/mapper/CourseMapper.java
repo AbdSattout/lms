@@ -30,6 +30,7 @@ public class CourseMapper {
                         course.getOrganization().getName()
                 )
                 .slug(course.getSlug())
+                .status(course.getStatus())
                 .build();
     }
     public CourseDetailsResponse toDetailsResponse(
