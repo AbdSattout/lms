@@ -38,4 +38,17 @@ public class ChapterAccessService {
 
         return chapter;
     }
+    public Chapter getManageableChapter(
+            Long chapterId,
+            User user
+    ) {
+
+        Chapter chapter = getById(chapterId);
+        courseAccessService.getManageableCourse(
+                chapter.getCourse().getId(),
+                user
+        );
+
+        return chapter;
+    }
 }

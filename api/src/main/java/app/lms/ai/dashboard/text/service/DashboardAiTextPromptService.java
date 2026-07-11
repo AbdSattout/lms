@@ -1,6 +1,6 @@
 package app.lms.ai.dashboard.text.service;
 
-import app.lms.ai.dashboard.text.dto.AiTextRequest;
+import app.lms.ai.dashboard.text.dto.GenerateAiTextRequest;
 import app.lms.ai.dashboard.text.enums.AiTextAction;
 import app.lms.ai.dashboard.text.enums.AiTextTone;
 import app.lms.common.exception.BadRequestException;
@@ -27,7 +27,7 @@ public class DashboardAiTextPromptService {
                 """;
     }
 
-    public String buildUserPrompt(AiTextRequest request) {
+    public String buildUserPrompt(GenerateAiTextRequest request) {
         validate(request);
 
         return switch (request.action()) {
@@ -89,7 +89,7 @@ public class DashboardAiTextPromptService {
         };
     }
 
-    private void validate(AiTextRequest request) {
+    private void validate(GenerateAiTextRequest request) {
         if (request.action() == AiTextAction.CHANGE_TONE && request.tone() == null) {
             throw new BadRequestException("Tone is required when action is CHANGE_TONE");
         }

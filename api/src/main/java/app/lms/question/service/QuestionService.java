@@ -1,18 +1,24 @@
 package app.lms.question.service;
 
 
-import app.lms.block.service.BlockAccessService;
+import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.NotFoundException;
+import app.lms.common.exception.ConflictException;
+import app.lms.course.model.Course;
+import app.lms.course.service.CourseAccessService;
+import app.lms.question.dto.CreateQuestionRequest;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.dto.UpdateQuestionRequest;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
 import app.lms.question.repository.QuestionRepository;
+import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +26,68 @@ public class QuestionService {
 
     private final QuestionRepository questionRepository;
     private final QuestionMapper questionMapper;
-    private final BlockAccessService blockAccessService;
+    private final CourseAccessService courseAccessService;
+    private final QuestionAccessService questionAccessService;
+    private final BlockRepository blockRepository;
+    private final QuizRepository quizRepository;
+
+    @Transactional
+    public QuestionResponse create(
+            Long courseId,
+            CreateQuestionRequest request,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService.getEditableCourse(
+                        courseId,
+                        user
+                );
+
+        validateQuestion(
+                request.options(),
+                request.correctAnswerIndex()
+        );
+
+        Question question =
+                Question.builder()
+                        .course(course)
+                        .content(request.content().trim())
+                        .options(request.options())
+                        .correctAnswerIndex(request.correctAnswerIndex())
+                        .build();
+
+        questionRepository.save(
+                question
+        );
+
+        return questionMapper.toResponse(
+                question
+        );
+    }
+
+    @Transactional
+    public List<QuestionResponse> getQuestionsByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getManageableCourse(
+                courseId,
+                user
+        );
+
+        return questionRepository
+                .findAllByCourseIdOrderByIdDesc(
+                        courseId
+                )
+                .stream()
+                .map(
+                        questionMapper::toResponse
+                )
+                .toList();
+    }
+
 
     @Transactional
     public QuestionResponse update(
@@ -30,50 +97,114 @@ public class QuestionService {
     ) {
 
         Question question =
-                questionRepository.findById(questionId)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Question not found"
-                                )
-                        );
+                questionAccessService.getEditableQuestion(
+                        questionId,
+                        user
+                );
 
-        blockAccessService.getEditableBlock(
-                question.getBlock().getId(),
-                user
+        String content =
+                request.content() != null
+                        ? request.content().trim()
+                        : question.getContent();
+
+        List<String> options =
+                request.options() != null
+                        ? request.options()
+                        : question.getOptions();
+
+        Integer correctAnswerIndex =
+                request.correctAnswerIndex() != null
+                        ? request.correctAnswerIndex()
+                        : question.getCorrectAnswerIndex();
+
+        if (content == null || content.isBlank()) {
+            throw new BadRequestException(
+                    "Question content cannot be empty"
+            );
+        }
+
+        validateQuestion(
+                options,
+                correctAnswerIndex
         );
 
-        if (request.content() != null) {
-            question.setContent(
-                    request.content().trim()
-            );
-        }
+        question.setContent(
+                content
+        );
 
-        if (request.options() != null) {
-            question.setOptions(
-                    request.options()
-            );
-        }
+        question.setOptions(
+                options
+        );
 
-        if (request.correctAnswerIndex() != null) {
-
-            int optionsSize =
-                    request.options() != null
-                            ? request.options().size()
-                            : question.getOptions().size();
-
-            if (request.correctAnswerIndex() >= optionsSize) {
-                throw new BadRequestException(
-                        "Invalid correct answer index"
-                );
-            }
-
-            question.setCorrectAnswerIndex(
-                    request.correctAnswerIndex()
-            );
-        }
+        question.setCorrectAnswerIndex(
+                correctAnswerIndex
+        );
 
         return questionMapper.toResponse(
                 question
         );
     }
+
+    @Transactional
+    public void delete(
+            Long questionId,
+            User user
+    ) {
+
+        Question question =
+                questionAccessService
+                        .getEditableQuestion(
+                                questionId,
+                                user
+                        );
+
+        if (blockRepository.existsByQuestionId(questionId)) {
+            throw new ConflictException(
+                    "Question is used by one or more blocks. Remove it from those blocks before deleting it."
+            );
+        }
+
+        if (quizRepository.existsByQuestionId(questionId)) {
+            throw new ConflictException(
+                    "Question is used by one or more quizzes. Remove it from those quizzes before deleting it."
+            );
+        }
+
+        questionRepository.delete(
+                question
+        );
+    }
+
+    private void validateQuestion(
+            List<String> options,
+            Integer correctAnswerIndex
+    ) {
+
+        if (options == null || options.size() < 2) {
+            throw new BadRequestException(
+                    "Question must have at least two options"
+            );
+        }
+
+        boolean hasEmptyOption =
+                options.stream()
+                        .anyMatch(option ->
+                                option == null || option.isBlank()
+                        );
+
+        if (hasEmptyOption) {
+            throw new BadRequestException(
+                    "Question options cannot be empty"
+            );
+        }
+
+        if (correctAnswerIndex == null
+                || correctAnswerIndex < 0
+                || correctAnswerIndex >= options.size()) {
+            throw new BadRequestException(
+                    "Invalid correct answer index"
+            );
+        }
+    }
+
 }

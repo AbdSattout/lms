@@ -21,7 +21,8 @@ public record CreateQuestionRequest(
 
         @NotNull
         @Min(0)
-        Integer correctAnswerIndex
+        Integer correctAnswerIndex,
+        Boolean shuffleOptions
 
 ) {
 }

@@ -1,7 +1,7 @@
 package app.lms.ai.dashboard.text.service;
 
-import app.lms.ai.dashboard.text.dto.AiTextRequest;
-import app.lms.ai.dashboard.text.dto.AiTextResponse;
+import app.lms.ai.dashboard.text.dto.GenerateAiTextRequest;
+import app.lms.ai.dashboard.text.dto.GeneratedAiTextResponse;
 import app.lms.ai.common.exception.AiServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ public class DashboardAiTextService {
     private final ChatClient.Builder chatClientBuilder;
     private final DashboardAiTextPromptService dashboardAiTextPromptService;
 
-    public AiTextResponse transform(AiTextRequest request) {
+    public GeneratedAiTextResponse transform(GenerateAiTextRequest request) {
         try {
             ChatClient chatClient = chatClientBuilder.build();
 
@@ -36,7 +36,7 @@ public class DashboardAiTextService {
                 );
             }
 
-            return new AiTextResponse(
+            return new GeneratedAiTextResponse(
                     request.action(),
                     request.tone(),
                     result
