@@ -39,7 +39,7 @@ class ProfileRemoteDataSourceImpl
       UpdateProfileParams params,
       ) async {
 
-    final response = await api.put(
+    final response = await api.patch(
       EndPoints.profile,
       data: params.toJson(),
     );
