@@ -1,6 +1,7 @@
 "use server"
 
 import { api } from "@/lib/api"
+import type { ChapterResponse, LessonResponse } from "@/lib/api/types"
 import { createCourseSchema, updateCourseSchema } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 
@@ -96,10 +97,130 @@ export async function deleteCourse(
 
   if (isNaN(courseId) || !orgSlug) return { error: "بيانات غير صالحة" }
 
-  const deleted = await api.dashboard.courses.byId.delete(courseId).catch(() => null)
+  const deleted = await api.dashboard.courses.byId
+    .delete(courseId)
+    .catch(() => null)
 
   if (deleted === null) return { error: "حدث خطأ أثناء حذف الدورة." }
 
   revalidatePath(`/${orgSlug}/courses`)
   return { success: true }
+}
+
+export async function createChapterAction(
+  courseId: number,
+  title: string,
+  orgSlug: string
+): Promise<{ error?: string; chapter?: ChapterResponse }> {
+  const chapter = await api.dashboard.courses.chapters.create
+    .post(courseId, { title })
+    .catch(() => null)
+
+  if (!chapter) return { error: "حدث خطأ أثناء إنشاء الفصل" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return { chapter }
+}
+
+export async function updateChapterAction(
+  chapterId: number,
+  title: string,
+  orgSlug: string
+): Promise<{ error?: string; chapter?: ChapterResponse }> {
+  const chapter = await api.dashboard.chapters.byId
+    .patch(chapterId, { title })
+    .catch(() => null)
+
+  if (!chapter) return { error: "حدث خطأ أثناء تحديث الفصل" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return { chapter }
+}
+
+export async function deleteChapterAction(
+  chapterId: number,
+  orgSlug: string
+): Promise<{ error?: string }> {
+  const deleted = await api.dashboard.chapters.byId
+    .delete(chapterId)
+    .catch(() => null)
+
+  if (deleted === null) return { error: "حدث خطأ أثناء حذف الفصل" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return {}
+}
+
+export async function reorderChaptersAction(
+  courseId: number,
+  chapterIds: number[],
+  orgSlug: string
+): Promise<{ error?: string }> {
+  const result = await api.dashboard.courses.chapters.reorder
+    .patch(courseId, { chapterIds })
+    .catch(() => null)
+
+  if (result === null) return { error: "حدث خطأ أثناء ترتيب الفصول" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return {}
+}
+
+export async function createLessonAction(
+  chapterId: number,
+  title: string,
+  orgSlug: string
+): Promise<{ error?: string; lesson?: LessonResponse }> {
+  const lesson = await api.dashboard.lessons.create
+    .post(chapterId, { title })
+    .catch(() => null)
+
+  if (!lesson) return { error: "حدث خطأ أثناء إنشاء الدرس" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return { lesson }
+}
+
+export async function updateLessonAction(
+  lessonId: number,
+  data: { title?: string; chapterId?: number },
+  orgSlug: string
+): Promise<{ error?: string; lesson?: LessonResponse }> {
+  const lesson = await api.dashboard.lessons.byId
+    .patch(lessonId, data)
+    .catch(() => null)
+
+  if (!lesson) return { error: "حدث خطأ أثناء تحديث الدرس" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return { lesson }
+}
+
+export async function deleteLessonAction(
+  lessonId: number,
+  orgSlug: string
+): Promise<{ error?: string }> {
+  const deleted = await api.dashboard.lessons.byId
+    .delete(lessonId)
+    .catch(() => null)
+
+  if (deleted === null) return { error: "حدث خطأ أثناء حذف الدرس" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return {}
+}
+
+export async function reorderLessonsAction(
+  chapterId: number,
+  lessonIds: number[],
+  orgSlug: string
+): Promise<{ error?: string }> {
+  const result = await api.dashboard.lessons.reorder
+    .patch(chapterId, { lessonIds })
+    .catch(() => null)
+
+  if (result === null) return { error: "حدث خطأ أثناء ترتيب الدروس" }
+
+  revalidatePath(`/${orgSlug}/courses`)
+  return {}
 }

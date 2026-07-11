@@ -1,4 +1,5 @@
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
+import { CourseManagement } from "@/components/course-management"
 import { api } from "@/lib/api"
 import { notFound } from "next/navigation"
 
@@ -15,6 +16,10 @@ export default async function CoursePage({
 
   if (!course) notFound()
 
+  const chapters = await api.dashboard.courses.chapters.list
+    .get(course.id)
+    .catch(() => [])
+
   return (
     <>
       <BreadcrumbTrail
@@ -23,7 +28,11 @@ export default async function CoursePage({
           { label: course.title },
         ]}
       />
-      <h1 className="text-2xl font-bold">{course.title}</h1>
+      <CourseManagement
+        course={course}
+        orgSlug={slug}
+        initialChapters={chapters}
+      />
     </>
   )
 }
