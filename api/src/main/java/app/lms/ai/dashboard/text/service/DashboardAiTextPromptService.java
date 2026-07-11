@@ -31,6 +31,20 @@ public class DashboardAiTextPromptService {
         validate(request);
 
         return switch (request.action()) {
+                case WRITE -> """
+            Write a clear educational paragraph based on the following topic or instructions.
+            Keep it accurate and useful for lesson content.
+            Do not invent unsupported facts.
+            Do not explain what you did.
+            Do not translate the input.
+            Write the paragraph in the same language as the topic or instructions.
+            Return only the final paragraph.
+    
+            Topic or instructions:
+            %s
+            """.formatted(request.text());
+
+
             case PROOFREAD -> """
                     Correct spelling, grammar, punctuation, and wording mistakes in the following text.
                     Do not change the meaning.

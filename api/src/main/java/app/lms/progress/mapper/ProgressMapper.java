@@ -1,51 +1,59 @@
 package app.lms.progress.mapper;
 
-
 import app.lms.block.model.Block;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
+import app.lms.progress.enums.NextStepType;
+import app.lms.quiz.model.Quiz;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ProgressMapper {
 
-    public SubmitBlockAnswerResponse toNextStepResponse(
-            Block block
-    ) {
-
+    public SubmitBlockAnswerResponse incorrectAnswer() {
         return new SubmitBlockAnswerResponse(
-                true,
-                true,
-                block.getLesson()
-                        .getChapter()
-                        .getId(),
-                block.getLesson()
-                        .getId(),
-                block.getId(),
-                false
+                NextStepType.INCORRECT,
+                null,
+                null,
+                null,
+                null,
+                "Incorrect answer"
         );
     }
 
-    public SubmitBlockAnswerResponse incorrectAnswer() {
-
+    public SubmitBlockAnswerResponse toNextStepResponse(
+            Block block
+    ) {
         return new SubmitBlockAnswerResponse(
-                false,
-                false,
+                NextStepType.BLOCK,
+                block.getId(),
+                block.getLesson().getId(),
+                block.getLesson().getChapter().getId(),
+                null,
+                "Correct answer"
+        );
+    }
+
+    public SubmitBlockAnswerResponse toFinalQuizResponse(
+            Quiz quiz
+    ) {
+        return new SubmitBlockAnswerResponse(
+                NextStepType.QUIZ,
                 null,
                 null,
                 null,
-                false
+                quiz.getId(),
+                "Course lessons completed. Go to final quiz."
         );
     }
 
     public SubmitBlockAnswerResponse courseCompleted() {
-
         return new SubmitBlockAnswerResponse(
-                true,
-                true,
+                NextStepType.COURSE_COMPLETED,
                 null,
                 null,
                 null,
-                true
+                null,
+                "Course completed"
         );
     }
 }
