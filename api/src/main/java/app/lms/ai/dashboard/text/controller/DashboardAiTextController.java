@@ -1,7 +1,7 @@
 package app.lms.ai.dashboard.text.controller;
 
-import app.lms.ai.dashboard.text.dto.AiTextRequest;
-import app.lms.ai.dashboard.text.dto.AiTextResponse;
+import app.lms.ai.dashboard.text.dto.GenerateAiTextRequest;
+import app.lms.ai.dashboard.text.dto.GeneratedAiTextResponse;
 import app.lms.ai.dashboard.text.service.DashboardAiTextService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,8 @@ public class DashboardAiTextController {
     private final DashboardAiTextService dashboardAiTextService;
 
     @PostMapping
-    public ResponseEntity<AiTextResponse> transformText(
-            @RequestBody @Valid AiTextRequest request
+    public ResponseEntity<GeneratedAiTextResponse> transformText(
+            @RequestBody @Valid GenerateAiTextRequest request
     ) {
         return ResponseEntity.ok(
                 dashboardAiTextService.transform(request)

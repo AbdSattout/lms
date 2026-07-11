@@ -12,9 +12,8 @@ import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.lesson.model.Lesson;
 import app.lms.lesson.service.LessonAccessService;
-import app.lms.question.dto.CreateQuestionRequest;
-import app.lms.question.dto.UpdateQuestionRequest;
 import app.lms.question.model.Question;
+import app.lms.question.service.QuestionAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +32,8 @@ public class DashboardBlockService {
     private final LessonAccessService lessonAccessService;
     private final BlockMapper blockMapper;
     private final BlockAccessService blockAccessService;
+    private final QuestionAccessService questionAccessService;
+
     @Transactional
     public BlockResponse create(
             Long lessonId,
@@ -47,6 +48,18 @@ public class DashboardBlockService {
                                 user
                         );
 
+        Question question =
+                questionAccessService
+                        .getEditableQuestion(
+                                request.questionId(),
+                                user
+                        );
+
+        validateQuestionBelongsToSameCourse(
+                lesson,
+                question
+        );
+
         Integer position =
                 blockRepository
                         .findMaxPositionByLessonId(
@@ -54,23 +67,14 @@ public class DashboardBlockService {
                         )
                         .orElse(0) + 1;
 
-        Question question =
-                buildQuestion(request);
-
         Block block =
-                buildBlock(
-                        request,
-                        lesson,
-                        position,
-                        question
-                );
-
-
-        question.setBlock(block);
-        block.setQuestion(question);
-
-
-
+                Block.builder()
+                        .title(request.title().trim())
+                        .content(request.content())
+                        .position(position)
+                        .lesson(lesson)
+                        .question(question)
+                        .build();
 
         blockRepository.save(
                 block
@@ -106,48 +110,24 @@ public class DashboardBlockService {
                     request.content()
             );
         }
-        if (request.question() != null) {
 
-            Question question = block.getQuestion();
+        if (request.questionId() != null) {
 
-            if (question == null) {
-                throw new BadRequestException(
-                        "Block has no question"
-                );
-            }
+            Question question =
+                    questionAccessService
+                            .getManageableQuestion(
+                                    request.questionId(),
+                                    user
+                            );
 
-            UpdateQuestionRequest q =
-                    request.question();
+            validateQuestionBelongsToSameCourse(
+                    block.getLesson(),
+                    question
+            );
 
-            if (q.content() != null) {
-                question.setContent(
-                        q.content().trim()
-                );
-            }
-
-            if (q.options() != null) {
-                question.setOptions(
-                        q.options()
-                );
-            }
-
-            if (q.correctAnswerIndex() != null) {
-
-                int size =
-                        q.options() != null
-                                ? q.options().size()
-                                : question.getOptions().size();
-
-                if (q.correctAnswerIndex() >= size) {
-                    throw new BadRequestException(
-                            "Invalid correct answer index"
-                    );
-                }
-
-                question.setCorrectAnswerIndex(
-                        q.correctAnswerIndex()
-                );
-            }
+            block.setQuestion(
+                    question
+            );
         }
 
         return blockMapper.toResponse(
@@ -246,57 +226,45 @@ public class DashboardBlockService {
         }
     }
 
-    private Question buildQuestion(
-            CreateBlockRequest request
+    @Transactional
+    public BlockResponse getBlock(
+            Long blockId,
+            User user
     ) {
 
-        CreateQuestionRequest questionRequest =
-                request.question();
+        Block block =
+                blockAccessService
+                        .getManageableBlock(
+                                blockId,
+                                user
+                        );
 
-        if (questionRequest == null) {
-            throw new BadRequestException(
-                    "Question is required"
-            );
-        }
-
-        if (
-                questionRequest.correctAnswerIndex()
-                        >= questionRequest.options().size()
-        ) {
-            throw new BadRequestException(
-                    "Invalid correct answer index"
-            );
-        }
-
-        return Question.builder()
-                .content(
-                        questionRequest.content().trim()
-                )
-                .options(
-                        questionRequest.options()
-                )
-                .correctAnswerIndex(
-                        questionRequest.correctAnswerIndex()
-                )
-                .build();
+        return blockMapper.toResponse(
+                block
+        );
     }
 
-    private Block buildBlock(
-            CreateBlockRequest request,
+    private void validateQuestionBelongsToSameCourse(
             Lesson lesson,
-            Integer position,
             Question question
     ) {
 
+        Long lessonCourseId =
+                lesson.getChapter()
+                        .getCourse()
+                        .getId();
 
-        return Block.builder()
-                .title(request.title().trim())
-                .content(request.content())
-                .position(position)
-                .lesson(lesson)
-                .question(question)
-                .build();
+        Long questionCourseId =
+                question.getCourse()
+                        .getId();
+
+        if (!lessonCourseId.equals(questionCourseId)) {
+            throw new BadRequestException(
+                    "Question must belong to the same course as the lesson"
+            );
+        }
     }
+
     private void normalizePositions(
             Long lessonId
     ) {
@@ -315,13 +283,5 @@ public class DashboardBlockService {
                     position++
             );
         }
-    }
-
-    public BlockResponse getBlock(Long blockId, User user) {
-
-        Block block =  blockAccessService.getManageableBlock(blockId, user);
-
-          return  blockMapper.toResponse(block);
-
     }
 }
