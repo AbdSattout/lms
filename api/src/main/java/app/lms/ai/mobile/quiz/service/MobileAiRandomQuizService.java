@@ -230,7 +230,20 @@ public class MobileAiRandomQuizService {
         return new RandomQuizSubmitResponse(
                 attempt.getId(),
                 score,
-                attempt.getQuestions().size()
+                attempt.getQuestions().size(),
+                attempt.getQuestions()
+                        .stream()
+                        .map(question ->
+                                new RandomQuizQuestionResultResponse(
+                                        question.getId(),
+                                        question.getContent(),
+                                        question.getOptions(),
+                                        question.getSelectedAnswerIndex(),
+                                        question.getCorrectAnswerIndex(),
+                                        question.getCorrect()
+                                )
+                        )
+                        .toList()
         );
     }
 
