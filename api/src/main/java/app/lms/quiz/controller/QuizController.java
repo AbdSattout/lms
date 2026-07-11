@@ -12,22 +12,31 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/dashboard/quizzes")
 public class QuizController {
 
     private final QuizService quizService;
 
-    @GetMapping("/quizzes/{quizId}")
+    @GetMapping("/{quizId}")
     public ResponseEntity<QuizResponse> getQuizById(
+
             @PathVariable
-            Long quizId
+            Long quizId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
         return ResponseEntity.ok(
-                quizService.getQuizById(quizId)
+                quizService.getQuizById(
+                        quizId,
+                        principal.user()
+                )
         );
     }
 
     @PostMapping("/{quizId}/questions/{questionId}")
     public ResponseEntity<QuestionResponse> addQuestionToQuiz(
+
             @PathVariable
             Long quizId,
 
@@ -35,20 +44,21 @@ public class QuizController {
             Long questionId,
 
             @AuthenticationPrincipal
-            UserPrincipal userPrincipal
+            UserPrincipal principal
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(
                         quizService.addQuestionToQuiz(
                                 quizId,
                                 questionId,
-                                userPrincipal.user()
+                                principal.user()
                         )
                 );
     }
 
-    @DeleteMapping("/quizzes/{quizId}/questions/{questionId}")
+    @DeleteMapping("/{quizId}/questions/{questionId}")
     public ResponseEntity<Void> deleteQuestionFromQuiz(
+
             @PathVariable
             Long quizId,
 
@@ -56,9 +66,14 @@ public class QuizController {
             Long questionId,
 
             @AuthenticationPrincipal
-            UserPrincipal userPrincipal
+            UserPrincipal principal
     ) {
-        quizService.deleteQuestionFromQuiz(quizId, questionId, userPrincipal.user());
+        quizService.deleteQuestionFromQuiz(
+                quizId,
+                questionId,
+                principal.user()
+        );
+
         return ResponseEntity.noContent().build();
     }
 }

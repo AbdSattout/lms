@@ -15,6 +15,7 @@
     import lombok.RequiredArgsConstructor;
     import org.springframework.stereotype.Service;
 
+    import java.util.Comparator;
     import java.util.List;
     import java.util.Map;
     import java.util.function.Function;
@@ -206,6 +207,31 @@
                         position++
                 );
             }
+        }
+        @Transactional
+        public List<LessonResponse> getLessonsByChapterId(
+                Long chapterId,
+                User user
+        ) {
+
+            Chapter chapter =
+                    chapterAccessService
+                            .getManageableChapter(
+                                    chapterId,
+                                    user
+                            );
+
+            return chapter.getLessons()
+                    .stream()
+                    .sorted(
+                            Comparator.comparing(
+                                    Lesson::getPosition
+                            )
+                    )
+                    .map(
+                            lessonMapper::toResponse
+                    )
+                    .toList();
         }
         private void moveLessonToChapter(
                 Lesson lesson,

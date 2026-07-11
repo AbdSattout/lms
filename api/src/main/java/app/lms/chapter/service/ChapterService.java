@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -215,5 +216,31 @@ public class ChapterService {
 
             chapter.setPosition(position++);
         }
+    }
+
+    @Transactional
+    public List<ChapterResponse> getChaptersByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                courseId,
+                                user
+                        );
+
+        return course.getChapters()
+                .stream()
+                .sorted(
+                        Comparator.comparing(
+                                Chapter::getPosition
+                        )
+                )
+                .map(
+                        chapterMapper::toResponse
+                )
+                .toList();
     }
 }
