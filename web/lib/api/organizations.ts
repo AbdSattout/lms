@@ -3,43 +3,38 @@ import "server-only"
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
-  CreateCourseRequest,
-  CreateOrganizationRequest,
   CourseResponse,
   OrganizationResponse,
-  Pageable,
-  PageCourseResponse,
-  UpdateOrganizationRequest,
 } from "@/lib/api/types"
-
-function toQueryString(pageable: Pageable) {
-  const params = new URLSearchParams()
-
-  if (pageable.page !== undefined) params.set("page", String(pageable.page))
-  if (pageable.size !== undefined) params.set("size", String(pageable.size))
-  for (const sort of pageable.sort ?? []) params.append("sort", sort)
-
-  const query = params.toString()
-  return query ? `?${query}` : ""
-}
+import type {
+  CreateCourseInput,
+  CreateOrganizationInput,
+  UpdateOrganizationInput,
+} from "@/lib/validation"
 
 export const list = defineApiRoute({
   get: (options?: BackendFetchOptions) =>
-    backend<OrganizationResponse[]>("/organizations", {
+    backend<OrganizationResponse[]>("/dashboard/organizations", {
       method: "GET",
       ...options,
     }),
+})
+
+export const create = defineApiRoute({
   post: (
-    request: CreateOrganizationRequest,
+    request: CreateOrganizationInput,
     image?: File,
     options?: BackendFetchOptions
   ) => {
     const body = new FormData()
 
-    body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+    body.set(
+      "request",
+      new Blob([JSON.stringify(request)], { type: "application/json" })
+    )
     if (image) body.set("image", image)
 
-    return backend<OrganizationResponse>("/organizations", {
+    return backend<OrganizationResponse>("/dashboard/organizations", {
       method: "POST",
       body,
       ...options,
@@ -49,22 +44,25 @@ export const list = defineApiRoute({
 
 export const bySlug = defineApiRoute({
   get: (slug: string, options?: BackendFetchOptions) =>
-    backend<OrganizationResponse>(`/organizations/${slug}`, {
+    backend<OrganizationResponse>(`/dashboard/organizations/${slug}`, {
       method: "GET",
       ...options,
     }),
   patch: async (
     slug: string,
-    request: UpdateOrganizationRequest,
+    request: UpdateOrganizationInput,
     image?: File,
     options?: BackendFetchOptions
   ) =>
-    backend<OrganizationResponse>(`/organizations/${slug}`, {
+    backend<OrganizationResponse>(`/dashboard/organizations/${slug}`, {
       method: "PATCH",
       body: (() => {
         const body = new FormData()
 
-        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        body.set(
+          "request",
+          new Blob([JSON.stringify(request)], { type: "application/json" })
+        )
         if (image) body.set("image", image)
 
         return body
@@ -72,37 +70,68 @@ export const bySlug = defineApiRoute({
       ...options,
     }),
   delete: (slug: string, options?: BackendFetchOptions) =>
-    backend<string>(`/organizations/${slug}`, {
+    backend<void>(`/dashboard/organizations/${slug}`, {
       method: "DELETE",
       ...options,
     }),
 })
 
-export const courses = defineApiRoute({
-  get: (slug: string, pageable: Pageable, options?: BackendFetchOptions) =>
-    backend<PageCourseResponse>(
-      `/organizations/${slug}/courses${toQueryString(pageable)}`,
+export const checkSlugAvailability = defineApiRoute({
+  get: (slug: string, options?: BackendFetchOptions) =>
+    backend<boolean>(
+      `/dashboard/organizations/check-availability?slug=${encodeURIComponent(slug)}`,
       {
         method: "GET",
         ...options,
       }
     ),
+})
+
+export const courses = defineApiRoute({
+  get: (slug: string, options?: BackendFetchOptions) =>
+    backend<CourseResponse[]>(`/dashboard/organizations/${slug}/courses`, {
+      method: "GET",
+      ...options,
+    }),
   post: async (
     slug: string,
-    request: CreateCourseRequest,
+    request: CreateCourseInput,
     cover?: File,
     options?: BackendFetchOptions
   ) =>
-    backend<CourseResponse>(`/organizations/${slug}/courses`, {
+    backend<CourseResponse>(`/dashboard/organizations/${slug}/courses`, {
       method: "POST",
       body: (() => {
         const body = new FormData()
 
-        body.set("request", new Blob([JSON.stringify(request)], { type: "application/json" }))
+        body.set(
+          "request",
+          new Blob([JSON.stringify(request)], { type: "application/json" })
+        )
         if (cover) body.set("cover", cover)
 
         return body
       })(),
       ...options,
     }),
+})
+
+export const getCourseBySlug = defineApiRoute({
+  get: (
+    organizationSlug: string,
+    courseSlug: string,
+    options?: BackendFetchOptions
+  ) =>
+    backend<CourseResponse>(
+      `/dashboard/organizations/${organizationSlug}/courses/${courseSlug}`,
+      { method: "GET", ...options }
+    ),
+})
+
+export const checkCourseSlugAvailability = defineApiRoute({
+  get: (slug: string, courseSlug: string, options?: BackendFetchOptions) =>
+    backend<boolean>(
+      `/dashboard/organizations/${slug}/courses/check-slug?courseSlug=${encodeURIComponent(courseSlug)}`,
+      { method: "GET", ...options }
+    ),
 })

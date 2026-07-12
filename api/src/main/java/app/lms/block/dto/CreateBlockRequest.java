@@ -1,8 +1,8 @@
 package app.lms.block.dto;
 
-import app.lms.question.dto.CreateQuestionRequest;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
 public record CreateBlockRequest(
 
@@ -12,8 +12,9 @@ public record CreateBlockRequest(
 
         String content,
 
-        @Valid
-        CreateQuestionRequest question
+        @NotNull
+        @Positive
+        Long questionId
 
 ) {
 }

@@ -174,7 +174,6 @@ public class CourseEnrollmentService {
                 EnrollmentStatus.DROPPED
         );
     }
-
     @Transactional
     public void updateProgressAfterCorrectAnswer(
             Block currentBlock,
@@ -189,48 +188,11 @@ public class CourseEnrollmentService {
                         .getId();
 
         CourseEnrollment enrollment =
-                enrollmentRepository
-                        .findByUserIdAndCourseId(
-                                user.getId(),
-                                courseId
-                        )
-                        .orElseThrow(() ->
-                                new ForbiddenException(
-                                        "You are not enrolled in this course"
-                                )
+                courseEnrollmentAccessService
+                        .getEnrollment(
+                                courseId,
+                                user
                         );
-
-        if (Boolean.TRUE.equals(nextStep.courseCompleted())) {
-
-            enrollment.setProgressPercentage(100);
-
-            if (enrollment.getCompletedAt() == null) {
-                enrollment.setCompletedAt(
-                        LocalDateTime.now()
-                );
-            }
-
-            return;
-        }
-
-        Block nextBlock =
-                blockRepository
-                        .findById(
-                                nextStep.nextBlockId()
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Next block not found"
-                                )
-                        );
-
-        enrollment.setLastAccessedLesson(
-                nextBlock.getLesson()
-        );
-
-        enrollment.setLastAccessedBlock(
-                nextBlock
-        );
 
         enrollment.setProgressPercentage(
                 calculateProgressPercentage(
@@ -238,6 +200,67 @@ public class CourseEnrollmentService {
                         user.getId()
                 )
         );
+
+        switch (nextStep.nextType()) {
+
+            case COURSE_COMPLETED -> {
+
+                enrollment.setProgressPercentage(
+                        100
+                );
+
+                enrollment.setLastAccessedLesson(
+                        currentBlock.getLesson()
+                );
+
+                enrollment.setLastAccessedBlock(
+                        currentBlock
+                );
+
+                if (enrollment.getCompletedAt() == null) {
+                    enrollment.setCompletedAt(
+                            LocalDateTime.now()
+                    );
+                }
+            }
+
+            case QUIZ -> {
+
+                enrollment.setLastAccessedLesson(
+                        currentBlock.getLesson()
+                );
+
+                enrollment.setLastAccessedBlock(
+                        currentBlock
+                );
+            }
+
+            case BLOCK -> {
+
+                Block nextBlock =
+                        blockRepository
+                                .findById(
+                                        nextStep.nextBlockId()
+                                )
+                                .orElseThrow(() ->
+                                        new NotFoundException(
+                                                "Next block not found"
+                                        )
+                                );
+
+                enrollment.setLastAccessedLesson(
+                        nextBlock.getLesson()
+                );
+
+                enrollment.setLastAccessedBlock(
+                        nextBlock
+                );
+            }
+
+            case INCORRECT -> {
+
+            }
+        }
     }
 
     private Integer calculateProgressPercentage(

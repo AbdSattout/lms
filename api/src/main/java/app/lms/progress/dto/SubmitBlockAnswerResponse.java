@@ -1,18 +1,13 @@
 package app.lms.progress.dto;
 
+import app.lms.progress.enums.NextStepType;
+
 public record SubmitBlockAnswerResponse(
-
-        Boolean correct,
-
-        Boolean completed,
-
+        NextStepType nextType,
         Long nextBlockId,
-
         Long nextLessonId,
-
         Long nextChapterId,
-
-        Boolean courseCompleted
-
+        Long quizId,
+        String message
 ) {
 }

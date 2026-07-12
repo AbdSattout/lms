@@ -1,0 +1,28 @@
+type: http_request
+model: http_request
+id: rq_3VFGKWNKhG
+createdAt: 2026-07-10T13:47:32.263017100
+updatedAt: 2026-07-11T12:55:23.881757300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_vLaX4qvMiu
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNjkxNTI2LCJleHAiOjE3ODQyOTYzMjZ9.4HKnUXr3f7EKGmNdLcDEQc1nfed1y73sKdnFQapInv4
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "text": "Write a short beginner-friendly paragraph about Object-Oriented Programming.",
+      "action": "WRITE"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: edxIzkTfAY
+method: POST
+name: text fixing
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/ai/text
+urlParameters: []
