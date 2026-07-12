@@ -4,7 +4,6 @@
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import { useEffect, useRef, useState } from "react"
 
-import { Highlight } from "@tiptap/extension-highlight"
 import { TaskItem, TaskList } from "@tiptap/extension-list"
 import { Typography } from "@tiptap/extension-typography"
 import { Selection } from "@tiptap/extensions"
@@ -29,11 +28,6 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button"
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button"
-import {
-  ColorHighlightPopover,
-  ColorHighlightPopoverButton,
-  ColorHighlightPopoverContent,
-} from "@/components/tiptap-ui/color-highlight-popover"
 import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu"
 import {
   LinkButton,
@@ -44,7 +38,6 @@ import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
 
 import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon"
-import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
@@ -52,11 +45,9 @@ import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import "./editor.scss"
 
 const MainToolbarContent = ({
-  onHighlighterClick,
   onLinkClick,
   isMobile,
 }: {
-  onHighlighterClick: () => void
   onLinkClick: () => void
   isMobile: boolean
 }) => {
@@ -82,11 +73,6 @@ const MainToolbarContent = ({
         <MarkButton type="strike" />
         <MarkButton type="code" />
         <MarkButton type="underline" />
-        {!isMobile ? (
-          <ColorHighlightPopover />
-        ) : (
-          <ColorHighlightPopoverButton onClick={onHighlighterClick} />
-        )}
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
       </ToolbarGroup>
 
@@ -96,31 +82,21 @@ const MainToolbarContent = ({
 }
 
 const MobileToolbarContent = ({
-  type,
   onBack,
 }: {
-  type: "highlighter" | "link"
   onBack: () => void
 }) => (
   <>
     <ToolbarGroup>
       <Button variant="ghost" onClick={onBack}>
         <ArrowLeftIcon className="tiptap-button-icon" />
-        {type === "highlighter" ? (
-          <HighlighterIcon className="tiptap-button-icon" />
-        ) : (
-          <LinkIcon className="tiptap-button-icon" />
-        )}
+        <LinkIcon className="tiptap-button-icon" />
       </Button>
     </ToolbarGroup>
 
     <ToolbarSeparator />
 
-    {type === "highlighter" ? (
-      <ColorHighlightPopoverContent />
-    ) : (
-      <LinkContent />
-    )}
+    <LinkContent />
   </>
 )
 
@@ -131,10 +107,8 @@ interface EditorProps {
 
 export function Editor({ onChange, content }: EditorProps) {
   const isMobile = useIsBreakpoint()
-  const [pendingView, setPendingView] = useState<
-    "main" | "highlighter" | "link"
-  >("main")
-  const mobileView = isMobile ? pendingView : "main"
+  const [showLink, setShowLink] = useState(false)
+  const mobileView = isMobile ? (showLink ? "link" : "main") : "main"
   const toolbarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -174,7 +148,6 @@ export function Editor({ onChange, content }: EditorProps) {
       HorizontalRule,
       TaskList,
       TaskItem.configure({ nested: true }),
-      Highlight.configure({ multicolor: true }),
       Typography,
       Selection,
       Markdown,
@@ -198,14 +171,12 @@ export function Editor({ onChange, content }: EditorProps) {
         <Toolbar ref={toolbarRef}>
           {mobileView === "main" ? (
             <MainToolbarContent
-              onHighlighterClick={() => setPendingView("highlighter")}
-              onLinkClick={() => setPendingView("link")}
+              onLinkClick={() => setShowLink(true)}
               isMobile={isMobile}
             />
           ) : (
             <MobileToolbarContent
-              type={mobileView === "highlighter" ? "highlighter" : "link"}
-              onBack={() => setPendingView("main")}
+              onBack={() => setShowLink(false)}
             />
           )}
         </Toolbar>
