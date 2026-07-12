@@ -13,9 +13,9 @@ import { StarterKit } from "@tiptap/starter-kit"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
-    Toolbar,
-    ToolbarGroup,
-    ToolbarSeparator,
+  Toolbar,
+  ToolbarGroup,
+  ToolbarSeparator,
 } from "@/components/tiptap-ui-primitive/toolbar"
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
@@ -29,15 +29,15 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button"
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button"
 import {
-    ColorHighlightPopover,
-    ColorHighlightPopoverButton,
-    ColorHighlightPopoverContent,
+  ColorHighlightPopover,
+  ColorHighlightPopoverButton,
+  ColorHighlightPopoverContent,
 } from "@/components/tiptap-ui/color-highlight-popover"
 import { HeadingDropdownMenu } from "@/components/tiptap-ui/heading-dropdown-menu"
 import {
-    LinkButton,
-    LinkContent,
-    LinkPopover,
+  LinkButton,
+  LinkContent,
+  LinkPopover,
 } from "@/components/tiptap-ui/link-popover"
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
@@ -125,13 +125,14 @@ const MobileToolbarContent = ({
 
 interface EditorProps {
   onChange?: (markdown: string) => void
+  content?: string
 }
 
-export function Editor({ onChange }: EditorProps) {
+export function Editor({ onChange, content }: EditorProps) {
   const isMobile = useIsBreakpoint()
-  const [pendingView, setPendingView] = useState<"main" | "highlighter" | "link">(
-    "main"
-  )
+  const [pendingView, setPendingView] = useState<
+    "main" | "highlighter" | "link"
+  >("main")
   const mobileView = isMobile ? pendingView : "main"
   const toolbarRef = useRef<HTMLDivElement>(null)
 
@@ -151,6 +152,7 @@ export function Editor({ onChange }: EditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
     textDirection: "auto",
+    contentType: "markdown",
     editorProps: {
       attributes: {
         autocomplete: "off",
@@ -180,6 +182,14 @@ export function Editor({ onChange }: EditorProps) {
       onChange?.(editor.getMarkdown())
     },
   })
+
+  useEffect(() => {
+    if (!editor || content === undefined) return
+    editor.commands.setContent(content, {
+      emitUpdate: false,
+      contentType: "markdown",
+    })
+  }, [editor, content])
 
   return (
     <div className="editor-wrapper">
