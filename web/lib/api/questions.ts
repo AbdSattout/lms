@@ -26,7 +26,7 @@ export const byCourse = defineApiRoute({
     }),
 })
 
-export const update = defineApiRoute({
+export const byId = defineApiRoute({
   patch: (
     questionId: number,
     request: UpdateQuestionInput,
@@ -37,9 +37,6 @@ export const update = defineApiRoute({
       body: request,
       ...options,
     }),
-})
-
-export const remove = defineApiRoute({
   delete: (questionId: number, options?: BackendFetchOptions) =>
     backend<void>(`/dashboard/questions/${questionId}`, {
       method: "DELETE",

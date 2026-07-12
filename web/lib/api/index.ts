@@ -48,9 +48,8 @@ import {
 } from "@/lib/api/quizzes"
 import {
   byCourse as questionsByCourse,
+  byId as questionById,
   create as createQuestion,
-  remove as deleteQuestion,
-  update as updateQuestion,
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture } from "@/lib/api/users"
@@ -115,8 +114,7 @@ export const api = {
     questions: {
       create: createQuestion,
       byCourse: questionsByCourse,
-      update: updateQuestion,
-      delete: deleteQuestion,
+      byId: questionById,
     },
     quizzes: {
       byId: quizById,
