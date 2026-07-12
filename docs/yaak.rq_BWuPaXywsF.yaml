@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_BWuPaXywsF
+createdAt: 2026-07-12T15:16:16.504835700
+updatedAt: 2026-07-12T15:16:46.776896800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Nv3G37jbpd
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: delete join-request
+sortPriority: 0.002
+url: http://localhost:8080/organizations/{slug}/join-request
+urlParameters: []

@@ -1,10 +1,10 @@
 type: http_request
 model: http_request
-id: rq_PdbdoLd79m
-createdAt: 2026-05-20T15:53:24.625308400
-updatedAt: 2026-07-11T14:52:55.671462400
+id: rq_xEs8VcTQ45
+createdAt: 2026-07-11T15:13:37.707808400
+updatedAt: 2026-07-11T15:17:03.727635300
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_NT7ErFBiF4
+folderId: fl_Q4vPANan6j
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
 authenticationType: bearer
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: get profile
-sortPriority: 1000.0
-url: http://localhost:8080/profile/me
+name: GetOrganizationMember
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/organizations/tech-company/members?page=0&size=20
 urlParameters: []
