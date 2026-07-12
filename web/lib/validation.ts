@@ -14,6 +14,7 @@ export const createQuestionSchema = z.object({
   content: z.string().min(1, "محتوى السؤال مطلوب"),
   options: z.array(z.string()).min(2, "يجب توفير خيارين على الأقل"),
   correctAnswerIndex: z.number().int().min(0),
+  shuffleOptions: z.boolean().optional(),
 })
 export type CreateQuestionInput = z.infer<typeof createQuestionSchema>
 
@@ -128,11 +129,6 @@ export const reorderBlocksSchema = z.object({
     .min(1, "يجب توفير معرف بلوك واحد على الأقل"),
 })
 export type ReorderBlocksInput = z.infer<typeof reorderBlocksSchema>
-
-export const submitBlockAnswerSchema = z.object({
-  answerIndex: z.number().int().min(0),
-})
-export type SubmitBlockAnswerInput = z.infer<typeof submitBlockAnswerSchema>
 
 export const createPostSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),

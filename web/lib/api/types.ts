@@ -192,15 +192,6 @@ export interface PageCourseResponse {
   empty?: boolean
 }
 
-export interface SubmitBlockAnswerResponse {
-  correct: boolean
-  completed: boolean
-  nextBlockId?: number
-  nextLessonId?: number
-  nextChapterId?: number
-  courseCompleted: boolean
-}
-
 export interface ChapterDetailsResponse {
   id: number
   title: string

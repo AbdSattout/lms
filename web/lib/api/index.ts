@@ -41,7 +41,6 @@ import {
   byOrg as postsByOrg,
 } from "@/lib/api/posts"
 import { create, me as profileMe } from "@/lib/api/profile"
-import { submitAnswer } from "@/lib/api/progress"
 import {
   addQuestion,
   byId as quizById,
@@ -81,10 +80,6 @@ export const api = {
   blocks: {
     getPublic: getPublicBlock,
   },
-  progress: {
-    submitAnswer,
-  },
-
   dashboard: {
     organizations: {
       create: createOrg,
