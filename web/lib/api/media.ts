@@ -5,10 +5,10 @@ import { defineApiRoute } from "@/lib/api/route"
 import type {
   CourseMediaResponse,
   PageCourseMediaResponse,
-  Pageable,
 } from "@/lib/api/types"
+import type { PageableInput } from "@/lib/validation"
 
-function toQueryString(pageable: Pageable) {
+function toQueryString(pageable: PageableInput) {
   const params = new URLSearchParams()
 
   if (pageable.page !== undefined) params.set("page", String(pageable.page))
@@ -20,7 +20,7 @@ function toQueryString(pageable: Pageable) {
 }
 
 export const byCourse = defineApiRoute({
-  get: (courseId: number, pageable: Pageable, options?: BackendFetchOptions) =>
+  get: (courseId: number, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<PageCourseMediaResponse>(
       `/courses/${courseId}/media${toQueryString(pageable)}`,
       { method: "GET", ...options }
@@ -44,10 +44,11 @@ export const byId = defineApiRoute({
       method: "GET",
       ...options,
     }),
-  patch: (mediaId: number, file: File, options?: BackendFetchOptions) => {
+  patch: (mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
-    body.set("file", file)
+    if (file) body.set("file", file)
+    if (name) body.set("name", name)
 
     return backend<CourseMediaResponse>(`/media/${mediaId}`, {
       method: "PATCH",

@@ -1,5 +1,6 @@
 import { Geist_Mono, IBM_Plex_Sans_Arabic, Lalezar } from "next/font/google"
 
+import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
 import { ThemeProvider } from "@wrksz/themes/next"
 import "./globals.css"
@@ -23,10 +24,8 @@ const fontMono = Geist_Mono({
 
 export default function RootLayout({
   children,
-  modal,
 }: Readonly<{
   children: React.ReactNode
-  modal: React.ReactNode
 }>) {
   return (
     <html
@@ -43,8 +42,8 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
+          <Toaster position="bottom-left" />
           {children}
-          {modal}
         </ThemeProvider>
       </body>
     </html>

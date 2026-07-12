@@ -32,6 +32,7 @@ export function CourseFormDialog({
   const action = isEdit ? updateCourse : createCourse
   const [state, formAction, isPending] = useActionState(action, {})
 
+  const [title, setTitle] = useState(course?.title ?? "")
   const [slug, setSlug] = useState(course?.slug ?? "")
   const userEditedSlug = useRef(false)
 
@@ -67,6 +68,7 @@ export function CourseFormDialog({
         <form action={formAction} className="flex flex-col gap-4">
           <input type="hidden" name="orgSlug" value={orgSlug} />
           {isEdit && <input type="hidden" name="courseId" value={course.id} />}
+          {isEdit && <input type="hidden" name="oldSlug" value={course.slug} />}
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="title">العنوان</Label>
@@ -74,9 +76,10 @@ export function CourseFormDialog({
               id="title"
               name="title"
               required
-              defaultValue={course?.title ?? ""}
+              value={title}
               disabled={isPending}
               onChange={(e) => {
+                setTitle(e.target.value)
                 if (!isEdit) handleTitleChange(e.target.value)
               }}
             />
@@ -124,7 +127,11 @@ export function CourseFormDialog({
             <p className="text-sm text-destructive">{state.error}</p>
           )}
 
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full cursor-pointer"
+          >
             {isPending
               ? "جاري الحفظ..."
               : isEdit

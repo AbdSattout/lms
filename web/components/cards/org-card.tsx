@@ -15,11 +15,9 @@ export async function OrgCard({ org }: { org: OrganizationResponse }) {
     <Link href={`/${org.slug}`}>
       <Card className="h-full cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl">
         <CardHeader className="relative flex-row items-center gap-3 space-y-0">
-          {org.visibility && (
-            <Badge variant="secondary" className="absolute inset-e-6 top-0">
-              {org.visibility === "PUBLIC" ? "عام" : "خاص"}
-            </Badge>
-          )}
+          <Badge variant="secondary" className="absolute inset-e-6 top-0">
+            {org.visibility === "PUBLIC" ? "عام" : "خاص"}
+          </Badge>
           <OrgAvatar src={org.image} name={org.name} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
@@ -32,11 +30,9 @@ export async function OrgCard({ org }: { org: OrganizationResponse }) {
             )}
           </div>
         </CardHeader>
-        {org.ownerName && (
-          <CardFooter className="mt-auto text-xs text-muted-foreground">
-            {org.ownerName}
-          </CardFooter>
-        )}
+        <CardFooter className="mt-auto text-xs text-muted-foreground">
+          {org.ownerName}
+        </CardFooter>
       </Card>
     </Link>
   )

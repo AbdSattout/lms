@@ -2,20 +2,20 @@ type: http_request
 model: http_request
 id: rq_8QLkudisha
 createdAt: 2026-05-18T16:26:17.129549800
-updatedAt: 2026-06-01T08:56:05.559000800
+updatedAt: 2026-07-11T23:03:04.554394400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzc5MTEyMjEwLCJleHAiOjE3Nzk3MTcwMTB9.hYYeZ73OiTiwL0zmz5h_hQeD1cuPtwTZvPOgdxhUQTE
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODEwOTQwLCJleHAiOjE3ODQ0MTU3NDB9.GptCQKRj7K72Gx52KG4NXzx29tWlh7QnYR5xvZledf4
 authenticationType: bearer
 body:
   form:
   - enabled: true
-    file: C:\Users\ASUS\Desktop\wallpaper.jpg
+    file: C:\Users\karam\Pictures\Screenshots\Screenshot 2026-07-08 061517.png
     id: 4nq4UAxd2B
     name: image
   - enabled: true
-    id: NE3RKvezUF
+    id: pjvxeapR9d
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -28,5 +28,20 @@ headers:
 method: PATCH
 name: user pictue editing
 sortPriority: 0.0
-url: http://localhost:8080/users/me/picture
+url: https://lms.koyeb.app/users/me/picture
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0
