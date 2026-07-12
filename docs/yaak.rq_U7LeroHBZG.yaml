@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_U7LeroHBZG
+createdAt: 2026-07-11T15:39:12.363553700
+updatedAt: 2026-07-11T15:40:04.190287800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+        "maxUses": 20
+      }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: yIPewDSRSA
+method: PATCH
+name: Update capacity for invite
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/{slug}/invites/{inviteId}/capacity
+urlParameters: []

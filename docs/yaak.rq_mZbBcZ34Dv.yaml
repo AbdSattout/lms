@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_mZbBcZ34Dv
+createdAt: 2026-07-11T14:49:38.266150900
+updatedAt: 2026-07-11T15:27:32.639394
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_NT7ErFBiF4
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Search
+sortPriority: 0.0
+url: http://localhost:8080/users/search
+urlParameters:
+- enabled: true
+  name: q
+  value: me
+  id: iKQNajekiX
+- enabled: true
+  name: ''
+  value: ''
+  id: aQsXHyM2Uy

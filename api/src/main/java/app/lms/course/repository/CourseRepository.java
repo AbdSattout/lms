@@ -37,4 +37,8 @@ public interface CourseRepository
             Long organizationId,
             String slug
     );
+    Page<Course> findAllByStatus(
+            CourseStatus status,
+            Pageable pageable
+    );
 }

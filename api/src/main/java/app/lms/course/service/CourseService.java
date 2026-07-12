@@ -100,6 +100,17 @@ public class CourseService {
                 .map(courseMapper::toResponse);
     }
 
+    public Page<CourseResponse> getAll(
+            Pageable pageable
+    ) {
+
+        return courseRepository
+                .findAllByStatus(
+                        CourseStatus.PUBLISHED,
+                        pageable
+                )
+                .map(courseMapper::toResponse);
+    }
 
 
 

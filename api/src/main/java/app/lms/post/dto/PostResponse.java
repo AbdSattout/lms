@@ -20,7 +20,10 @@ public record PostResponse(
 
         Long commentsCount,
 
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        LocalDateTime updatedAt
+
 
 ) {
 }
