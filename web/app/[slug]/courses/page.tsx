@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 
+import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
 import { CoursesContent } from "@/components/courses-content"
 import { CoursesContentSkeleton } from "@/components/skeletons/courses-content-skeleton"
 import { api } from "@/lib/api"
@@ -23,8 +24,11 @@ export default function CoursesPage({
   params: Promise<{ slug: string }>
 }) {
   return (
-    <Suspense fallback={<CoursesContentSkeleton />}>
-      <CoursesSection params={params} />
-    </Suspense>
+    <>
+      <BreadcrumbTrail items={[{ label: "الدورات" }]} />
+      <Suspense fallback={<CoursesContentSkeleton />}>
+        <CoursesSection params={params} />
+      </Suspense>
+    </>
   )
 }
