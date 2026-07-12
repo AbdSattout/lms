@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_PdbdoLd79m
-createdAt: 2026-05-20T15:53:24.625308400
-updatedAt: 2026-07-11T14:52:55.671462400
+id: rq_mZbBcZ34Dv
+createdAt: 2026-07-11T14:49:38.266150900
+updatedAt: 2026-07-11T15:27:32.639394
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
@@ -13,7 +13,15 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: get profile
-sortPriority: 1000.0
-url: http://localhost:8080/profile/me
-urlParameters: []
+name: Search
+sortPriority: 0.0
+url: http://localhost:8080/users/search
+urlParameters:
+- enabled: true
+  name: q
+  value: me
+  id: iKQNajekiX
+- enabled: true
+  name: ''
+  value: ''
+  id: aQsXHyM2Uy

@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_AdfdQDZLnV
+createdAt: 2026-07-12T15:05:10.825828900
+updatedAt: 2026-07-12T15:06:20.543080800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_wecLYqvPA8
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get all courses
+sortPriority: 0.001
+url: http://localhost:8080/courses
+urlParameters: []
