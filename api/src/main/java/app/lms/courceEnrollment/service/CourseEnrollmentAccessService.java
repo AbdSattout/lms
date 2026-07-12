@@ -2,10 +2,15 @@ package app.lms.courceEnrollment.service;
 
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.courceEnrollment.enums.EnrollmentStatus;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
+import app.lms.course.dto.CourseResponse;
+import app.lms.course.mapper.CourseMapper;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +18,7 @@ import org.springframework.stereotype.Service;
 public class CourseEnrollmentAccessService {
 
     private final CourseEnrollmentRepository enrollmentRepository;
+    private final CourseMapper courseMapper;
 
     public CourseEnrollment getEnrollment(
             Long courseId,
@@ -40,5 +46,23 @@ public class CourseEnrollmentAccessService {
                 courseId,
                 user
         );
+    }
+    public Page<CourseResponse> myCourses(
+            Pageable pageable,
+            User user
+    ) {
+
+        return enrollmentRepository
+                .findAllByUserIdAndStatus(
+                        user.getId(),
+                        EnrollmentStatus.ACTIVE,
+                        pageable
+                )
+                .map(enrollment ->
+                        courseMapper.toResponse(
+                                enrollment.getCourse()
+                        )
+                );
+
     }
 }

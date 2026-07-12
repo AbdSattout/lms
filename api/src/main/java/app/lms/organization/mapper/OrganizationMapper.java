@@ -1,10 +1,12 @@
 package app.lms.organization.mapper;
 
+import app.lms.organization.dto.JoinRequestResponse;
 import app.lms.organization.dto.OrganizationInviteResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationInvite;
+import app.lms.organization.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +58,14 @@ public class OrganizationMapper {
                 .memberId(member.getId())
                 .user(userMapper.toResponse(member.getUser()))
                 .role(member.getRole())
+                .build();
+    }
+    public JoinRequestResponse toJoinRequestResponse(OrganizationJoinRequest request) {
+        return JoinRequestResponse.builder()
+                .id(request.getId())
+                .status(request.getStatus())
+                .createdAt(request.getCreatedAt())
+                .user(userMapper.toResponse(request.getUser()))
                 .build();
     }
 }
