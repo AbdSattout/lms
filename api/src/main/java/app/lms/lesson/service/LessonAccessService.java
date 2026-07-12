@@ -41,4 +41,32 @@ public class    LessonAccessService {
 
         return lesson;
     }
+
+    public Lesson getManageableLesson(
+            Long lessonId,
+            User user
+    ) {
+
+        Lesson lesson =
+                lessonRepository.findById(
+                                lessonId
+                        )
+                        .orElseThrow(
+                                () -> new NotFoundException(
+                                        "Lesson not found"
+                                )
+                        );
+
+        Long courseId = lesson.getChapter()
+                .getCourse()
+                .getId();
+
+        courseAccessService
+                .getManageableCourse(
+                        courseId,
+                        user
+                );
+
+        return lesson;
+    }
 }
