@@ -663,7 +663,8 @@ export function CourseManagement({
         <Card className="cursor-pointer transition-colors hover:bg-accent/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Image className="size-4" />
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image className="size-4" aria-hidden="true" />
               الوسائط
             </CardTitle>
             <CardDescription>إدارة ملفات الدورة</CardDescription>
