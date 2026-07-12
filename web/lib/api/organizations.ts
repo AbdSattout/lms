@@ -4,11 +4,13 @@ import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
   CourseResponse,
-  CreateCourseRequest,
-  CreateOrganizationRequest,
   OrganizationResponse,
-  UpdateOrganizationRequest,
 } from "@/lib/api/types"
+import type {
+  CreateCourseInput,
+  CreateOrganizationInput,
+  UpdateOrganizationInput,
+} from "@/lib/validation"
 
 export const list = defineApiRoute({
   get: (options?: BackendFetchOptions) =>
@@ -20,7 +22,7 @@ export const list = defineApiRoute({
 
 export const create = defineApiRoute({
   post: (
-    request: CreateOrganizationRequest,
+    request: CreateOrganizationInput,
     image?: File,
     options?: BackendFetchOptions
   ) => {
@@ -48,7 +50,7 @@ export const bySlug = defineApiRoute({
     }),
   patch: async (
     slug: string,
-    request: UpdateOrganizationRequest,
+    request: UpdateOrganizationInput,
     image?: File,
     options?: BackendFetchOptions
   ) =>
@@ -93,7 +95,7 @@ export const courses = defineApiRoute({
     }),
   post: async (
     slug: string,
-    request: CreateCourseRequest,
+    request: CreateCourseInput,
     cover?: File,
     options?: BackendFetchOptions
   ) =>

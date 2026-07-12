@@ -2,144 +2,65 @@ export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
 export type FileType = "IMAGE" | "VIDEO" | "FILE"
 
 export interface User {
-  id?: number
+  id: number
   name?: string
   picture?: string
 }
 
-export interface UpdateUserRequest {
-  name?: string
-}
-
 export interface AuthResponse {
-  token?: string
-  user?: User
-}
-
-export interface CreateProfileRequest {
-  email?: string
-  phone?: string
-  university?: string
+  token: string
+  user: User
 }
 
 export interface ProfileResponse {
-  name?: string
-  email?: string
-  phone?: string
-  university?: string
-  user?: User
-}
-
-export interface UpdateProfile {
-  email?: string
-  phone?: string
-  university?: string
-}
-
-export interface CreateOrganizationRequest {
   name: string
-  slug: string
-  description?: string
-  visibility?: OrganizationVisibility
-}
-
-export interface UpdateOrganizationRequest {
-  name?: string
-  slug?: string
-  description?: string
-  visibility?: OrganizationVisibility
+  email?: string
+  phone?: string
+  university?: string
+  user: User
 }
 
 export interface OrganizationResponse {
-  id?: number
-  name?: string
-  slug?: string
-  description?: string
-  image?: string
-  visibility?: OrganizationVisibility
-  ownerName?: string
-}
-
-export interface CreateCourseRequest {
-  title: string
+  id: number
+  name: string
   slug: string
   description?: string
-}
-
-export interface UpdateCourseRequest {
-  title?: string
-  slug?: string
-  description?: string
+  image?: string
+  visibility: OrganizationVisibility
+  ownerName: string
 }
 
 export interface CourseResponse {
-  id?: number
-  title?: string
-  slug?: string
+  id: number
+  title: string
+  slug: string
   description?: string
   coverUrl?: string
-  organizationName?: string
+  status: "DRAFT" | "PUBLISHED"
+  organizationName: string
 }
 
 export interface EnrollmentResponse {
-  courseId?: number
-  courseTitle?: string
-  enrolledAt?: string
-}
-
-export interface CreateChapterRequest {
-  title: string
-}
-
-export interface UpdateChapterRequest {
-  title: string
+  courseId: number
+  courseTitle: string
+  enrolledAt: string
 }
 
 export interface ChapterResponse {
-  id?: number
-  title?: string
-  position?: number
-  lessons?: LessonResponse[]
-}
-
-export interface ReorderChaptersRequest {
-  chapterIds: number[]
-}
-
-export interface CreateLessonRequest {
+  id: number
   title: string
-}
-
-export interface UpdateLessonRequest {
-  title?: string
-  isPublished?: boolean
+  position?: number
+  lessons: LessonResponse[]
 }
 
 export interface LessonResponse {
-  id?: number
-  title?: string
-  position?: number
-  isPublished?: boolean
-}
-
-export interface ReorderLessonsRequest {
-  lessonIds: number[]
-}
-
-export interface CreateBlockRequest {
+  id: number
   title: string
-  content?: string
-  question?: CreateQuestionRequest
-}
-
-export interface UpdateBlockRequest {
-  title?: string
-  content?: string
-  question?: UpdateQuestionRequest
+  position?: number
 }
 
 export interface BlockResponse {
-  id?: number
+  id: number
   title?: string
   content?: string
   position?: number
@@ -147,57 +68,44 @@ export interface BlockResponse {
 }
 
 export interface BlockPublicResponse {
-  id?: number
+  id: number
   title?: string
   content?: string
   position?: number
   question?: QuestionPublicResponse
 }
 
-export interface ReorderBlocksRequest {
-  blockIds: number[]
-}
-
-export interface CreateQuestionRequest {
+export interface QuestionResponse {
+  id: number
+  courseId: number
   content: string
-  options: string[]
+  options?: string[]
   correctAnswerIndex: number
 }
 
-export interface QuestionResponse {
-  id?: number
-  content?: string
-  options?: string[]
-  correctAnswerIndex?: number
-}
-
 export interface QuestionPublicResponse {
-  id?: number
-  content?: string
+  id: number
+  content: string
   options?: string[]
 }
 
-export interface CreatePostRequest {
+export interface QuizResponse {
+  id: number
   title: string
-  content: string
   courseId: number
-}
-
-export interface UpdatePostRequest {
-  title?: string
-  content?: string
+  questions: QuestionResponse[]
 }
 
 export interface PostResponse {
   id: number
-  title?: string
+  title: string
   content?: string
-  author?: AuthorResponse
-  organizationId?: number
+  author: AuthorResponse
+  organizationId: number
   courseId: number
-  likesCount?: number
-  commentsCount?: number
-  createdAt?: string
+  likesCount: number
+  commentsCount: number
+  createdAt: string
 }
 
 export interface AuthorResponse {
@@ -206,31 +114,20 @@ export interface AuthorResponse {
   picture?: string
 }
 
-export interface CreateCommentRequest {
-  content: string
-  parentCommentId?: number
-}
-
 export interface CommentResponse {
   id: number
-  content?: string
-  author?: AuthorResponse
+  content: string
+  author: AuthorResponse
   parentCommentId?: number
-  createdAt?: string
+  createdAt: string
 }
 
 export interface CourseMediaResponse {
-  id?: number
-  name?: string
-  url?: string
-  type?: FileType
-  courseId?: number
-}
-
-export interface Pageable {
-  page?: number
-  size?: number
-  sort?: string[]
+  id: number
+  name: string
+  url: string
+  type: FileType
+  courseId: number
 }
 
 export interface PageableObject {
@@ -263,21 +160,21 @@ export interface Page<T> {
 }
 
 export interface CourseDetailsResponse {
-  id?: number
-  title?: string
-  slug?: string
+  id: number
+  title: string
+  slug: string
   description?: string
   coverUrl?: string
-  organizationName?: string
-  chapters?: ChapterResponse[]
-  progress?: CourseProgressResponse
+  organizationName: string
+  chapters: ChapterResponse[]
+  progress: CourseProgressResponse
 }
 
 export interface CourseProgressResponse {
   lastLessonId?: number
   lastBlockId?: number
-  progressPercentage?: number
-  completed?: boolean
+  progressPercentage: number
+  completed: boolean
   completedAt?: string
 }
 
@@ -295,24 +192,68 @@ export interface PageCourseResponse {
   empty?: boolean
 }
 
-export interface SubmitBlockAnswerRequest {
-  answerIndex: number
-}
-
 export interface SubmitBlockAnswerResponse {
-  correct?: boolean
-  completed?: boolean
+  correct: boolean
+  completed: boolean
   nextBlockId?: number
   nextLessonId?: number
   nextChapterId?: number
-  courseCompleted?: boolean
+  courseCompleted: boolean
 }
 
-export interface UpdateQuestionRequest {
-  content?: string
-  options?: string[]
-  correctAnswerIndex?: number
+export interface ChapterDetailsResponse {
+  id: number
+  title: string
+  position?: number
+  courseId: number
+  organizationId: number
 }
+
+export interface LessonDetailsResponse {
+  id: number
+  title: string
+  position?: number
+  chapterId: number
+  courseId: number
+  organizationId: number
+}
+
+export interface GenerateQuestionFromBlockContentRequest {
+  blockContent: string
+}
+
+export interface GeneratedQuestionResponse {
+  content: string
+  options: string[]
+  correctAnswerIndex: number
+}
+
+export interface GenerateAiTextRequest {
+  text: string
+  action: AiTextAction
+  tone?: AiTextTone
+}
+
+export interface GeneratedAiTextResponse {
+  action: AiTextAction
+  tone?: AiTextTone
+  result: string
+}
+
+export type AiTextAction =
+  | "PROOFREAD"
+  | "REWRITE"
+  | "SUMMARIZE"
+  | "EXPAND"
+  | "CHANGE_TONE"
+  | "WRITE"
+
+export type AiTextTone =
+  | "PROFESSIONAL"
+  | "FRIENDLY"
+  | "SIMPLE"
+  | "ACADEMIC"
+  | "MOTIVATIONAL"
 
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>

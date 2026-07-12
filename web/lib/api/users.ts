@@ -2,7 +2,8 @@ import "server-only"
 
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
-import type { UpdateUserRequest, User } from "@/lib/api/types"
+import type { User } from "@/lib/api/types"
+import type { UpdateUserInput } from "@/lib/validation"
 
 export const me = defineApiRoute({
   get: (options?: BackendFetchOptions) =>
@@ -10,7 +11,7 @@ export const me = defineApiRoute({
       method: "GET",
       ...options,
     }),
-  patch: (request: UpdateUserRequest, options?: BackendFetchOptions) =>
+  patch: (request: UpdateUserInput, options?: BackendFetchOptions) =>
     backend<User>("/users/me", {
       method: "PATCH",
       body: request,
