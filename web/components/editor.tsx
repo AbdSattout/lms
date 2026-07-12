@@ -1,3 +1,4 @@
+"use no memo"
 "use client"
 
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
