@@ -10,6 +10,7 @@ import app.lms.courceEnrollment.enums.EnrollmentStatus;
 import app.lms.courceEnrollment.enums.XPEventType;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
+import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.enums.JoinRequestStatus;
@@ -66,7 +67,14 @@ public class CourseEnrollmentService {
                                 )
                         );
 
-        Organization organization = course.getOrganization();
+        if (course.getStatus() != CourseStatus.PUBLISHED) {
+            throw new ConflictException(
+                    "Course is not published yet"
+            );
+        }
+
+        Organization organization =
+                course.getOrganization();
 
         boolean member =
                 memberRepository
@@ -85,7 +93,9 @@ public class CourseEnrollmentService {
                                 .role(Role.STUDENT)
                                 .build();
 
-                memberRepository.save(organizationMember);
+                memberRepository.save(
+                        organizationMember
+                );
             }
 
         } else {
@@ -112,7 +122,9 @@ public class CourseEnrollmentService {
                                 .status(JoinRequestStatus.PENDING)
                                 .build();
 
-                joinRequestRepository.save(request);
+                joinRequestRepository.save(
+                        request
+                );
 
                 throw new ForbiddenException(
                         "Organization is private. Join request sent."
@@ -120,17 +132,33 @@ public class CourseEnrollmentService {
             }
         }
 
-        boolean alreadyEnrolled =
+        CourseEnrollment existingEnrollment =
                 enrollmentRepository
-                        .existsByUserIdAndCourseId(
+                        .findByUserIdAndCourseId(
                                 user.getId(),
                                 courseId
-                        );
+                        )
+                        .orElse(null);
 
-        if (alreadyEnrolled) {
-            throw new IllegalStateException(
-                    "Already enrolled"
+        if (existingEnrollment != null) {
+
+            if (existingEnrollment.getStatus() == EnrollmentStatus.ACTIVE) {
+                throw new ConflictException(
+                        "Already enrolled"
+                );
+            }
+
+            existingEnrollment.setStatus(
+                    EnrollmentStatus.ACTIVE
             );
+
+            return EnrollmentResponse.builder()
+                    .courseId(course.getId())
+                    .courseTitle(course.getTitle())
+                    .enrolledAt(
+                            existingEnrollment.getEnrolledAt()
+                    )
+                    .build();
         }
 
         CourseEnrollment enrollment =
@@ -141,8 +169,9 @@ public class CourseEnrollmentService {
                         .progressPercentage(0)
                         .build();
 
-        enrollmentRepository.save(enrollment);
-
+        enrollmentRepository.save(
+                enrollment
+        );
 
         createEnrollXpEvent(
                 course,
