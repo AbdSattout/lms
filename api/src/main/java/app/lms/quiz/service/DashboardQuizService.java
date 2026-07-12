@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class QuizService {
+public class DashboardQuizService {
 
     private final QuizMapper quizMapper;
     private final QuestionMapper questionMapper;
