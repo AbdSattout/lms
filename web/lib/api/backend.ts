@@ -37,6 +37,7 @@ function getBackendBaseUrl() {
 
 function buildBackendUrl(path: string) {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`
+
   return new URL(normalizedPath, getBackendBaseUrl()).toString()
 }
 
@@ -83,11 +84,7 @@ export async function backend<T>(
     ...init,
     cache,
     headers: requestHeaders,
-    body: !hasBody
-      ? undefined
-      : isFormData
-        ? body
-        : JSON.stringify(body),
+    body: !hasBody ? undefined : isFormData ? body : JSON.stringify(body),
   })
 
   if (response.status === 401) {

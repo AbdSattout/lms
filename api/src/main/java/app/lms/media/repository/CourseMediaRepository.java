@@ -5,13 +5,21 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CourseMediaRepository
-        extends JpaRepository<CourseMedia, Long> {
+public interface CourseMediaRepository extends JpaRepository<CourseMedia, Long> {
 
-
-    Page<CourseMedia>
-    findAllByCourseIdOrderByCreatedAtDesc(
+    Page<CourseMedia> findAllByCourseIdOrderByCreatedAtDesc(
             Long courseId,
             Pageable pageable
+    );
+
+    boolean existsByCourseIdAndNameIgnoreCase(
+            Long courseId,
+            String name
+    );
+
+    boolean existsByCourseIdAndNameIgnoreCaseAndIdNot(
+            Long courseId,
+            String name,
+            Long mediaId
     );
 }

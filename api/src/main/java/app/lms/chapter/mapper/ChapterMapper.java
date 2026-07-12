@@ -1,5 +1,6 @@
 package app.lms.chapter.mapper;
 
+import app.lms.chapter.dto.ChapterDetailsResponse;
 import app.lms.chapter.dto.ChapterResponse;
 import app.lms.chapter.model.Chapter;
 import app.lms.lesson.mapper.LessonMapper;
@@ -34,6 +35,17 @@ public class ChapterMapper {
                                 lessonMapper::toResponse
                         )
                         .toList()
+        );
+    }
+    public ChapterDetailsResponse toDetailsResponse(
+            Chapter chapter
+    ) {
+        return new ChapterDetailsResponse(
+                chapter.getId(),
+                chapter.getTitle(),
+                chapter.getPosition(),
+                chapter.getCourse().getId(),
+                chapter.getCourse().getOrganization().getId()
         );
     }
 }
