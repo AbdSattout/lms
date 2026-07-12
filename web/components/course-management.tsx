@@ -415,7 +415,7 @@ export function CourseManagement({
     setChapters((prev) =>
       prev.map((ch) => (ch.id === id ? { ...ch, title } : ch))
     )
-          const result = await updateChapterAction(id, title, orgSlug)
+    const result = await updateChapterAction(id, title, orgSlug)
     if (result.error) toast.error(result.error)
   }
 
@@ -640,7 +640,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/questions` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileQuestion className="size-4" />
