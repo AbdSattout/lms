@@ -2,7 +2,7 @@ package app.lms.quiz.controller;
 
 import app.lms.question.dto.QuestionResponse;
 import app.lms.quiz.dto.QuizResponse;
-import app.lms.quiz.service.QuizService;
+import app.lms.quiz.service.DashboardQuizService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/dashboard/quizzes")
-public class QuizController {
+public class DashboardQuizController {
 
-    private final QuizService quizService;
+    private final DashboardQuizService dashboardQuizService;
 
     @GetMapping("/{quizId}")
     public ResponseEntity<QuizResponse> getQuizById(
@@ -27,7 +27,7 @@ public class QuizController {
             UserPrincipal principal
     ) {
         return ResponseEntity.ok(
-                quizService.getQuizById(
+                dashboardQuizService.getQuizById(
                         quizId,
                         principal.user()
                 )
@@ -48,7 +48,7 @@ public class QuizController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(
-                        quizService.addQuestionToQuiz(
+                        dashboardQuizService.addQuestionToQuiz(
                                 quizId,
                                 questionId,
                                 principal.user()
@@ -68,7 +68,7 @@ public class QuizController {
             @AuthenticationPrincipal
             UserPrincipal principal
     ) {
-        quizService.deleteQuestionFromQuiz(
+        dashboardQuizService.deleteQuestionFromQuiz(
                 quizId,
                 questionId,
                 principal.user()
