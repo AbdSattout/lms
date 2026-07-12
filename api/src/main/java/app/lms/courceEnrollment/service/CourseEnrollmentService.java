@@ -2,6 +2,7 @@ package app.lms.courceEnrollment.service;
 
 import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
+import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.courceEnrollment.dto.EnrollmentResponse;
@@ -11,10 +12,14 @@ import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
+import app.lms.organization.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
+import app.lms.organization.enums.Visibility;
 import app.lms.organization.model.Organization;
+import app.lms.organization.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.model.XPEvent;
+import app.lms.organization.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.XPEventRepository;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
@@ -44,6 +49,8 @@ public class CourseEnrollmentService {
 
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
+    private final OrganizationJoinRequestRepository joinRequestRepository;
+
     @Transactional
     public EnrollmentResponse enroll(
             Long courseId,
@@ -58,6 +65,60 @@ public class CourseEnrollmentService {
                                         "Course not found"
                                 )
                         );
+
+        Organization organization = course.getOrganization();
+
+        boolean member =
+                memberRepository
+                        .existsByOrganizationIdAndUserId(
+                                organization.getId(),
+                                user.getId()
+                        );
+
+        if (organization.getVisibility() == Visibility.PUBLIC) {
+
+            if (!member) {
+                OrganizationMember organizationMember =
+                        OrganizationMember.builder()
+                                .organization(organization)
+                                .user(user)
+                                .role(Role.STUDENT)
+                                .build();
+
+                memberRepository.save(organizationMember);
+            }
+
+        } else {
+
+            if (!member) {
+                boolean pending =
+                        joinRequestRepository
+                                .existsByOrganizationIdAndUserIdAndStatus(
+                                        organization.getId(),
+                                        user.getId(),
+                                        JoinRequestStatus.PENDING
+                                );
+
+                if (pending) {
+                    throw new ConflictException(
+                            "Join request already sent"
+                    );
+                }
+
+                OrganizationJoinRequest request =
+                        OrganizationJoinRequest.builder()
+                                .organization(organization)
+                                .user(user)
+                                .status(JoinRequestStatus.PENDING)
+                                .build();
+
+                joinRequestRepository.save(request);
+
+                throw new ForbiddenException(
+                        "Organization is private. Join request sent."
+                );
+            }
+        }
 
         boolean alreadyEnrolled =
                 enrollmentRepository
@@ -82,10 +143,6 @@ public class CourseEnrollmentService {
 
         enrollmentRepository.save(enrollment);
 
-        addStudentToOrganizationIfNeeded(
-                course.getOrganization(),
-                user
-        );
 
         createEnrollXpEvent(
                 course,
@@ -210,31 +267,31 @@ public class CourseEnrollmentService {
         );
     }
 
-    private void addStudentToOrganizationIfNeeded(
-            Organization organization,
-            User user
-    ) {
-
-        boolean isMember =
-                memberRepository
-                        .existsByOrganizationIdAndUserId(
-                                organization.getId(),
-                                user.getId()
-                        );
-
-        if (isMember) {
-            return;
-        }
-
-        OrganizationMember member =
-                OrganizationMember.builder()
-                        .organization(organization)
-                        .user(user)
-                        .role(Role.STUDENT)
-                        .build();
-
-        memberRepository.save(member);
-    }
+//    private void addStudentToOrganizationIfNeeded(
+//            Organization organization,
+//            User user
+//    ) {
+//
+//        boolean isMember =
+//                memberRepository
+//                        .existsByOrganizationIdAndUserId(
+//                                organization.getId(),
+//                                user.getId()
+//                        );
+//
+//        if (isMember) {
+//            return;
+//        }
+//
+//        OrganizationMember member =
+//                OrganizationMember.builder()
+//                        .organization(organization)
+//                        .user(user)
+//                        .role(Role.STUDENT)
+//                        .build();
+//
+//        memberRepository.save(member);
+//    }
 
     private void createEnrollXpEvent(
             Course course,

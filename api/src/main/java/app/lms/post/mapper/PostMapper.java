@@ -31,7 +31,9 @@ public class PostMapper {
 
                 post.getCommentsCount(),
 
-                post.getCreatedAt()
+                post.getCreatedAt(),
+
+                post.getUpdatedAt()
         );
     }
 }
