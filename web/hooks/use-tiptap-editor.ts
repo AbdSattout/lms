@@ -1,15 +1,8 @@
 "use client"
 
 import type { Editor } from "@tiptap/react"
-import { useCurrentEditor, useEditorState } from "@tiptap/react"
+import { useCurrentEditor } from "@tiptap/react"
 import { useEffect, useState } from "react"
-
-function getActivePageEditor(editor: Editor): Editor | null {
-  const storage = editor.storage as unknown as Record<string, unknown>
-  const pages = storage.pages as { activeEditor?: Editor | null } | undefined
-  if (!pages || !("activeEditor" in pages)) return null
-  return pages.activeEditor ?? null
-}
 
 export function useTiptapEditor(providedEditor?: Editor | null): {
   editor: Editor | null
@@ -19,56 +12,20 @@ export function useTiptapEditor(providedEditor?: Editor | null): {
   const { editor: coreEditor } = useCurrentEditor()
   const mainEditor = providedEditor ?? coreEditor
 
-  const [storageEditor, setStorageEditor] = useState<Editor | null>(null)
-
-  if (!mainEditor && storageEditor !== null) {
-    setStorageEditor(null)
-  }
+  const [, forceUpdate] = useState(0)
 
   useEffect(() => {
-    if (!mainEditor) {
-      return
-    }
-
-    const updateHandler = () =>
-      setStorageEditor(getActivePageEditor(mainEditor))
-
-    updateHandler()
-
-    mainEditor.on("update", updateHandler)
-    mainEditor.on("selectionUpdate", updateHandler)
-
+    if (!mainEditor) return
+    const onTransaction = () => forceUpdate((n) => n + 1)
+    mainEditor.on("transaction", onTransaction)
     return () => {
-      mainEditor.off("update", updateHandler)
-      mainEditor.off("selectionUpdate", updateHandler)
+      mainEditor.off("transaction", onTransaction)
     }
   }, [mainEditor])
 
-  useEffect(() => {
-    if (!storageEditor) return
-
-    const handleDestroy = () => setStorageEditor(null)
-
-    storageEditor.on("destroy", handleDestroy)
-    return () => {
-      storageEditor.off("destroy", handleDestroy)
-    }
-  }, [storageEditor])
-
-  const editorState = useEditorState({
-    editor: storageEditor ?? mainEditor,
-    selector(context) {
-      if (!context.editor) {
-        return { editor: null, editorState: undefined, canCommand: undefined }
-      }
-
-      return {
-        editor: context.editor,
-        editorState: context.editor.state,
-        canCommand: context.editor.can,
-      }
-    },
-  })
-
-  return editorState ?? { editor: null }
+  return {
+    editor: mainEditor,
+    editorState: mainEditor?.state,
+    canCommand: mainEditor?.can,
+  }
 }
