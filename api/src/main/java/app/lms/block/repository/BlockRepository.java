@@ -13,6 +13,7 @@ import java.util.Optional;
     public interface BlockRepository
             extends JpaRepository<Block, Long> {
 
+        
         List<Block> findAllByLessonId(
                 Long lessonId
         );

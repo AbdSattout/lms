@@ -1,0 +1,15 @@
+package app.lms.quiz.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+public record SubmitFinalQuizAnswer(
+
+        @NotNull
+        Long questionId,
+
+        @NotNull
+        @Min(0)
+        Integer answerIndex
+) {
+}
