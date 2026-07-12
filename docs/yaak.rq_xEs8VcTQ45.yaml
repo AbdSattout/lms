@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_xEs8VcTQ45
+createdAt: 2026-07-11T15:13:37.707808400
+updatedAt: 2026-07-11T15:17:03.727635300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: GetOrganizationMember
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/organizations/tech-company/members?page=0&size=20
+urlParameters: []

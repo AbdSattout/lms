@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_xDQ3m4Ah8L
+createdAt: 2026-07-12T15:07:41.924453100
+updatedAt: 2026-07-12T15:09:04.083254700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_wecLYqvPA8
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get my courses
+sortPriority: 0.001
+url: http://localhost:8080/courses/me/enrollments
+urlParameters: []
