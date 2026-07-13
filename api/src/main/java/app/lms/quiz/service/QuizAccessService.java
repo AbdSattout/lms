@@ -57,24 +57,4 @@ public class QuizAccessService {
                 );
     }
 
-    public Quiz getManageableQuiz(
-            Long quizId,
-            User user
-    ) {
-
-        Quiz quiz =
-                quizRepository.findById(quizId)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Quiz not found"
-                                )
-                        );
-
-        courseAccessService.getManageableCourse(
-                quiz.getCourse().getId(),
-                user
-        );
-
-        return quiz;
-    }
 }
