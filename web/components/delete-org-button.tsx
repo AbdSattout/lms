@@ -29,14 +29,14 @@ export function DeleteOrgButton({ slug }: { slug: string }) {
       <AlertDialogTrigger
         className={buttonVariants({ variant: "destructive" })}
       >
-        حذف المؤسسة
+        حذف المنظمة
       </AlertDialogTrigger>
 
       <AlertDialogContent dir="rtl">
         <AlertDialogHeader>
           <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
           <AlertDialogDescription>
-            هذا الإجراء سيؤدي إلى حذف المؤسسة نهائياً. لا يمكن التراجع عن هذا
+            هذا الإجراء سيؤدي إلى حذف المنظمة نهائياً. لا يمكن التراجع عن هذا
             الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>
@@ -44,7 +44,11 @@ export function DeleteOrgButton({ slug }: { slug: string }) {
           <AlertDialogCancel className="cursor-pointer">
             إلغاء
           </AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete} variant="destructive">
+          <AlertDialogAction
+            onClick={handleDelete}
+            variant="destructive"
+            disabled={loading}
+          >
             {loading ? "جاري الحذف..." : "حذف"}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -26,7 +26,9 @@ public class CommentMapper {
                         ? comment.getParent().getId()
                         : null,
 
-                comment.getCreatedAt()
+                comment.getCreatedAt(),
+
+                comment.getUpdatedAt()
         );
     }
 }

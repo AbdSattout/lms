@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_Auz6pEsCnQ
+createdAt: 2026-07-11T15:32:26.280032300
+updatedAt: 2026-07-11T16:11:51.966891100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_x2sJUXGYsL
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: Decline Invite
+sortPriority: 0.001
+url: http://localhost:8080/organizations/{slug}/invites/decline
+urlParameters:
+- enabled: true
+  name: token
+  value: 0a15dccb-a6e0-4bf5-a30a-9a2dcf4902ce
+  id: tp26q6MUrF
+- enabled: true
+  name: ''
+  value: ''
+  id: KCwfSdTYYu

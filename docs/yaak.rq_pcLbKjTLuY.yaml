@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_pcLbKjTLuY
+createdAt: 2026-07-12T15:12:46.615347900
+updatedAt: 2026-07-12T15:16:14.532122
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Nv3G37jbpd
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: create join-request
+sortPriority: 0.001
+url: http://localhost:8080/organizations/{slug}/join-request
+urlParameters: []

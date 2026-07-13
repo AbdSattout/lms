@@ -231,9 +231,35 @@ public class DashboardCourseService {
 
         validateNotPublished(course);
 
+        validateCourseReadyForPublishing(course);
+
         course.setStatus(
                 CourseStatus.PUBLISHED
         );
+    }
+    private void validateCourseReadyForPublishing(
+            Course course
+    ) {
+
+        Long courseId =
+                course.getId();
+
+        if (!quizRepository.existsByCourseId(courseId)) {
+            throw new ConflictException(
+                    "Course must have a final quiz before publishing"
+            );
+        }
+
+        long quizQuestionCount =
+                quizRepository.countQuestionsByCourseId(
+                        courseId
+                );
+
+        if (quizQuestionCount < 10) {
+            throw new ConflictException(
+                    "Course final quiz must have at least 10 questions before publishing"
+            );
+        }
     }
 
 

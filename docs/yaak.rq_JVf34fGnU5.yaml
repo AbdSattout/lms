@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_JVf34fGnU5
+createdAt: 2026-07-12T15:18:21.240854600
+updatedAt: 2026-07-12T15:18:53.747739400
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RrLuj44RPp
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: accept join request
+sortPriority: 0.002
+url: http://localhost:8080/dashboard/organizations/{slug}/join-requests/{id}/accept
+urlParameters: []
