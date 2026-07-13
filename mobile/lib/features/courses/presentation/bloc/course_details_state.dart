@@ -22,9 +22,6 @@ class CourseDetailsError extends CourseDetailsState {
       );
 }
 
-/// One-off state so the UI can show a confirmation snackbar. The bloc
-/// re-fetches the course right after this and emits CourseDetailsLoaded
-/// again with updated progress info — this state is never left displayed.
 class CourseEnrollSuccess extends CourseDetailsState {
   final CourseEnrollmentEntity enrollment;
 

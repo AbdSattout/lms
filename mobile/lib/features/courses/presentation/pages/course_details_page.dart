@@ -15,10 +15,7 @@ class CourseDetailsPage extends StatefulWidget {
 }
 
 class _CourseDetailsPageState extends State<CourseDetailsPage> {
-  // Local flag only — the backend doesn't yet tell us "already enrolled"
-  // as an explicit field on /courses/{id}, so we track it for this
-  // session from the enroll action itself. Replace with a real field
-  // (e.g. course.isEnrolled) once the backend adds one.
+  // i will replace it with course.isEnrolled once the backend adds one.
   bool _justEnrolled = false;
 
   @override
@@ -106,7 +103,6 @@ class _CourseDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cover + top bar
               Stack(
                 children: [
                   ClipRRect(
