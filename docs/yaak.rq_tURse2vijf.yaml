@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_tURse2vijf
+createdAt: 2026-07-11T15:37:41.465022800
+updatedAt: 2026-07-11T15:37:55.997383600
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: resent invite
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/{slug}/invites/{inviteId}/resend
+urlParameters: []

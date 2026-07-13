@@ -1,0 +1,28 @@
+type: http_request
+model: http_request
+id: rq_VXh8tS8MP3
+createdAt: 2026-07-11T15:35:52.682538600
+updatedAt: 2026-07-11T15:47:51.331319
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body:
+  text: |-
+    {
+        "role": "STUDENT",
+        "maxUses": 10
+      }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: YWKprU0C24
+method: POST
+name: Create public invite
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/tech-company/invites/public
+urlParameters: []

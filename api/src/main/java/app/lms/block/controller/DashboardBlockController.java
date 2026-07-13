@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/dashboard")
 @RequiredArgsConstructor
@@ -116,5 +118,18 @@ public class DashboardBlockController {
     ) {
        BlockResponse block= dashboardBlockService.getBlock(blockId , principal.user());
         return ResponseEntity.ok(block);
+    }
+    @GetMapping("/lessons/{lessonId}/blocks")
+    public ResponseEntity<List<BlockResponse>> getBlocksByLessonId(
+            @PathVariable Long lessonId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardBlockService.getBlocksByLessonId(
+                        lessonId,
+                        principal.user()
+                )
+        );
     }
 }

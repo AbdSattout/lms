@@ -15,23 +15,39 @@ import { Textarea } from "@/components/ui/textarea"
 import {
   checkSlugAvailability,
   createOrganization,
+  updateOrganization,
 } from "@/lib/actions/organization"
 import { generateSlug } from "@/lib/utils"
 import { CheckIcon, Loader2Icon, XIcon } from "lucide-react"
 import { useActionState, useEffect, useRef, useState } from "react"
 
-export function CreateOrganizationForm() {
-  const [state, formAction, isPending] = useActionState(createOrganization, {
-    error: "",
-  })
+interface OrganizationFormProps {
+  initialData?: {
+    name?: string
+    description?: string
+    image?: string
+    visibility?: string
+    slug?: string
+  }
+}
 
-  const [slug, setSlug] = useState("")
+export function OrganizationForm({
+  initialData,
+}: OrganizationFormProps = {}) {
+  const [state, formAction, isPending] = useActionState(
+    initialData
+      ? (updateOrganization as typeof createOrganization)
+      : createOrganization,
+    { error: "" }
+  )
+
+  const [slug, setSlug] = useState(initialData?.slug || "")
   const [slugStatus, setSlugStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle")
   const slugTimer = useRef<ReturnType<typeof setTimeout>>(null)
-  const lastCheckedSlug = useRef("")
-  const userEditedSlug = useRef(false)
+  const lastCheckedSlug = useRef(initialData?.slug || "")
+  const userEditedSlug = useRef(!!initialData)
 
   useEffect(() => {
     return () => {
@@ -61,6 +77,10 @@ export function CreateOrganizationForm() {
 
     slugTimer.current = setTimeout(async () => {
       if (slug === lastCheckedSlug.current) return
+      if (slug === initialData?.slug) {
+        setSlugStatus("idle")
+        return
+      }
       setSlugStatus("checking")
       try {
         const available = await checkSlugAvailability(slug)
@@ -70,16 +90,21 @@ export function CreateOrganizationForm() {
         setSlugStatus("idle")
       }
     }, 500)
-  }, [slug])
+  }, [slug, initialData?.slug])
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
+      {initialData && (
+        <input type="hidden" name="oldSlug" value={initialData.slug} />
+      )}
+
       <div className="flex flex-col gap-2">
         <Label htmlFor="name">اسم المنظمة</Label>
         <Input
           id="name"
           name="name"
           required
+          defaultValue={initialData?.name}
           disabled={isPending}
           onChange={(e) => handleNameChange(e.target.value)}
         />
@@ -123,6 +148,7 @@ export function CreateOrganizationForm() {
           id="description"
           name="description"
           required
+          defaultValue={initialData?.description}
           disabled={isPending}
         />
       </div>
@@ -140,7 +166,11 @@ export function CreateOrganizationForm() {
 
       <div className="flex flex-col gap-2">
         <Label htmlFor="visibility">حالة الظهور</Label>
-        <Select name="visibility" defaultValue="PUBLIC" disabled={isPending}>
+        <Select
+          name="visibility"
+          defaultValue={initialData?.visibility || "PUBLIC"}
+          disabled={isPending}
+        >
           <SelectTrigger id="visibility" className="w-full!">
             <SelectValue placeholder="اختر">
               {(value: string | null) => {
@@ -163,8 +193,14 @@ export function CreateOrganizationForm() {
 
       {state.error && <p className="text-sm text-destructive">{state.error}</p>}
 
-      <Button type="submit" disabled={isPending} className="mt-2 w-full">
-        {isPending ? "جاري الإنشاء..." : "إنشاء المنظمة"}
+      <Button type="submit" disabled={isPending}>
+        {isPending
+          ? initialData
+            ? "جاري الحفظ..."
+            : "جاري الإنشاء..."
+          : initialData
+            ? "حفظ التغييرات"
+            : "إنشاء المنظمة"}
       </Button>
     </form>
   )

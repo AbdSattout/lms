@@ -2,6 +2,8 @@ package app.lms.courceEnrollment.repository;
 
 import app.lms.courceEnrollment.enums.EnrollmentStatus;
 import app.lms.courceEnrollment.model.CourseEnrollment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -21,8 +23,11 @@ public interface CourseEnrollmentRepository
             Long courseId
     );
 
-    List<CourseEnrollment>
-    findAllByUserIdAndStatus(Long userId , EnrollmentStatus status);
+    Page<CourseEnrollment> findAllByUserIdAndStatus(
+            Long userId,
+            EnrollmentStatus status,
+            Pageable pageable
+    );
 
     List<CourseEnrollment>
     findAllByCourseId(Long courseId);
