@@ -3,20 +3,17 @@ package app.lms.quiz.service;
 import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
-import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.quiz.dto.*;
+import app.lms.quiz.mapper.QuizMapper;
 import app.lms.quiz.model.FinalQuizAttempt;
 import app.lms.quiz.model.FinalQuizAttemptAnswer;
 import app.lms.quiz.model.Quiz;
 import app.lms.quiz.repository.FinalQuizAttemptRepository;
-import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +26,13 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class MobileFinalQuizService {
 
-    private final QuizRepository quizRepository;
     private final FinalQuizAttemptRepository finalQuizAttemptRepository;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final BlockRepository blockRepository;
     private final BlockProgressRepository blockProgressRepository;
     private final QuizGradingService quizGradingService;
-    private final QuizDifficultyService quizDifficultyService;
+    private final QuizMapper quizMapper;
+    private final QuizAccessService quizAccessService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -54,32 +51,14 @@ public class MobileFinalQuizService {
         );
 
         Quiz quiz =
-                quizRepository
-                        .findByCourseId(
-                                courseId
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Final quiz not found"
-                                )
+                quizAccessService
+                        .getAccessibleQuizByCourseId(
+                                courseId,
+                                user
                         );
 
-        return new FinalQuizResponse(
-                quiz.getId(),
-                courseId,
-                quizDifficultyService.calculate(
-                        quiz.getQuestions()
-                ),
-                quiz.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
+        return quizMapper.toPublicResponse(
+                quiz
         );
     }
 
@@ -115,14 +94,10 @@ public class MobileFinalQuizService {
         }
 
         Quiz quiz =
-                quizRepository
-                        .findByCourseId(
-                                courseId
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Final quiz not found"
-                                )
+                quizAccessService
+                        .getAccessibleQuizByCourseId(
+                                courseId,
+                                user
                         );
 
         if (quiz.getQuestions().isEmpty()) {
@@ -195,7 +170,7 @@ public class MobileFinalQuizService {
             );
         }
 
-        return toSubmitResponse(
+        return quizMapper.toSubmitResponse(
                 attempt
         );
     }
@@ -231,28 +206,4 @@ public class MobileFinalQuizService {
         }
     }
 
-    private FinalQuizSubmitResponse toSubmitResponse(
-            FinalQuizAttempt attempt
-    ) {
-
-        return new FinalQuizSubmitResponse(
-                attempt.getId(),
-                attempt.getScore(),
-                attempt.getTotal(),
-                attempt.getAnswers()
-                        .stream()
-                        .map(answer ->
-                                new FinalQuizQuestionResultResponse(
-                                        answer.getSourceQuestion()
-                                                .getId(),
-                                        answer.getContent(),
-                                        answer.getOptions(),
-                                        answer.getSelectedAnswerIndex(),
-                                        answer.getCorrectAnswerIndex(),
-                                        answer.getCorrect()
-                                )
-                        )
-                        .toList()
-        );
-    }
 }

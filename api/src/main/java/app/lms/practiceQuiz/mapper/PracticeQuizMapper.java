@@ -1,6 +1,8 @@
 package app.lms.practiceQuiz.mapper;
 
 import app.lms.common.quiz.service.QuizDifficultyService;
+import app.lms.course.model.Course;
+import app.lms.practiceQuiz.dto.CreatePracticeQuizRequest;
 import app.lms.practiceQuiz.dto.PracticeQuizPublicResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizQuestionResultResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizResponse;
@@ -11,8 +13,11 @@ import app.lms.practiceQuiz.model.PracticeQuizAttempt;
 import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.mapper.QuestionMapper;
+import app.lms.question.model.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +25,26 @@ public class PracticeQuizMapper {
 
     private final QuestionMapper questionMapper;
     private final QuizDifficultyService quizDifficultyService;
+
+    public PracticeQuiz toEntity(
+            CreatePracticeQuizRequest request,
+            Course course,
+            List<Question> questions
+    ) {
+
+        return PracticeQuiz.builder()
+                .title(
+                        request.title().trim()
+                )
+                .description(
+                        request.description() != null
+                                ? request.description().trim()
+                                : null
+                )
+                .course(course)
+                .questions(questions)
+                .build();
+    }
 
     public PracticeQuizResponse toResponse(
             PracticeQuiz practiceQuiz

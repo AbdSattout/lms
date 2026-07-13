@@ -1,6 +1,5 @@
 package app.lms.practiceQuiz.service;
 
-import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.service.QuizQuestionSelectionService;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
@@ -26,6 +25,7 @@ public class DashboardPracticeQuizService {
     private final PracticeQuizRepository practiceQuizRepository;
     private final PracticeQuizMapper practiceQuizMapper;
     private final QuizQuestionSelectionService quizQuestionSelectionService;
+    private final PracticeQuizAccessService practiceQuizAccessService;
 
     @Transactional
     public PracticeQuizResponse create(
@@ -51,18 +51,11 @@ public class DashboardPracticeQuizService {
                         );
 
         PracticeQuiz practiceQuiz =
-                PracticeQuiz.builder()
-                        .title(
-                                request.title().trim()
-                        )
-                        .description(
-                                request.description() != null
-                                        ? request.description().trim()
-                                        : null
-                        )
-                        .course(course)
-                        .questions(questions)
-                        .build();
+                practiceQuizMapper.toEntity(
+                        request,
+                        course,
+                        questions
+                );
 
         practiceQuizRepository.save(
                 practiceQuiz
@@ -81,30 +74,19 @@ public class DashboardPracticeQuizService {
             User user
     ) {
 
-        Course course =
-                courseAccessService
-                        .getEditableCourse(
-                                courseId,
-                                user
-                        );
-
         PracticeQuiz practiceQuiz =
-                practiceQuizRepository
-                        .findByIdAndCourseId(
+                practiceQuizAccessService
+                        .getEditablePracticeQuiz(
+                                courseId,
                                 practiceQuizId,
-                                course.getId()
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Practice quiz not found"
-                                )
+                                user
                         );
 
         List<Question> updatedQuestions =
                 quizQuestionSelectionService
                         .getManageableCourseQuestions(
                                 request.questionIds(),
-                                course.getId(),
+                                practiceQuiz.getCourse().getId(),
                                 user,
                                 "practice quiz"
                         );
@@ -127,16 +109,10 @@ public class DashboardPracticeQuizService {
             User user
     ) {
 
-        Course course =
-                courseAccessService
-                        .getManageableCourse(
-                                courseId,
-                                user
-                        );
-
-        return practiceQuizRepository
-                .findAllByCourseIdOrderByCreatedAtDesc(
-                        course.getId()
+        return practiceQuizAccessService
+                .getManageablePracticeQuizzes(
+                        courseId,
+                        user
                 )
                 .stream()
                 .map(practiceQuizMapper::toResponse)
