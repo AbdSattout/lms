@@ -42,8 +42,8 @@ class DioConsumer extends ApiConsumer {
   @override
   Future post(String path,
       {dynamic data,
-      Map<String, dynamic>? queryParameters,
-      bool isFormData = false}) async {
+        Map<String, dynamic>? queryParameters,
+        bool isFormData = false}) async {
     try {
       var res = await dio.post(
         path,
@@ -52,6 +52,10 @@ class DioConsumer extends ApiConsumer {
       );
       return res.data;
     } on DioException catch (e) {
+      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
+      print('DioException on $path -> type: ${e.type}');
+      print('DioException message: ${e.message}');
+      print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
       handleDioException(e);
     }
   }
@@ -62,9 +66,13 @@ class DioConsumer extends ApiConsumer {
       {Object? data, Map<String, dynamic>? queryParameters}) async {
     try {
       var res =
-          await dio.get(path, data: data, queryParameters: queryParameters);
+      await dio.get(path, data: data, queryParameters: queryParameters);
       return res.data;
     } on DioException catch (e) {
+      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
+      print('DioException on $path -> type: ${e.type}');
+      print('DioException message: ${e.message}');
+      print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
       handleDioException(e);
     }
   }
@@ -90,6 +98,10 @@ class DioConsumer extends ApiConsumer {
       return res.data;
 
     } on DioException catch (e) {
+      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
+      print('DioException on $path -> type: ${e.type}');
+      print('DioException message: ${e.message}');
+      print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
       handleDioException(e);
     }
   }
@@ -105,6 +117,10 @@ class DioConsumer extends ApiConsumer {
       );
       return res.data;
     } on DioException catch (e) {
+      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
+      print('DioException on $path -> type: ${e.type}');
+      print('DioException message: ${e.message}');
+      print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
       handleDioException(e);
     }
   }
@@ -113,8 +129,8 @@ class DioConsumer extends ApiConsumer {
   @override
   Future patch(String path,
       {dynamic data,
-      Map<String, dynamic>? queryParameters,
-      bool isFormData = false}) async {
+        Map<String, dynamic>? queryParameters,
+        bool isFormData = false}) async {
     try {
       var res = await dio.patch(
         path,
@@ -123,6 +139,10 @@ class DioConsumer extends ApiConsumer {
       );
       return res.data;
     } on DioException catch (e) {
+      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
+      print('DioException on $path -> type: ${e.type}');
+      print('DioException message: ${e.message}');
+      print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
       handleDioException(e);
     }
   }
