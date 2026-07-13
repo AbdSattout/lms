@@ -1,7 +1,8 @@
 package app.lms.practiceQuiz.service;
 
-import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.common.quiz.dto.QuizGradingResult;
+import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.practiceQuiz.dto.*;
 import app.lms.practiceQuiz.mapper.PracticeQuizMapper;
@@ -10,16 +11,13 @@ import app.lms.practiceQuiz.model.PracticeQuizAttempt;
 import app.lms.practiceQuiz.model.PracticeQuizAttemptAnswer;
 import app.lms.practiceQuiz.repository.PracticeQuizAttemptRepository;
 import app.lms.practiceQuiz.repository.PracticeQuizRepository;
-import app.lms.question.model.Question;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,7 @@ public class MobilePracticeQuizService {
     private final PracticeQuizAttemptRepository practiceQuizAttemptRepository;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final PracticeQuizMapper practiceQuizMapper;
+    private final QuizGradingService  quizGradingService;
 
     @Transactional
     public PracticeQuizPublicResponse getPracticeQuiz(
@@ -111,98 +110,61 @@ public class MobilePracticeQuizService {
                                 )
                         );
 
-        if (request.answers().size() != practiceQuiz.getQuestions().size()) {
-            throw new BadRequestException(
-                    "You must answer all practice quiz questions"
-            );
-        }
-
-        Map<Long, Integer> answers =
-                request.answers()
-                        .stream()
-                        .collect(
-                                Collectors.toMap(
-                                        SubmitPracticeQuizAnswer::questionId,
-                                        SubmitPracticeQuizAnswer::answerIndex,
-                                        (_, _) -> {
-                                            throw new BadRequestException(
-                                                    "Duplicate question answer"
-                                            );
-                                        }
-                                )
-                        );
-
         PracticeQuizAttempt attempt =
                 PracticeQuizAttempt.builder()
-                        .practiceQuiz(practiceQuiz)
-                        .course(practiceQuiz.getCourse())
-                        .user(user)
+                        .practiceQuiz(
+                                practiceQuiz
+                        )
+                        .course(
+                                practiceQuiz.getCourse()
+                        )
+                        .user(
+                                user
+                        )
                         .score(0)
-                        .total(practiceQuiz.getQuestions().size())
+                        .total(
+                                practiceQuiz.getQuestions().size()
+                        )
                         .build();
 
-        int score = 0;
+        practiceQuiz.getQuestions()
+                .forEach(question -> {
 
-        for (Question question : practiceQuiz.getQuestions()) {
-
-            Integer selectedAnswerIndex =
-                    answers.get(
-                            question.getId()
-                    );
-
-            if (selectedAnswerIndex == null) {
-                throw new BadRequestException(
-                        "Missing answer for question: " + question.getId()
-                );
-            }
-
-            if (
-                    selectedAnswerIndex < 0
-                            ||
-                            selectedAnswerIndex >= question.getOptions().size()
-            ) {
-                throw new BadRequestException(
-                        "Invalid answer index for question: " + question.getId()
-                );
-            }
-
-            boolean correct =
-                    question.getCorrectAnswerIndex()
-                            .equals(
-                                    selectedAnswerIndex
-                            );
-
-            if (correct) {
-                score++;
-            }
-
-            PracticeQuizAttemptAnswer answer =
-                    PracticeQuizAttemptAnswer.builder()
-                            .attempt(attempt)
-                            .sourceQuestion(question)
-                            .content(question.getContent())
-                            .options(
-                                    new ArrayList<>(
-                                            question.getOptions()
+                    PracticeQuizAttemptAnswer answer =
+                            PracticeQuizAttemptAnswer.builder()
+                                    .attempt(
+                                            attempt
                                     )
-                            )
-                            .correctAnswerIndex(
-                                    question.getCorrectAnswerIndex()
-                            )
-                            .selectedAnswerIndex(
-                                    selectedAnswerIndex
-                            )
-                            .correct(correct)
-                            .build();
+                                    .sourceQuestion(
+                                            question
+                                    )
+                                    .content(
+                                            question.getContent()
+                                    )
+                                    .options(
+                                            new ArrayList<>(
+                                                    question.getOptions()
+                                            )
+                                    )
+                                    .correctAnswerIndex(
+                                            question.getCorrectAnswerIndex()
+                                    )
+                                    .build();
 
-            attempt.getAnswers()
-                    .add(
-                            answer
-                    );
-        }
+                    attempt.getAnswers()
+                            .add(
+                                    answer
+                            );
+                });
+
+        QuizGradingResult gradingResult =
+                quizGradingService.grade(
+                        attempt.getAnswers(),
+                        request.answers()
+                );
 
         attempt.setScore(
-                score
+                gradingResult.score()
         );
 
         practiceQuizAttemptRepository.save(

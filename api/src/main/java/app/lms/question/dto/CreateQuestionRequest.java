@@ -1,28 +1,24 @@
 package app.lms.question.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import app.lms.question.enums.QuestionDifficulty;
+import jakarta.validation.constraints.*;
 
 import java.util.List;
 
 public record CreateQuestionRequest(
 
         @NotBlank
+        @Size(max = 5000)
         String content,
 
-        @NotNull
-        @Size(
-                min = 2,
-                message = "Question must contain at least 2 options"
-        )
+        @NotEmpty
+        @Size(min = 2, max = 6)
         List<@NotBlank String> options,
 
         @NotNull
         @Min(0)
         Integer correctAnswerIndex,
-        Boolean shuffleOptions
 
+        QuestionDifficulty difficulty
 ) {
 }
