@@ -179,7 +179,7 @@ public class BankRandomQuizService {
             List<Question> questions =
                     new ArrayList<>(
                             questionRepository
-                                    .findAllByCourseIdAndDifficulty(
+                                    .findBankQuestionsByCourseIdAndDifficulty(
                                             courseId,
                                             difficulty
                                     )
