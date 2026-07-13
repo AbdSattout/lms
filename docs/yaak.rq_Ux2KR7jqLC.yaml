@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_Ux2KR7jqLC
 createdAt: 2026-06-11T18:46:14.493142800
-updatedAt: 2026-06-13T16:50:10.661389100
+updatedAt: 2026-07-13T11:29:24.956807500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_JG5a6RtbR8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzOTM4Mzc0LCJleHAiOjE3ODQ1NDMxNzR9.3ywI_CGxZfbrrOD6XWAtgnOBztW91LUfxqYk8tUv8CQ
 authenticationType: bearer
 body:
   text: |-
@@ -29,5 +29,20 @@ headers:
 method: POST
 name: create block
 sortPriority: 1000.0
-url: http://localhost:8080/dashboard/lessons/1/blocks
+url: https://lms.koyeb.app/dashboard/lessons/1/blocks
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

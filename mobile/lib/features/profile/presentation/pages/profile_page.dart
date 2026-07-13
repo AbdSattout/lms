@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/databases/cache/cache_helper.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/pages/telegram_login_page.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -23,161 +24,153 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<
-        ProfileBloc,
-        ProfileState>(
-      listener: (context, state) {
+    return Scaffold(
+      backgroundColor: const Color(0xffF8F9FA),
 
-        if (state is ProfilePictureUpdated) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(
-            const SnackBar(
-              content: Text(
-                'تم تحديث الصورة بنجاح',
+      body: BlocConsumer<ProfileBloc, ProfileState>(
+        listenWhen: (previous, current) =>
+        current is ProfileUpdated ||
+            current is ProfilePictureUpdated ||
+            current is ProfileError,
+        listener: (context, state) {
+          if (state is ProfileUpdated) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تم تحديث البيانات بنجاح'),
               ),
-            ),
-          );
-        }
+            );
+          }
 
-        if (state is ProfileError) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(
-            SnackBar(
-              content: Text(
+          if (state is ProfilePictureUpdated) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('تم تحديث الصورة بنجاح'),
+              ),
+            );
+          }
+
+          if (state is ProfileError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        buildWhen: (previous, current) =>
+        current is ProfileLoading ||
+            current is ProfileLoaded ||
+            (current is ProfileError && previous is! ProfileLoaded),
+        builder: (context, state) {
+
+          if (state is ProfileLoading) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          if (state is ProfileError) {
+            return Center(
+              child: Text(
                 state.message,
               ),
-            ),
-          );
-        }
-      },
+            );
+          }
 
-      child: Scaffold(
-        backgroundColor:
-        const Color(0xffF8F9FA),
+          if (state is ProfileLoaded) {
+            final profile = state.profile;
 
-        body: BlocBuilder<
-            ProfileBloc,
-            ProfileState>(
-          builder: (context, state) {
-
-            if (state is ProfileLoading) {
-              return const Center(
-                child:
-                CircularProgressIndicator(),
-              );
-            }
-
-            if (state is ProfileError) {
-              return Center(
-                child: Text(
-                  state.message,
-                ),
-              );
-            }
-
-            if (state is ProfileUpdated) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'تم تحديث البيانات بنجاح',
-                  ),
-                ),
-              );
-            }
-            if (state is ProfileLoaded) {
-              final profile = state.profile;
-
-              return SafeArea(
-                child: SingleChildScrollView(
+            return SafeArea(
+              child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 24,
                   ),
                   child: Column(
                     children: [
-
-                      Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Container(
-                            height: 180,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topRight,
-                                end: Alignment.bottomLeft,
-                                colors: [
-                                  AppColors.primary,
-                                  AppColors.primaryLight,
-                                ],
-                              ),
-                              borderRadius: const BorderRadius.vertical(
-                                bottom: Radius.circular(35),
+                      SizedBox(
+                        height: 235,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              height: 180,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topRight,
+                                  end: Alignment.bottomLeft,
+                                  colors: [
+                                    AppColors.primary,
+                                    AppColors.primaryLight,
+                                  ],
+                                ),
+                                borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(35),
+                                ),
                               ),
                             ),
-                          ),
 
-                          Positioned(
-                            bottom: -55,
-                            left: 0,
-                            right: 0,
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: AppColors.primary,
-                                    width: 2,
-                                  ),
-                                ),
-                                child: Stack(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 55,
-                                      backgroundImage:
-                                      profile.user.picture.isNotEmpty
-                                          ? NetworkImage(profile.user.picture)
-                                          : const AssetImage(
-                                        'assets/images/user.png',
-                                      ) as ImageProvider,
-                                    ),
-
-                                    Positioned(
-                                      bottom: 0,
-                                      right: 0,
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          _pickImage(context);
-                                        },
-                                        child: Container(
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary,
-                                            shape: BoxShape.circle,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 2,
-                                            ),
-                                          ),
-                                          child: const Icon(
-                                            Icons.camera_alt,
-                                            color: Colors.white,
-                                            size: 18,
-                                          ),
-                                        ),
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: AppColors.primary,
+                                        width: 2,
                                       ),
                                     ),
-                                  ],
-                                )
+                                    child: Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 55,
+                                          backgroundImage:
+                                          profile.user.picture.isNotEmpty
+                                              ? NetworkImage(profile.user.picture)
+                                              : const AssetImage(
+                                            'assets/images/user.png',
+                                          ) as ImageProvider,
+                                        ),
+
+                                        Positioned(
+                                          bottom: 0,
+                                          right: 0,
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              _pickImage(context);
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.all(6),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primary,
+                                                shape: BoxShape.circle,
+                                                border: Border.all(
+                                                  color: Colors.white,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              child: const Icon(
+                                                Icons.camera_alt,
+                                                color: Colors.white,
+                                                size: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
 
-                      const SizedBox(height: 70),
+                      const SizedBox(height: 15),
 
                       Text(
                         profile.name,
@@ -268,8 +261,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                     Navigator.pushAndRemoveUntil(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (_) =>
-                                        const TelegramLoginPage(),
+                                        builder: (_) => BlocProvider(
+                                          create: (_) => sl<AuthBloc>(),
+                                          child: const TelegramLoginPage(),
+                                        ),
                                       ),
                                           (route) => false,
                                     );
@@ -286,12 +281,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   )
 
-                ),
-              );
-            }
-            return const SizedBox();
-          },
-        ),
+              ),
+            );
+          }
+          return const SizedBox();
+        },
       ),
     );
   }
@@ -392,6 +386,10 @@ void _showEditProfileSheet(
     text: profile.university ?? '',
   );
 
+  // capture the ProfileBloc BEFORE opening the bottom sheet, since the
+  // sheet's own builder context is a different subtree.
+  final profileBloc = context.read<ProfileBloc>();
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -400,14 +398,14 @@ void _showEditProfileSheet(
         top: Radius.circular(24),
       ),
     ),
-    builder: (_) {
+    builder: (sheetContext) {
       return Padding(
         padding: EdgeInsets.only(
           left: 20,
           right: 20,
           top: 24,
           bottom:
-          MediaQuery.of(context)
+          MediaQuery.of(sheetContext)
               .viewInsets
               .bottom +
               20,
@@ -429,7 +427,7 @@ void _showEditProfileSheet(
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
-                labelText: "البريد الإلكتروني",
+                  labelText: "البريد الإلكتروني",
                   hintText: "example@gmail.com"
               ),
             ),
@@ -439,8 +437,8 @@ void _showEditProfileSheet(
             TextField(
               controller: phoneController,
               decoration: const InputDecoration(
-                labelText: "رقم الهاتف",
-                hintText: "09XXXXXXXX"
+                  labelText: "رقم الهاتف",
+                  hintText: "09XXXXXXXX"
               ),
             ),
 
@@ -460,7 +458,7 @@ void _showEditProfileSheet(
               child: ElevatedButton(
                 onPressed: () {
 
-                  context.read<ProfileBloc>().add(
+                  profileBloc.add(
                     UpdateProfileEvent(
                       email: emailController.text,
                       phone: phoneController.text,
@@ -469,7 +467,7 @@ void _showEditProfileSheet(
                   );
 
                   Navigator.pop(
-                    context,
+                    sheetContext,
                   );
                 },
                 child: const Text(
@@ -487,19 +485,35 @@ Future<void> _pickImage(
     BuildContext context,
     ) async {
 
-  final ImagePicker picker =
-  ImagePicker();
+  final profileBloc = context.read<ProfileBloc>();
 
-  final XFile? image = await picker.pickImage(
-    source: ImageSource.gallery,
-    imageQuality: 70,
-  );
+  try {
+    final ImagePicker picker =
+    ImagePicker();
 
-  if (image == null) return;
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 70,
+    );
 
-  context.read<ProfileBloc>().add(
-    UpdateProfilePictureEvent(
-      image.path,
-    ),
-  );
+    debugPrint('picker returned: ${image?.path}');
+
+    if (image == null) {
+      debugPrint('No image selected — either cancelled, permission denied, or no picker available on this device/emulator.');
+      return;
+    }
+
+    profileBloc.add(
+      UpdateProfilePictureEvent(
+        image.path,
+      ),
+    );
+  } catch (e) {
+    debugPrint('Image picker failed: $e');
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تعذر اختيار الصورة: $e')),
+      );
+    }
+  }
 }

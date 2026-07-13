@@ -5,7 +5,7 @@ class UpdateProfilePictureUseCase {
 
   UpdateProfilePictureUseCase(this.repository);
 
-  Future<void> call(String imagePath) {
-    return repository.updateProfilePicture(imagePath);
+  Future<void> call(String imagePath) async {
+    await repository.updateProfilePicture(imagePath);
   }
 }
