@@ -4,13 +4,21 @@ import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
   CourseResponse,
+  CreateInviteRequest,
+  CreatePublicInviteRequest,
+  JoinRequestResponse,
+  OrganizationInviteResponse,
+  OrganizationMemberResponse,
   OrganizationResponse,
+  PageOrganizationMemberResponse,
+  UpdateInviteCapacityRequest,
 } from "@/lib/api/types"
 import type {
   CreateCourseInput,
   CreateOrganizationInput,
   UpdateOrganizationInput,
 } from "@/lib/validation"
+import type { PageableInput } from "@/lib/validation"
 
 export const list = defineApiRoute({
   get: (options?: BackendFetchOptions) =>
@@ -135,3 +143,112 @@ export const checkCourseSlugAvailability = defineApiRoute({
       { method: "GET", ...options }
     ),
 })
+
+function toQueryString(pageable: PageableInput) {
+  const params = new URLSearchParams()
+
+  if (pageable.page !== undefined) params.set("page", String(pageable.page))
+  if (pageable.size !== undefined) params.set("size", String(pageable.size))
+  for (const sort of pageable.sort ?? []) params.append("sort", sort)
+
+  const query = params.toString()
+  return query ? `?${query}` : ""
+}
+
+export const invites = {
+  create: defineApiRoute({
+    post: (slug: string, request: CreateInviteRequest, options?: BackendFetchOptions) =>
+      backend<OrganizationInviteResponse>(`/dashboard/organizations/${slug}/invites`, {
+        method: "POST",
+        body: request,
+        ...options,
+      }),
+  }),
+  createPublic: defineApiRoute({
+    post: (slug: string, request: CreatePublicInviteRequest, options?: BackendFetchOptions) =>
+      backend<OrganizationInviteResponse>(`/dashboard/organizations/${slug}/invites/public`, {
+        method: "POST",
+        body: request,
+        ...options,
+      }),
+  }),
+  list: defineApiRoute({
+    get: (slug: string, options?: BackendFetchOptions) =>
+      backend<OrganizationInviteResponse[]>(`/dashboard/organizations/${slug}/invites`, {
+        method: "GET",
+        ...options,
+      }),
+  }),
+  resend: defineApiRoute({
+    post: (slug: string, inviteId: number, options?: BackendFetchOptions) =>
+      backend<OrganizationInviteResponse>(`/dashboard/organizations/${slug}/invites/${inviteId}/resend`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
+  cancel: defineApiRoute({
+    post: (slug: string, inviteId: number, options?: BackendFetchOptions) =>
+      backend<void>(`/dashboard/organizations/${slug}/invites/${inviteId}/cancel`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
+  updateCapacity: defineApiRoute({
+    patch: (slug: string, inviteId: number, request: UpdateInviteCapacityRequest, options?: BackendFetchOptions) =>
+      backend<OrganizationInviteResponse>(`/dashboard/organizations/${slug}/invites/${inviteId}/capacity`, {
+        method: "PATCH",
+        body: request,
+        ...options,
+      }),
+  }),
+}
+
+export const members = {
+  list: defineApiRoute({
+    get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
+      backend<PageOrganizationMemberResponse>(
+        `/dashboard/organizations/${slug}/members${toQueryString(pageable)}`,
+        { method: "GET", ...options }
+      ),
+  }),
+}
+
+export const joinRequests = {
+  create: defineApiRoute({
+    post: (slug: string, options?: BackendFetchOptions) =>
+      backend<JoinRequestResponse>(`/organizations/${slug}/join-request`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
+  cancel: defineApiRoute({
+    delete: (slug: string, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/${slug}/join-request`, {
+        method: "DELETE",
+        ...options,
+      }),
+  }),
+  dashboard: {
+    listPending: defineApiRoute({
+      get: (slug: string, options?: BackendFetchOptions) =>
+        backend<JoinRequestResponse[]>(`/dashboard/organizations/${slug}/join-requests`, {
+          method: "GET",
+          ...options,
+        }),
+    }),
+    accept: defineApiRoute({
+      post: (slug: string, id: number, options?: BackendFetchOptions) =>
+        backend<void>(`/dashboard/organizations/${slug}/join-requests/${id}/accept`, {
+          method: "POST",
+          ...options,
+        }),
+    }),
+    reject: defineApiRoute({
+      post: (slug: string, id: number, options?: BackendFetchOptions) =>
+        backend<void>(`/dashboard/organizations/${slug}/join-requests/${id}/reject`, {
+          method: "POST",
+          ...options,
+        }),
+    }),
+  },
+}

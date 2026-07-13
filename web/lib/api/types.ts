@@ -159,25 +159,6 @@ export interface Page<T> {
   empty?: boolean
 }
 
-export interface CourseDetailsResponse {
-  id: number
-  title: string
-  slug: string
-  description?: string
-  coverUrl?: string
-  organizationName: string
-  chapters: ChapterResponse[]
-  progress: CourseProgressResponse
-}
-
-export interface CourseProgressResponse {
-  lastLessonId?: number
-  lastBlockId?: number
-  progressPercentage: number
-  completed: boolean
-  completedAt?: string
-}
-
 export interface PageCourseResponse {
   totalElements?: number
   totalPages?: number
@@ -248,3 +229,98 @@ export type AiTextTone =
 
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>
+
+export type Role = "OWNER" | "ADMIN" | "STUDENT"
+export type InviteStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "DECLINED"
+  | "EXPIRED"
+  | "CANCELLED"
+export type JoinRequestStatus =
+  | "PENDING"
+  | "ACCEPTED"
+  | "REJECTED"
+  | "CANCELLED"
+
+export interface OrganizationInviteResponse {
+  id: number
+  userId: number
+  userName: string
+  role: Role
+  status: InviteStatus
+  invitedByName: string
+  expiresAt: string
+  createdAt: string
+  maxUses: number
+  usedCount: number
+}
+
+export interface CreateInviteRequest {
+  userId: number
+  role?: Role
+}
+
+export interface CreatePublicInviteRequest {
+  role?: Role
+  maxUses?: number
+}
+
+export interface UpdateInviteCapacityRequest {
+  maxUses?: number
+}
+
+export interface OrganizationMemberResponse {
+  memberId: number
+  user: UserResponse
+  role: Role
+}
+
+export interface UserResponse {
+  id: number
+  name: string
+  picture: string
+}
+
+export interface JoinRequestResponse {
+  id: number
+  status: JoinRequestStatus
+  createdAt: string
+  user: UserResponse
+}
+
+export interface UserSearchResponse {
+  id: number
+  name: string
+  picture: string
+  email: string
+}
+
+export interface FinalQuizResponse {
+  quizId: number
+  courseId: number
+  questions: QuestionPublicResponse[]
+}
+
+export interface SubmitFinalQuizAnswer {
+  questionId: number
+  answerIndex: number
+}
+
+export interface FinalQuizQuestionResultResponse {
+  questionId: number
+  content: string
+  options: string[]
+  selectedAnswerIndex: number
+  correctAnswerIndex: number
+  correct: boolean
+}
+
+export interface FinalQuizSubmitResponse {
+  attemptId: number
+  score: number
+  total: number
+  results: FinalQuizQuestionResultResponse[]
+}
+
+export type PageOrganizationMemberResponse = Page<OrganizationMemberResponse>
