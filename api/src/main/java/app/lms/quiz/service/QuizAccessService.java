@@ -12,9 +12,51 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class QuizAccessService {
 
+    private final QuizRepository quizRepository;
+    private final CourseAccessService courseAccessService;
 
-    QuizRepository quizRepository;
-    CourseAccessService courseAccessService;
+    public Quiz getManageableQuizByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getManageableCourse(
+                courseId,
+                user
+        );
+
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Final quiz not found"
+                        )
+                );
+    }
+
+    public Quiz getEditableQuizByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getEditableCourse(
+                courseId,
+                user
+        );
+
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Final quiz not found"
+                        )
+                );
+    }
+
     public Quiz getManageableQuiz(
             Long quizId,
             User user

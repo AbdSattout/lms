@@ -14,7 +14,6 @@ import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.model.Question;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
@@ -115,7 +114,7 @@ public class MobileAiRandomQuizService {
                     attempt
             );
 
-            return toResponse(
+            return mobileAiRandomQuizMapper.toResponse(
                     attempt
             );
 
@@ -245,25 +244,6 @@ public class MobileAiRandomQuizService {
         }
 
         return attempt;
-    }
-
-    private RandomQuizResponse toResponse(
-            RandomQuizAttempt attempt
-    ) {
-
-        return new RandomQuizResponse(
-                attempt.getId(),
-                attempt.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
-        );
     }
 
     private void validateAiResponse(
