@@ -1,14 +1,19 @@
 package app.lms.randomquiz.mapper;
 
+import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.randomquiz.dto.BankRandomQuizQuestionResultResponse;
 import app.lms.randomquiz.dto.BankRandomQuizResponse;
 import app.lms.randomquiz.dto.BankRandomQuizSubmitResponse;
 import app.lms.randomquiz.model.BankRandomQuizAttempt;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class BankRandomQuizMapper {
+
+    private final QuizDifficultyService quizDifficultyService;
 
     public BankRandomQuizResponse toResponse(
             BankRandomQuizAttempt attempt
@@ -16,7 +21,11 @@ public class BankRandomQuizMapper {
 
         return new BankRandomQuizResponse(
                 attempt.getId(),
-                attempt.getDifficulty(),
+                quizDifficultyService.calculate(
+                        attempt.getQuestions(),
+                        question -> question.getSourceQuestion()
+                                .getDifficulty()
+                ),
                 attempt.getQuestions()
                         .stream()
                         .map(question ->

@@ -1,8 +1,10 @@
 package app.lms.practiceQuiz.mapper;
 
+import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.practiceQuiz.dto.PracticeQuizPublicResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizQuestionResultResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizResponse;
+import app.lms.practiceQuiz.dto.PracticeQuizSummaryResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizSubmitResponse;
 import app.lms.practiceQuiz.model.PracticeQuiz;
 import app.lms.practiceQuiz.model.PracticeQuizAttempt;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class PracticeQuizMapper {
 
     private final QuestionMapper questionMapper;
+    private final QuizDifficultyService quizDifficultyService;
 
     public PracticeQuizResponse toResponse(
             PracticeQuiz practiceQuiz
@@ -27,6 +30,9 @@ public class PracticeQuizMapper {
                 practiceQuiz.getTitle(),
                 practiceQuiz.getDescription(),
                 practiceQuiz.getCourse().getId(),
+                quizDifficultyService.calculate(
+                        practiceQuiz.getQuestions()
+                ),
                 practiceQuiz.getQuestions()
                         .stream()
                         .map(questionMapper::toResponse)
@@ -43,6 +49,9 @@ public class PracticeQuizMapper {
                 practiceQuiz.getTitle(),
                 practiceQuiz.getDescription(),
                 practiceQuiz.getCourse().getId(),
+                quizDifficultyService.calculate(
+                        practiceQuiz.getQuestions()
+                ),
                 practiceQuiz.getQuestions()
                         .stream()
                         .map(question ->
@@ -53,6 +62,22 @@ public class PracticeQuizMapper {
                                 )
                         )
                         .toList()
+        );
+    }
+
+    public PracticeQuizSummaryResponse toSummaryResponse(
+            PracticeQuiz practiceQuiz
+    ) {
+
+        return new PracticeQuizSummaryResponse(
+                practiceQuiz.getId(),
+                practiceQuiz.getTitle(),
+                practiceQuiz.getDescription(),
+                practiceQuiz.getCourse().getId(),
+                quizDifficultyService.calculate(
+                        practiceQuiz.getQuestions()
+                ),
+                practiceQuiz.getQuestions().size()
         );
     }
 
