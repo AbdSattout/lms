@@ -2,12 +2,15 @@ package app.lms.ai.mobile.quiz.service;
 
 import app.lms.ai.common.exception.AiServiceException;
 import app.lms.ai.mobile.quiz.dto.*;
+import app.lms.ai.mobile.quiz.mapper.MobileAiRandomQuizMapper;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttempt;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion;
 import app.lms.ai.mobile.quiz.repository.RandomQuizAttemptRepository;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.common.quiz.dto.QuizGradingResult;
+import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
@@ -36,7 +39,8 @@ public class MobileAiRandomQuizService {
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final BlockProgressRepository blockProgressRepository;
     private final RandomQuizAttemptRepository randomQuizAttemptRepository;
-
+    private final QuizGradingService quizGradingService;
+    private final MobileAiRandomQuizMapper mobileAiRandomQuizMapper;
     @Transactional
     public RandomQuizResponse generate(
             Long courseId,
@@ -160,92 +164,25 @@ public class MobileAiRandomQuizService {
             );
         }
 
-        if (request.answers().size() != attempt.getQuestions().size()) {
-            throw new BadRequestException(
-                    "You must answer all quiz questions"
-            );
-        }
-
-        Map<Long, Integer> answers =
-                request.answers()
-                        .stream()
-                        .collect(
-                                Collectors.toMap(
-                                        SubmitRandomQuizAnswer::questionId,
-                                        SubmitRandomQuizAnswer::answerIndex
-                                )
-                        );
-
-        int score = 0;
-
-        for (RandomQuizAttemptQuestion question : attempt.getQuestions()) {
-
-            Integer selectedAnswerIndex =
-                    answers.get(
-                            question.getId()
-                    );
-
-            if (selectedAnswerIndex == null) {
-                throw new BadRequestException(
-                        "Missing answer for question: " + question.getId()
+        QuizGradingResult gradingResult =
+                quizGradingService.grade(
+                        attempt.getQuestions(),
+                        request.answers()
                 );
-            }
-
-            if (
-                    selectedAnswerIndex < 0 ||
-                            selectedAnswerIndex >= question.getOptions().size()
-            ) {
-                throw new BadRequestException(
-                        "Invalid answer index for question: " + question.getId()
-                );
-            }
-
-            boolean correct =
-                    question.getCorrectAnswerIndex()
-                            .equals(
-                                    selectedAnswerIndex
-                            );
-
-            question.setSelectedAnswerIndex(
-                    selectedAnswerIndex
-            );
-
-            question.setCorrect(
-                    correct
-            );
-
-            if (correct) {
-                score++;
-            }
-        }
 
         attempt.setScore(
-                score
+                gradingResult.score()
         );
 
         attempt.setCompleted(
                 true
         );
 
-        return new RandomQuizSubmitResponse(
-                attempt.getId(),
-                score,
-                attempt.getQuestions().size(),
-                attempt.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new RandomQuizQuestionResultResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions(),
-                                        question.getSelectedAnswerIndex(),
-                                        question.getCorrectAnswerIndex(),
-                                        question.getCorrect()
-                                )
-                        )
-                        .toList()
+        return mobileAiRandomQuizMapper.toSubmitResponse(
+                attempt
         );
     }
+
 
     private RandomQuizAttempt buildAttempt(
             CourseEnrollment enrollment,

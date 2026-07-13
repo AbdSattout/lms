@@ -1,10 +1,10 @@
-package app.lms.quiz.dto;
+package app.lms.randomquiz.dto;
 
 import app.lms.common.quiz.interfaces.SubmittedQuizAnswer;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public record SubmitFinalQuizAnswer (
+public record SubmitBankRandomQuizAnswer(
 
         @NotNull
         Long questionId,
@@ -12,5 +12,5 @@ public record SubmitFinalQuizAnswer (
         @NotNull
         @Min(0)
         Integer answerIndex
-)implements SubmittedQuizAnswer {
+) implements SubmittedQuizAnswer {
 }
