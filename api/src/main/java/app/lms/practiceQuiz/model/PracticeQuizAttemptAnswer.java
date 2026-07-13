@@ -1,6 +1,7 @@
 package app.lms.practiceQuiz.model;
 
 import app.lms.common.model.BaseEntity;
+import app.lms.common.quiz.interfaces.GradableQuizQuestion;
 import app.lms.question.model.Question;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PracticeQuizAttemptAnswer extends BaseEntity {
+public class PracticeQuizAttemptAnswer extends BaseEntity implements GradableQuizQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,4 +48,9 @@ public class PracticeQuizAttemptAnswer extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attempt_id", nullable = false)
     private PracticeQuizAttempt attempt;
+
+    @Override
+    public Long gradingQuestionId() {
+        return sourceQuestion.getId();
+    }
 }

@@ -9,6 +9,7 @@ import app.lms.course.service.CourseAccessService;
 import app.lms.question.dto.CreateQuestionRequest;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.dto.UpdateQuestionRequest;
+import app.lms.question.enums.QuestionDifficulty;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
 import app.lms.question.repository.QuestionRepository;
@@ -55,6 +56,11 @@ public class QuestionService {
                         .content(request.content().trim())
                         .options(request.options())
                         .correctAnswerIndex(request.correctAnswerIndex())
+                        .difficulty(
+                                request.difficulty() != null
+                                        ? request.difficulty()
+                                        : QuestionDifficulty.MEDIUM
+                        )
                         .build();
 
         questionRepository.save(
