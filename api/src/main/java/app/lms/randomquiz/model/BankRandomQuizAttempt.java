@@ -1,6 +1,7 @@
 package app.lms.randomquiz.model;
 
 import app.lms.common.model.BaseEntity;
+import app.lms.common.quiz.interfaces.CompletableQuizAttempt;
 import app.lms.course.model.Course;
 import app.lms.question.enums.QuestionDifficulty;
 import app.lms.user.model.User;
@@ -17,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BankRandomQuizAttempt extends BaseEntity {
+public class BankRandomQuizAttempt extends BaseEntity implements CompletableQuizAttempt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

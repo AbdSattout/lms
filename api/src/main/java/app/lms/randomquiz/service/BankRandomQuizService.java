@@ -1,17 +1,17 @@
 package app.lms.randomquiz.service;
 
 import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
+import app.lms.common.quiz.service.QuizAttemptValidationService;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.enums.QuestionDifficulty;
 import app.lms.question.model.Question;
 import app.lms.question.repository.QuestionRepository;
 import app.lms.randomquiz.dto.*;
+import app.lms.randomquiz.mapper.BankRandomQuizMapper;
 import app.lms.randomquiz.model.BankRandomQuizAttempt;
 import app.lms.randomquiz.model.BankRandomQuizAttemptQuestion;
 import app.lms.randomquiz.repository.BankRandomQuizAttemptRepository;
@@ -32,6 +32,8 @@ public class BankRandomQuizService {
     private final QuestionRepository questionRepository;
     private final BankRandomQuizAttemptRepository bankRandomQuizAttemptRepository;
     private final QuizGradingService quizGradingService;
+    private final QuizAttemptValidationService quizAttemptValidationService;
+    private final BankRandomQuizMapper bankRandomQuizMapper;
 
     @Transactional
     public BankRandomQuizResponse generate(
@@ -106,7 +108,7 @@ public class BankRandomQuizService {
                 attempt
         );
 
-        return toResponse(
+        return bankRandomQuizMapper.toResponse(
                 attempt
         );
     }
@@ -138,11 +140,9 @@ public class BankRandomQuizService {
                                 )
                         );
 
-        if (Boolean.TRUE.equals(attempt.getCompleted())) {
-            throw new ConflictException(
-                    "Random quiz attempt already submitted"
-            );
-        }
+        quizAttemptValidationService.validateNotSubmitted(
+                attempt
+        );
 
         QuizGradingResult gradingResult =
                 quizGradingService.grade(
@@ -158,7 +158,7 @@ public class BankRandomQuizService {
                 true
         );
 
-        return toSubmitResponse(
+        return bankRandomQuizMapper.toSubmitResponse(
                 attempt
         );
     }
@@ -302,47 +302,4 @@ public class BankRandomQuizService {
         };
     }
 
-    private BankRandomQuizResponse toResponse(
-            BankRandomQuizAttempt attempt
-    ) {
-
-        return new BankRandomQuizResponse(
-                attempt.getId(),
-                attempt.getDifficulty(),
-                attempt.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
-        );
-    }
-
-    private BankRandomQuizSubmitResponse toSubmitResponse(
-            BankRandomQuizAttempt attempt
-    ) {
-
-        return new BankRandomQuizSubmitResponse(
-                attempt.getId(),
-                attempt.getScore(),
-                attempt.getQuestions().size(),
-                attempt.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new BankRandomQuizQuestionResultResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions(),
-                                        question.getSelectedAnswerIndex(),
-                                        question.getCorrectAnswerIndex(),
-                                        question.getCorrect()
-                                )
-                        )
-                        .toList()
-        );
-    }
 }
