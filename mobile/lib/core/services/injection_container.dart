@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // Import Core
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
@@ -24,8 +25,14 @@ import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_with_telegram.dart';
+//Organization Feature
+import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
+import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
+import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
+import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
+import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
+import 'package:lms/features/organizations/presentation/bloc/organization_bloc.dart';
 
-// This is the service locator instance
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -101,6 +108,25 @@ Future<void> init() async {
           getProfileUseCase: sl(),
           updatePictureUseCase: sl(),
           updateProfileUseCase: sl())
+  );
+
+  //Organizations
+
+  sl.registerLazySingleton<OrganizationRemoteDataSource>(
+        () => OrganizationRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<OrganizationRepository>(
+        () => OrganizationRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => GetAllOrganizationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetOrganizationBySlugUseCase(sl()));
+
+  sl.registerFactory(
+        () => OrganizationBloc(
+      getAllOrganizationsUseCase: sl(),
+    ),
   );
 
   //! External
