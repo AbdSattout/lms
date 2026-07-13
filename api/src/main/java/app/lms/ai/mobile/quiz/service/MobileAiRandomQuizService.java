@@ -7,9 +7,9 @@ import app.lms.ai.mobile.quiz.model.RandomQuizAttempt;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion;
 import app.lms.ai.mobile.quiz.repository.RandomQuizAttemptRepository;
 import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
+import app.lms.common.quiz.service.QuizAttemptValidationService;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
@@ -40,6 +40,7 @@ public class MobileAiRandomQuizService {
     private final BlockProgressRepository blockProgressRepository;
     private final RandomQuizAttemptRepository randomQuizAttemptRepository;
     private final QuizGradingService quizGradingService;
+    private final QuizAttemptValidationService quizAttemptValidationService;
     private final MobileAiRandomQuizMapper mobileAiRandomQuizMapper;
     @Transactional
     public RandomQuizResponse generate(
@@ -158,11 +159,9 @@ public class MobileAiRandomQuizService {
                                 )
                         );
 
-        if (Boolean.TRUE.equals(attempt.getCompleted())) {
-            throw new ConflictException(
-                    "Random quiz attempt already submitted"
-            );
-        }
+        quizAttemptValidationService.validateNotSubmitted(
+                attempt
+        );
 
         QuizGradingResult gradingResult =
                 quizGradingService.grade(
