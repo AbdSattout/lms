@@ -1,0 +1,196 @@
+// components/tiptap-ui/ai-tools/ai-tool-dropdown.scss
+.ai-tools-trigger {
+  position: relative;
+
+  &--loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &--error {
+    color: #ef4444;
+
+    &:hover {
+      color: #dc2626;
+    }
+  }
+}
+
+.ai-tools-content {
+  z-index: 50 !important;
+  width: 250px;
+  max-height: 380px;
+  overflow-y: auto;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 4px 10px -3px rgba(0, 0, 0, 0.05);
+
+  /* Modern visual scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e4e4e7;
+    border-radius: 4px;
+  }
+}
+
+.ai-tools-subcontent {
+  z-index: 51 !important;
+  width: 180px;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.15),
+    0 4px 10px -3px rgba(0, 0, 0, 0.05);
+}
+
+.ai-tools-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.ai-tools-item {
+  cursor: pointer;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.375rem;
+  margin: 0.125rem 0;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background-color: #f4f4f5;
+  }
+
+  &-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  &-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 0.25rem;
+  }
+
+  &-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    stroke-width: 2px;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+
+  &-label {
+    font-size: 0.815rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  &-description {
+    font-size: 0.7rem;
+    line-height: 1.25;
+    margin-top: 0.05rem;
+  }
+}
+
+.ai-tools-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  margin: 0.25rem;
+
+  &-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+  }
+
+  &-text {
+    font-size: 0.7rem;
+    line-height: 1.4;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+// ==========================================
+// Deep-Dark Aesthetic Variables & Selectors
+// ==========================================
+@mixin dark-mode-styles {
+  .ai-tools-trigger {
+    &--error {
+      color: #f87171;
+      &:hover {
+        color: #ef4444;
+      }
+    }
+  }
+
+  .ai-tools-content,
+  .ai-tools-subcontent {
+    background-color: #0c0c0e; // Deep rich dark tone
+    border-color: #1e1e24;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.75);
+
+    &::-webkit-scrollbar-thumb {
+      background: #27272a;
+    }
+  }
+
+  .ai-tools-item {
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  .ai-tools-error {
+    background-color: rgba(127, 29, 29, 0.15);
+    border-color: rgba(185, 28, 28, 0.25);
+  }
+}
+
+// Apply dark theme when system preference is Dark, or when .dark class is on html/body
+@media (prefers-color-scheme: dark) {
+  @include dark-mode-styles;
+}
+
+.dark {
+  @include dark-mode-styles;
+}
