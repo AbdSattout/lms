@@ -36,7 +36,6 @@ class TelegramLoginPage extends StatelessWidget {
             final isLoading = state is AuthLoading;
             return Stack(
               children: [
-                // خلفية علوية منحنية بلون خفيف
                 Container(
                   height: MediaQuery.of(context).size.height * 0.4,
                   decoration: BoxDecoration(
@@ -60,14 +59,14 @@ class TelegramLoginPage extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
-                              color: kLightSecondaryColor,
+                              color: AppColors.primary,
                             ),
                           ),
                           const SizedBox(height: 10),
                           const Text(
                             'سجل دخولك عبر تيليجرام لتبدأ رحلة التعلم',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                            style: TextStyle(fontSize: 16, color: AppColors.darkSoft),
                           ),
                           const SizedBox(height: 40),
                           
@@ -100,7 +99,7 @@ class TelegramLoginPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          const Text('دخول آمن ومشفر 100%', style: TextStyle(color: Colors.black26, fontSize: 12)),
+                          const Text('دخول آمن ومشفر 100%', style: TextStyle(color: AppColors.darkSoft, fontSize: 12)),
                         ],
                       ),
                     ),

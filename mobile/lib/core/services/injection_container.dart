@@ -4,8 +4,11 @@ import 'package:flutter_appauth/flutter_appauth.dart';
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Import Core
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/courses/domain/usecases/enroll_in_course_usecase.dart';
+import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
+import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
+import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
@@ -24,8 +27,21 @@ import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_with_telegram.dart';
+//Courses Feature
+import 'package:lms/features/courses/data/datasources/course_remote_datasource.dart';
+import 'package:lms/features/courses/data/repositories/course_repository_impl.dart';
+import 'package:lms/features/courses/domain/repositories/course_repository.dart';
+import 'package:lms/features/courses/domain/usecases/get_my_enrollments_usecase.dart';
+import 'package:lms/features/courses/presentation/bloc/my_courses_bloc.dart';
+import 'package:lms/features/courses/presentation/bloc/course_details_bloc.dart';
+//Organization Feature
+import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
+import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
+import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
+import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
+import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
+import 'package:lms/features/organizations/presentation/bloc/organization_bloc.dart';
 
-// This is the service locator instance
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -101,6 +117,52 @@ Future<void> init() async {
           getProfileUseCase: sl(),
           updatePictureUseCase: sl(),
           updateProfileUseCase: sl())
+  );
+
+//Courses
+
+  sl.registerLazySingleton<CourseRemoteDataSource>(
+        () => CourseRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<CourseRepository>(
+        () => CourseRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => GetMyEnrollmentsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCourseByIdUseCase(sl()));
+  sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
+  sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
+
+  sl.registerFactory(
+        () => MyCoursesBloc(
+      getMyEnrollmentsUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+        () => CourseDetailsBloc(
+      getCourseByIdUseCase: sl(),
+      getCourseBySlugUseCase: sl(),
+      enrollInCourseUseCase: sl(),
+    ),
+  );
+  //Organizations
+  sl.registerLazySingleton<OrganizationRemoteDataSource>(
+        () => OrganizationRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<OrganizationRepository>(
+        () => OrganizationRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => GetAllOrganizationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetOrganizationBySlugUseCase(sl()));
+
+  sl.registerFactory(
+        () => OrganizationBloc(
+      getAllOrganizationsUseCase: sl(),
+    ),
   );
 
   //! External
