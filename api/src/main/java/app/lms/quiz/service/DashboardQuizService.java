@@ -1,17 +1,13 @@
 package app.lms.quiz.service;
 
-import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
-import app.lms.common.exception.NotFoundException;
+import app.lms.common.quiz.service.QuizQuestionSelectionService;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
 import app.lms.question.model.Question;
-import app.lms.question.service.QuestionAccessService;
 import app.lms.quiz.dto.QuizResponse;
 import app.lms.quiz.dto.UpdateFinalQuizQuestionsRequest;
 import app.lms.quiz.mapper.QuizMapper;
 import app.lms.quiz.model.Quiz;
-import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +21,8 @@ public class DashboardQuizService {
 
     private final QuizMapper quizMapper;
     private final CourseAccessService courseAccessService;
-    private final QuestionAccessService questionAccessService;
-    private final QuizRepository quizRepository;
+    private final QuizAccessService quizAccessService;
+    private final QuizQuestionSelectionService quizQuestionSelectionService;
 
     @Transactional
     public QuizResponse getFinalQuizByCourseId(
@@ -34,22 +30,11 @@ public class DashboardQuizService {
             User user
     ) {
 
-        Course course =
-                courseAccessService
-                        .getManageableCourse(
+        Quiz quiz =
+                quizAccessService
+                        .getManageableQuizByCourseId(
                                 courseId,
                                 user
-                        );
-
-        Quiz quiz =
-                quizRepository
-                        .findByCourseId(
-                                course.getId()
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Final quiz not found"
-                                )
                         );
 
         return quizMapper.toResponse(
@@ -72,46 +57,20 @@ public class DashboardQuizService {
                         );
 
         Quiz quiz =
-                quizRepository
-                        .findByCourseId(
-                                course.getId()
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Final quiz not found"
-                                )
+                quizAccessService
+                        .getEditableQuizByCourseId(
+                                course.getId(),
+                                user
                         );
 
-        if (
-                request.questionIds()
-                        .stream()
-                        .distinct()
-                        .count()
-                        != request.questionIds().size()
-        ) {
-            throw new ConflictException(
-                    "Duplicate questions are not allowed"
-            );
-        }
-
         List<Question> updatedQuestions =
-                request.questionIds()
-                        .stream()
-                        .map(questionId ->
-                                questionAccessService
-                                        .getManageableQuestion(
-                                                questionId,
-                                                user
-                                        )
-                        )
-                        .toList();
-
-        for (Question question : updatedQuestions) {
-            validateQuestionBelongsToCourse(
-                    question,
-                    course.getId()
-            );
-        }
+                quizQuestionSelectionService
+                        .getManageableCourseQuestions(
+                                request.questionIds(),
+                                course.getId(),
+                                user,
+                                "final quiz"
+                        );
 
         quiz.getQuestions()
                 .clear();
@@ -126,19 +85,4 @@ public class DashboardQuizService {
         );
     }
 
-    private void validateQuestionBelongsToCourse(
-            Question question,
-            Long courseId
-    ) {
-
-        Long questionCourseId =
-                question.getCourse()
-                        .getId();
-
-        if (!questionCourseId.equals(courseId)) {
-            throw new BadRequestException(
-                    "Question must belong to the same course as the final quiz"
-            );
-        }
-    }
 }
