@@ -1,19 +1,16 @@
 package app.lms.practiceQuiz.service;
 
-import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.common.quiz.service.QuizQuestionSelectionService;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
 import app.lms.practiceQuiz.dto.CreatePracticeQuizRequest;
 import app.lms.practiceQuiz.dto.PracticeQuizResponse;
 import app.lms.practiceQuiz.dto.UpdatePracticeQuizQuestionsRequest;
+import app.lms.practiceQuiz.mapper.PracticeQuizMapper;
 import app.lms.practiceQuiz.model.PracticeQuiz;
 import app.lms.practiceQuiz.repository.PracticeQuizRepository;
-import app.lms.question.dto.QuestionResponse;
-import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
-import app.lms.question.service.QuestionAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +23,9 @@ import java.util.List;
 public class DashboardPracticeQuizService {
 
     private final CourseAccessService courseAccessService;
-    private final QuestionAccessService questionAccessService;
     private final PracticeQuizRepository practiceQuizRepository;
-    private final QuestionMapper questionMapper;
+    private final PracticeQuizMapper practiceQuizMapper;
+    private final QuizQuestionSelectionService quizQuestionSelectionService;
 
     @Transactional
     public PracticeQuizResponse create(
@@ -44,36 +41,14 @@ public class DashboardPracticeQuizService {
                                 user
                         );
 
-        List<Long> questionIds =
-                request.questionIds()
-                        .stream()
-                        .distinct()
-                        .toList();
-
-        if (questionIds.size() != request.questionIds().size()) {
-            throw new ConflictException(
-                    "Duplicate questions are not allowed"
-            );
-        }
-
         List<Question> questions =
-                questionIds
-                        .stream()
-                        .map(questionId ->
-                                questionAccessService
-                                        .getManageableQuestion(
-                                                questionId,
-                                                user
-                                        )
-                        )
-                        .toList();
-
-        for (Question question : questions) {
-            validateQuestionBelongsToCourse(
-                    question,
-                    course.getId()
-            );
-        }
+                quizQuestionSelectionService
+                        .getManageableCourseQuestions(
+                                request.questionIds(),
+                                course.getId(),
+                                user,
+                                "practice quiz"
+                        );
 
         PracticeQuiz practiceQuiz =
                 PracticeQuiz.builder()
@@ -93,7 +68,7 @@ public class DashboardPracticeQuizService {
                 practiceQuiz
         );
 
-        return toResponse(
+        return practiceQuizMapper.toResponse(
                 practiceQuiz
         );
     }
@@ -125,36 +100,14 @@ public class DashboardPracticeQuizService {
                                 )
                         );
 
-        if (
-                request.questionIds()
-                        .stream()
-                        .distinct()
-                        .count()
-                        != request.questionIds().size()
-        ) {
-            throw new ConflictException(
-                    "Duplicate questions are not allowed"
-            );
-        }
-
         List<Question> updatedQuestions =
-                request.questionIds()
-                        .stream()
-                        .map(questionId ->
-                                questionAccessService
-                                        .getManageableQuestion(
-                                                questionId,
-                                                user
-                                        )
-                        )
-                        .toList();
-
-        for (Question question : updatedQuestions) {
-            validateQuestionBelongsToCourse(
-                    question,
-                    course.getId()
-            );
-        }
+                quizQuestionSelectionService
+                        .getManageableCourseQuestions(
+                                request.questionIds(),
+                                course.getId(),
+                                user,
+                                "practice quiz"
+                        );
 
         practiceQuiz.getQuestions()
                 .clear();
@@ -164,7 +117,7 @@ public class DashboardPracticeQuizService {
                         updatedQuestions
                 );
 
-        return toResponse(
+        return practiceQuizMapper.toResponse(
                 practiceQuiz
         );
     }
@@ -186,38 +139,8 @@ public class DashboardPracticeQuizService {
                         course.getId()
                 )
                 .stream()
-                .map(this::toResponse)
+                .map(practiceQuizMapper::toResponse)
                 .toList();
     }
 
-    private PracticeQuizResponse toResponse(
-            PracticeQuiz practiceQuiz
-    ) {
-
-        List<QuestionResponse> questions =
-                practiceQuiz.getQuestions()
-                        .stream()
-                        .map(questionMapper::toResponse)
-                        .toList();
-
-        return new PracticeQuizResponse(
-                practiceQuiz.getId(),
-                practiceQuiz.getTitle(),
-                practiceQuiz.getDescription(),
-                practiceQuiz.getCourse().getId(),
-                questions
-        );
-    }
-
-    private void validateQuestionBelongsToCourse(
-            Question question,
-            Long courseId
-    ) {
-
-        if (!question.getCourse().getId().equals(courseId)) {
-            throw new BadRequestException(
-                    "Question must belong to the same course as the practice quiz"
-            );
-        }
-    }
 }

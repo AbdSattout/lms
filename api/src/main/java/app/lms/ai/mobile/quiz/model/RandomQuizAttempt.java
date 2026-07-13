@@ -1,6 +1,7 @@
 package app.lms.ai.mobile.quiz.model;
 
 import app.lms.common.model.BaseEntity;
+import app.lms.common.quiz.interfaces.CompletableQuizAttempt;
 import app.lms.course.model.Course;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
@@ -16,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RandomQuizAttempt extends BaseEntity {
+public class RandomQuizAttempt extends BaseEntity implements CompletableQuizAttempt {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
