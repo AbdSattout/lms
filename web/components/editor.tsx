@@ -4,11 +4,7 @@
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import { useEffect, useRef, useState } from "react"
 
-import { TaskItem, TaskList } from "@tiptap/extension-list"
-import { Typography } from "@tiptap/extension-typography"
-import { Selection } from "@tiptap/extensions"
-import { Markdown } from "@tiptap/markdown"
-import { StarterKit } from "@tiptap/starter-kit"
+import { RtlDirection } from "@/components/tiptap-extension/rtl-direction-extension"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
@@ -16,6 +12,11 @@ import {
   ToolbarGroup,
   ToolbarSeparator,
 } from "@/components/tiptap-ui-primitive/toolbar"
+import { TaskItem, TaskList } from "@tiptap/extension-list"
+import { Typography } from "@tiptap/extension-typography"
+import { Selection } from "@tiptap/extensions"
+import { Markdown } from "@tiptap/markdown"
+import { StarterKit } from "@tiptap/starter-kit"
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
 import "@/components/tiptap-node/code-block-node/code-block-node.scss"
@@ -39,8 +40,8 @@ import { MarkButton } from "@/components/tiptap-ui/mark-button"
 import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 
-import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import { useAiTools } from "@/hooks/use-ai-tools"
+import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 
 import "./editor.scss"
@@ -172,6 +173,7 @@ export function Editor({ onChange, content }: EditorProps) {
       HorizontalRule,
       TaskList,
       TaskItem.configure({ nested: true }),
+      RtlDirection,
       Typography,
       Selection,
       Markdown,
@@ -210,8 +212,6 @@ export function Editor({ onChange, content }: EditorProps) {
           ) : (
             <MobileToolbarContent
               onBack={() => setShowLink(false)}
-              type={mobileView === "highlighter" ? "highlighter" : "link"}
-              onBack={() => setPendingView("main")}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
               aiError={error}
