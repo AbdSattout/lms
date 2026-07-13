@@ -34,6 +34,7 @@ public class Quiz extends BaseEntity {
             joinColumns = @JoinColumn(name = "quiz_id"),
             inverseJoinColumns = @JoinColumn(name = "question_id")
     )
+    @OrderColumn(name = "position")
     @Builder.Default
     private List<Question> questions = new ArrayList<>();
 }

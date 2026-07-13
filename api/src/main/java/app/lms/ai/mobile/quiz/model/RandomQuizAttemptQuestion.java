@@ -1,6 +1,7 @@
 package app.lms.ai.mobile.quiz.model;
 
 import app.lms.common.model.BaseEntity;
+import app.lms.common.quiz.interfaces.GradableQuizQuestion;
 import app.lms.question.model.Question;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RandomQuizAttemptQuestion extends BaseEntity {
+public class RandomQuizAttemptQuestion extends BaseEntity implements GradableQuizQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,4 +46,9 @@ public class RandomQuizAttemptQuestion extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attempt_id", nullable = false)
     private RandomQuizAttempt attempt;
+
+    @Override
+    public Long gradingQuestionId() {
+        return getId();
+    }
 }

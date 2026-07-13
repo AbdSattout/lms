@@ -34,4 +34,5 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
             where quiz.course.id = :courseId
             """)
     long countQuestionsByCourseId(Long courseId);
+
 }
