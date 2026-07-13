@@ -3,7 +3,6 @@ package app.lms.quiz.service;
 import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
@@ -15,7 +14,6 @@ import app.lms.quiz.model.FinalQuizAttempt;
 import app.lms.quiz.model.FinalQuizAttemptAnswer;
 import app.lms.quiz.model.Quiz;
 import app.lms.quiz.repository.FinalQuizAttemptRepository;
-import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,13 +26,13 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class MobileFinalQuizService {
 
-    private final QuizRepository quizRepository;
     private final FinalQuizAttemptRepository finalQuizAttemptRepository;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final BlockRepository blockRepository;
     private final BlockProgressRepository blockProgressRepository;
     private final QuizGradingService quizGradingService;
     private final QuizMapper quizMapper;
+    private final QuizAccessService quizAccessService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -53,14 +51,10 @@ public class MobileFinalQuizService {
         );
 
         Quiz quiz =
-                quizRepository
-                        .findByCourseId(
-                                courseId
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Final quiz not found"
-                                )
+                quizAccessService
+                        .getAccessibleQuizByCourseId(
+                                courseId,
+                                user
                         );
 
         return quizMapper.toPublicResponse(
@@ -100,14 +94,10 @@ public class MobileFinalQuizService {
         }
 
         Quiz quiz =
-                quizRepository
-                        .findByCourseId(
-                                courseId
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Final quiz not found"
-                                )
+                quizAccessService
+                        .getAccessibleQuizByCourseId(
+                                courseId,
+                                user
                         );
 
         if (quiz.getQuestions().isEmpty()) {
