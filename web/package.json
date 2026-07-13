@@ -22,7 +22,6 @@
     "@radix-ui/react-popover": "^1.1.19",
     "@tanstack/react-table": "^8.21.3",
     "@tiptap/core": "^3.27.3",
-    "@tiptap/extension-highlight": "^3.27.3",
     "@tiptap/extension-horizontal-rule": "^3.27.3",
     "@tiptap/extension-image": "^3.27.3",
     "@tiptap/extension-list": "^3.27.3",
