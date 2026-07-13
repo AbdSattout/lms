@@ -33,6 +33,8 @@ class EndPoints {
 
   static String enrollInCourse(int id) => 'courses/$id/enroll';
 
+  static const String myEnrollments = 'courses/me/enrollments';
+
   // Organizations
   static const String organizations = 'organizations';
 
