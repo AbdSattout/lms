@@ -3,6 +3,7 @@ import "server-only"
 import { login } from "@/lib/api/auth"
 import {
   byId as blocksById,
+  byLesson as blocksByLesson,
   create as createBlock,
   getPublic as getPublicBlock,
   reorder as reorderBlocks,
@@ -30,7 +31,10 @@ import {
   courses,
   create as createOrg,
   getCourseBySlug,
+  invites,
+  joinRequests,
   list,
+  members,
 } from "@/lib/api/organizations"
 import {
   comments,
@@ -52,7 +56,7 @@ import {
   create as createQuestion,
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
-import { me, picture } from "@/lib/api/users"
+import { me, picture, search as userSearch } from "@/lib/api/users"
 import {
   generateQuestionFromBlock,
   transformText,
@@ -64,10 +68,15 @@ export const api = {
   },
   organizations: {
     list,
+    joinRequests: {
+      create: joinRequests.create,
+      cancel: joinRequests.cancel,
+    },
   },
   users: {
     me,
     picture,
+    search: userSearch,
   },
   profile: {
     create,
@@ -87,6 +96,9 @@ export const api = {
       checkSlugAvailability,
       getCourseBySlug,
       checkCourseSlugAvailability,
+      invites,
+      members,
+      joinRequests: joinRequests.dashboard,
     },
     courses: {
       byId: coursesById,
@@ -105,6 +117,7 @@ export const api = {
     blocks: {
       create: createBlock,
       byId: blocksById,
+      byLesson: blocksByLesson,
       reorder: reorderBlocks,
     },
     media: {

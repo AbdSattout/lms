@@ -68,3 +68,11 @@ export const getPublic = defineApiRoute({
       ...options,
     }),
 })
+
+export const byLesson = defineApiRoute({
+  get: (lessonId: number, options?: BackendFetchOptions) =>
+    backend<BlockResponse[]>(`/dashboard/lessons/${lessonId}/blocks`, {
+      method: "GET",
+      ...options,
+    }),
+})
