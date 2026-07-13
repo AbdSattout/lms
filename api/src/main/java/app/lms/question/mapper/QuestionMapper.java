@@ -8,18 +8,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class QuestionMapper {
 
-    public QuestionResponse toResponse(
-            Question question
-    ) {
+    public QuestionResponse toResponse(Question question) {
         return new QuestionResponse(
                 question.getId(),
-                question.getCourse().getId(),
                 question.getContent(),
                 question.getOptions(),
-                question.getCorrectAnswerIndex()
+                question.getCorrectAnswerIndex(),
+                question.getDifficulty(),
+                question.getCourse().getId()
         );
     }
-
     public QuestionPublicResponse toPublicResponse(
             Question question
     ) {

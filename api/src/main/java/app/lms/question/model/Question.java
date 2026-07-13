@@ -2,6 +2,7 @@ package app.lms.question.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.course.model.Course;
+import app.lms.question.enums.QuestionDifficulty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,11 @@ public class Question extends BaseEntity {
 
     @Column(nullable = false)
     private Integer correctAnswerIndex;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private QuestionDifficulty difficulty = QuestionDifficulty.MEDIUM;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
