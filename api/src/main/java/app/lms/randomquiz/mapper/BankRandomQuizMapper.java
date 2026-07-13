@@ -1,21 +1,22 @@
-package app.lms.ai.mobile.quiz.mapper;
+package app.lms.randomquiz.mapper;
 
-import app.lms.ai.mobile.quiz.dto.RandomQuizResponse;
-import app.lms.ai.mobile.quiz.dto.RandomQuizQuestionResultResponse;
-import app.lms.ai.mobile.quiz.dto.RandomQuizSubmitResponse;
-import app.lms.ai.mobile.quiz.model.RandomQuizAttempt;
 import app.lms.question.dto.QuestionPublicResponse;
+import app.lms.randomquiz.dto.BankRandomQuizQuestionResultResponse;
+import app.lms.randomquiz.dto.BankRandomQuizResponse;
+import app.lms.randomquiz.dto.BankRandomQuizSubmitResponse;
+import app.lms.randomquiz.model.BankRandomQuizAttempt;
 import org.springframework.stereotype.Component;
 
 @Component
-public class MobileAiRandomQuizMapper {
+public class BankRandomQuizMapper {
 
-    public RandomQuizResponse toResponse(
-            RandomQuizAttempt attempt
+    public BankRandomQuizResponse toResponse(
+            BankRandomQuizAttempt attempt
     ) {
 
-        return new RandomQuizResponse(
+        return new BankRandomQuizResponse(
                 attempt.getId(),
+                attempt.getDifficulty(),
                 attempt.getQuestions()
                         .stream()
                         .map(question ->
@@ -29,18 +30,18 @@ public class MobileAiRandomQuizMapper {
         );
     }
 
-    public RandomQuizSubmitResponse toSubmitResponse(
-            RandomQuizAttempt attempt
+    public BankRandomQuizSubmitResponse toSubmitResponse(
+            BankRandomQuizAttempt attempt
     ) {
 
-        return new RandomQuizSubmitResponse(
+        return new BankRandomQuizSubmitResponse(
                 attempt.getId(),
                 attempt.getScore(),
                 attempt.getQuestions().size(),
                 attempt.getQuestions()
                         .stream()
                         .map(question ->
-                                new RandomQuizQuestionResultResponse(
+                                new BankRandomQuizQuestionResultResponse(
                                         question.getId(),
                                         question.getContent(),
                                         question.getOptions(),
