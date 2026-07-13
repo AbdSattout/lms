@@ -57,4 +57,24 @@ public class QuizAccessService {
                 );
     }
 
+    public Quiz getAccessibleQuizByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getAccessibleCourse(
+                courseId,
+                user
+        );
+
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Final quiz not found"
+                        )
+                );
+    }
 }
