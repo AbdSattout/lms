@@ -5,13 +5,12 @@ import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
-import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.quiz.dto.*;
+import app.lms.quiz.mapper.QuizMapper;
 import app.lms.quiz.model.FinalQuizAttempt;
 import app.lms.quiz.model.FinalQuizAttemptAnswer;
 import app.lms.quiz.model.Quiz;
@@ -35,7 +34,7 @@ public class MobileFinalQuizService {
     private final BlockRepository blockRepository;
     private final BlockProgressRepository blockProgressRepository;
     private final QuizGradingService quizGradingService;
-    private final QuizDifficultyService quizDifficultyService;
+    private final QuizMapper quizMapper;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -64,22 +63,8 @@ public class MobileFinalQuizService {
                                 )
                         );
 
-        return new FinalQuizResponse(
-                quiz.getId(),
-                courseId,
-                quizDifficultyService.calculate(
-                        quiz.getQuestions()
-                ),
-                quiz.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
+        return quizMapper.toPublicResponse(
+                quiz
         );
     }
 
@@ -195,7 +180,7 @@ public class MobileFinalQuizService {
             );
         }
 
-        return toSubmitResponse(
+        return quizMapper.toSubmitResponse(
                 attempt
         );
     }
@@ -231,28 +216,4 @@ public class MobileFinalQuizService {
         }
     }
 
-    private FinalQuizSubmitResponse toSubmitResponse(
-            FinalQuizAttempt attempt
-    ) {
-
-        return new FinalQuizSubmitResponse(
-                attempt.getId(),
-                attempt.getScore(),
-                attempt.getTotal(),
-                attempt.getAnswers()
-                        .stream()
-                        .map(answer ->
-                                new FinalQuizQuestionResultResponse(
-                                        answer.getSourceQuestion()
-                                                .getId(),
-                                        answer.getContent(),
-                                        answer.getOptions(),
-                                        answer.getSelectedAnswerIndex(),
-                                        answer.getCorrectAnswerIndex(),
-                                        answer.getCorrect()
-                                )
-                        )
-                        .toList()
-        );
-    }
 }
