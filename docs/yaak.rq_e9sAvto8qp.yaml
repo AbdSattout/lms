@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_e9sAvto8qp
+createdAt: 2026-07-12T15:19:16.034601600
+updatedAt: 2026-07-12T15:19:37.119457700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RrLuj44RPp
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: reject join request
+sortPriority: 0.003
+url: http://localhost:8080/dashboard/organizations/{slug}/join-requests/{id}/reject
+urlParameters: []

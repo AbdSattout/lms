@@ -239,11 +239,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleBadRequestException(
             BadRequestException ex
     ) {
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "status", 400,
-                        "error", ex.getMessage()
-                )
-        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(
+                        Map.of(
+                                "status", 400,
+                                "error", ex.getMessage()
+                        )
+                );
     }
+
+
 }

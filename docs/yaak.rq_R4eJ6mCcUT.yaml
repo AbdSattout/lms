@@ -1,0 +1,22 @@
+type: http_request
+model: http_request
+id: rq_R4eJ6mCcUT
+createdAt: 2026-07-11T15:33:25.584746700
+updatedAt: 2026-07-11T15:33:44.308158
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_x2sJUXGYsL
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Accept public invite
+sortPriority: 0.002
+url: http://localhost:8080/organizations/{slug}/invites/public/accept
+urlParameters:
+- enabled: true
+  name: token
+  value: '{inviteToken}'
+  id: aDPzhdM06n

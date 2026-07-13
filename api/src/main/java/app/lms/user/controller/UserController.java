@@ -4,6 +4,7 @@ package app.lms.user.controller;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.security.UserPrincipal;
+import app.lms.user.dto.UserSearchResponse;
 import app.lms.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -66,6 +69,15 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/search")
+    public List<UserSearchResponse> search(
 
+            @RequestParam String q
+
+    ){
+
+        return userService.search(q);
+
+    }
 
 }

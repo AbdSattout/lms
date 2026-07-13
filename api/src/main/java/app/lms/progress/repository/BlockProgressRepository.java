@@ -25,6 +25,7 @@ public interface BlockProgressRepository
     );
 
 
+
     @Query("""
             select distinct q
             from BlockProgress bp

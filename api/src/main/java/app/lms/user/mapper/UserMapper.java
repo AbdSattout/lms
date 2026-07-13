@@ -2,6 +2,7 @@ package app.lms.user.mapper;
 
 import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UserResponse;
+import app.lms.user.dto.UserSearchResponse;
 import app.lms.user.model.Profile;
 import app.lms.user.model.User;
 import org.springframework.stereotype.Component;
@@ -28,5 +29,17 @@ public class UserMapper {
                 .university(profile.getUniversity())
                 .user(toResponse(user))
                 .build();
+    }
+    public UserSearchResponse toSearchResponse(
+            Profile profile
+    ){
+
+        return new UserSearchResponse(
+                profile.getUser().getId(),
+                profile.getUser().getName(),
+                profile.getUser().getPicture(),
+                profile.getEmail()
+        );
+
     }
 }

@@ -284,4 +284,28 @@ public class DashboardBlockService {
             );
         }
     }
+
+    @Transactional
+    public List<BlockResponse> getBlocksByLessonId(
+            Long lessonId,
+            User user
+    ) {
+
+        Lesson lesson =
+                lessonAccessService
+                        .getManageableLesson(
+                                lessonId,
+                                user
+                        );
+
+        return blockRepository
+                .findAllByLessonIdOrderByPositionAsc(
+                        lesson.getId()
+                )
+                .stream()
+                .map(
+                        blockMapper::toResponse
+                )
+                .toList();
+    }
 }
