@@ -2,9 +2,8 @@
 
 import { Extension } from "@tiptap/core"
 import { Plugin, PluginKey } from "@tiptap/pm/state"
-import { Decoration, DecorationSet } from "@tiptap/pm/view"
 
-const RTL_NODE_TYPES = [
+const RTL_TYPES = [
   "bulletList",
   "orderedList",
   "listItem",
@@ -13,45 +12,59 @@ const RTL_NODE_TYPES = [
   "blockquote",
 ]
 
+const RTL_REGEX = /[\u0591-\u07FF\uFB1D-\uFDFF\uFE70-\uFEFC]/
+
 function hasRtlText(text: string): boolean {
-  return /[\u0591-\u07FF\uFB1D-\uFDFF\uFE70-\uFEFC]/.test(text)
+  return RTL_REGEX.test(text)
 }
 
 export const RtlDirection = Extension.create({
   name: "rtlDirection",
 
+  addGlobalAttributes() {
+    return [
+      {
+        types: RTL_TYPES,
+        attributes: {
+          dir: {
+            default: null,
+            parseHTML: (element) => element.getAttribute("dir"),
+            renderHTML: (attributes) => {
+              const dir = attributes.dir as string | null
+              if (!dir) return {}
+              return { dir }
+            },
+          },
+        },
+      },
+    ]
+  },
+
   addProseMirrorPlugins() {
     return [
       new Plugin({
         key: new PluginKey("rtlDirection"),
-        state: {
-          init() {
-            return DecorationSet.empty
-          },
-          apply(tr, value) {
-            if (!tr.docChanged) return value
+        appendTransaction: (transactions, _oldState, newState) => {
+          if (!transactions.some((tr) => tr.docChanged)) return null
 
-            const decorations: Decoration[] = []
+          const tr = newState.tr
+          let modified = false
 
-            tr.doc.descendants((node, pos) => {
-              if (RTL_NODE_TYPES.includes(node.type.name)) {
-                if (hasRtlText(node.textContent)) {
-                  decorations.push(
-                    Decoration.node(pos, pos + node.nodeSize, {
-                      dir: "rtl",
-                    })
-                  )
-                }
+          newState.doc.descendants((node, pos) => {
+            if (RTL_TYPES.includes(node.type.name)) {
+              const hasRtl = hasRtlText(node.textContent)
+              const currentDir = node.attrs.dir
+              if (hasRtl && currentDir !== "rtl") {
+                tr.setNodeAttribute(pos, "dir", "rtl")
+                modified = true
+              } else if (!hasRtl && currentDir === "rtl") {
+                tr.setNodeAttribute(pos, "dir", null)
+                modified = true
               }
-            })
+            }
+          })
 
-            return DecorationSet.create(tr.doc, decorations)
-          },
-        },
-        props: {
-          decorations(state) {
-            return this.getState(state)
-          },
+          return modified ? tr : null
         },
       }),
     ]
