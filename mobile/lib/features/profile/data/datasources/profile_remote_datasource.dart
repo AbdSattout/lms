@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-
 import '../../../../core/databases/api/api_consumer.dart';
 import '../../../../core/databases/api/end_points.dart';
 import '../../domain/usecases/update_profile_params.dart';
@@ -38,8 +37,7 @@ class ProfileRemoteDataSourceImpl
   Future<ProfileModel> updateProfile(
       UpdateProfileParams params,
       ) async {
-
-    final response = await api.put(
+    final response = await api.patch(
       EndPoints.profile,
       data: params.toJson(),
     );
@@ -55,7 +53,7 @@ class ProfileRemoteDataSourceImpl
     final response = await api.patch(
       EndPoints.updateProfilePicture,
       data: {
-        "picture": await MultipartFile.fromFile(
+        "image": await MultipartFile.fromFile(
           imagePath,
         ),
       },

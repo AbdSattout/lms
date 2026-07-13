@@ -7,6 +7,12 @@ import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/home/bloc/navbar_cubit.dart';
 import 'package:lms/features/profile/presentation/pages/profile_page.dart';
 
+import '../../../courses/presentation/bloc/my_courses_bloc.dart';
+import '../../../courses/presentation/bloc/my_courses_event.dart';
+import '../../../courses/presentation/pages/my_courses_page.dart';
+import '../../../organizations/presentation/bloc/organization_bloc.dart';
+import '../../../organizations/presentation/bloc/organization_event.dart';
+import '../../../organizations/presentation/pages/organizations_page.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
 class MainHomeScreen extends StatelessWidget {
@@ -32,8 +38,14 @@ class MainHomeScreen extends StatelessWidget {
                 controller: context.read<NavbarCubit>().controller,
                 children: [
                   _buildHomeContent(context, user),
-                  const Center(child: Text('كورساتي', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
-                  const Center(child: Text('المنظمات', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                  BlocProvider(
+                    create: (_) => sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
+                    child: const MyCoursesPage(),
+                  ),
+                  BlocProvider(
+                    create: (_) => sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
+                    child: const OrganizationsPage(),
+                  ),
                   BlocProvider(
                     create: (_) => sl<ProfileBloc>()
                       ..add(GetProfileEvent()),
@@ -529,8 +541,8 @@ class MainHomeScreen extends StatelessWidget {
             },
             items: [
               _buildNavItem('assets/navbar_icons/home.png', 'الرئيسية'),
-              _buildNavItem('assets/navbar_icons/categories.png', 'منظمات'),
-              _buildNavItem('assets/navbar_icons/book.png', 'الكورسات'),
+              _buildNavItem('assets/navbar_icons/book.png', 'كورساتي'),
+              _buildNavItem('assets/navbar_icons/categories.png', 'المنظمات'),
               _buildNavItem('assets/navbar_icons/user.png', 'حسابي'),
             ],
           ),
