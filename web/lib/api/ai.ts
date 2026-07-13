@@ -14,18 +14,18 @@ export const generateQuestionFromBlock = defineApiRoute({
     request: GenerateQuestionFromBlockContentRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<GeneratedQuestionResponse>("/dashboard/ai/questions/from-block-content", {
-      method: "POST",
-      body: request,
-      ...options,
-    }),
+    backend<GeneratedQuestionResponse>(
+      "/dashboard/ai/questions/from-block-content",
+      {
+        method: "POST",
+        body: request,
+        ...options,
+      }
+    ),
 })
 
 export const transformText = defineApiRoute({
-  post: (
-    request: GenerateAiTextRequest,
-    options?: BackendFetchOptions
-  ) =>
+  post: (request: GenerateAiTextRequest, options?: BackendFetchOptions) =>
     backend<GeneratedAiTextResponse>("/dashboard/ai/text", {
       method: "POST",
       body: request,

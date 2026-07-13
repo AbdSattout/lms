@@ -10,7 +10,6 @@ import { Typography } from "@tiptap/extension-typography"
 import { Selection } from "@tiptap/extensions"
 import { Markdown } from "@tiptap/markdown"
 import { StarterKit } from "@tiptap/starter-kit"
-
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
@@ -48,21 +47,42 @@ import { HighlighterIcon } from "@/components/tiptap-icons/highlighter-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
+import { useAiTools } from "@/hooks/use-ai-tools"
+import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 
 import "./editor.scss"
+import { AiToolsDropdown } from "./tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
 
 const MainToolbarContent = ({
   onHighlighterClick,
   onLinkClick,
   isMobile,
+  onAiAction,
+  isAiLoading,
+  aiError,
+  onClearAiError,
 }: {
   onHighlighterClick: () => void
   onLinkClick: () => void
   isMobile: boolean
+  onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
+  isAiLoading?: boolean
+  aiError?: string | null
+  onClearAiError?: () => void
 }) => {
   return (
     <>
       <Spacer />
+
+      <ToolbarGroup>
+        <AiToolsDropdown
+          onAction={onAiAction}
+          isLoading={isAiLoading}
+          error={aiError}
+          onClearError={onClearAiError}
+        />
+      </ToolbarGroup>
+      <ToolbarSeparator />
 
       <ToolbarGroup>
         <HeadingDropdownMenu modal={false} levels={[1, 2, 3, 4]} />
@@ -101,6 +121,10 @@ const MobileToolbarContent = ({
 }: {
   type: "highlighter" | "link"
   onBack: () => void
+  onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
+  isAiLoading?: boolean
+  aiError?: string | null
+  onClearAiError?: () => void
 }) => (
   <>
     <ToolbarGroup>
@@ -184,6 +208,11 @@ export function Editor({ onChange, content }: EditorProps) {
     },
   })
 
+  // AI tools hook
+  const { isLoading, error, handleAiAction, clearError } = useAiTools({
+    editor,
+  })
+
   useEffect(() => {
     if (!editor || content === undefined) return
     editor.commands.setContent(content, {
@@ -201,11 +230,19 @@ export function Editor({ onChange, content }: EditorProps) {
               onHighlighterClick={() => setPendingView("highlighter")}
               onLinkClick={() => setPendingView("link")}
               isMobile={isMobile}
+              onAiAction={handleAiAction}
+              isAiLoading={isLoading}
+              aiError={error}
+              onClearAiError={clearError}
             />
           ) : (
             <MobileToolbarContent
               type={mobileView === "highlighter" ? "highlighter" : "link"}
               onBack={() => setPendingView("main")}
+              onAiAction={handleAiAction}
+              isAiLoading={isLoading}
+              aiError={error}
+              onClearAiError={clearError}
             />
           )}
         </Toolbar>
