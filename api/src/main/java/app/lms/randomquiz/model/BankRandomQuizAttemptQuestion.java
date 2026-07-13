@@ -1,4 +1,4 @@
-package app.lms.ai.mobile.quiz.model;
+package app.lms.randomquiz.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.common.quiz.interfaces.GradableQuizQuestion;
@@ -9,13 +9,13 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "random_quiz_attempt_questions")
+@Table(name = "bank_random_quiz_attempt_questions")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RandomQuizAttemptQuestion extends BaseEntity implements GradableQuizQuestion {
+public class BankRandomQuizAttemptQuestion extends BaseEntity implements GradableQuizQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class RandomQuizAttemptQuestion extends BaseEntity implements GradableQui
 
     @ElementCollection
     @CollectionTable(
-            name = "random_quiz_attempt_question_options",
+            name = "bank_random_quiz_attempt_question_options",
             joinColumns = @JoinColumn(name = "attempt_question_id")
     )
     @Column(name = "option_value", nullable = false)
@@ -45,10 +45,10 @@ public class RandomQuizAttemptQuestion extends BaseEntity implements GradableQui
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attempt_id", nullable = false)
-    private RandomQuizAttempt attempt;
+    private BankRandomQuizAttempt attempt;
 
     @Override
     public Long gradingQuestionId() {
-        return getId();
+        return id;
     }
 }

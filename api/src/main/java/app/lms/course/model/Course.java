@@ -4,6 +4,7 @@ import app.lms.chapter.model.Chapter;
 import app.lms.course.enums.CourseStatus;
 import app.lms.common.model.BaseEntity;
 import app.lms.organization.model.Organization;
+import app.lms.practiceQuiz.model.PracticeQuiz;
 import app.lms.quiz.model.Quiz;
 import jakarta.persistence.*;
 import lombok.*;
@@ -61,7 +62,14 @@ public class Course extends BaseEntity {
     @Column(nullable = false)
     private CourseStatus status;
 
-    @OneToOne(mappedBy = "course", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "course", cascade = CascadeType.ALL)
     private Quiz quiz;
+
+    @OneToMany(
+            mappedBy = "course",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<PracticeQuiz> practiceQuizzes;
 
 }

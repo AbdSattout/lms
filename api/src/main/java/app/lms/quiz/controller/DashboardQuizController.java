@@ -1,79 +1,49 @@
 package app.lms.quiz.controller;
 
-import app.lms.question.dto.QuestionResponse;
 import app.lms.quiz.dto.QuizResponse;
+import app.lms.quiz.dto.UpdateFinalQuizQuestionsRequest;
 import app.lms.quiz.service.DashboardQuizService;
 import app.lms.security.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dashboard/quizzes")
+@RequestMapping("/dashboard/courses/{courseId}/final-quiz")
 public class DashboardQuizController {
 
     private final DashboardQuizService dashboardQuizService;
 
-    @GetMapping("/{quizId}")
-    public ResponseEntity<QuizResponse> getQuizById(
-
-            @PathVariable
-            Long quizId,
-
-            @AuthenticationPrincipal
-            UserPrincipal principal
+    @GetMapping
+    public ResponseEntity<QuizResponse> getFinalQuiz(
+            @PathVariable Long courseId,
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
+
         return ResponseEntity.ok(
-                dashboardQuizService.getQuizById(
-                        quizId,
+                dashboardQuizService.getFinalQuizByCourseId(
+                        courseId,
                         principal.user()
                 )
         );
     }
 
-    @PostMapping("/{quizId}/questions/{questionId}")
-    public ResponseEntity<QuestionResponse> addQuestionToQuiz(
-
-            @PathVariable
-            Long quizId,
-
-            @PathVariable
-            Long questionId,
-
-            @AuthenticationPrincipal
-            UserPrincipal principal
+    @PatchMapping("/questions")
+    public ResponseEntity<QuizResponse> updateFinalQuizQuestions(
+            @PathVariable Long courseId,
+            @RequestBody @Valid UpdateFinalQuizQuestionsRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(
-                        dashboardQuizService.addQuestionToQuiz(
-                                quizId,
-                                questionId,
-                                principal.user()
-                        )
-                );
-    }
 
-    @DeleteMapping("/{quizId}/questions/{questionId}")
-    public ResponseEntity<Void> deleteQuestionFromQuiz(
-
-            @PathVariable
-            Long quizId,
-
-            @PathVariable
-            Long questionId,
-
-            @AuthenticationPrincipal
-            UserPrincipal principal
-    ) {
-        dashboardQuizService.deleteQuestionFromQuiz(
-                quizId,
-                questionId,
-                principal.user()
+        return ResponseEntity.ok(
+                dashboardQuizService.updateFinalQuizQuestions(
+                        courseId,
+                        request,
+                        principal.user()
+                )
         );
-
-        return ResponseEntity.noContent().build();
     }
 }
