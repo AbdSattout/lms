@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_oB66ZiuV3d
 createdAt: 2026-05-31T19:49:05.500026200
-updatedAt: 2026-07-12T00:43:06.437316800
+updatedAt: 2026-07-12T12:32:17.118116800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bPEMGkkY8L
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODE2NTQyLCJleHAiOjE3ODQ0MjEzNDJ9.vyZi9zdt2qbGFCZ3tXtWgbQQ5PB9x7mXuBgfBeR2b_E
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODU3NTgwLCJleHAiOjE3ODQ0NjIzODB9.JVIybucy2ZuliOABecBNru9_A032W0Ygwi39bjUvHHU
 authenticationType: bearer
 body:
   form:
@@ -14,13 +14,13 @@ body:
     enabled: true
     id: fVRMqnCW9R
     name: request
-    value: '{  "title": "Spring Boot Masterclass", "slug": "tech-company" , "description": "Learn Spring Boot"}'
+    value: '{  "title": "Flutter Masterclass", "slug": "flutter" , "description": "Learn Flutter"}'
   - enabled: false
     file: C:\Users\ASUS\Desktop\photo_2026-05-03_07-02-04.jpg
     id: SeCKvKw3GU
     name: cover
   - enabled: true
-    id: yvIErHUfKy
+    id: IkDmqwNJ43
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -33,7 +33,7 @@ headers:
 method: POST
 name: Create Course
 sortPriority: 1000.0
-url: https://lms.koyeb.app/dashboard/organizations/test-test/courses
+url: https://lms.koyeb.app/dashboard/organizations/bug-company/courses
 urlParameters: []
 settingSendCookies:
   enabled: false

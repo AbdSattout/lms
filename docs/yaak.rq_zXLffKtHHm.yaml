@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_zXLffKtHHm
 createdAt: 2026-06-13T17:01:24.124859300
-updatedAt: 2026-07-12T00:58:45.473176100
+updatedAt: 2026-07-12T12:34:06.991282300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
@@ -20,7 +20,7 @@ headers:
 method: GET
 name: Get course by id
 sortPriority: 1000.001
-url: https://lms.koyeb.app/courses/123
+url: https://lms.koyeb.app/courses/4
 urlParameters: []
 settingSendCookies:
   enabled: false
