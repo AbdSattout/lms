@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_ywZ6V28DU9
+createdAt: 2026-07-11T15:21:12.096848200
+updatedAt: 2026-07-11T16:10:10.021707500
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_x2sJUXGYsL
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: Accept Invite
+sortPriority: 0.0
+url: http://localhost:8080/organizations/tech-company/invites/accept
+urlParameters:
+- enabled: true
+  name: token
+  value: 5c15b9a7-bea9-4763-a8d5-f2ac6ee5a9d9
+  id: hQ6VIskeEE
+- enabled: true
+  name: ''
+  value: ''
+  id: pKMvpPK02C

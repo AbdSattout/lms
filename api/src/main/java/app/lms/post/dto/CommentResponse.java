@@ -12,7 +12,9 @@ public record CommentResponse(
 
         Long parentCommentId,
 
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        LocalDateTime updatedAt
 
 ) {
 }

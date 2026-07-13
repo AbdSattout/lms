@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_y8fcWMSw5v
+createdAt: 2026-07-12T15:10:22.193435900
+updatedAt: 2026-07-12T15:10:50.342976100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_bcxgeqLASJ
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get my org
+sortPriority: 0.001
+url: http://localhost:8080/organizations/me
+urlParameters: []

@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_Ax46ny7hbs
+createdAt: 2026-07-11T15:38:20.088143
+updatedAt: 2026-07-11T15:38:53.465289700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication: {}
+authenticationType: null
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: cancel invite
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/{slug}/invites/{inviteId}/cancel
+urlParameters: []

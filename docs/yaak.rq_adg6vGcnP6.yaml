@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_adg6vGcnP6
+createdAt: 2026-07-12T15:17:25.237019400
+updatedAt: 2026-07-12T15:18:02.134821100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RrLuj44RPp
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get all join request
+sortPriority: 0.002
+url: http://localhost:8080/dashboard/organizations/{slug}/join-requests
+urlParameters: []

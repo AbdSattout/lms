@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_ZyVHjL8otP
+createdAt: 2026-07-11T15:36:54.099010300
+updatedAt: 2026-07-11T15:43:27.479115900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get pending invite
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/tech-company/invites
+urlParameters: []
