@@ -1,7 +1,6 @@
 package app.lms.randomquiz.service;
 
 import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizAttemptValidationService;
 import app.lms.common.quiz.service.QuizGradingService;
@@ -31,6 +30,7 @@ public class BankRandomQuizService {
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final QuestionRepository questionRepository;
     private final BankRandomQuizAttemptRepository bankRandomQuizAttemptRepository;
+    private final BankRandomQuizAccessService bankRandomQuizAccessService;
     private final QuizGradingService quizGradingService;
     private final QuizAttemptValidationService quizAttemptValidationService;
     private final BankRandomQuizMapper bankRandomQuizMapper;
@@ -128,16 +128,11 @@ public class BankRandomQuizService {
                 );
 
         BankRandomQuizAttempt attempt =
-                bankRandomQuizAttemptRepository
-                        .findByIdAndCourseIdAndUserId(
-                                attemptId,
+                bankRandomQuizAccessService
+                        .getAttempt(
                                 courseId,
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Random quiz attempt not found"
-                                )
+                                attemptId,
+                                user
                         );
 
         quizAttemptValidationService.validateNotSubmitted(
