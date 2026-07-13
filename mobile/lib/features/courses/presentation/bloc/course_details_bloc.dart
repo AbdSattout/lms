@@ -80,9 +80,6 @@ class CourseDetailsBloc
         CourseEnrollSuccess(enrollment),
       );
 
-      // Refresh the course's static fields (title/description/etc.) from
-      // /courses/{id}, but don't trust its "progress" — same reasoning as
-      // _getCourseDetails. A just-enrolled course is genuinely at 0%.
       final course = await getCourseByIdUseCase(event.courseId);
 
       final resolvedCourse = CourseEntity(
