@@ -5,6 +5,7 @@ import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
+import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
@@ -34,6 +35,7 @@ public class MobileFinalQuizService {
     private final BlockRepository blockRepository;
     private final BlockProgressRepository blockProgressRepository;
     private final QuizGradingService quizGradingService;
+    private final QuizDifficultyService quizDifficultyService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -65,6 +67,9 @@ public class MobileFinalQuizService {
         return new FinalQuizResponse(
                 quiz.getId(),
                 courseId,
+                quizDifficultyService.calculate(
+                        quiz.getQuestions()
+                ),
                 quiz.getQuestions()
                         .stream()
                         .map(question ->

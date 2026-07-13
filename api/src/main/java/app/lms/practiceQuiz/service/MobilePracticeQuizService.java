@@ -74,15 +74,7 @@ public class MobilePracticeQuizService {
                         courseId
                 )
                 .stream()
-                .map(practiceQuiz ->
-                        new PracticeQuizSummaryResponse(
-                                practiceQuiz.getId(),
-                                practiceQuiz.getTitle(),
-                                practiceQuiz.getDescription(),
-                                practiceQuiz.getCourse().getId(),
-                                practiceQuiz.getQuestions().size()
-                        )
-                )
+                .map(practiceQuizMapper::toSummaryResponse)
                 .toList();
     }
     @Transactional
