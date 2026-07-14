@@ -2,6 +2,7 @@ package app.lms.practiceQuiz.mapper;
 
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.course.model.Course;
+import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.practiceQuiz.dto.CreatePracticeQuizRequest;
 import app.lms.practiceQuiz.dto.PracticeQuizPublicResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizQuestionResultResponse;
@@ -110,6 +111,17 @@ public class PracticeQuizMapper {
             PracticeQuizAttempt attempt
     ) {
 
+        return toSubmitResponse(
+                attempt,
+                List.of()
+        );
+    }
+
+    public PracticeQuizSubmitResponse toSubmitResponse(
+            PracticeQuizAttempt attempt,
+            List<GamificationAwardResponse> rewards
+    ) {
+
         return new PracticeQuizSubmitResponse(
                 attempt.getId(),
                 attempt.getScore(),
@@ -126,7 +138,8 @@ public class PracticeQuizMapper {
                                         answer.getCorrect()
                                 )
                         )
-                        .toList()
+                        .toList(),
+                rewards
         );
     }
 

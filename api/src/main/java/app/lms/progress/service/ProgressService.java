@@ -9,6 +9,9 @@ import app.lms.common.exception.NotFoundException;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.courceEnrollment.service.CourseEnrollmentService;
+import app.lms.gamification.dto.GamificationAwardResponse;
+import app.lms.gamification.enums.XPEventType;
+import app.lms.gamification.service.GamificationService;
 import app.lms.lesson.repository.LessonRepository;
 import app.lms.progress.dto.SubmitBlockAnswerRequest;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
@@ -22,9 +25,17 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ProgressService {
+
+    private static final int BLOCK_COMPLETE_XP = 10;
+    private static final int LESSON_COMPLETE_XP = 30;
+    private static final int CHAPTER_COMPLETE_XP = 75;
+    private static final int COURSE_COMPLETE_XP = 200;
 
     private final ProgressMapper progressMapper;
     private final BlockAccessService blockAccessService;
@@ -35,6 +46,7 @@ public class ProgressService {
     private final CourseEnrollmentService courseEnrollmentService;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final QuizRepository quizRepository;
+    private final GamificationService gamificationService;
 
     @Transactional
     public SubmitBlockAnswerResponse submitAnswer(
@@ -105,7 +117,138 @@ public class ProgressService {
                         user
                 );
 
-        return nextStep;
+        List<GamificationAwardResponse> rewards =
+                awardLearningXp(
+                        block,
+                        nextStep,
+                        user
+                );
+
+        return progressMapper.withRewards(
+                nextStep,
+                rewards
+        );
+    }
+
+    private List<GamificationAwardResponse> awardLearningXp(
+            Block block,
+            SubmitBlockAnswerResponse nextStep,
+            User user
+    ) {
+
+        List<GamificationAwardResponse> rewards =
+                new ArrayList<>();
+
+        addAwardedReward(
+                rewards,
+                gamificationService.awardXp(
+                        user,
+                        XPEventType.BLOCK_COMPLETE,
+                        block.getId(),
+                        BLOCK_COMPLETE_XP
+                )
+        );
+
+        if (isLessonCompleted(block, user)) {
+            addAwardedReward(
+                    rewards,
+                    gamificationService.awardXp(
+                            user,
+                            XPEventType.LESSON_COMPLETE,
+                            block.getLesson().getId(),
+                            LESSON_COMPLETE_XP
+                    )
+            );
+        }
+
+        if (isChapterCompleted(block, user)) {
+            addAwardedReward(
+                    rewards,
+                    gamificationService.awardXp(
+                            user,
+                            XPEventType.CHAPTER_COMPLETE,
+                            block.getLesson()
+                                    .getChapter()
+                                    .getId(),
+                            CHAPTER_COMPLETE_XP
+                    )
+            );
+        }
+
+        if (nextStep.nextType() == app.lms.progress.enums.NextStepType.COURSE_COMPLETED) {
+            addAwardedReward(
+                    rewards,
+                    gamificationService.awardXp(
+                            user,
+                            XPEventType.COURSE_COMPLETE,
+                            block.getLesson()
+                                    .getChapter()
+                                    .getCourse()
+                                    .getId(),
+                            COURSE_COMPLETE_XP
+                    )
+            );
+        }
+
+        return rewards;
+    }
+
+    private void addAwardedReward(
+            List<GamificationAwardResponse> rewards,
+            GamificationAwardResponse reward
+    ) {
+
+        if (reward.awarded()) {
+            rewards.add(reward);
+        }
+    }
+
+    private boolean isLessonCompleted(
+            Block block,
+            User user
+    ) {
+
+        Long lessonId =
+                block.getLesson().getId();
+
+        long totalBlocks =
+                blockRepository.countByLessonId(
+                        lessonId
+                );
+
+        long completedBlocks =
+                blockProgressRepository
+                        .countByUserIdAndBlockLessonIdAndCompletedTrue(
+                                user.getId(),
+                                lessonId
+                        );
+
+        return totalBlocks > 0 && completedBlocks >= totalBlocks;
+    }
+
+    private boolean isChapterCompleted(
+            Block block,
+            User user
+    ) {
+
+        Long chapterId =
+                block.getLesson()
+                        .getChapter()
+                        .getId();
+
+        long totalBlocks =
+                blockRepository.countByLessonChapterId(
+                        chapterId
+                );
+
+        long completedBlocks =
+                blockProgressRepository
+                        .countByUserIdAndBlockLessonChapterIdAndCompletedTrue(
+                                user.getId(),
+                                chapterId
+                        );
+
+        return totalBlocks > 0 && completedBlocks >= totalBlocks;
     }
 
     private void validateCanSubmitBlock(

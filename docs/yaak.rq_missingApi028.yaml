@@ -1,0 +1,23 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi028
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "difficulty": "EASY",
+      "count": 10
+    }
+bodyType: application/json
+description: ''
+headers: []
+method: POST
+name: Generate Bank Random Quiz
+sortPriority: 28000.0
+url: http://localhost:8080/mobile/courses/{courseId}/random-quiz
+urlParameters: []
