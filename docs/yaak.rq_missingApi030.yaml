@@ -1,0 +1,24 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi030
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "email": "student@example.com",
+      "phone": "+1234567890",
+      "university": "Example University"
+    }
+bodyType: application/json
+description: ''
+headers: []
+method: POST
+name: Create Profile
+sortPriority: 30000.0
+url: http://localhost:8080/profile
+urlParameters: []

@@ -1,6 +1,7 @@
 package app.lms.quiz.mapper;
 
 import app.lms.common.quiz.service.QuizDifficultyService;
+import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.quiz.dto.FinalQuizQuestionResultResponse;
@@ -12,6 +13,7 @@ import app.lms.quiz.model.Quiz;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -62,6 +64,17 @@ public class QuizMapper {
             FinalQuizAttempt attempt
     ) {
 
+        return toSubmitResponse(
+                attempt,
+                List.of()
+        );
+    }
+
+    public FinalQuizSubmitResponse toSubmitResponse(
+            FinalQuizAttempt attempt,
+            List<GamificationAwardResponse> rewards
+    ) {
+
         return new FinalQuizSubmitResponse(
                 attempt.getId(),
                 attempt.getScore(),
@@ -79,7 +92,8 @@ public class QuizMapper {
                                         answer.getCorrect()
                                 )
                         )
-                        .toList()
+                        .toList(),
+                rewards
         );
     }
 }

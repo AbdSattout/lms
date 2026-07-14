@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_seF4pkBexf
 createdAt: 2026-05-31T17:51:51.795939700
-updatedAt: 2026-07-12T12:02:12.652969
+updatedAt: 2026-07-14T15:23:02.913824600
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODU3NTgwLCJleHAiOjE3ODQ0NjIzODB9.JVIybucy2ZuliOABecBNru9_A032W0Ygwi39bjUvHHU
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
 authenticationType: bearer
 body:
   form:
@@ -33,20 +33,5 @@ headers:
 method: POST
 name: create organization
 sortPriority: 333.3333333333333
-url: https://lms.koyeb.app/dashboard/organizations
+url: http://localhost:8080/dashboard/organizations
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

@@ -4,6 +4,9 @@ import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.gamification.dto.GamificationAwardResponse;
+import app.lms.gamification.enums.XPEventType;
+import app.lms.gamification.service.GamificationService;
 import app.lms.practiceQuiz.dto.*;
 import app.lms.practiceQuiz.mapper.PracticeQuizMapper;
 import app.lms.practiceQuiz.model.PracticeQuiz;
@@ -23,11 +26,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MobilePracticeQuizService {
 
+    private static final int PRACTICE_QUIZ_COMPLETE_XP = 40;
+
     private final PracticeQuizRepository practiceQuizRepository;
     private final PracticeQuizAttemptRepository practiceQuizAttemptRepository;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final PracticeQuizMapper practiceQuizMapper;
     private final QuizGradingService  quizGradingService;
+    private final GamificationService gamificationService;
 
     @Transactional
     public PracticeQuizPublicResponse getPracticeQuiz(
@@ -163,8 +169,19 @@ public class MobilePracticeQuizService {
                 attempt
         );
 
+        GamificationAwardResponse reward =
+                gamificationService.awardXp(
+                        user,
+                        XPEventType.PRACTICE_QUIZ_COMPLETE,
+                        practiceQuiz.getId(),
+                        PRACTICE_QUIZ_COMPLETE_XP
+                );
+
         return practiceQuizMapper.toSubmitResponse(
-                attempt
+                attempt,
+                reward.awarded()
+                        ? List.of(reward)
+                        : List.of()
         );
     }
 
