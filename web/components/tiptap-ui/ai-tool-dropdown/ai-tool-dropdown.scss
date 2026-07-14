@@ -59,6 +59,8 @@
   font-weight: 600;
   letter-spacing: 0.025em;
   text-transform: uppercase;
+  text-align: right;
+  direction: rtl;
 }
 
 .ai-tools-item {
@@ -79,6 +81,7 @@
     align-items: center;
     gap: 0.5rem;
     width: 100%;
+    direction: rtl; // Directs the emoji to render on the far right
   }
 
   &-icon-container {
@@ -89,6 +92,7 @@
     width: 1.5rem;
     height: 1.5rem;
     border-radius: 0.25rem;
+    font-size: 1.1rem; // Clean baseline height for the emoji layout
   }
 
   &-icon {
@@ -100,7 +104,8 @@
   &-content {
     display: flex;
     flex-direction: column;
-    text-align: left;
+    text-align: right; // Aligns the Arabic text starting from the right next to the emoji
+    flex-grow: 1;
   }
 
   &-label {
