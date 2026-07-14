@@ -87,6 +87,7 @@ public class CourseMediaService {
     @Transactional
     public CourseMediaResponse update(
 
+            Long courseId,
             Long mediaId,
             MultipartFile file,
             String name,
@@ -96,6 +97,7 @@ public class CourseMediaService {
         CourseMedia media =
                 courseMediaAccessService
                         .getEditableMedia(
+                                courseId,
                                 mediaId,
                                 user
                         );
@@ -177,6 +179,7 @@ public class CourseMediaService {
     @Transactional
     public void delete(
 
+            Long courseId,
             Long mediaId,
             User user
     ) {
@@ -184,6 +187,7 @@ public class CourseMediaService {
         CourseMedia media =
                 courseMediaAccessService
                         .getEditableMedia(
+                                courseId,
                                 mediaId,
                                 user
                         );
@@ -273,6 +277,7 @@ public class CourseMediaService {
 
     public CourseMediaResponse getById(
 
+            Long courseId,
             Long mediaId,
             User user
     ) {
@@ -280,6 +285,7 @@ public class CourseMediaService {
         CourseMedia media =
                 courseMediaAccessService
                         .getAccessibleMedia(
+                                courseId,
                                 mediaId,
                                 user
                         );
