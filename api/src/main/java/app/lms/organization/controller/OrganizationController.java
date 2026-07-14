@@ -57,6 +57,16 @@ public class OrganizationController {
         );
     }
 
+    @GetMapping("/{slug}/members/count")
+    public ResponseEntity<Long> membersCount(
+            @PathVariable String slug
+    ) {
+
+        return ResponseEntity.ok(
+                organizationService.getMembersCount(slug)
+        );
+    }
+
 
 
 }

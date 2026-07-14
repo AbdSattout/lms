@@ -1,18 +1,21 @@
 package app.lms.media.model;
 
 import app.lms.common.model.BaseEntity;
-import app.lms.course.model.Course;
 import app.lms.media.enums.FileType;
+import app.lms.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(
-        name = "course_media",
+        name = "organization_media",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "uk_course_media_course_name",
-                        columnNames = {"course_id", "name"}
+                        name = "uk_organization_media_organization_name",
+                        columnNames = {"organization_id", "name"}
                 )
         }
 )
@@ -21,7 +24,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CourseMedia extends BaseEntity {
+public class OrganizationMedia extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,16 +43,21 @@ public class CourseMedia extends BaseEntity {
     @Column(nullable = false)
     private FileType type;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(
-            name = "course_id",
-            nullable = false
-    )
-    private Course course;
+    @Column(nullable = false)
+    private Long sizeBytes;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
-            name = "organization_media_id"
+            name = "organization_id",
+            nullable = false
     )
-    private OrganizationMedia organizationMedia;
+    private Organization organization;
+
+    @OneToMany(mappedBy = "organizationMedia")
+    @Builder.Default
+    private List<CourseMedia> courseMedia = new ArrayList<>();
+
+    @OneToMany(mappedBy = "organizationMedia")
+    @Builder.Default
+    private List<PostMedia> postMedia = new ArrayList<>();
 }
