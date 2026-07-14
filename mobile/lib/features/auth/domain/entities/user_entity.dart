@@ -4,7 +4,7 @@ class UserEntity extends Equatable {
   final int id;
   final String name;
   final String picture;
-  final String idTelegram; // جعلناه String ليتوافق مع الـ JSON
+  final String idTelegram;
 
   const UserEntity({
     required this.id,

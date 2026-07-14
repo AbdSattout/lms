@@ -10,11 +10,9 @@ class UserModel extends UserEntity {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      // استخدام ?? لإعطاء قيم افتراضية ومنع خطأ الـ Null
       id: json['id'] ?? 0,
       name: json['name'] ?? 'No Name',
       picture: json['picture'] ?? '',
-      // استخدام .toString() لضمان تحويل أي قيمة قادمة لـ String
       idTelegram: json['idTelegram']?.toString() ?? '0',
     );
   }
