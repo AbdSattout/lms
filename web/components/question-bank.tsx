@@ -43,7 +43,7 @@ export function QuestionBank({
   }
 
   return (
-    <div className="columns-1 gap-4 md:columns-2 xl:columns-3">
+    <div className="@container columns-1 gap-4 @2xl:columns-2 @4xl:columns-3 @6xl:columns-4">
       {questions.map((question) => (
         <div key={question.id} className="mb-4 break-inside-avoid">
           <QuestionCard
