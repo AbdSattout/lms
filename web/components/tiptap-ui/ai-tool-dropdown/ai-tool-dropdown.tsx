@@ -1,4 +1,3 @@
-// components/tiptap-ui/ai-tools/ai-tools-dropdown.tsx
 "use client"
 
 import { useState, useRef, useEffect } from "react"
@@ -23,6 +22,7 @@ import { LoaderIcon } from "@/components/tiptap-icons/loader-icon"
 import { AlertCircleIcon } from "@/components/tiptap-icons/alert-icon"
 import { SparklesIcon } from "@/components/tiptap-icons/sparkles-icon"
 import { AI_ACTIONS, AI_TONES } from "@/lib/ai-tools-types"
+import { toast } from "sonner"
 
 // Vector Line Icons for Actions
 function SpellCheckIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -271,10 +271,8 @@ export function AiToolsDropdown({
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => {
-        onClearError?.()
-      }, 3000)
-      return () => clearTimeout(timer)
+      toast.error(<span dir="ltr">{error}</span>)
+      onClearError?.()
     }
   }, [error, onClearError])
 
@@ -310,104 +308,95 @@ export function AiToolsDropdown({
 
       <DropdownMenuContent
         className="ai-tools-content border border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800/80 dark:bg-zinc-950 dark:text-zinc-50"
-        align="end"
+        align="start"
         sideOffset={8}
       >
         <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800/60" />
 
-        {error ? (
-          <div className="ai-tools-error border border-red-100 bg-red-50 dark:border-red-900/30 dark:bg-red-950/20">
-            <AlertCircleIcon className="ai-tools-error-icon text-red-500 dark:text-red-400" />
-            <p className="ai-tools-error-text text-red-600 dark:text-red-400">
-              {error}
-            </p>
-          </div>
-        ) : (
-          AI_ACTIONS.map((action) => {
-            const ActionIcon = ACTION_ICONS[action.value] || SparklesIcon
+        {AI_ACTIONS.map((action) => {
+          const ActionIcon = ACTION_ICONS[action.value] || SparklesIcon
 
-            if (action.requiresTone) {
-              return (
-                <DropdownMenuSub key={action.value}>
-                  <DropdownMenuSubTrigger className="ai-tools-item">
-                    <div className="ai-tools-item-content-wrapper">
-                      <div className="ai-tools-item-icon-container text-indigo-500 dark:text-indigo-400">
-                        <ActionIcon className="ai-tools-item-icon" />
-                      </div>
-                      <div className="ai-tools-item-content">
-                        <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
-                          {action.label}
-                        </span>
-                        <span className="ai-tools-item-description text-zinc-500 dark:text-zinc-400">
-                          {action.description}
-                        </span>
-                      </div>
-                    </div>
-                  </DropdownMenuSubTrigger>
-
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent className="ai-tools-subcontent border border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800/80 dark:bg-zinc-950 dark:text-zinc-50">
-                      <DropdownMenuLabel className="ai-tools-label text-zinc-900 dark:text-zinc-200">
-                        Select Tone
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800/60" />
-
-                      {AI_TONES.map((tone) => {
-                        const ToneIcon = TONE_ICONS[tone.value] || SparklesIcon
-                        return (
-                          <DropdownMenuItem
-                            key={tone.value}
-                            className="ai-tools-item"
-                            onSelect={(e) => {
-                              e.preventDefault()
-                              handleAction(action.value, tone.value)
-                            }}
-                          >
-                            <div className="ai-tools-item-content-wrapper">
-                              <div className="ai-tools-item-icon-container text-zinc-500 dark:text-zinc-400">
-                                <ToneIcon className="ai-tools-item-icon" />
-                              </div>
-                              <div className="ai-tools-item-content">
-                                <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
-                                  {tone.label}
-                                </span>
-                              </div>
-                            </div>
-                          </DropdownMenuItem>
-                        )
-                      })}
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
-              )
-            }
-
+          if (action.requiresTone) {
             return (
-              <DropdownMenuItem
-                key={action.value}
-                className="ai-tools-item"
-                onSelect={(e) => {
-                  e.preventDefault()
-                  handleAction(action.value)
-                }}
-              >
-                <div className="ai-tools-item-content-wrapper">
-                  <div className="ai-tools-item-icon-container text-indigo-500 dark:text-indigo-400">
-                    <ActionIcon className="ai-tools-item-icon" />
+              <DropdownMenuSub key={action.value}>
+                <DropdownMenuSubTrigger className="ai-tools-item">
+                  <div className="ai-tools-item-content-wrapper">
+                    <div className="ai-tools-item-icon-container text-indigo-500 dark:text-indigo-400">
+                      <ActionIcon className="ai-tools-item-icon" />
+                    </div>
+                    <div className="ai-tools-item-content">
+                      <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
+                        {action.label}
+                      </span>
+                      <span className="ai-tools-item-description text-zinc-500 dark:text-zinc-400">
+                        {action.description}
+                      </span>
+                    </div>
                   </div>
-                  <div className="ai-tools-item-content">
-                    <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
-                      {action.label}
-                    </span>
-                    <span className="ai-tools-item-description text-zinc-500 dark:text-zinc-400">
-                      {action.description}
-                    </span>
-                  </div>
-                </div>
-              </DropdownMenuItem>
+                </DropdownMenuSubTrigger>
+
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="ai-tools-subcontent border border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800/80 dark:bg-zinc-950 dark:text-zinc-50">
+                    <DropdownMenuLabel className="ai-tools-label text-zinc-900 dark:text-zinc-200">
+                      Select Tone
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800/60" />
+
+                    {AI_TONES.map((tone) => {
+                      const ToneIcon = TONE_ICONS[tone.value] || SparklesIcon
+                      return (
+                        <DropdownMenuItem
+                          key={tone.value}
+                          className="ai-tools-item"
+                          onSelect={(e) => {
+                            e.preventDefault()
+                            handleAction(action.value, tone.value)
+                          }}
+                        >
+                          <div className="ai-tools-item-content-wrapper">
+                            <div className="ai-tools-item-icon-container text-zinc-500 dark:text-zinc-400">
+                              <ToneIcon className="ai-tools-item-icon" />
+                            </div>
+                            <div className="ai-tools-item-content">
+                              <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
+                                {tone.label}
+                              </span>
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
+                      )
+                    })}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
             )
-          })
-        )}
+          }
+
+          return (
+            <DropdownMenuItem
+              key={action.value}
+              className="ai-tools-item"
+              onSelect={(e) => {
+                e.preventDefault()
+                handleAction(action.value)
+              }}
+            >
+              <div className="ai-tools-item-content-wrapper">
+                <div className="ai-tools-item-icon-container text-indigo-500 dark:text-indigo-400">
+                  <ActionIcon className="ai-tools-item-icon" />
+                </div>
+                <div className="ai-tools-item-content">
+                  <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
+                    {action.label}
+                  </span>
+                  <span className="ai-tools-item-description text-zinc-500 dark:text-zinc-400">
+                    {action.description}
+                  </span>
+                </div>
+              </div>
+            </DropdownMenuItem>
+          )
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   )

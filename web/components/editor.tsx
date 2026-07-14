@@ -42,6 +42,7 @@ import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import { useAiTools } from "@/hooks/use-ai-tools"
 import type { AiTextAction, AiTextTone } from "@/lib/api/types"
+import { toast } from "sonner"
 
 import "./editor.scss"
 import { AiToolsDropdown } from "./tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
@@ -76,10 +77,15 @@ const MainToolbarContent = ({
       <ToolbarSeparator />
 
       <ToolbarGroup>
-        <HeadingDropdownMenu modal={false} levels={[1, 2, 3, 4]} />
+        <HeadingDropdownMenu
+          modal={false}
+          levels={[1, 2, 3, 4]}
+          tooltip="أنماط العناوين"
+        />
         <ListDropdownMenu
           modal={false}
           types={["bulletList", "orderedList", "taskList"]}
+          tooltip="القوائم"
         />
         <BlockquoteButton />
         <CodeBlockButton />
@@ -186,6 +192,19 @@ export function Editor({ onChange, content }: EditorProps) {
     editor,
   })
 
+  // Tracks active loading cycles to notify successful completion
+  const wasLoading = useRef(false)
+  useEffect(() => {
+    if (isLoading) {
+      wasLoading.current = true
+    } else if (wasLoading.current && !isLoading) {
+      wasLoading.current = false
+      if (!error) {
+        toast.success(<span dir="rtl">تم تحديث المحتوى بنجاح!</span>)
+      }
+    }
+  }, [isLoading, error])
+
   useEffect(() => {
     if (!editor || content === undefined) return
     editor.commands.setContent(content, {
@@ -210,8 +229,6 @@ export function Editor({ onChange, content }: EditorProps) {
           ) : (
             <MobileToolbarContent
               onBack={() => setShowLink(false)}
-              type={mobileView === "highlighter" ? "highlighter" : "link"}
-              onBack={() => setPendingView("main")}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
               aiError={error}
