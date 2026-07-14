@@ -13,7 +13,7 @@ bodyType: null
 description: |-
   Returns the authenticated user's current gamification state.
 
-  Response includes total XP, current level, tier, progress toward the next level, badge icon, and unlocks.
+  Response includes total XP, current level, tier, progress toward the next level, and unlocks.
 
   Example response:
   {
@@ -26,7 +26,6 @@ description: |-
     "xpIntoLevel": 20,
     "xpToNextLevel": 163,
     "progressPercentage": 11,
-    "badgeIcon": "seedling",
     "unlocks": []
   }
 headers: []

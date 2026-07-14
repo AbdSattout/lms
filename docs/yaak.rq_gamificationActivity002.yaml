@@ -1,0 +1,22 @@
+type: http_request
+model: http_request
+id: rq_gamificationActivity002
+createdAt: 2026-07-15T01:34:00
+updatedAt: 2026-07-14T22:39:58.559387900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_gamification01
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: |-
+  Returns daily activity rows between from and to.
+
+  Date format: YYYY-MM-DD.
+headers: []
+method: GET
+name: Get My Activity By Date Range
+sortPriority: 1100.0
+url: http://localhost:8080/gamification/activity?from=2026-07-01&to=2026-07-31
+urlParameters: []
