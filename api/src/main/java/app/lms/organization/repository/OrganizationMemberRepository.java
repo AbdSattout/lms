@@ -49,6 +49,6 @@ where m.organization.id = :organizationId
             List<Role> roles
     );
 
-
+    long countByOrganizationId(Long organizationId);
 
 }
