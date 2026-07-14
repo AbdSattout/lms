@@ -338,7 +338,7 @@ export function AiToolsDropdown({
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent className="ai-tools-subcontent border border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800/80 dark:bg-zinc-950 dark:text-zinc-50">
                     <DropdownMenuLabel className="ai-tools-label text-zinc-900 dark:text-zinc-200">
-                      Select Tone
+                      اختر النبرة
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800/60" />
 

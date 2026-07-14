@@ -16,41 +16,41 @@ export interface AiToneOption {
 export const AI_ACTIONS: AiActionOption[] = [
   {
     value: "PROOFREAD",
-    label: "Proofread",
-    description: "Check grammar and spelling",
+    label: "تدقيق ومراجعة",
+    description: "التحقق من القواعد النحوية والإملائية",
   },
   {
     value: "REWRITE",
-    label: "Rewrite",
-    description: "Rephrase the selected text",
+    label: "إعادة كتابة",
+    description: "إعادة صياغة النص المحدد بشكل أفضل",
   },
   {
     value: "SUMMARIZE",
-    label: "Summarize",
-    description: "Create a concise summary",
+    label: "تلخيص النص",
+    description: "إنشاء ملخص موجز ومختصر للنص",
   },
   {
     value: "EXPAND",
-    label: "Expand",
-    description: "Add more detail and context",
+    label: "توسيع النص",
+    description: "إضافة المزيد من التفاصيل والسياق المناسب",
   },
   {
     value: "CHANGE_TONE",
-    label: "Change Tone",
-    description: "Adjust the writing tone",
+    label: "تغيير النبرة",
+    description: "تعديل أسلوب ونبرة كتابة النص",
     requiresTone: true,
   },
   {
     value: "WRITE",
-    label: "Write",
-    description: "Generate new content",
+    label: "توليد نص",
+    description: "إنشاء محتوى نصي جديد بالكامل",
   },
 ]
 
 export const AI_TONES: AiToneOption[] = [
-  { value: "PROFESSIONAL", label: "Professional" },
-  { value: "FRIENDLY", label: "Friendly" },
-  { value: "SIMPLE", label: "Simple" },
-  { value: "ACADEMIC", label: "Academic" },
-  { value: "MOTIVATIONAL", label: "Motivational" },
+  { value: "PROFESSIONAL", label: "مهني ورسمي" },
+  { value: "FRIENDLY", label: "ودود ولطيف" },
+  { value: "SIMPLE", label: "مبسط وسهل" },
+  { value: "ACADEMIC", label: "أكاديمي وعلمي" },
+  { value: "MOTIVATIONAL", label: "حماسي وتحفيزي" },
 ]
