@@ -1,5 +1,6 @@
 package app.lms.question.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.course.model.Course;
 import app.lms.question.dto.CreateQuestionRequest;
 import app.lms.question.dto.QuestionPublicResponse;
@@ -36,7 +37,8 @@ public class QuestionMapper {
                 question.getOptions(),
                 question.getCorrectAnswerIndex(),
                 question.getDifficulty(),
-                question.getCourse().getId()
+                question.getCourse().getId(),
+                BaseEntityResponse.from(question)
         );
     }
     public QuestionPublicResponse toPublicResponse(
@@ -46,7 +48,8 @@ public class QuestionMapper {
         return new QuestionPublicResponse(
                 question.getId(),
                 question.getContent(),
-                question.getOptions()
+                question.getOptions(),
+                BaseEntityResponse.from(question)
         );
     }
 }

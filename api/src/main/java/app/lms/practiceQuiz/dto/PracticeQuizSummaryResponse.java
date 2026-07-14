@@ -1,5 +1,6 @@
 package app.lms.practiceQuiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.question.enums.QuestionDifficulty;
 
 public record PracticeQuizSummaryResponse(
@@ -8,6 +9,7 @@ public record PracticeQuizSummaryResponse(
         String description,
         Long courseId,
         QuestionDifficulty difficulty,
-        Integer questionCount
+        Integer questionCount,
+        BaseEntityResponse baseEntity
 ) {
 }

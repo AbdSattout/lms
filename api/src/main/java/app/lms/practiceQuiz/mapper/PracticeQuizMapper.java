@@ -1,5 +1,6 @@
 package app.lms.practiceQuiz.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.course.model.Course;
 import app.lms.gamification.dto.GamificationAwardResponse;
@@ -11,7 +12,6 @@ import app.lms.practiceQuiz.dto.PracticeQuizSummaryResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizSubmitResponse;
 import app.lms.practiceQuiz.model.PracticeQuiz;
 import app.lms.practiceQuiz.model.PracticeQuizAttempt;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
@@ -62,7 +62,8 @@ public class PracticeQuizMapper {
                 practiceQuiz.getQuestions()
                         .stream()
                         .map(questionMapper::toResponse)
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(practiceQuiz)
         );
     }
 
@@ -80,14 +81,9 @@ public class PracticeQuizMapper {
                 ),
                 practiceQuiz.getQuestions()
                         .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
+                        .map(questionMapper::toPublicResponse)
+                        .toList(),
+                BaseEntityResponse.from(practiceQuiz)
         );
     }
 
@@ -103,7 +99,8 @@ public class PracticeQuizMapper {
                 quizDifficultyService.calculate(
                         practiceQuiz.getQuestions()
                 ),
-                practiceQuiz.getQuestions().size()
+                practiceQuiz.getQuestions().size(),
+                BaseEntityResponse.from(practiceQuiz)
         );
     }
 
@@ -139,7 +136,8 @@ public class PracticeQuizMapper {
                                 )
                         )
                         .toList(),
-                rewards
+                rewards,
+                BaseEntityResponse.from(attempt)
         );
     }
 

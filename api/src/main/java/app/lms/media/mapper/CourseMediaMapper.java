@@ -1,5 +1,6 @@
 package app.lms.media.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.media.dto.CourseMediaResponse;
 import app.lms.media.model.CourseMedia;
 import org.springframework.stereotype.Component;
@@ -16,7 +17,8 @@ public class CourseMediaMapper {
                 media.getName(),
                 media.getUrl(),
                 media.getType(),
-                media.getCourse().getId()
+                media.getCourse().getId(),
+                BaseEntityResponse.from(media)
         );
     }
 }

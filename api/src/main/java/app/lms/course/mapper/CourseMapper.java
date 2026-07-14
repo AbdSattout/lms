@@ -2,6 +2,7 @@ package app.lms.course.mapper;
 
 import app.lms.chapter.mapper.ChapterMapper;
 import app.lms.chapter.model.Chapter;
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.courceEnrollment.dto.CourseProgressResponse;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.course.dto.CourseDetailsResponse;
@@ -31,6 +32,7 @@ public class CourseMapper {
                 )
                 .slug(course.getSlug())
                 .status(course.getStatus())
+                .baseEntity(BaseEntityResponse.from(course))
                 .build();
     }
     public CourseDetailsResponse toDetailsResponse(
@@ -73,6 +75,7 @@ public class CourseMapper {
                                 enrollment.getCompletedAt()
                         )
                 )
+                .baseEntity(BaseEntityResponse.from(course))
                 .build();
     }
 }

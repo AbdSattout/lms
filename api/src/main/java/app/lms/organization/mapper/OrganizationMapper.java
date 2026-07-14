@@ -1,5 +1,6 @@
 package app.lms.organization.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.organization.dto.JoinRequestResponse;
 import app.lms.organization.dto.OrganizationInviteResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
@@ -32,6 +33,7 @@ public class OrganizationMapper {
                 .ownerName(
                         organization.getOwner().getName()
                 )
+                .baseEntity(BaseEntityResponse.from(organization))
                 .build();
     }
     public OrganizationInviteResponse toResponse(OrganizationInvite invite) {
@@ -46,6 +48,7 @@ public class OrganizationMapper {
                 .createdAt(invite.getCreatedAt())
                 .maxUses(invite.getMaxUses())
                 .usedCount(invite.getUsedCount())
+                .baseEntity(BaseEntityResponse.from(invite))
                 .build();
 
     }

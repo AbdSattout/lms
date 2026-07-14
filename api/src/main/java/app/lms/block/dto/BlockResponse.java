@@ -1,5 +1,6 @@
 package app.lms.block.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.question.dto.QuestionResponse;
 
 public record BlockResponse(
@@ -9,7 +10,8 @@ public record BlockResponse(
         String title,
         String content,
         Integer position,
-        QuestionResponse question
+        QuestionResponse question,
+        BaseEntityResponse baseEntity
 
 ) {
 }
