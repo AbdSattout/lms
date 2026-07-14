@@ -34,36 +34,55 @@ public class CourseMediaAccessService {
     }
 
     public CourseMedia getEditableMedia(
+            Long courseId,
             Long mediaId,
             User user
     ) {
-
-        CourseMedia media =
-                getById(mediaId);
 
         courseAccessService
                 .getEditableCourse(
-                        media.getCourse().getId(),
+                        courseId,
                         user
                 );
 
-        return media;
+        return getByIdAndCourseId(
+                mediaId,
+                courseId
+        );
     }
 
     public CourseMedia getAccessibleMedia(
+            Long courseId,
             Long mediaId,
             User user
     ) {
 
-        CourseMedia media =
-                getById(mediaId);
-
         courseAccessService
                 .getEnrolledCourse(
-                        media.getCourse().getId(),
+                        courseId,
                         user
                 );
 
-        return media;
+        return getByIdAndCourseId(
+                mediaId,
+                courseId
+        );
+    }
+
+    private CourseMedia getByIdAndCourseId(
+            Long mediaId,
+            Long courseId
+    ) {
+
+        return courseMediaRepository
+                .findByIdAndCourseId(
+                        mediaId,
+                        courseId
+                )
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Media not found"
+                        )
+                );
     }
 }
