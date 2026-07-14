@@ -28,7 +28,9 @@ export function useAiTools({ editor }: UseAiToolsProps) {
         : editor.state.doc.textBetween(from, to)
 
       if (!selectedText.trim()) {
-        setError("No text selected")
+        setError(
+          "لم يتم العثور على محتوى. يرجى إدخال نص قبل استخدام أدوات الذكاء الاصطناعي."
+        )
         return
       }
 
@@ -42,20 +44,34 @@ export function useAiTools({ editor }: UseAiToolsProps) {
 
         if (response.result) {
           if (empty) {
-            // Replace entire content if nothing is selected
-            editor.commands.setContent(response.result)
+            // Replace entire content if nothing is selected, preserving markdown format
+            editor.commands.setContent(response.result, {
+              contentType: "markdown",
+            })
           } else {
-            // Replace only the selected text
+            // Replace only the selected text, preserving markdown format
             editor
               .chain()
               .focus()
               .deleteSelection()
-              .insertContent(response.result)
+              .insertContent(response.result, {
+                contentType: "markdown",
+              })
               .run()
           }
+        } else {
+          setError("حدث خطأ أثناء معالجة النص.")
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to process text")
+        if (err instanceof TypeError && err.message.includes("fetch")) {
+          setError(
+            "خطأ في الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
+          )
+        } else {
+          setError(
+            err instanceof Error ? err.message : "فشل في معالجة النص المحدد."
+          )
+        }
         console.error("AI transformation error:", err)
       } finally {
         setIsLoading(false)
