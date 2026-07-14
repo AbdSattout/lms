@@ -19,14 +19,7 @@ public interface CourseMediaRepository extends JpaRepository<CourseMedia, Long> 
             Long courseId
     );
 
-    boolean existsByCourseIdAndNameIgnoreCase(
-            Long courseId,
-            String name
-    );
-
-    boolean existsByCourseIdAndNameIgnoreCaseAndIdNot(
-            Long courseId,
-            String name,
-            Long mediaId
+    long countByOrganizationMediaId(
+            Long organizationMediaId
     );
 }

@@ -13,6 +13,7 @@ import app.lms.media.model.CourseMedia;
 import app.lms.media.model.OrganizationMedia;
 import app.lms.media.repository.CourseMediaRepository;
 import app.lms.media.repository.OrganizationMediaRepository;
+import app.lms.media.repository.PostMediaRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,8 @@ public class CourseMediaService {
 
     private final OrganizationMediaRepository organizationMediaRepository;
 
+    private final PostMediaRepository postMediaRepository;
+
     @Transactional
     public CourseMediaResponse create(
 
@@ -58,7 +61,6 @@ public class CourseMediaService {
 
         String mediaName =
                 generateAvailableMediaName(
-                        course.getId(),
                         course.getOrganization().getId(),
                         getOriginalFileName(file)
                 );
@@ -122,33 +124,21 @@ public class CourseMediaService {
                     );
 
             if (
-                    courseMediaRepository
-                            .existsByCourseIdAndNameIgnoreCaseAndIdNot(
-                                    media.getCourse().getId(),
-                                    newName,
-                                    media.getId()
-                            )
-                            || (
-                            media.getOrganizationMedia() != null &&
-                                    organizationMediaRepository
-                                            .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
-                                                    media.getCourse()
-                                                            .getOrganization()
-                                                            .getId(),
-                                                    newName,
-                                                    media.getOrganizationMedia()
-                                                            .getId()
-                                            )
-                    )
+                    media.getOrganizationMedia() != null &&
+                            organizationMediaRepository
+                                    .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
+                                            media.getCourse()
+                                                    .getOrganization()
+                                                    .getId(),
+                                            newName,
+                                            media.getOrganizationMedia()
+                                                    .getId()
+                                    )
             ) {
                 throw new ConflictException(
                         "Media name already exists in this course"
                 );
             }
-
-            media.setName(
-                    newName
-            );
 
             if (media.getOrganizationMedia() != null) {
                 media.getOrganizationMedia()
@@ -159,7 +149,9 @@ public class CourseMediaService {
         if (file != null) {
 
             String oldFileId =
-                    media.getFileId();
+                    media.getOrganizationMedia() != null
+                            ? media.getOrganizationMedia().getFileId()
+                            : null;
 
             FileType type =
                     detectFileType(file);
@@ -171,18 +163,6 @@ public class CourseMediaService {
                                     media.getCourse().getId(),
                             type
                     );
-
-            media.setUrl(
-                    uploaded.url()
-            );
-
-            media.setFileId(
-                    uploaded.fileId()
-            );
-
-            media.setType(
-                    type
-            );
 
             if (media.getOrganizationMedia() != null) {
                 media.getOrganizationMedia()
@@ -226,12 +206,24 @@ public class CourseMediaService {
                                 user
                         );
 
-        String fileId =
-                media.getOrganizationMedia() != null
-                        ? media.getOrganizationMedia().getFileId()
-                        : media.getFileId();
+        OrganizationMedia organizationMedia =
+                media.getOrganizationMedia();
 
-        if (fileId != null) {
+        String fileId =
+                organizationMedia != null
+                        ? organizationMedia.getFileId()
+                        : null;
+
+        boolean removeSharedFile =
+                organizationMedia != null &&
+                        courseMediaRepository.countByOrganizationMediaId(
+                                organizationMedia.getId()
+                        ) <= 1 &&
+                        postMediaRepository.countByOrganizationMediaId(
+                                organizationMedia.getId()
+                        ) == 0;
+
+        if (fileId != null && removeSharedFile) {
 
             mediaService.delete(
                     fileId
@@ -242,9 +234,9 @@ public class CourseMediaService {
                 media
         );
 
-        if (media.getOrganizationMedia() != null) {
+        if (removeSharedFile) {
             organizationMediaRepository.delete(
-                    media.getOrganizationMedia()
+                    organizationMedia
             );
         }
     }
@@ -301,10 +293,6 @@ public class CourseMediaService {
                 );
 
         return CourseMedia.builder()
-                .name(name)
-                .url(uploaded.url())
-                .fileId(uploaded.fileId())
-                .type(type)
                 .course(course)
                 .organizationMedia(organizationMedia)
                 .build();
@@ -427,7 +415,6 @@ public class CourseMediaService {
         );
     }
     private String generateAvailableMediaName(
-            Long courseId,
             Long organizationId,
             String originalName
     ) {
@@ -436,12 +423,7 @@ public class CourseMediaService {
                 originalName.trim();
 
         if (
-                !courseMediaRepository
-                        .existsByCourseIdAndNameIgnoreCase(
-                                courseId,
-                                cleanName
-                        )
-                        && !organizationMediaRepository
+                !organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
                                 organizationId,
                                 cleanName
@@ -471,12 +453,7 @@ public class CourseMediaService {
             counter++;
 
         } while (
-                courseMediaRepository
-                        .existsByCourseIdAndNameIgnoreCase(
-                                courseId,
-                                candidate
-                        )
-                        || organizationMediaRepository
+                organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
                                 organizationId,
                                 candidate
