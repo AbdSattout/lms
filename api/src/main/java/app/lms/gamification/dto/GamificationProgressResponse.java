@@ -30,8 +30,6 @@ public class GamificationProgressResponse {
 
     private Integer progressPercentage;
 
-    private String badgeIcon;
-
     private List<LevelUnlockType> unlocks;
 
     private BaseEntityResponse baseEntity;
