@@ -3,38 +3,27 @@ import "server-only"
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
-  QuestionResponse,
   QuizResponse,
+  UpdateFinalQuizQuestionsRequest,
 } from "@/lib/api/types"
 
-export const byId = defineApiRoute({
-  get: (quizId: number, options?: BackendFetchOptions) =>
-    backend<QuizResponse>(`/dashboard/quizzes/${quizId}`, {
+export const getFinalQuiz = defineApiRoute({
+  get: (courseId: number, options?: BackendFetchOptions) =>
+    backend<QuizResponse>(`/dashboard/courses/${courseId}/final-quiz`, {
       method: "GET",
       ...options,
     }),
 })
 
-export const addQuestion = defineApiRoute({
-  post: (
-    quizId: number,
-    questionId: number,
+export const updateFinalQuizQuestions = defineApiRoute({
+  patch: (
+    courseId: number,
+    request: UpdateFinalQuizQuestionsRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<QuestionResponse>(`/dashboard/quizzes/${quizId}/questions/${questionId}`, {
-      method: "POST",
-      ...options,
-    }),
-})
-
-export const deleteQuestion = defineApiRoute({
-  delete: (
-    quizId: number,
-    questionId: number,
-    options?: BackendFetchOptions
-  ) =>
-    backend<void>(`/dashboard/quizzes/${quizId}/questions/${questionId}`, {
-      method: "DELETE",
+    backend<QuizResponse>(`/dashboard/courses/${courseId}/final-quiz/questions`, {
+      method: "PATCH",
+      body: request,
       ...options,
     }),
 })

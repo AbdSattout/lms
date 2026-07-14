@@ -10,11 +10,14 @@ export const slugSchema = z
     "الرابط يجب أن يحتوي على أحرف إنجليزية صغيرة وشرطات فقط"
   )
 
+export const questionDifficultySchema = z.enum(["EASY", "MEDIUM", "HARD"])
+
 export const createQuestionSchema = z.object({
   content: z.string().min(1, "محتوى السؤال مطلوب"),
   options: z.array(z.string()).min(2, "يجب توفير خيارين على الأقل"),
   correctAnswerIndex: z.number().int().min(0),
   shuffleOptions: z.boolean().optional(),
+  difficulty: questionDifficultySchema.optional(),
 })
 export type CreateQuestionInput = z.infer<typeof createQuestionSchema>
 
@@ -186,3 +189,22 @@ export const generateAiTextSchema = z.object({
   tone: aiTextToneSchema.optional(),
 })
 export type GenerateAiTextInput = z.infer<typeof generateAiTextSchema>
+
+export const createPracticeQuizSchema = z.object({
+  title: z.string().min(1, "العنوان مطلوب"),
+  description: z.string().optional(),
+  questionIds: z.array(z.number().int()).min(1, "يجب اختيار سؤال واحد على الأقل"),
+})
+export type CreatePracticeQuizInput = z.infer<typeof createPracticeQuizSchema>
+
+export const updatePracticeQuizQuestionsSchema = z.object({
+  questionIds: z.array(z.number().int()).min(1, "يجب اختيار سؤال واحد على الأقل"),
+})
+export type UpdatePracticeQuizQuestionsInput = z.infer<
+  typeof updatePracticeQuizQuestionsSchema
+>
+
+export const upsertRoadmapSchema = z.object({
+  courseIds: z.array(z.number().int()).min(1, "يجب اختيار كورس واحد على الأقل"),
+})
+export type UpsertRoadmapInput = z.infer<typeof upsertRoadmapSchema>

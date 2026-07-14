@@ -1,6 +1,8 @@
 export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
 export type FileType = "IMAGE" | "VIDEO" | "FILE"
 
+export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
+
 export interface User {
   id: number
   name?: string
@@ -81,6 +83,7 @@ export interface QuestionResponse {
   content: string
   options?: string[]
   correctAnswerIndex: number
+  difficulty?: QuestionDifficulty
 }
 
 export interface QuestionPublicResponse {
@@ -93,6 +96,7 @@ export interface QuizResponse {
   id: number
   title: string
   courseId: number
+  difficulty?: QuestionDifficulty
   questions: QuestionResponse[]
 }
 
@@ -324,3 +328,52 @@ export interface FinalQuizSubmitResponse {
 }
 
 export type PageOrganizationMemberResponse = Page<OrganizationMemberResponse>
+
+export interface CreatePracticeQuizRequest {
+  title: string
+  description?: string
+  questionIds: number[]
+}
+
+export interface PracticeQuizResponse {
+  id: number
+  title: string
+  description?: string
+  courseId: number
+  difficulty?: QuestionDifficulty
+  questions: QuestionResponse[]
+}
+
+export interface PracticeQuizSummaryResponse {
+  id: number
+  title: string
+  description?: string
+  courseId: number
+  difficulty?: QuestionDifficulty
+  questionCount: number
+}
+
+export interface UpdatePracticeQuizQuestionsRequest {
+  questionIds: number[]
+}
+
+export interface UpdateFinalQuizQuestionsRequest {
+  questionIds: number[]
+}
+
+export interface RoadmapResponse {
+  id: number
+  organizationId: number
+  organizationSlug: string
+  items: RoadmapItemResponse[]
+}
+
+export interface RoadmapItemResponse {
+  id: number
+  position: number
+  course: CourseResponse
+}
+
+export interface UpsertRoadmapRequest {
+  courseIds: number[]
+}

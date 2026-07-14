@@ -46,10 +46,20 @@ import {
 } from "@/lib/api/posts"
 import { create, me as profileMe } from "@/lib/api/profile"
 import {
-  addQuestion,
-  byId as quizById,
-  deleteQuestion as deleteQuizQuestion,
+  getFinalQuiz,
+  updateFinalQuizQuestions,
 } from "@/lib/api/quizzes"
+import {
+  create as createPracticeQuiz,
+  list as listPracticeQuizzes,
+  updateQuestions as updatePracticeQuizQuestions,
+} from "@/lib/api/practice-quizzes"
+import {
+  create as createRoadmap,
+  getManageable as getManageableRoadmap,
+  getPublished as getPublishedRoadmap,
+  update as updateRoadmap,
+} from "@/lib/api/roadmap"
 import {
   byCourse as questionsByCourse,
   byId as questionById,
@@ -130,9 +140,19 @@ export const api = {
       byId: questionById,
     },
     quizzes: {
-      byId: quizById,
-      addQuestion,
-      deleteQuestion: deleteQuizQuestion,
+      getFinalQuiz,
+      updateFinalQuizQuestions,
+    },
+    practiceQuizzes: {
+      create: createPracticeQuiz,
+      list: listPracticeQuizzes,
+      updateQuestions: updatePracticeQuizQuestions,
+    },
+    roadmap: {
+      create: createRoadmap,
+      update: updateRoadmap,
+      getManageable: getManageableRoadmap,
+      getPublished: getPublishedRoadmap,
     },
     posts: {
       byCourse: postsByCourse,
