@@ -1,9 +1,7 @@
 package app.lms.question.service;
 
 
-import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
 import app.lms.question.dto.CreateQuestionRequest;
@@ -12,7 +10,6 @@ import app.lms.question.dto.UpdateQuestionRequest;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
 import app.lms.question.repository.QuestionRepository;
-import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +25,6 @@ public class QuestionService {
     private final QuestionMapper questionMapper;
     private final CourseAccessService courseAccessService;
     private final QuestionAccessService questionAccessService;
-    private final BlockRepository blockRepository;
-    private final QuizRepository quizRepository;
 
     @Transactional
     public QuestionResponse create(
@@ -50,12 +45,10 @@ public class QuestionService {
         );
 
         Question question =
-                Question.builder()
-                        .course(course)
-                        .content(request.content().trim())
-                        .options(request.options())
-                        .correctAnswerIndex(request.correctAnswerIndex())
-                        .build();
+                questionMapper.toEntity(
+                        request,
+                        course
+                );
 
         questionRepository.save(
                 question
@@ -72,14 +65,10 @@ public class QuestionService {
             User user
     ) {
 
-        courseAccessService.getManageableCourse(
-                courseId,
-                user
-        );
-
-        return questionRepository
-                .findAllByCourseIdOrderByIdDesc(
-                        courseId
+        return questionAccessService
+                .getManageableQuestionsByCourseId(
+                        courseId,
+                        user
                 )
                 .stream()
                 .map(
@@ -158,17 +147,9 @@ public class QuestionService {
                                 user
                         );
 
-        if (blockRepository.existsByQuestionId(questionId)) {
-            throw new ConflictException(
-                    "Question is used by one or more blocks. Remove it from those blocks before deleting it."
-            );
-        }
-
-        if (quizRepository.existsByQuestionId(questionId)) {
-            throw new ConflictException(
-                    "Question is used by one or more quizzes. Remove it from those quizzes before deleting it."
-            );
-        }
+        questionAccessService.validateQuestionNotUsed(
+                questionId
+        );
 
         questionRepository.delete(
                 question

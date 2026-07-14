@@ -12,27 +12,69 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class QuizAccessService {
 
+    private final QuizRepository quizRepository;
+    private final CourseAccessService courseAccessService;
 
-    QuizRepository quizRepository;
-    CourseAccessService courseAccessService;
-    public Quiz getManageableQuiz(
-            Long quizId,
+    public Quiz getManageableQuizByCourseId(
+            Long courseId,
             User user
     ) {
 
-        Quiz quiz =
-                quizRepository.findById(quizId)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Quiz not found"
-                                )
-                        );
-
         courseAccessService.getManageableCourse(
-                quiz.getCourse().getId(),
+                courseId,
                 user
         );
 
-        return quiz;
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Final quiz not found"
+                        )
+                );
+    }
+
+    public Quiz getEditableQuizByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getEditableCourse(
+                courseId,
+                user
+        );
+
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Final quiz not found"
+                        )
+                );
+    }
+
+    public Quiz getAccessibleQuizByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getAccessibleCourse(
+                courseId,
+                user
+        );
+
+        return quizRepository
+                .findByCourseId(
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Final quiz not found"
+                        )
+                );
     }
 }

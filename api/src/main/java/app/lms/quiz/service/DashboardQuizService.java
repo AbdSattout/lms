@@ -1,13 +1,11 @@
 package app.lms.quiz.service;
 
-import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
-import app.lms.common.exception.NotFoundException;
-import app.lms.question.dto.QuestionResponse;
-import app.lms.question.mapper.QuestionMapper;
+import app.lms.common.quiz.service.QuizQuestionSelectionService;
+import app.lms.course.model.Course;
+import app.lms.course.service.CourseAccessService;
 import app.lms.question.model.Question;
-import app.lms.question.service.QuestionAccessService;
 import app.lms.quiz.dto.QuizResponse;
+import app.lms.quiz.dto.UpdateFinalQuizQuestionsRequest;
 import app.lms.quiz.mapper.QuizMapper;
 import app.lms.quiz.model.Quiz;
 import app.lms.user.model.User;
@@ -15,25 +13,29 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DashboardQuizService {
 
     private final QuizMapper quizMapper;
-    private final QuestionMapper questionMapper;
-    private final QuestionAccessService questionAccessService;
+    private final CourseAccessService courseAccessService;
     private final QuizAccessService quizAccessService;
+    private final QuizQuestionSelectionService quizQuestionSelectionService;
+
     @Transactional
-    public QuizResponse getQuizById(
-            Long quizId,
+    public QuizResponse getFinalQuizByCourseId(
+            Long courseId,
             User user
     ) {
 
         Quiz quiz =
-                quizAccessService.getManageableQuiz(
-                        quizId,
-                        user
-                );
+                quizAccessService
+                        .getManageableQuizByCourseId(
+                                courseId,
+                                user
+                        );
 
         return quizMapper.toResponse(
                 quiz
@@ -41,102 +43,46 @@ public class DashboardQuizService {
     }
 
     @Transactional
-    public QuestionResponse addQuestionToQuiz(
-            Long quizId,
-            Long questionId,
+    public QuizResponse updateFinalQuizQuestions(
+            Long courseId,
+            UpdateFinalQuizQuestionsRequest request,
             User user
     ) {
 
-        Quiz quiz =
-                quizAccessService.getManageableQuiz(
-                        quizId,
-                        user
-                );
-
-        Question question =
-                questionAccessService
-                        .getManageableQuestion(
-                                questionId,
+        Course course =
+                courseAccessService
+                        .getEditableCourse(
+                                courseId,
                                 user
                         );
 
-        validateQuestionBelongsToQuizCourse(
-                quiz,
-                question
-        );
-
-        boolean alreadyExists =
-                quiz.getQuestions()
-                        .stream()
-                        .anyMatch(q ->
-                                q.getId().equals(
-                                        question.getId()
-                                )
+        Quiz quiz =
+                quizAccessService
+                        .getEditableQuizByCourseId(
+                                course.getId(),
+                                user
                         );
 
-        if (alreadyExists) {
-            throw new ConflictException(
-                    "Question already exists in this quiz"
-            );
-        }
+        List<Question> updatedQuestions =
+                quizQuestionSelectionService
+                        .getManageableCourseQuestions(
+                                request.questionIds(),
+                                course.getId(),
+                                user,
+                                "final quiz"
+                        );
 
         quiz.getQuestions()
-                .add(
-                        question
+                .clear();
+
+        quiz.getQuestions()
+                .addAll(
+                        updatedQuestions
                 );
 
-        return questionMapper.toResponse(
-                question
+        return quizMapper.toResponse(
+                quiz
         );
     }
 
-    @Transactional
-    public void deleteQuestionFromQuiz(
-            Long quizId,
-            Long questionId,
-            User user
-    ) {
-
-        Quiz quiz =
-                quizAccessService.getManageableQuiz(
-                        quizId,
-                        user
-                );
-
-        boolean removed =
-                quiz.getQuestions()
-                        .removeIf(question ->
-                                question.getId().equals(
-                                        questionId
-                                )
-                        );
-
-        if (!removed) {
-            throw new NotFoundException(
-                    "Question not found in this quiz"
-            );
-        }
-    }
-
-
-
-    private void validateQuestionBelongsToQuizCourse(
-            Quiz quiz,
-            Question question
-    ) {
-
-        Long quizCourseId =
-                quiz.getCourse()
-                        .getId();
-
-        Long questionCourseId =
-                question.getCourse()
-                        .getId();
-
-        if (!quizCourseId.equals(questionCourseId)) {
-            throw new BadRequestException(
-                    "Question must belong to the same course as the quiz"
-            );
-        }
-    }
 }
