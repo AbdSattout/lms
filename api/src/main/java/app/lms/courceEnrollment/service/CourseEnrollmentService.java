@@ -339,26 +339,6 @@ public class CourseEnrollmentService {
         );
     }
 
-    private void validateCanEnrollAsStudent(
-            Optional<OrganizationMember> existingMember
-    ) {
-
-        if (existingMember.isEmpty()) {
-            return;
-        }
-
-        Role role =
-                existingMember
-                        .get()
-                        .getRole();
-
-        if (role == Role.OWNER || role == Role.ADMIN) {
-            throw new ForbiddenException(
-                    "Organization owners and admins cannot enroll as students"
-            );
-        }
-    }
-
 //    private void addStudentToOrganizationIfNeeded(
 //            Organization organization,
 //            User user
@@ -385,4 +365,34 @@ public class CourseEnrollmentService {
 //        memberRepository.save(member);
 //    }
 
+    private void validateCanEnrollAsStudent(
+            Optional<OrganizationMember> existingMember
+    ) {
+
+        if (existingMember.isEmpty()) {
+            return;
+        }
+
+        Role role =
+                existingMember
+                        .get()
+                        .getRole();
+
+        if (role == Role.OWNER || role == Role.ADMIN) {
+            throw new ForbiddenException(
+                    "Organization owners and admins cannot enroll as students"
+            );
+        }
+    }
+
+    public boolean isEnrolled(
+            Long courseId,
+            User user
+    ) {
+
+        return enrollmentRepository.existsByCourseIdAndUserId(
+                courseId,
+                user.getId()
+        );
+    }
 }

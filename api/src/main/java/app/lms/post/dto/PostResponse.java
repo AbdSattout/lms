@@ -1,5 +1,7 @@
 package app.lms.post.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.time.LocalDateTime;
 
 public record PostResponse(
@@ -22,7 +24,9 @@ public record PostResponse(
 
         LocalDateTime createdAt,
 
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+
+        BaseEntityResponse baseEntity
 
 
 ) {

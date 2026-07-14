@@ -1,5 +1,6 @@
 package app.lms.organization.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.organization.enums.Visibility;
 import lombok.Builder;
 
@@ -12,6 +13,7 @@ public record OrganizationResponse(
         String description,
         String image,
         Visibility visibility,
-        String ownerName
+        String ownerName,
+        BaseEntityResponse baseEntity
 
 ) {}

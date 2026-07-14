@@ -1,9 +1,9 @@
 package app.lms.media.dto;
 
-import app.lms.common.dto.BaseEntityResponse;
 import app.lms.media.enums.FileType;
+import app.lms.common.dto.BaseEntityResponse;
 
-public record CourseMediaResponse(
+public record PostMediaResponse(
 
         Long id,
 
@@ -13,7 +13,7 @@ public record CourseMediaResponse(
 
         FileType type,
 
-        Long courseId,
+        Long organizationId,
 
         Long organizationMediaId,
 

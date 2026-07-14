@@ -1,5 +1,7 @@
 package app.lms.post.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.time.LocalDateTime;
 
 public record CommentResponse(
@@ -14,7 +16,9 @@ public record CommentResponse(
 
         LocalDateTime createdAt,
 
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+
+        BaseEntityResponse baseEntity
 
 ) {
 }

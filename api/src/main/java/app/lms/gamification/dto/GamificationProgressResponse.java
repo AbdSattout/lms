@@ -1,5 +1,6 @@
 package app.lms.gamification.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.gamification.enums.LevelTier;
 import app.lms.gamification.enums.LevelUnlockType;
 import lombok.Builder;
@@ -32,4 +33,6 @@ public class GamificationProgressResponse {
     private String badgeIcon;
 
     private List<LevelUnlockType> unlocks;
+
+    private BaseEntityResponse baseEntity;
 }

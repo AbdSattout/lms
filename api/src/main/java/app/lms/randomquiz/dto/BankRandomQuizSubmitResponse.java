@@ -1,5 +1,7 @@
 package app.lms.randomquiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record BankRandomQuizSubmitResponse(
@@ -10,6 +12,8 @@ public record BankRandomQuizSubmitResponse(
 
         Integer total,
 
-        List<BankRandomQuizQuestionResultResponse> results
+        List<BankRandomQuizQuestionResultResponse> results,
+
+        BaseEntityResponse baseEntity
 ) {
 }
