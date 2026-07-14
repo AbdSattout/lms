@@ -2,6 +2,7 @@ package app.lms.media.mapper;
 
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.media.dto.PostMediaResponse;
+import app.lms.media.model.OrganizationMedia;
 import app.lms.media.model.PostMedia;
 import org.springframework.stereotype.Component;
 
@@ -12,17 +13,26 @@ public class PostMediaMapper {
             PostMedia media
     ) {
 
+        OrganizationMedia organizationMedia =
+                media.getOrganizationMedia();
+
         return new PostMediaResponse(
                 media.getId(),
-                media.getName(),
-                media.getUrl(),
-                media.getType(),
-                media.getOrganization().getId(),
-                media.getOrganizationMedia() != null
-                        ? media.getOrganizationMedia().getId()
+                organizationMedia != null
+                        ? organizationMedia.getName()
                         : null,
-                media.getOrganizationMedia() != null
-                        ? media.getOrganizationMedia().getSizeBytes()
+                organizationMedia != null
+                        ? organizationMedia.getUrl()
+                        : null,
+                organizationMedia != null
+                        ? organizationMedia.getType()
+                        : null,
+                media.getOrganization().getId(),
+                organizationMedia != null
+                        ? organizationMedia.getId()
+                        : null,
+                organizationMedia != null
+                        ? organizationMedia.getSizeBytes()
                         : null,
                 BaseEntityResponse.from(media)
         );
