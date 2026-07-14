@@ -11,14 +11,7 @@ public interface PostMediaRepository extends JpaRepository<PostMedia,Long> {
             Pageable pageable
     );
 
-    boolean existsByOrganizationIdAndNameIgnoreCase(
-            Long OrganizationId,
-            String name
-    );
-
-    boolean existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
-            Long OrganizationId,
-            String name,
-            Long mediaId
+    long countByOrganizationMediaId(
+            Long organizationMediaId
     );
 }

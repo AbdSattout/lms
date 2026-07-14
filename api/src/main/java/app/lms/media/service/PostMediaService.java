@@ -9,6 +9,7 @@ import app.lms.media.exception.ImageUploadException;
 import app.lms.media.mapper.PostMediaMapper;
 import app.lms.media.model.OrganizationMedia;
 import app.lms.media.model.PostMedia;
+import app.lms.media.repository.CourseMediaRepository;
 import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.media.repository.PostMediaRepository;
 import app.lms.organization.model.Organization;
@@ -40,6 +41,8 @@ public class PostMediaService {
             organizationAccessService;
 
     private final OrganizationMediaRepository organizationMediaRepository;
+
+    private final CourseMediaRepository courseMediaRepository;
 
     @Transactional
     public PostMediaResponse create(
@@ -119,31 +122,19 @@ public class PostMediaService {
                     );
 
             if (
-                    postMediaRepository
-                            .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
-                                    media.getOrganization().getId(),
-                                    newName,
-                                    media.getId()
-                            )
-                            || (
-                            media.getOrganizationMedia() != null &&
-                                    organizationMediaRepository
-                                            .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
-                                                    media.getOrganization().getId(),
-                                                    newName,
-                                                    media.getOrganizationMedia()
-                                                            .getId()
-                                            )
-                    )
+                    media.getOrganizationMedia() != null &&
+                            organizationMediaRepository
+                                    .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
+                                            media.getOrganization().getId(),
+                                            newName,
+                                            media.getOrganizationMedia()
+                                                    .getId()
+                                    )
             ) {
                 throw new ConflictException(
                         "Media name already exists in this organization"
                 );
             }
-
-            media.setName(
-                    newName
-            );
 
             if (media.getOrganizationMedia() != null) {
                 media.getOrganizationMedia()
@@ -154,7 +145,9 @@ public class PostMediaService {
         if (file != null) {
 
             String oldFileId =
-                    media.getFileId();
+                    media.getOrganizationMedia() != null
+                            ? media.getOrganizationMedia().getFileId()
+                            : null;
 
             FileType type =
                     detectFileType(file);
@@ -166,18 +159,6 @@ public class PostMediaService {
                                     media.getOrganization().getId(),
                             type
                     );
-
-            media.setUrl(
-                    uploaded.url()
-            );
-
-            media.setFileId(
-                    uploaded.fileId()
-            );
-
-            media.setType(
-                    type
-            );
 
             if (media.getOrganizationMedia() != null) {
                 media.getOrganizationMedia()
@@ -219,12 +200,24 @@ public class PostMediaService {
                                 user
                         );
 
-        String fileId =
-                media.getOrganizationMedia() != null
-                        ? media.getOrganizationMedia().getFileId()
-                        : media.getFileId();
+        OrganizationMedia organizationMedia =
+                media.getOrganizationMedia();
 
-        if (fileId != null) {
+        String fileId =
+                organizationMedia != null
+                        ? organizationMedia.getFileId()
+                        : null;
+
+        boolean removeSharedFile =
+                organizationMedia != null &&
+                        postMediaRepository.countByOrganizationMediaId(
+                                organizationMedia.getId()
+                        ) <= 1 &&
+                        courseMediaRepository.countByOrganizationMediaId(
+                                organizationMedia.getId()
+                        ) == 0;
+
+        if (fileId != null && removeSharedFile) {
 
             mediaService.delete(
                     fileId
@@ -235,9 +228,9 @@ public class PostMediaService {
                 media
         );
 
-        if (media.getOrganizationMedia() != null) {
+        if (removeSharedFile) {
             organizationMediaRepository.delete(
-                    media.getOrganizationMedia()
+                    organizationMedia
             );
         }
     }
@@ -294,10 +287,6 @@ public class PostMediaService {
                 );
 
         return PostMedia.builder()
-                .name(name)
-                .url(uploaded.url())
-                .fileId(uploaded.fileId())
-                .type(type)
                 .organization(organization)
                 .organizationMedia(organizationMedia)
                 .build();
@@ -426,12 +415,7 @@ public class PostMediaService {
                 originalName.trim();
 
         if (
-                !postMediaRepository
-                        .existsByOrganizationIdAndNameIgnoreCase(
-                                postId,
-                                cleanName
-                        )
-                        && !organizationMediaRepository
+                !organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
                                 postId,
                                 cleanName
@@ -461,12 +445,7 @@ public class PostMediaService {
             counter++;
 
         } while (
-                postMediaRepository
-                        .existsByOrganizationIdAndNameIgnoreCase(
-                                postId,
-                                candidate
-                        )
-                        || organizationMediaRepository
+                organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
                                 postId,
                                 candidate
