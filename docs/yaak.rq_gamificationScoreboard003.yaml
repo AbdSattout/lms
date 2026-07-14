@@ -1,0 +1,22 @@
+type: http_request
+model: http_request
+id: rq_gamificationScoreboard003
+createdAt: 2026-07-15T01:32:00
+updatedAt: 2026-07-14T22:40:17.553990
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_gamification01
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: |-
+  Returns the monthly scoreboard.
+
+  Uses UserActivityDay.xpEarned summed from the first day of the current month to the last day of the current month.
+headers: []
+method: GET
+name: Get Monthly Scoreboard
+sortPriority: 3200.0
+url: http://localhost:8080/gamification/scoreboard?period=MONTHLY&limit=50
+urlParameters: []

@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_gamificationScoreboard002
+createdAt: 2026-07-15T01:31:00
+updatedAt: 2026-07-15T01:31:00
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_gamification01
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: |-
+  Returns the weekly scoreboard with an explicit limit.
+
+  period options:
+  - WEEKLY
+  - MONTHLY
+
+  limit is clamped by the backend between 1 and 100.
+headers: []
+method: GET
+name: Get Weekly Scoreboard
+sortPriority: 3100.0
+url: http://localhost:8080/gamification/scoreboard?period=WEEKLY&limit=20
+urlParameters: []

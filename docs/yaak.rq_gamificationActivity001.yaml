@@ -1,0 +1,24 @@
+type: http_request
+model: http_request
+id: rq_gamificationActivity001
+createdAt: 2026-07-15T01:33:00
+updatedAt: 2026-07-15T01:33:00
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_gamification01
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: |-
+  Returns the authenticated user's daily activity rows.
+
+  If no dates are sent, backend returns the last 365 days.
+
+  Frontend can use this for a GitHub-style activity heatmap.
+headers: []
+method: GET
+name: Get My Activity Default
+sortPriority: 1000.0
+url: http://localhost:8080/gamification/activity
+urlParameters: []
