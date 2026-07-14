@@ -1,5 +1,6 @@
 package app.lms.gamification.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.gamification.enums.XPEventType;
 import lombok.Builder;
 
@@ -13,6 +14,7 @@ public record GamificationAwardResponse(
         Integer previousLevelNumber,
         Integer currentLevelNumber,
         String currentLevelTitle,
-        Boolean leveledUp
+        Boolean leveledUp,
+        BaseEntityResponse baseEntity
 ) {
 }

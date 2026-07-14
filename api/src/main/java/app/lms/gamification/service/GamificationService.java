@@ -1,5 +1,6 @@
 package app.lms.gamification.service;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.dto.GamificationProgressResponse;
 import app.lms.gamification.enums.XPEventType;
@@ -104,6 +105,9 @@ public class GamificationService {
                                 previousLevel,
                                 currentLevel
                         )
+                )
+                .baseEntity(
+                        BaseEntityResponse.from(xpEvent)
                 )
                 .build();
     }
@@ -213,6 +217,7 @@ public class GamificationService {
                                 : null
                 )
                 .leveledUp(false)
+                .baseEntity(null)
                 .build();
     }
 
@@ -298,6 +303,9 @@ public class GamificationService {
                                 totalXp
                         )
                 )
+                .baseEntity(
+                        BaseEntityResponse.from(progress)
+                )
                 .build();
     }
 
@@ -323,8 +331,7 @@ public class GamificationService {
 
         return (int) Math.round(
                 Math.clamp(
-                        progress * 1.0 / levelRange
-                        ,
+                        progress * 1.0 / levelRange,
                         0.0,
                         1.0) * 100
         );

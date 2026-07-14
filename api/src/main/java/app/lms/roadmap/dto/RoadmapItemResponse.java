@@ -1,5 +1,6 @@
 package app.lms.roadmap.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.course.dto.CourseResponse;
 
 public record RoadmapItemResponse(
@@ -8,6 +9,8 @@ public record RoadmapItemResponse(
 
         Integer position,
 
-        CourseResponse course
+        CourseResponse course,
+
+        BaseEntityResponse baseEntity
 ) {
 }

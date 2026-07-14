@@ -1,11 +1,10 @@
 package app.lms.gamification.model;
 
+import app.lms.common.model.BaseEntity;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "xp_events")
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class XPEvent {
+public class XPEvent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,14 +26,7 @@ public class XPEvent {
 
     private Integer amount;
 
-    private LocalDateTime createdAt;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
-
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
 }

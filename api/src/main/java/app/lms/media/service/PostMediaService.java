@@ -2,17 +2,17 @@ package app.lms.media.service;
 
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
-import app.lms.course.model.Course;
-import app.lms.course.service.CourseAccessService;
-import app.lms.media.dto.CourseMediaResponse;
+import app.lms.media.dto.PostMediaResponse;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageUploadException;
-import app.lms.media.mapper.CourseMediaMapper;
-import app.lms.media.model.CourseMedia;
+import app.lms.media.mapper.PostMediaMapper;
 import app.lms.media.model.OrganizationMedia;
-import app.lms.media.repository.CourseMediaRepository;
+import app.lms.media.model.PostMedia;
 import app.lms.media.repository.OrganizationMediaRepository;
+import app.lms.media.repository.PostMediaRepository;
+import app.lms.organization.model.Organization;
+import app.lms.organization.service.OrganizationAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,45 +21,44 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+
 @Service
 @RequiredArgsConstructor
-public class CourseMediaService {
+public class PostMediaService {
 
-    private final CourseMediaRepository
-            courseMediaRepository;
+    private final PostMediaRepository
+            postMediaRepository;
 
-    private final CourseAccessService
-            courseAccessService;
-
-    private final CourseMediaAccessService
-            courseMediaAccessService;
+    private final PostMediaAccessService
+            postMediaAccessService;
 
     private final MediaService mediaService;
 
-    private final CourseMediaMapper
-            courseMediaMapper;
+    private final PostMediaMapper
+            postMediaMapper;
+    private final OrganizationAccessService
+            organizationAccessService;
 
     private final OrganizationMediaRepository organizationMediaRepository;
 
     @Transactional
-    public CourseMediaResponse create(
+    public PostMediaResponse create(
 
-            Long courseId,
+            String slug,
             MultipartFile file,
             User user
     ) {
 
-        Course course =
-                courseAccessService
-                        .getEditableCourse(
-                                courseId,
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
                                 user
                         );
 
         String mediaName =
                 generateAvailableMediaName(
-                        course.getId(),
-                        course.getOrganization().getId(),
+                        organization.getId(),
                         getOriginalFileName(file)
                 );
 
@@ -69,41 +68,39 @@ public class CourseMediaService {
         UploadedFile uploaded =
                 mediaService.upload(
                         file,
-                        "/courses/" + courseId,
+                        "/posts/" + slug,
                         type
                 );
 
-        CourseMedia media =
+        PostMedia media =
                 buildMedia(
                         mediaName,
                         uploaded,
                         type,
                         file.getSize(),
-                        course
+                        organization
                 );
 
-        courseMediaRepository.save(
+        postMediaRepository.save(
                 media
         );
 
-        return courseMediaMapper
+        return postMediaMapper
                 .toResponse(media);
     }
 
     @Transactional
-    public CourseMediaResponse update(
+    public PostMediaResponse update(
 
-            Long courseId,
             Long mediaId,
             MultipartFile file,
             String name,
             User user
     ) {
 
-        CourseMedia media =
-                courseMediaAccessService
+        PostMedia media =
+                postMediaAccessService
                         .getEditableMedia(
-                                courseId,
                                 mediaId,
                                 user
                         );
@@ -122,9 +119,9 @@ public class CourseMediaService {
                     );
 
             if (
-                    courseMediaRepository
-                            .existsByCourseIdAndNameIgnoreCaseAndIdNot(
-                                    media.getCourse().getId(),
+                    postMediaRepository
+                            .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
+                                    media.getOrganization().getId(),
                                     newName,
                                     media.getId()
                             )
@@ -132,9 +129,7 @@ public class CourseMediaService {
                             media.getOrganizationMedia() != null &&
                                     organizationMediaRepository
                                             .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
-                                                    media.getCourse()
-                                                            .getOrganization()
-                                                            .getId(),
+                                                    media.getOrganization().getId(),
                                                     newName,
                                                     media.getOrganizationMedia()
                                                             .getId()
@@ -142,7 +137,7 @@ public class CourseMediaService {
                     )
             ) {
                 throw new ConflictException(
-                        "Media name already exists in this course"
+                        "Media name already exists in this organization"
                 );
             }
 
@@ -167,8 +162,8 @@ public class CourseMediaService {
             UploadedFile uploaded =
                     mediaService.upload(
                             file,
-                            "/courses/" +
-                                    media.getCourse().getId(),
+                            "/posts/" +
+                                    media.getOrganization().getId(),
                             type
                     );
 
@@ -206,22 +201,20 @@ public class CourseMediaService {
             }
         }
 
-        return courseMediaMapper
+        return postMediaMapper
                 .toResponse(media);
     }
 
     @Transactional
     public void delete(
 
-            Long courseId,
             Long mediaId,
             User user
     ) {
 
-        CourseMedia media =
-                courseMediaAccessService
+        PostMedia media =
+                postMediaAccessService
                         .getEditableMedia(
-                                courseId,
                                 mediaId,
                                 user
                         );
@@ -238,7 +231,7 @@ public class CourseMediaService {
             );
         }
 
-        courseMediaRepository.delete(
+        postMediaRepository.delete(
                 media
         );
 
@@ -279,13 +272,13 @@ public class CourseMediaService {
                 .trim();
     }
 
-    private CourseMedia buildMedia(
+    private PostMedia buildMedia(
 
             String name,
             UploadedFile uploaded,
             FileType type,
             Long sizeBytes,
-            Course course
+            Organization organization
     ) {
 
         OrganizationMedia organizationMedia =
@@ -296,60 +289,58 @@ public class CourseMediaService {
                                 .fileId(uploaded.fileId())
                                 .type(type)
                                 .sizeBytes(sizeBytes)
-                                .organization(course.getOrganization())
+                                .organization(organization)
                                 .build()
                 );
 
-        return CourseMedia.builder()
+        return PostMedia.builder()
                 .name(name)
                 .url(uploaded.url())
                 .fileId(uploaded.fileId())
                 .type(type)
-                .course(course)
+                .organization(organization)
                 .organizationMedia(organizationMedia)
                 .build();
     }
 
-    public Page<CourseMediaResponse> list(
+    public Page<PostMediaResponse> list(
 
-            Long courseId,
+            String slug,
             Pageable pageable,
             User user
     ) {
 
-        Course course =
-                courseAccessService
-                        .getManageableCourse(
-                                courseId,
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
                                 user
                         );
 
-        return courseMediaRepository
-                .findAllByCourseIdOrderByCreatedAtDesc(
-                        course.getId(),
+        return postMediaRepository
+                .findAllByOrganizationIdOrderByCreatedAtDesc(
+                        organization.getId(),
                         pageable
                 )
                 .map(
-                        courseMediaMapper::toResponse
+                        postMediaMapper::toResponse
                 );
     }
 
-    public CourseMediaResponse getById(
+    public PostMediaResponse getById(
 
-            Long courseId,
             Long mediaId,
             User user
     ) {
 
-        CourseMedia media =
-                courseMediaAccessService
+        PostMedia media =
+                postMediaAccessService
                         .getAccessibleMedia(
-                                courseId,
                                 mediaId,
                                 user
                         );
 
-        return courseMediaMapper
+        return postMediaMapper
                 .toResponse(
                         media
                 );
@@ -427,8 +418,7 @@ public class CourseMediaService {
         );
     }
     private String generateAvailableMediaName(
-            Long courseId,
-            Long organizationId,
+            Long postId,
             String originalName
     ) {
 
@@ -436,14 +426,14 @@ public class CourseMediaService {
                 originalName.trim();
 
         if (
-                !courseMediaRepository
-                        .existsByCourseIdAndNameIgnoreCase(
-                                courseId,
+                !postMediaRepository
+                        .existsByOrganizationIdAndNameIgnoreCase(
+                                postId,
                                 cleanName
                         )
                         && !organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
-                                organizationId,
+                                postId,
                                 cleanName
                         )
         ) {
@@ -471,14 +461,14 @@ public class CourseMediaService {
             counter++;
 
         } while (
-                courseMediaRepository
-                        .existsByCourseIdAndNameIgnoreCase(
-                                courseId,
+                postMediaRepository
+                        .existsByOrganizationIdAndNameIgnoreCase(
+                                postId,
                                 candidate
                         )
                         || organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
-                                organizationId,
+                                postId,
                                 candidate
                         )
         );
@@ -486,3 +476,5 @@ public class CourseMediaService {
         return candidate;
     }
 }
+
+
