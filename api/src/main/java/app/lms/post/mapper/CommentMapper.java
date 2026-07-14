@@ -27,10 +27,6 @@ public class CommentMapper {
                         ? comment.getParent().getId()
                         : null,
 
-                comment.getCreatedAt(),
-
-                comment.getUpdatedAt(),
-
                 BaseEntityResponse.from(comment)
         );
     }

@@ -32,10 +32,6 @@ public class PostMapper {
 
                 post.getCommentsCount(),
 
-                post.getCreatedAt(),
-
-                post.getUpdatedAt(),
-
                 BaseEntityResponse.from(post)
         );
     }
