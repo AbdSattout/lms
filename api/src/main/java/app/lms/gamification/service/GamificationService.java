@@ -23,6 +23,7 @@ public class GamificationService {
     private final UserProgressRepository userProgressRepository;
     private final LevelRepository levelRepository;
     private final GamificationAccessService gamificationAccessService;
+    private final UserActivityService userActivityService;
 
     @Transactional
     public GamificationAwardResponse awardXp(
@@ -78,6 +79,12 @@ public class GamificationService {
         );
 
         userProgressRepository.save(progress);
+
+        userActivityService.recordAward(
+                user,
+                type,
+                amount
+        );
 
         return GamificationAwardResponse.builder()
                 .eventType(type)
@@ -293,11 +300,6 @@ public class GamificationService {
                 .xpIntoLevel(xpIntoLevel)
                 .xpToNextLevel(xpToNextLevel)
                 .progressPercentage(progressPercentage)
-                .badgeIcon(
-                        currentLevel != null
-                                ? currentLevel.getBadgeIcon()
-                                : null
-                )
                 .unlocks(
                         gamificationAccessService.getUnlocks(
                                 totalXp
