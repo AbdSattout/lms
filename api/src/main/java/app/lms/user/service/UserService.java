@@ -1,5 +1,9 @@
 package app.lms.user.service;
 
+import app.lms.gamification.model.Level;
+import app.lms.gamification.model.UserProgress;
+import app.lms.gamification.repository.LevelRepository;
+import app.lms.gamification.repository.UserProgressRepository;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.media.enums.FileType;
@@ -34,6 +38,8 @@ public class UserService {
     private final UserMapper userMapper;
     private final ProfileRepository profileRepository;
     private final UserMapper mapper;
+    private final LevelRepository levelRepository;
+    private final UserProgressRepository userProgressRepository;
 
     @Transactional
     public UserResponse updatePicture(
@@ -112,6 +118,7 @@ public class UserService {
                         )
                 );
     }
+    @Transactional
     public User getOrCreateUser(
             Jwt telegramJwt
     ) {
@@ -125,7 +132,8 @@ public class UserService {
         String picture =
                 telegramJwt.getClaim("picture");
 
-        return userRepository
+        User user =
+                userRepository
                 .findByTelegramId(telegramId)
                 .orElseGet(() -> {
 
@@ -143,6 +151,33 @@ public class UserService {
                             newUser
                     );
                 });
+
+        ensureProgressExists(user);
+
+        return user;
+    }
+
+    private void ensureProgressExists(
+            User user
+    ) {
+
+        if (userProgressRepository.existsByUserId(user.getId())) {
+            return;
+        }
+
+        Level initialLevel =
+                levelRepository
+                        .findByLevelNumber(1)
+                        .orElse(null);
+
+        UserProgress progress =
+                UserProgress.builder()
+                        .user(user)
+                        .totalXp(0)
+                        .currentLevel(initialLevel)
+                        .build();
+
+        userProgressRepository.save(progress);
     }
     public List<UserSearchResponse> search(String q){
 

@@ -1,0 +1,18 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi012
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: List Mobile Practice Quizzes
+sortPriority: 12000.0
+url: http://localhost:8080/mobile/courses/{courseId}/practice-quizzes
+urlParameters: []

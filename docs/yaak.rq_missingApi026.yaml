@@ -1,0 +1,38 @@
+type: http_request
+model: http_request
+id: rq_missingApi026
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "answers": [
+        { "questionId": 1, "answerIndex": 0 }
+      ]
+    }
+bodyType: application/json
+description: |-
+  Response now includes a rewards array. Each reward tells the frontend whether XP was awarded, how much XP was gained, total XP after the award, and whether the user leveled up.
+
+  Example reward:
+  {
+    "eventType": "BLOCK_COMPLETE",
+    "referenceId": 15,
+    "awarded": true,
+    "xpAwarded": 10,
+    "totalXp": 120,
+    "previousLevelNumber": 1,
+    "currentLevelNumber": 2,
+    "currentLevelTitle": "Beginner",
+    "leveledUp": true
+  }
+headers: []
+method: POST
+name: Submit Practice Quiz
+sortPriority: 26000.0
+url: http://localhost:8080/mobile/courses/{courseId}/practice-quizzes/{practiceQuizId}/submit
+urlParameters: []
