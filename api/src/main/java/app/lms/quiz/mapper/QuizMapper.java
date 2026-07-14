@@ -1,5 +1,6 @@
 package app.lms.quiz.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.question.dto.QuestionPublicResponse;
@@ -33,7 +34,8 @@ public class QuizMapper {
                 ),
                 quiz.getQuestions().stream()
                         .map(questionMapper::toResponse)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                BaseEntityResponse.from(quiz)
         );
     }
 
@@ -49,14 +51,9 @@ public class QuizMapper {
                 ),
                 quiz.getQuestions()
                         .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
+                        .map(questionMapper::toPublicResponse)
+                        .toList(),
+                BaseEntityResponse.from(quiz)
         );
     }
 
@@ -93,7 +90,8 @@ public class QuizMapper {
                                 )
                         )
                         .toList(),
-                rewards
+                rewards,
+                BaseEntityResponse.from(attempt)
         );
     }
 }

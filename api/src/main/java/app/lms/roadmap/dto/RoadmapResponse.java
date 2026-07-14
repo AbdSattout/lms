@@ -1,5 +1,7 @@
 package app.lms.roadmap.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record RoadmapResponse(
@@ -10,6 +12,8 @@ public record RoadmapResponse(
 
         String organizationSlug,
 
-        List<RoadmapItemResponse> items
+        List<RoadmapItemResponse> items,
+
+        BaseEntityResponse baseEntity
 ) {
 }

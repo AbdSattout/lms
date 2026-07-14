@@ -6,6 +6,7 @@ import app.lms.ai.mobile.quiz.dto.RandomQuizSubmitResponse;
 import app.lms.ai.mobile.quiz.dto.GeneratedRandomQuizResponse;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttempt;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion;
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.question.dto.QuestionPublicResponse;
@@ -102,10 +103,12 @@ public class MobileAiRandomQuizMapper {
                                 new QuestionPublicResponse(
                                         question.getId(),
                                         question.getContent(),
-                                        question.getOptions()
+                                        question.getOptions(),
+                                        BaseEntityResponse.from(question)
                                 )
                         )
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -129,7 +132,8 @@ public class MobileAiRandomQuizMapper {
                                         question.getCorrect()
                                 )
                         )
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(attempt)
         );
     }
 }
