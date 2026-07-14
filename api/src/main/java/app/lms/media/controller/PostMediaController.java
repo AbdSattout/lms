@@ -1,7 +1,7 @@
 package app.lms.media.controller;
 
-import app.lms.media.dto.CourseMediaResponse;
-import app.lms.media.service.CourseMediaService;
+import app.lms.media.dto.PostMediaResponse;
+import app.lms.media.service.PostMediaService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -12,23 +12,22 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @RestController
-@RequestMapping("/courseMedia")
+@RequestMapping("/postMedia")
 @RequiredArgsConstructor
-public class CourseMediaController {
+public class PostMediaController {
 
-    private final CourseMediaService
-            courseMediaService;
+    private final PostMediaService
+            postMediaService;
 
     @PostMapping(
-            value = "/courses/{courseId}/media",
+            value = "/organizations/{slug}/media",
             consumes = "multipart/form-data"
     )
-    public ResponseEntity<CourseMediaResponse> create(
+    public ResponseEntity<PostMediaResponse> create(
 
             @PathVariable
-            Long courseId,
+            String slug,
 
             @RequestPart("file")
             MultipartFile file,
@@ -40,8 +39,8 @@ public class CourseMediaController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(
-                        courseMediaService.create(
-                                courseId,
+                        postMediaService.create(
+                                slug,
                                 file,
                                 principal.user()
                         )
@@ -49,13 +48,10 @@ public class CourseMediaController {
     }
 
     @PatchMapping(
-            value = "/courses/{courseId}/media/{mediaId}",
+            value = "/media/{mediaId}",
             consumes = "multipart/form-data"
     )
-    public ResponseEntity<CourseMediaResponse> update(
-
-            @PathVariable
-            Long courseId,
+    public ResponseEntity<PostMediaResponse> update(
 
             @PathVariable
             Long mediaId,
@@ -71,8 +67,7 @@ public class CourseMediaController {
     ) {
 
         return ResponseEntity.ok(
-                courseMediaService.update(
-                        courseId,
+                postMediaService.update(
                         mediaId,
                         file,
                         name,
@@ -82,12 +77,9 @@ public class CourseMediaController {
     }
 
     @DeleteMapping(
-            "/courses/{courseId}/media/{mediaId}"
+            "/media/{mediaId}"
     )
     public ResponseEntity<Void> delete(
-
-            @PathVariable
-            Long courseId,
 
             @PathVariable
             Long mediaId,
@@ -96,8 +88,7 @@ public class CourseMediaController {
             UserPrincipal principal
     ) {
 
-        courseMediaService.delete(
-                courseId,
+        postMediaService.delete(
                 mediaId,
                 principal.user()
         );
@@ -109,14 +100,11 @@ public class CourseMediaController {
 
 
     @GetMapping(
-            "/courses/{courseId}/media/{mediaId}"
+            "/media/{mediaId}"
     )
     public ResponseEntity<
-            CourseMediaResponse
+            PostMediaResponse
             > getById(
-
-            @PathVariable
-            Long courseId,
 
             @PathVariable
             Long mediaId,
@@ -126,22 +114,21 @@ public class CourseMediaController {
     ) {
 
         return ResponseEntity.ok(
-                courseMediaService.getById(
-                        courseId,
+                postMediaService.getById(
                         mediaId,
                         principal.user()
                 )
         );
     }
     @GetMapping(
-            "/courses/{courseId}/media"
+            "/organizations/{slug}/media"
     )
     public ResponseEntity<
-            Page<CourseMediaResponse>
+            Page<PostMediaResponse>
             > list(
 
             @PathVariable
-            Long courseId,
+            String slug,
 
             Pageable pageable,
 
@@ -150,8 +137,8 @@ public class CourseMediaController {
     ) {
 
         return ResponseEntity.ok(
-                courseMediaService.list(
-                        courseId,
+                postMediaService.list(
+                        slug,
                         pageable,
                         principal.user()
                 )
