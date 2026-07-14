@@ -119,4 +119,23 @@ public class DashboardPracticeQuizService {
                 .toList();
     }
 
+    @Transactional
+    public PracticeQuizResponse getById(
+            Long courseId,
+            Long practiceQuizId,
+            User user
+    ) {
+
+        PracticeQuiz practiceQuiz =
+                practiceQuizAccessService
+                        .getManageablePracticeQuiz(
+                                courseId,
+                                practiceQuizId,
+                                user
+                        );
+
+        return practiceQuizMapper.toResponse(
+                practiceQuiz
+        );
+    }
 }

@@ -7,6 +7,9 @@ import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.gamification.dto.GamificationAwardResponse;
+import app.lms.gamification.enums.XPEventType;
+import app.lms.gamification.service.GamificationService;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.quiz.dto.*;
 import app.lms.quiz.mapper.QuizMapper;
@@ -21,10 +24,14 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MobileFinalQuizService {
+
+    private static final int FINAL_QUIZ_COMPLETE_XP = 100;
+    private static final int COURSE_COMPLETE_XP = 200;
 
     private final FinalQuizAttemptRepository finalQuizAttemptRepository;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
@@ -33,6 +40,7 @@ public class MobileFinalQuizService {
     private final QuizGradingService quizGradingService;
     private final QuizMapper quizMapper;
     private final QuizAccessService quizAccessService;
+    private final GamificationService gamificationService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -170,9 +178,43 @@ public class MobileFinalQuizService {
             );
         }
 
-        return quizMapper.toSubmitResponse(
-                attempt
+        List<GamificationAwardResponse> rewards =
+                new ArrayList<>();
+
+        addAwardedReward(
+                rewards,
+                gamificationService.awardXp(
+                        user,
+                        XPEventType.FINAL_QUIZ_COMPLETE,
+                        quiz.getId(),
+                        FINAL_QUIZ_COMPLETE_XP
+                )
         );
+
+        addAwardedReward(
+                rewards,
+                gamificationService.awardXp(
+                        user,
+                        XPEventType.COURSE_COMPLETE,
+                        courseId,
+                        COURSE_COMPLETE_XP
+                )
+        );
+
+        return quizMapper.toSubmitResponse(
+                attempt,
+                rewards
+        );
+    }
+
+    private void addAwardedReward(
+            List<GamificationAwardResponse> rewards,
+            GamificationAwardResponse reward
+    ) {
+
+        if (reward.awarded()) {
+            rewards.add(reward);
+        }
     }
 
     private void validateFinalQuizUnlocked(

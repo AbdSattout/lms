@@ -1,7 +1,7 @@
-package app.lms.organization.repository;
+package app.lms.gamification.repository;
 
-import app.lms.courceEnrollment.enums.XPEventType;
-import app.lms.organization.model.XPEvent;
+import app.lms.gamification.enums.XPEventType;
+import app.lms.gamification.model.XPEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -18,5 +18,11 @@ public interface XPEventRepository
     findAllByUserIdAndType(
             Long userId,
             XPEventType type
+    );
+
+    boolean existsByUserIdAndTypeAndReferenceId(
+            Long userId,
+            XPEventType type,
+            Long referenceId
     );
 }

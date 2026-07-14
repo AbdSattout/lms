@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_gamification01
+createdAt: 2026-07-14T18:20:00
+updatedAt: 2026-07-14T18:20:00
+workspaceId: wk_LvqrSfWmRY
+folderId: null
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: gamification
+sortPriority: 12000.0

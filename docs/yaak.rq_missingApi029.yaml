@@ -1,0 +1,24 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi029
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "answers": [
+        { "questionId": 1, "answerIndex": 0 }
+      ]
+    }
+bodyType: application/json
+description: ''
+headers: []
+method: POST
+name: Submit Bank Random Quiz
+sortPriority: 29000.0
+url: http://localhost:8080/mobile/courses/{courseId}/random-quiz/attempts/{attemptId}/submit
+urlParameters: []

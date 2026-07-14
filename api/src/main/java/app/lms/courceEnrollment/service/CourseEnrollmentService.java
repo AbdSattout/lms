@@ -7,22 +7,22 @@ import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.courceEnrollment.dto.EnrollmentResponse;
 import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.enums.XPEventType;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
+import app.lms.gamification.dto.GamificationAwardResponse;
+import app.lms.gamification.enums.XPEventType;
+import app.lms.gamification.service.GamificationService;
 import app.lms.organization.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.model.XPEvent;
 import app.lms.organization.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
-import app.lms.organization.repository.XPEventRepository;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
@@ -31,10 +31,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CourseEnrollmentService {
+
+    private static final int COURSE_ENROLL_XP = 10;
 
     private final CourseRepository courseRepository;
 
@@ -42,7 +46,7 @@ public class CourseEnrollmentService {
 
     private final OrganizationMemberRepository memberRepository;
 
-    private final XPEventRepository xpEventRepository;
+    private final GamificationService gamificationService;
 
     private final BlockRepository blockRepository;
 
@@ -76,12 +80,19 @@ public class CourseEnrollmentService {
         Organization organization =
                 course.getOrganization();
 
-        boolean member =
+        Optional<OrganizationMember> existingMember =
                 memberRepository
-                        .existsByOrganizationIdAndUserId(
+                        .findByOrganizationIdAndUserId(
                                 organization.getId(),
                                 user.getId()
                         );
+
+        validateCanEnrollAsStudent(
+                existingMember
+        );
+
+        boolean member =
+                existingMember.isPresent();
 
         if (organization.getVisibility() == Visibility.PUBLIC) {
 
@@ -158,6 +169,7 @@ public class CourseEnrollmentService {
                     .enrolledAt(
                             existingEnrollment.getEnrolledAt()
                     )
+                    .rewards(List.of())
                     .build();
         }
 
@@ -173,16 +185,24 @@ public class CourseEnrollmentService {
                 enrollment
         );
 
-        createEnrollXpEvent(
-                course,
-                user
-        );
+        GamificationAwardResponse reward =
+                gamificationService.awardXp(
+                        user,
+                        XPEventType.COURSE_ENROLL,
+                        course.getId(),
+                        COURSE_ENROLL_XP
+                );
 
         return EnrollmentResponse.builder()
                 .courseId(course.getId())
                 .courseTitle(course.getTitle())
                 .enrolledAt(
                         enrollment.getEnrolledAt()
+                )
+                .rewards(
+                        reward.awarded()
+                                ? List.of(reward)
+                                : List.of()
                 )
                 .build();
     }
@@ -319,6 +339,26 @@ public class CourseEnrollmentService {
         );
     }
 
+    private void validateCanEnrollAsStudent(
+            Optional<OrganizationMember> existingMember
+    ) {
+
+        if (existingMember.isEmpty()) {
+            return;
+        }
+
+        Role role =
+                existingMember
+                        .get()
+                        .getRole();
+
+        if (role == Role.OWNER || role == Role.ADMIN) {
+            throw new ForbiddenException(
+                    "Organization owners and admins cannot enroll as students"
+            );
+        }
+    }
+
 //    private void addStudentToOrganizationIfNeeded(
 //            Organization organization,
 //            User user
@@ -345,19 +385,4 @@ public class CourseEnrollmentService {
 //        memberRepository.save(member);
 //    }
 
-    private void createEnrollXpEvent(
-            Course course,
-            User user
-    ) {
-
-        XPEvent xpEvent =
-                XPEvent.builder()
-                        .user(user)
-                        .type(XPEventType.COURSE_ENROLL)
-                        .referenceId(course.getId())
-                        .amount(1)
-                        .build();
-
-        xpEventRepository.save(xpEvent);
-    }
 }

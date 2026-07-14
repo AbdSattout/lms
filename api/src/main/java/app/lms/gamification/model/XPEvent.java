@@ -1,6 +1,6 @@
-package app.lms.organization.model;
+package app.lms.gamification.model;
 
-import app.lms.courceEnrollment.enums.XPEventType;
+import app.lms.gamification.enums.XPEventType;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
