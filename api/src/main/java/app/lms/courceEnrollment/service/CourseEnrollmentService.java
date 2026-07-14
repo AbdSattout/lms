@@ -360,4 +360,15 @@ public class CourseEnrollmentService {
 
         xpEventRepository.save(xpEvent);
     }
+
+    public boolean isEnrolled(
+            Long courseId,
+            User user
+    ) {
+
+        return enrollmentRepository.existsByCourseIdAndUserId(
+                courseId,
+                user.getId()
+        );
+    }
 }
