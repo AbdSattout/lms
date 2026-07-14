@@ -1,7 +1,6 @@
 package app.lms.courceEnrollment.service;
 
 import app.lms.common.exception.ForbiddenException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.courceEnrollment.enums.EnrollmentStatus;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;

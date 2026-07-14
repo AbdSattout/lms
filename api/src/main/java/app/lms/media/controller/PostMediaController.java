@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/postMedia")
 @RequiredArgsConstructor
-public class PostMediaController {
+public class    PostMediaController {
 
     private final PostMediaService
             postMediaService;

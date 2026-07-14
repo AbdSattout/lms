@@ -2,8 +2,6 @@ package app.lms.post.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
 
-import java.time.LocalDateTime;
-
 public record PostResponse(
 
         long id,
@@ -22,12 +20,6 @@ public record PostResponse(
 
         Long commentsCount,
 
-        LocalDateTime createdAt,
-
-        LocalDateTime updatedAt,
-
         BaseEntityResponse baseEntity
-
-
 ) {
 }
