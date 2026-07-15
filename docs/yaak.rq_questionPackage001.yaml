@@ -30,5 +30,5 @@ headers:
 method: POST
 name: Create Course Question
 sortPriority: 1000.0
-url: http://localhost:8080/dashboard/courses/{courseId}/questions
+url: https://lms.koyeb.app/dashboard/courses/{courseId}/questions
 urlParameters: []
