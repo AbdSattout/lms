@@ -2,17 +2,17 @@ type: http_request
 model: http_request
 id: rq_Ux2KR7jqLC
 createdAt: 2026-06-11T18:46:14.493142800
-updatedAt: 2026-07-13T11:29:24.956807500
+updatedAt: 2026-07-15T22:05:47.535516100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_JG5a6RtbR8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzOTM4Mzc0LCJleHAiOjE3ODQ1NDMxNzR9.3ywI_CGxZfbrrOD6XWAtgnOBztW91LUfxqYk8tUv8CQ
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MTM0MjEzLCJleHAiOjE3ODQ3MzkwMTN9.R9lTnm0g7BZIGdqmEUoWFkmBrk_NKCYwZhriAriQl18
 authenticationType: bearer
 body:
   text: |-
     {
-      "title": "Java Variables Quiz",
-      "content": "Test your knowledge about Java variables",
+      "title": "Memes Quiz",
+      "content": "Test your knowledge about Memes",
       "question": {
         "content": "Which of the following is a valid variable name in Java?",
         "options": ["myVariable", "2variable", "my-var", "class"],

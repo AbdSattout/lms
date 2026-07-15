@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_hT9gjAyUWB
 createdAt: 2026-07-10T16:11:25.369083500
-updatedAt: 2026-07-13T11:27:49.800516
+updatedAt: 2026-07-15T22:04:56.793543500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GkMNXFRG5u
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzOTM4Mzc0LCJleHAiOjE3ODQ1NDMxNzR9.3ywI_CGxZfbrrOD6XWAtgnOBztW91LUfxqYk8tUv8CQ
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MTM0MjEzLCJleHAiOjE3ODQ3MzkwMTN9.R9lTnm0g7BZIGdqmEUoWFkmBrk_NKCYwZhriAriQl18
 authenticationType: bearer
 body:
   text: |
