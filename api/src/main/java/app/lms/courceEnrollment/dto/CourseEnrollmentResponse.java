@@ -16,6 +16,7 @@ public record CourseEnrollmentResponse(
         LocalDateTime enrolledAt,
         EnrollmentStatus status,
         Integer progressPercentage,
+        Long currentChapterId,
         Long currentLessonId,
         Long currentBlockId,
         LocalDateTime completedAt
