@@ -1,12 +1,11 @@
 "use server"
 
 import { api } from "@/lib/api"
-import { createOrganizationSchema, slugSchema } from "@/lib/validation"
+import { createOrganizationSchema, slugSchema, updateOrganizationSchema } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import type { UpdateOrganizationInput } from "@/lib/validation"
 export async function createOrganization(
-  _prevState: { error?: string; success?: boolean; slug?: string },
+  _prevState: { error?: string; success?: boolean },
   formData: FormData
 ) {
   const result = createOrganizationSchema.safeParse({
@@ -33,7 +32,7 @@ export async function createOrganization(
   if (!org) return { error: "حدث خطأ أثناء إنشاء المنظمة." }
 
   revalidatePath("/")
-  return { success: true, slug }
+  redirect(`/${org.slug}`)
 }
 
 export async function checkSlugAvailability(slug: string) {
@@ -54,44 +53,53 @@ export async function deleteOrganizationAction(slug: string) {
   redirect("/")
 }
 
-export async function updateOrganizationAction(formData: FormData) {
+export async function updateOrganization(
+  _prevState: { error?: string; success?: boolean },
+  formData: FormData
+) {
   const oldSlug = formData.get("oldSlug") as string
   const name = formData.get("name") as string
+  const slug = formData.get("slug") as string
   const description = formData.get("description") as string
+  const visibility = formData.get("visibility") as string | null
   const image = formData.get("image") as File | null
 
-  if (!oldSlug || !name) {
-    return { success: false, error: "اسم المؤسسة مطلوب (Name is required)" }
+  if (!oldSlug) {
+    return { error: "معرف المنظمة مطلوب" }
   }
 
-  const newSlug = name
-    .toLowerCase()
-    .trim()
-    .replace(/[\s\W-]+/g, "-") // Replaces spaces and special chars with hyphens
-
-  // 3. Put the new slug inside the request body for your backend to save
-  const request: UpdateOrganizationInput = {
-    name,
+  const result = updateOrganizationSchema.safeParse({
+    name: name || undefined,
+    slug: slug || undefined,
     description: description || undefined,
-    slug: newSlug,
+    visibility: visibility || undefined,
+  })
+
+  if (!result.success) {
+    return {
+      error: result.error.issues[0]?.message || "فشل التحقق من صحة البيانات",
+    }
   }
-  let isSuccess = false
+
+  const request = result.data
+  const imageFile = image && image.size > 0 ? image : undefined
+
   try {
     await api.dashboard.organizations.bySlug.patch(
       oldSlug,
       request,
-      image || undefined
+      imageFile
     )
-
-    revalidatePath(`/${oldSlug}`)
-    revalidatePath(`/${newSlug}`)
-    isSuccess = true
   } catch (error) {
     console.error("Failed to update organization:", error)
-    return { success: false, error: "حدث خطأ أثناء الحفظ (Error saving)" }
+    return { error: "حدث خطأ أثناء الحفظ" }
   }
-  if (isSuccess && oldSlug !== newSlug) {
-    redirect(`/${newSlug}/settings`)
+
+  revalidatePath(`/${oldSlug}`)
+  if (request.slug && oldSlug !== request.slug) {
+    revalidatePath(`/${request.slug}`)
+    redirect(`/${request.slug}/settings`)
   }
-  return { success: true, newSlug }
+  revalidatePath(`/${oldSlug}/settings`)
+  return { success: true }
 }

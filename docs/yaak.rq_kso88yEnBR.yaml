@@ -2,11 +2,12 @@ type: http_request
 model: http_request
 id: rq_kso88yEnBR
 createdAt: 2026-06-13T16:58:09.519075100
-updatedAt: 2026-06-13T16:59:22.798791500
+updatedAt: 2026-07-14T16:51:57.342681400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
-authentication: {}
-authenticationType: null
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQ3ODAyLCJleHAiOjE3ODQ2NTI2MDJ9.Vx0fokiYiS1VKE3KZfmxVNvk5ZlP0RlR-Q5tjeArnEU
+authenticationType: bearer
 body:
   text: |-
     {
@@ -22,5 +23,5 @@ headers:
 method: GET
 name: Get all org courses
 sortPriority: 1000.001
-url: http://localhost:8080/organizations/my-org/courses
+url: https://lms.koyeb.app/organizations/sam-mobile/courses
 urlParameters: []

@@ -24,6 +24,17 @@ public interface BlockProgressRepository
             Long courseId
     );
 
+    long countByUserIdAndBlockLessonIdAndCompletedTrue(
+            Long userId,
+            Long lessonId
+    );
+
+    long countByUserIdAndBlockLessonChapterIdAndCompletedTrue(
+            Long userId,
+            Long chapterId
+    );
+
+
 
     @Query("""
             select distinct q

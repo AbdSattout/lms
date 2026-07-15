@@ -1,13 +1,18 @@
 
 package app.lms.question.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.block.repository.BlockRepository;
 import app.lms.course.service.CourseAccessService;
 import app.lms.question.model.Question;
 import app.lms.question.repository.QuestionRepository;
+import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +20,8 @@ public class QuestionAccessService {
 
     private final QuestionRepository questionRepository;
     private final CourseAccessService courseAccessService;
+    private final BlockRepository blockRepository;
+    private final QuizRepository quizRepository;
 
 
     public Question getManageableQuestion(
@@ -44,6 +51,40 @@ public class QuestionAccessService {
 
         return question;
     }
+
+    public List<Question> getManageableQuestionsByCourseId(
+            Long courseId,
+            User user
+    ) {
+
+        courseAccessService.getManageableCourse(
+                courseId,
+                user
+        );
+
+        return questionRepository
+                .findAllByCourseIdOrderByIdDesc(
+                        courseId
+                );
+    }
+
+    public void validateQuestionNotUsed(
+            Long questionId
+    ) {
+
+        if (blockRepository.existsByQuestionId(questionId)) {
+            throw new ConflictException(
+                    "Question is used by one or more blocks. Remove it from those blocks before deleting it."
+            );
+        }
+
+        if (quizRepository.existsByQuestionId(questionId)) {
+            throw new ConflictException(
+                    "Question is used by one or more quizzes. Remove it from those quizzes before deleting it."
+            );
+        }
+    }
+
     private Question getQuestionById(Long questionId){
         return questionRepository.findById(questionId)
                 .orElseThrow(() ->

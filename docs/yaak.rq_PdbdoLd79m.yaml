@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_PdbdoLd79m
 createdAt: 2026-05-20T15:53:24.625308400
-updatedAt: 2026-06-11T19:09:46.161341800
+updatedAt: 2026-07-14T16:56:59.754352400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQ3ODAyLCJleHAiOjE3ODQ2NTI2MDJ9.Vx0fokiYiS1VKE3KZfmxVNvk5ZlP0RlR-Q5tjeArnEU
 authenticationType: bearer
 body: {}
 bodyType: null

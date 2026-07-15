@@ -1,5 +1,6 @@
 package app.lms.post.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.post.dto.AuthorResponse;
 import app.lms.post.dto.PostResponse;
 import app.lms.post.model.Post;
@@ -31,7 +32,7 @@ public class PostMapper {
 
                 post.getCommentsCount(),
 
-                post.getCreatedAt()
+                BaseEntityResponse.from(post)
         );
     }
 }

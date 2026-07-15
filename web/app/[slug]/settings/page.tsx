@@ -1,15 +1,14 @@
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
-import DeleteOrgCard from "@/components/cards/delete-org-card"
-import { ProfileCard } from "@/components/cards/profile-card"
+import { DeleteOrgButton } from "@/components/delete-org-button"
+import { OrganizationForm } from "@/components/forms/organization-form"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { api } from "@/lib/api"
 import { notFound } from "next/navigation"
-
 interface SettingsPageProps {
   params: Promise<{
     slug: string
   }>
 }
-
 export default async function SettingsPage({ params }: SettingsPageProps) {
   const { slug } = await params
   let organizationData
@@ -19,30 +18,33 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   } catch {
     notFound()
   }
-
   return (
-    <div className="flex h-full flex-col" dir="rtl">
+    <div className="flex flex-col gap-6" dir="rtl">
       <BreadcrumbTrail items={[{ label: "الإعدادات" }]} />
-      <header className="mb-8 shrink-0">
-        <h1 className="text-center text-xl font-bold text-primary">
-          إعدادات المؤسسة
-        </h1>
-        <h3 className="mt-0.5 text-center text-xs text-muted-foreground">
-          قم بادارة ملف المؤسسة وإعداداتها
-        </h3>
-      </header>
-
-      {/* Two columns - takes remaining height */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Profile Card */}
-        <div className="overflow-y-auto">
-          <ProfileCard initialData={organizationData} />
-        </div>
-
-        {/* Delete Card */}
-        <div className="overflow-y-auto">
-          <DeleteOrgCard slug={slug} />
-        </div>
+      <h1 className="text-2xl font-bold">الإعدادات</h1>
+      <div className="flex w-full max-w-lg flex-col gap-6">
+        <section className="flex flex-col gap-4">
+          <h2 className="text-lg font-semibold">معلومات المنظمة</h2>
+          <Card>
+            <CardContent>
+              <OrganizationForm initialData={organizationData} />
+            </CardContent>
+          </Card>
+        </section>
+        <section className="flex flex-col gap-4">
+          <h2 className="text-lg font-semibold">حذف المنظمة</h2>
+          <Card>
+            <CardContent>
+              <p>
+                سيؤدي حذف هذه المنظمة إلى حذف جميع بياناتها بما فيها الكورسات،
+                المنشورات، الملفات، والكويزات.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <DeleteOrgButton slug={slug} />
+            </CardFooter>
+          </Card>
+        </section>
       </div>
     </div>
   )

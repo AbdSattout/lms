@@ -1,0 +1,23 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi021
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "count": 5,
+      "regenerate": false
+    }
+bodyType: application/json
+description: ''
+headers: []
+method: POST
+name: Generate Course FAQ
+sortPriority: 21000.0
+url: http://localhost:8080/dashboard/ai/courses/{courseId}/faq/generate
+urlParameters: []

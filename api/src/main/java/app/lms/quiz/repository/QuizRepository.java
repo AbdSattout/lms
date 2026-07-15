@@ -23,4 +23,16 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     Optional<Quiz> findByCourseId(
             Long courseId
     );
+
+
+    boolean existsByCourseId(Long courseId);
+
+    @Query("""
+            select count(q)
+            from Quiz quiz
+            join quiz.questions q
+            where quiz.course.id = :courseId
+            """)
+    long countQuestionsByCourseId(Long courseId);
+
 }

@@ -1,0 +1,28 @@
+type: http_request
+model: http_request
+id: rq_D5yTKdkDpx
+createdAt: 2026-07-11T15:21:46.526053200
+updatedAt: 2026-07-14T16:55:38.359115200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+authenticationType: bearer
+body:
+  text: |-
+    {
+        "userId": 11,
+        "role": "STUDENT"
+      }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: YWKprU0C24
+method: POST
+name: Create invite
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/organizations/tech-company/invites
+urlParameters: []

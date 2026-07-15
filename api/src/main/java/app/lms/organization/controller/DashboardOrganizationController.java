@@ -1,12 +1,16 @@
 package app.lms.organization.controller;
 
 import app.lms.organization.dto.CreateOrganizationRequest;
+import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.UpdateOrganizationRequest;
 import app.lms.organization.service.DashboardOrganizationService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -131,6 +135,27 @@ public class DashboardOrganizationController {
         return ResponseEntity.ok(
                 dashboardOrganizationService.getDashboardOrganization(
                         slug,
+                        principal.user()
+                )
+        );
+    }
+    @GetMapping("/{slug}/members")
+    public ResponseEntity<Page<OrganizationMemberResponse>> getMembers(
+
+            @PathVariable
+            String slug,
+
+            @PageableDefault(size = 20)
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.getMembers(
+                        slug,
+                        pageable,
                         principal.user()
                 )
         );

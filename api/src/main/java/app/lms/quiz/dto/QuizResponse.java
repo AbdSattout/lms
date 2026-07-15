@@ -1,6 +1,8 @@
 package app.lms.quiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.question.dto.QuestionResponse;
+import app.lms.question.enums.QuestionDifficulty;
 
 import java.util.List;
 
@@ -8,5 +10,7 @@ public record QuizResponse(
         Long id,
         String title,
         Long courseId,
-        List<QuestionResponse> questions
+        QuestionDifficulty difficulty,
+        List<QuestionResponse> questions,
+        BaseEntityResponse baseEntity
 ) {}

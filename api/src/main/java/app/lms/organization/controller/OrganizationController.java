@@ -5,11 +5,13 @@ import app.lms.organization.dto.OrganizationResponse;
 
 import app.lms.organization.service.OrganizationService;
 
+import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 
 
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -38,6 +40,30 @@ public class OrganizationController {
 
         return ResponseEntity.ok(
                 organizationService.getBySlug(slug)
+        );
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<List<OrganizationResponse>> myOrganizations(
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                organizationService.getMyOrganizations(
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/{slug}/members/count")
+    public ResponseEntity<Long> membersCount(
+            @PathVariable String slug
+    ) {
+
+        return ResponseEntity.ok(
+                organizationService.getMembersCount(slug)
         );
     }
 

@@ -13,6 +13,7 @@ import java.util.Optional;
     public interface BlockRepository
             extends JpaRepository<Block, Long> {
 
+        
         List<Block> findAllByLessonId(
                 Long lessonId
         );
@@ -54,6 +55,14 @@ import java.util.Optional;
 
         long countByLessonChapterCourseId(
                 Long courseId
+        );
+
+        long countByLessonId(
+                Long lessonId
+        );
+
+        long countByLessonChapterId(
+                Long chapterId
         );
 
         boolean existsByQuestionId(

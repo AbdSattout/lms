@@ -2,16 +2,16 @@ package app.lms.ai.mobile.quiz.service;
 
 import app.lms.ai.common.exception.AiServiceException;
 import app.lms.ai.mobile.quiz.dto.*;
+import app.lms.ai.mobile.quiz.mapper.MobileAiRandomQuizMapper;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttempt;
-import app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion;
 import app.lms.ai.mobile.quiz.repository.RandomQuizAttemptRepository;
 import app.lms.common.exception.BadRequestException;
-import app.lms.common.exception.ConflictException;
-import app.lms.common.exception.NotFoundException;
+import app.lms.common.quiz.dto.QuizGradingResult;
+import app.lms.common.quiz.service.QuizAttemptValidationService;
+import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.model.Question;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
@@ -22,7 +22,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +35,11 @@ public class MobileAiRandomQuizService {
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final BlockProgressRepository blockProgressRepository;
     private final RandomQuizAttemptRepository randomQuizAttemptRepository;
-
+    private final QuizGradingService quizGradingService;
+    private final QuizAttemptValidationService quizAttemptValidationService;
+    private final MobileAiRandomQuizMapper mobileAiRandomQuizMapper;
+    private final MobileAiRandomQuizAccessService mobileAiRandomQuizAccessService;
+    private final MobileAiRandomQuizValidationService mobileAiRandomQuizValidationService;
     @Transactional
     public RandomQuizResponse generate(
             Long courseId,
@@ -94,13 +97,14 @@ public class MobileAiRandomQuizService {
                                     GeneratedRandomQuizResponse.class
                             );
 
-            validateAiResponse(
+            mobileAiRandomQuizValidationService.validateAiResponse(
                     aiResponse,
-                    selectedQuestions
+                    selectedQuestions,
+                    RANDOM_QUIZ_SIZE
             );
 
             RandomQuizAttempt attempt =
-                    buildAttempt(
+                    mobileAiRandomQuizMapper.toAttempt(
                             enrollment,
                             selectedQuestions,
                             aiResponse
@@ -110,7 +114,7 @@ public class MobileAiRandomQuizService {
                     attempt
             );
 
-            return toResponse(
+            return mobileAiRandomQuizMapper.toResponse(
                     attempt
             );
 
@@ -142,304 +146,35 @@ public class MobileAiRandomQuizService {
         );
 
         RandomQuizAttempt attempt =
-                randomQuizAttemptRepository
-                        .findByIdAndCourseIdAndUserId(
-                                attemptId,
+                mobileAiRandomQuizAccessService
+                        .getAttempt(
                                 courseId,
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Random quiz attempt not found"
-                                )
+                                attemptId,
+                                user
                         );
 
-        if (Boolean.TRUE.equals(attempt.getCompleted())) {
-            throw new ConflictException(
-                    "Random quiz attempt already submitted"
-            );
-        }
+        quizAttemptValidationService.validateNotSubmitted(
+                attempt
+        );
 
-        if (request.answers().size() != attempt.getQuestions().size()) {
-            throw new BadRequestException(
-                    "You must answer all quiz questions"
-            );
-        }
-
-        Map<Long, Integer> answers =
-                request.answers()
-                        .stream()
-                        .collect(
-                                Collectors.toMap(
-                                        SubmitRandomQuizAnswer::questionId,
-                                        SubmitRandomQuizAnswer::answerIndex
-                                )
-                        );
-
-        int score = 0;
-
-        for (RandomQuizAttemptQuestion question : attempt.getQuestions()) {
-
-            Integer selectedAnswerIndex =
-                    answers.get(
-                            question.getId()
-                    );
-
-            if (selectedAnswerIndex == null) {
-                throw new BadRequestException(
-                        "Missing answer for question: " + question.getId()
+        QuizGradingResult gradingResult =
+                quizGradingService.grade(
+                        attempt.getQuestions(),
+                        request.answers()
                 );
-            }
-
-            if (
-                    selectedAnswerIndex < 0 ||
-                            selectedAnswerIndex >= question.getOptions().size()
-            ) {
-                throw new BadRequestException(
-                        "Invalid answer index for question: " + question.getId()
-                );
-            }
-
-            boolean correct =
-                    question.getCorrectAnswerIndex()
-                            .equals(
-                                    selectedAnswerIndex
-                            );
-
-            question.setSelectedAnswerIndex(
-                    selectedAnswerIndex
-            );
-
-            question.setCorrect(
-                    correct
-            );
-
-            if (correct) {
-                score++;
-            }
-        }
 
         attempt.setScore(
-                score
+                gradingResult.score()
         );
 
         attempt.setCompleted(
                 true
         );
 
-        return new RandomQuizSubmitResponse(
-                attempt.getId(),
-                score,
-                attempt.getQuestions().size(),
-                attempt.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new RandomQuizQuestionResultResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions(),
-                                        question.getSelectedAnswerIndex(),
-                                        question.getCorrectAnswerIndex(),
-                                        question.getCorrect()
-                                )
-                        )
-                        .toList()
+        return mobileAiRandomQuizMapper.toSubmitResponse(
+                attempt
         );
     }
 
-    private RandomQuizAttempt buildAttempt(
-            CourseEnrollment enrollment,
-            List<Question> selectedQuestions,
-            GeneratedRandomQuizResponse aiResponse
-    ) {
 
-        Map<Long, Question> sourceQuestionMap =
-                selectedQuestions
-                        .stream()
-                        .collect(
-                                Collectors.toMap(
-                                        Question::getId,
-                                        question -> question
-                                )
-                        );
-
-        RandomQuizAttempt attempt =
-                RandomQuizAttempt.builder()
-                        .course(
-                                enrollment.getCourse()
-                        )
-                        .user(
-                                enrollment.getUser()
-                        )
-                        .completed(
-                                false
-                        )
-                        .build();
-
-        for (GeneratedRandomQuizQuestion generated : aiResponse.questions()) {
-
-            Question sourceQuestion =
-                    sourceQuestionMap.get(
-                            generated.sourceQuestionId()
-                    );
-
-            RandomQuizAttemptQuestion attemptQuestion =
-                    RandomQuizAttemptQuestion.builder()
-                            .attempt(
-                                    attempt
-                            )
-                            .sourceQuestion(
-                                    sourceQuestion
-                            )
-                            .content(
-                                    generated.content().trim()
-                            )
-                            .options(
-                                    generated.options()
-                            )
-                            .correctAnswerIndex(
-                                    generated.correctAnswerIndex()
-                            )
-                            .build();
-
-            attempt.getQuestions()
-                    .add(
-                            attemptQuestion
-                    );
-        }
-
-        return attempt;
-    }
-
-    private RandomQuizResponse toResponse(
-            RandomQuizAttempt attempt
-    ) {
-
-        return new RandomQuizResponse(
-                attempt.getId(),
-                attempt.getQuestions()
-                        .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
-        );
-    }
-
-    private void validateAiResponse(
-            GeneratedRandomQuizResponse response,
-            List<Question> sourceQuestions
-    ) {
-
-        if (
-                response == null ||
-                        response.questions() == null ||
-                        response.questions().size() != RANDOM_QUIZ_SIZE
-        ) {
-            throw new AiServiceException(
-                    "AI must return exactly 10 questions",
-                    HttpStatus.SERVICE_UNAVAILABLE,
-                    null
-            );
-        }
-
-        Map<Long, Question> sourceQuestionMap =
-                sourceQuestions
-                        .stream()
-                        .collect(
-                                Collectors.toMap(
-                                        Question::getId,
-                                        question -> question
-                                )
-                        );
-
-        Set<Long> usedSourceQuestionIds =
-                new HashSet<>();
-
-        for (GeneratedRandomQuizQuestion question : response.questions()) {
-
-            if (
-                    question.sourceQuestionId() == null ||
-                            !sourceQuestionMap.containsKey(
-                                    question.sourceQuestionId()
-                            )
-            ) {
-                throw new AiServiceException(
-                        "AI returned invalid source question id",
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        null
-                );
-            }
-
-            if (
-                    !usedSourceQuestionIds.add(
-                            question.sourceQuestionId()
-                    )
-            ) {
-                throw new AiServiceException(
-                        "AI returned duplicate source question id",
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        null
-                );
-            }
-
-            if (
-                    question.content() == null ||
-                            question.content().isBlank()
-            ) {
-                throw new AiServiceException(
-                        "AI returned empty question content",
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        null
-                );
-            }
-
-            Question sourceQuestion =
-                    sourceQuestionMap.get(
-                            question.sourceQuestionId()
-                    );
-
-            if (
-                    question.options() == null ||
-                            question.options().size() != sourceQuestion.getOptions().size()
-            ) {
-                throw new AiServiceException(
-                        "AI returned invalid options count",
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        null
-                );
-            }
-
-            boolean hasEmptyOption =
-                    question.options()
-                            .stream()
-                            .anyMatch(option ->
-                                    option == null || option.isBlank()
-                            );
-
-            if (hasEmptyOption) {
-                throw new AiServiceException(
-                        "AI returned empty option",
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        null
-                );
-            }
-
-            if (
-                    question.correctAnswerIndex() == null ||
-                            question.correctAnswerIndex() < 0 ||
-                            question.correctAnswerIndex() >= question.options().size()
-            ) {
-                throw new AiServiceException(
-                        "AI returned invalid correct answer index",
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        null
-                );
-            }
-        }
-    }
 }

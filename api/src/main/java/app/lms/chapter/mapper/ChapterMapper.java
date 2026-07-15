@@ -3,6 +3,7 @@ package app.lms.chapter.mapper;
 import app.lms.chapter.dto.ChapterDetailsResponse;
 import app.lms.chapter.dto.ChapterResponse;
 import app.lms.chapter.model.Chapter;
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.lesson.mapper.LessonMapper;
 import app.lms.lesson.model.Lesson;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,8 @@ public class ChapterMapper {
                         .map(
                                 lessonMapper::toResponse
                         )
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(chapter)
         );
     }
     public ChapterDetailsResponse toDetailsResponse(
@@ -45,7 +47,8 @@ public class ChapterMapper {
                 chapter.getTitle(),
                 chapter.getPosition(),
                 chapter.getCourse().getId(),
-                chapter.getCourse().getOrganization().getId()
+                chapter.getCourse().getOrganization().getId(),
+                BaseEntityResponse.from(chapter)
         );
     }
 }

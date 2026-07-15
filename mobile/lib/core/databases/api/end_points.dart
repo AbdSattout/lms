@@ -25,4 +25,27 @@ class EndPoints {
 
   static const String updateProfilePicture =
       'users/me/picture';
+
+  // Courses
+  static const String courses = 'courses';
+
+  static String courseById(int id) => 'courses/$id';
+
+  static String enrollInCourse(int id) => 'courses/$id/enroll';
+
+  static const String myEnrollments = 'courses/me/enrollments';
+
+  // Organizations
+  static const String organizations = 'organizations';
+
+  static String organizationBySlug(String slug) => 'organizations/$slug';
+
+  static String organizationCourses(String orgSlug) =>
+      'organizations/$orgSlug/courses';
+
+  static String courseBySlug({
+    required String orgSlug,
+    required String courseSlug,
+  }) =>
+      'organizations/$orgSlug/courses/$courseSlug';
 }

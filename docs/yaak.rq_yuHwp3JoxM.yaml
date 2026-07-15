@@ -2,16 +2,30 @@ type: http_request
 model: http_request
 id: rq_yuHwp3JoxM
 createdAt: 2026-06-11T19:37:16.440133900
-updatedAt: 2026-06-11T19:37:51.552267
+updatedAt: 2026-07-14T15:25:17.223469900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NRRWNohAxw
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
 authenticationType: bearer
 body:
   text: ''
 bodyType: application/json
-description: ''
+description: |-
+  Response now includes a rewards array. Each reward tells the frontend whether XP was awarded, how much XP was gained, total XP after the award, and whether the user leveled up.
+
+  Example reward:
+  {
+    "eventType": "BLOCK_COMPLETE",
+    "referenceId": 15,
+    "awarded": true,
+    "xpAwarded": 10,
+    "totalXp": 120,
+    "previousLevelNumber": 1,
+    "currentLevelNumber": 2,
+    "currentLevelTitle": "Beginner",
+    "leveledUp": true
+  }
 headers:
 - enabled: true
   name: Content-Type
@@ -20,5 +34,5 @@ headers:
 method: POST
 name: enrol
 sortPriority: 0.0
-url: http://localhost:8080/courses/2/enroll
+url: http://localhost:8080/courses/6/enroll
 urlParameters: []

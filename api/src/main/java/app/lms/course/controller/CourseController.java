@@ -18,7 +18,15 @@ public class CourseController {
     private final CourseService courseService;
 
 
+    @GetMapping("/courses")
+    public ResponseEntity<Page<CourseResponse>> getAllCourses(
+            Pageable pageable
+    ) {
 
+        return ResponseEntity.ok(
+                courseService.getAll(pageable)
+        );
+    }
 
 
     @GetMapping("/courses/{courseId}")

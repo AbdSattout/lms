@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
+@RequestMapping("/courseMedia")
 @RequiredArgsConstructor
 public class CourseMediaController {
 
@@ -48,10 +49,13 @@ public class CourseMediaController {
     }
 
     @PatchMapping(
-            value = "/media/{mediaId}",
+            value = "/courses/{courseId}/media/{mediaId}",
             consumes = "multipart/form-data"
     )
     public ResponseEntity<CourseMediaResponse> update(
+
+            @PathVariable
+            Long courseId,
 
             @PathVariable
             Long mediaId,
@@ -68,6 +72,7 @@ public class CourseMediaController {
 
         return ResponseEntity.ok(
                 courseMediaService.update(
+                        courseId,
                         mediaId,
                         file,
                         name,
@@ -77,9 +82,12 @@ public class CourseMediaController {
     }
 
     @DeleteMapping(
-            "/media/{mediaId}"
+            "/courses/{courseId}/media/{mediaId}"
     )
     public ResponseEntity<Void> delete(
+
+            @PathVariable
+            Long courseId,
 
             @PathVariable
             Long mediaId,
@@ -89,6 +97,7 @@ public class CourseMediaController {
     ) {
 
         courseMediaService.delete(
+                courseId,
                 mediaId,
                 principal.user()
         );
@@ -100,11 +109,14 @@ public class CourseMediaController {
 
 
     @GetMapping(
-            "/media/{mediaId}"
+            "/courses/{courseId}/media/{mediaId}"
     )
     public ResponseEntity<
             CourseMediaResponse
             > getById(
+
+            @PathVariable
+            Long courseId,
 
             @PathVariable
             Long mediaId,
@@ -115,6 +127,7 @@ public class CourseMediaController {
 
         return ResponseEntity.ok(
                 courseMediaService.getById(
+                        courseId,
                         mediaId,
                         principal.user()
                 )

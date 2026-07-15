@@ -1,5 +1,6 @@
 package app.lms.post.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.post.dto.AuthorResponse;
 import app.lms.post.dto.CommentResponse;
 import app.lms.post.model.Comment;
@@ -26,7 +27,7 @@ public class CommentMapper {
                         ? comment.getParent().getId()
                         : null,
 
-                comment.getCreatedAt()
+                BaseEntityResponse.from(comment)
         );
     }
 }
