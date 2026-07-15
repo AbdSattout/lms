@@ -1,6 +1,8 @@
 package app.lms.course.service;
 
 import app.lms.courceEnrollment.model.CourseEnrollment;
+import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.dto.CourseDetailsResponse;
 import app.lms.course.dto.CourseResponse;
@@ -10,11 +12,17 @@ import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +37,8 @@ public class CourseService {
     private final CourseAccessService courseAccessService;
 
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
+    private final BlockProgressRepository blockProgressRepository;
+    private final CourseEnrollmentRepository courseEnrollmentRepository;
 
     public CourseResponse getBySlug(
             String organizationSlug,
@@ -74,7 +84,11 @@ public class CourseService {
 
         return courseMapper.toDetailsResponse(
                 course,
-                enrollment
+                enrollment,
+                blockProgressRepository.findCompletedBlockIdsByUserIdAndCourseId(
+                        user.getId(),
+                        courseId
+                )
         );
     }
 
@@ -101,15 +115,48 @@ public class CourseService {
     }
 
     public Page<CourseResponse> getAll(
-            Pageable pageable
+            Pageable pageable,
+            User user
     ) {
 
-        return courseRepository
+        Page<Course> courses =
+                courseRepository
                 .findAllByStatus(
                         CourseStatus.PUBLISHED,
                         pageable
+                );
+
+        List<Long> courseIds =
+                courses.getContent()
+                        .stream()
+                        .map(Course::getId)
+                        .toList();
+
+        Map<Long, CourseEnrollment> enrollmentsByCourseId =
+                courseIds.isEmpty()
+                        ? Map.of()
+                        : courseEnrollmentRepository
+                                .findAllByUserIdAndStatusAndCourseIdIn(
+                                        user.getId(),
+                                        EnrollmentStatus.ACTIVE,
+                                        courseIds
+                                )
+                                .stream()
+                                .collect(
+                                        Collectors.toMap(
+                                                enrollment ->
+                                                        enrollment.getCourse()
+                                                                .getId(),
+                                                Function.identity()
+                                        )
+                                );
+
+        return courses.map(course ->
+                courseMapper.toResponse(
+                        course,
+                        enrollmentsByCourseId.get(course.getId())
                 )
-                .map(courseMapper::toResponse);
+        );
     }
 
 

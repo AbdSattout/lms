@@ -1,5 +1,7 @@
 package app.lms.ai.mobile.quiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record RandomQuizQuestionResultResponse(
@@ -14,7 +16,9 @@ public record RandomQuizQuestionResultResponse(
 
         Integer correctAnswerIndex,
 
-        Boolean correct
+        Boolean correct,
+
+        BaseEntityResponse baseEntity
 
 ) {
 }

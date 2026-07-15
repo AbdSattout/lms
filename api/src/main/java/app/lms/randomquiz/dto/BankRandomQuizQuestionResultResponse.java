@@ -1,5 +1,7 @@
 package app.lms.randomquiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record BankRandomQuizQuestionResultResponse(
@@ -14,6 +16,8 @@ public record BankRandomQuizQuestionResultResponse(
 
         Integer correctAnswerIndex,
 
-        Boolean correct
+        Boolean correct,
+
+        BaseEntityResponse baseEntity
 ) {
 }

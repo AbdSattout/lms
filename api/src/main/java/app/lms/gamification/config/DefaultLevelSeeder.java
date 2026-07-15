@@ -1,7 +1,6 @@
 package app.lms.gamification.config;
 
 import app.lms.gamification.enums.LevelTier;
-import app.lms.gamification.enums.LevelUnlockType;
 import app.lms.gamification.model.Level;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
@@ -46,9 +45,7 @@ public class DefaultLevelSeeder implements ApplicationRunner {
                             .levelNumber(levelNumber)
                             .requiredXp(requiredXpFor(levelNumber))
                             .title(titleFor(levelNumber))
-                            .badgeIcon(badgeIconFor(levelNumber))
                             .tier(tierFor(levelNumber))
-                            .unlockTypes(unlocksFor(levelNumber))
                             .build();
 
             levelRepository.save(level);
@@ -103,20 +100,6 @@ public class DefaultLevelSeeder implements ApplicationRunner {
         };
     }
 
-    private String badgeIconFor(
-            int levelNumber
-    ) {
-
-        return switch (tierFor(levelNumber)) {
-            case BEGINNER -> "seedling";
-            case LEARNER -> "book-open";
-            case EXPLORER -> "compass";
-            case ACHIEVER -> "trophy";
-            case SPECIALIST -> "medal";
-            case MASTER -> "crown";
-        };
-    }
-
     private LevelTier tierFor(
             int levelNumber
     ) {
@@ -144,10 +127,4 @@ public class DefaultLevelSeeder implements ApplicationRunner {
         return LevelTier.BEGINNER;
     }
 
-    private List<LevelUnlockType> unlocksFor(
-            int levelNumber
-    ) {
-
-        return List.of();
-    }
 }

@@ -258,11 +258,11 @@ public class CourseEnrollmentService {
                         100
                 );
 
-                enrollment.setLastAccessedLesson(
+                enrollment.setCurrentLesson(
                         currentBlock.getLesson()
                 );
 
-                enrollment.setLastAccessedBlock(
+                enrollment.setCurrentBlock(
                         currentBlock
                 );
 
@@ -275,11 +275,11 @@ public class CourseEnrollmentService {
 
             case QUIZ -> {
 
-                enrollment.setLastAccessedLesson(
+                enrollment.setCurrentLesson(
                         currentBlock.getLesson()
                 );
 
-                enrollment.setLastAccessedBlock(
+                enrollment.setCurrentBlock(
                         currentBlock
                 );
             }
@@ -297,11 +297,11 @@ public class CourseEnrollmentService {
                                         )
                                 );
 
-                enrollment.setLastAccessedLesson(
+                enrollment.setCurrentLesson(
                         nextBlock.getLesson()
                 );
 
-                enrollment.setLastAccessedBlock(
+                enrollment.setCurrentBlock(
                         nextBlock
                 );
             }
@@ -339,31 +339,6 @@ public class CourseEnrollmentService {
         );
     }
 
-//    private void addStudentToOrganizationIfNeeded(
-//            Organization organization,
-//            User user
-//    ) {
-//
-//        boolean isMember =
-//                memberRepository
-//                        .existsByOrganizationIdAndUserId(
-//                                organization.getId(),
-//                                user.getId()
-//                        );
-//
-//        if (isMember) {
-//            return;
-//        }
-//
-//        OrganizationMember member =
-//                OrganizationMember.builder()
-//                        .organization(organization)
-//                        .user(user)
-//                        .role(Role.STUDENT)
-//                        .build();
-//
-//        memberRepository.save(member);
-//    }
 
     private void validateCanEnrollAsStudent(
             Optional<OrganizationMember> existingMember

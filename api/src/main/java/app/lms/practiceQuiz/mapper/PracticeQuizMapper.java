@@ -3,15 +3,14 @@ package app.lms.practiceQuiz.mapper;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.course.model.Course;
-import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.practiceQuiz.dto.CreatePracticeQuizRequest;
+import app.lms.practiceQuiz.dto.PracticeQuizGradingQuestion;
 import app.lms.practiceQuiz.dto.PracticeQuizPublicResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizQuestionResultResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizSummaryResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizSubmitResponse;
 import app.lms.practiceQuiz.model.PracticeQuiz;
-import app.lms.practiceQuiz.model.PracticeQuizAttempt;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
@@ -105,39 +104,27 @@ public class PracticeQuizMapper {
     }
 
     public PracticeQuizSubmitResponse toSubmitResponse(
-            PracticeQuizAttempt attempt
-    ) {
-
-        return toSubmitResponse(
-                attempt,
-                List.of()
-        );
-    }
-
-    public PracticeQuizSubmitResponse toSubmitResponse(
-            PracticeQuizAttempt attempt,
-            List<GamificationAwardResponse> rewards
+            Integer score,
+            Integer total,
+            List<PracticeQuizGradingQuestion> questions
     ) {
 
         return new PracticeQuizSubmitResponse(
-                attempt.getId(),
-                attempt.getScore(),
-                attempt.getTotal(),
-                attempt.getAnswers()
+                score,
+                total,
+                questions
                         .stream()
-                        .map(answer ->
+                        .map(question ->
                                 new PracticeQuizQuestionResultResponse(
-                                        answer.getSourceQuestion().getId(),
-                                        answer.getContent(),
-                                        answer.getOptions(),
-                                        answer.getSelectedAnswerIndex(),
-                                        answer.getCorrectAnswerIndex(),
-                                        answer.getCorrect()
+                                        question.getQuestionId(),
+                                        question.getContent(),
+                                        question.getOptions(),
+                                        question.getSelectedAnswerIndex(),
+                                        question.getCorrectAnswerIndex(),
+                                        question.getCorrect()
                                 )
                         )
-                        .toList(),
-                rewards,
-                BaseEntityResponse.from(attempt)
+                        .toList()
         );
     }
 

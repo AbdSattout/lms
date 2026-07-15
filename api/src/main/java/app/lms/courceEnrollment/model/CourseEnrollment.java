@@ -56,12 +56,12 @@ public class CourseEnrollment {
     private Integer progressPercentage;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "last_lesson_id")
-    private Lesson lastAccessedLesson;
+    @JoinColumn(name = "current_lesson_id")
+    private Lesson currentLesson;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "last_block_id")
-    private Block lastAccessedBlock;
+    @JoinColumn(name = "current_block_id")
+    private Block currentBlock;
 
     private LocalDateTime completedAt;
 
