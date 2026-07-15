@@ -1,6 +1,7 @@
 package app.lms.quiz.service;
 
 import app.lms.block.repository.BlockRepository;
+import app.lms.certificate.service.CertificateService;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.quiz.dto.QuizGradingResult;
@@ -43,6 +44,7 @@ public class MobileFinalQuizService {
     private final QuizAccessService quizAccessService;
     private final GamificationService gamificationService;
     private final UserActivityService userActivityService;
+    private final CertificateService certificateService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -184,6 +186,12 @@ public class MobileFinalQuizService {
                     LocalDateTime.now()
             );
         }
+
+        certificateService.issueCertificate(
+
+                quiz.getCourse(),
+                user
+        );
 
         List<GamificationAwardResponse> rewards =
                 new ArrayList<>();
