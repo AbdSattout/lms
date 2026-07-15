@@ -1,6 +1,11 @@
 export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
 export type FileType = "IMAGE" | "VIDEO" | "FILE"
 
+export interface BaseEntityResponse {
+  createdAt: string
+  updatedAt: string
+}
+
 export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
 
 export interface User {
@@ -30,6 +35,7 @@ export interface OrganizationResponse {
   image?: string
   visibility: OrganizationVisibility
   ownerName: string
+  baseEntity?: BaseEntityResponse
 }
 
 export interface CourseResponse {
@@ -40,12 +46,14 @@ export interface CourseResponse {
   coverUrl?: string
   status: "DRAFT" | "PUBLISHED"
   organizationName: string
+  baseEntity?: BaseEntityResponse
 }
 
 export interface EnrollmentResponse {
   courseId: number
   courseTitle: string
   enrolledAt: string
+  rewards?: GamificationAwardResponse[]
 }
 
 export interface ChapterResponse {
@@ -53,12 +61,14 @@ export interface ChapterResponse {
   title: string
   position?: number
   lessons: LessonResponse[]
+  baseEntity?: BaseEntityResponse
 }
 
 export interface LessonResponse {
   id: number
   title: string
   position?: number
+  baseEntity?: BaseEntityResponse
 }
 
 export interface BlockResponse {
@@ -67,6 +77,7 @@ export interface BlockResponse {
   content?: string
   position?: number
   question?: QuestionResponse
+  baseEntity?: BaseEntityResponse
 }
 
 export interface BlockPublicResponse {
@@ -75,29 +86,33 @@ export interface BlockPublicResponse {
   content?: string
   position?: number
   question?: QuestionPublicResponse
+  baseEntity?: BaseEntityResponse
 }
 
 export interface QuestionResponse {
   id: number
   courseId: number
   content: string
-  options?: string[]
+  options: string[]
   correctAnswerIndex: number
-  difficulty?: QuestionDifficulty
+  difficulty: QuestionDifficulty
+  baseEntity?: BaseEntityResponse
 }
 
 export interface QuestionPublicResponse {
   id: number
   content: string
-  options?: string[]
+  options: string[]
+  baseEntity?: BaseEntityResponse
 }
 
 export interface QuizResponse {
   id: number
   title: string
   courseId: number
-  difficulty?: QuestionDifficulty
+  difficulty: QuestionDifficulty
   questions: QuestionResponse[]
+  baseEntity?: BaseEntityResponse
 }
 
 export interface PostResponse {
@@ -109,7 +124,7 @@ export interface PostResponse {
   courseId: number
   likesCount: number
   commentsCount: number
-  createdAt: string
+  baseEntity?: BaseEntityResponse
 }
 
 export interface AuthorResponse {
@@ -123,7 +138,7 @@ export interface CommentResponse {
   content: string
   author: AuthorResponse
   parentCommentId?: number
-  createdAt: string
+  baseEntity?: BaseEntityResponse
 }
 
 export interface CourseMediaResponse {
@@ -132,6 +147,9 @@ export interface CourseMediaResponse {
   url: string
   type: FileType
   courseId: number
+  organizationMediaId?: number
+  sizeBytes?: number
+  baseEntity?: BaseEntityResponse
 }
 
 export interface PageableObject {
@@ -183,6 +201,7 @@ export interface ChapterDetailsResponse {
   position?: number
   courseId: number
   organizationId: number
+  baseEntity?: BaseEntityResponse
 }
 
 export interface LessonDetailsResponse {
@@ -192,6 +211,7 @@ export interface LessonDetailsResponse {
   chapterId: number
   courseId: number
   organizationId: number
+  baseEntity?: BaseEntityResponse
 }
 
 export interface GenerateQuestionFromBlockContentRequest {
@@ -231,6 +251,19 @@ export type AiTextTone =
   | "ACADEMIC"
   | "MOTIVATIONAL"
 
+export interface GamificationAwardResponse {
+  eventType: string
+  referenceId: number
+  awarded: boolean
+  xpAwarded: number
+  totalXp: number
+  previousLevelNumber: number
+  currentLevelNumber: number
+  currentLevelTitle: string
+  leveledUp: boolean
+  baseEntity?: BaseEntityResponse
+}
+
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>
 
@@ -258,6 +291,7 @@ export interface OrganizationInviteResponse {
   createdAt: string
   maxUses: number
   usedCount: number
+  baseEntity?: BaseEntityResponse
 }
 
 export interface CreateInviteRequest {
@@ -300,10 +334,39 @@ export interface UserSearchResponse {
   email: string
 }
 
+export interface PostMediaResponse {
+  id: number
+  name: string
+  url: string
+  type: FileType
+  organizationId: number
+  organizationMediaId?: number
+  sizeBytes?: number
+  baseEntity?: BaseEntityResponse
+}
+
+export interface OrganizationMediaResponse {
+  id: number
+  name: string
+  url: string
+  type: FileType
+  sizeBytes?: number
+  organizationId: number
+  baseEntity?: BaseEntityResponse
+}
+
+export interface OrganizationMediaSummaryResponse {
+  organizationId: number
+  totalFiles: number
+  totalSizeBytes: number
+}
+
 export interface FinalQuizResponse {
   quizId: number
   courseId: number
+  difficulty?: QuestionDifficulty
   questions: QuestionPublicResponse[]
+  baseEntity?: BaseEntityResponse
 }
 
 export interface SubmitFinalQuizAnswer {
@@ -325,6 +388,8 @@ export interface FinalQuizSubmitResponse {
   score: number
   total: number
   results: FinalQuizQuestionResultResponse[]
+  rewards?: GamificationAwardResponse[]
+  baseEntity?: BaseEntityResponse
 }
 
 export type PageOrganizationMemberResponse = Page<OrganizationMemberResponse>
@@ -340,8 +405,9 @@ export interface PracticeQuizResponse {
   title: string
   description?: string
   courseId: number
-  difficulty?: QuestionDifficulty
+  difficulty: QuestionDifficulty
   questions: QuestionResponse[]
+  baseEntity?: BaseEntityResponse
 }
 
 export interface PracticeQuizSummaryResponse {
@@ -349,8 +415,9 @@ export interface PracticeQuizSummaryResponse {
   title: string
   description?: string
   courseId: number
-  difficulty?: QuestionDifficulty
+  difficulty: QuestionDifficulty
   questionCount: number
+  baseEntity?: BaseEntityResponse
 }
 
 export interface UpdatePracticeQuizQuestionsRequest {
@@ -366,12 +433,14 @@ export interface RoadmapResponse {
   organizationId: number
   organizationSlug: string
   items: RoadmapItemResponse[]
+  baseEntity?: BaseEntityResponse
 }
 
 export interface RoadmapItemResponse {
   id: number
   position: number
   course: CourseResponse
+  baseEntity?: BaseEntityResponse
 }
 
 export interface UpsertRoadmapRequest {

@@ -35,16 +35,6 @@ export const byCourse = defineApiRoute({
       `/courses/${courseId}/posts${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
-  post: (
-    slug: string,
-    request: CreatePostInput,
-    options?: BackendFetchOptions
-  ) =>
-    backend<PostResponse>(`/organizations/${slug}/posts`, {
-      method: "POST",
-      body: request,
-      ...options,
-    }),
 })
 
 export const byId = defineApiRoute({
