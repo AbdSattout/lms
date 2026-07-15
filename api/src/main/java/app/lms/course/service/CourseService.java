@@ -10,6 +10,7 @@ import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,6 +30,7 @@ public class CourseService {
     private final CourseAccessService courseAccessService;
 
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
+    private final BlockProgressRepository blockProgressRepository;
 
     public CourseResponse getBySlug(
             String organizationSlug,
@@ -74,7 +76,11 @@ public class CourseService {
 
         return courseMapper.toDetailsResponse(
                 course,
-                enrollment
+                enrollment,
+                blockProgressRepository.findCompletedBlockIdsByUserIdAndCourseId(
+                        user.getId(),
+                        courseId
+                )
         );
     }
 
