@@ -1,18 +1,15 @@
-package app.lms.courceEnrollment.model;
+package app.lms.placementTest.model;
 
 import app.lms.block.model.Block;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import app.lms.common.model.BaseEntity;
 import app.lms.course.model.Course;
-import app.lms.lesson.model.Lesson;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(
-        name = "course_enrollments",
+        name = "course_placement_test_attempts",
         uniqueConstraints = {
                 @UniqueConstraint(
                         columnNames = {
@@ -27,7 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CourseEnrollment {
+public class CoursePlacementTestAttempt extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,31 +44,23 @@ public class CourseEnrollment {
     )
     private Course course;
 
-    private LocalDateTime enrolledAt;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EnrollmentStatus status;
-
-    private Integer progressPercentage;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "current_lesson_id")
-    private Lesson currentLesson;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "current_block_id")
     private Block currentBlock;
 
-    private LocalDateTime completedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "placed_block_id")
+    private Block placedBlock;
 
-    @PrePersist
-    public void onEnroll() {
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean completed = false;
 
-        enrolledAt = LocalDateTime.now();
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer correctAnswers = 0;
 
-        if (progressPercentage == null) {
-            progressPercentage = 0;
-        }
-    }
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer totalAnswers = 0;
 }

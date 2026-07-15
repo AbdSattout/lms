@@ -45,8 +45,8 @@ class course_enrollments {
    completed_at: datetime(6)
    course_id: bigint(20)
    enrolled_at: datetime(6)
-   last_block_id: bigint(20)
-   last_lesson_id: bigint(20)
+   current_block_id: bigint(20)
+   current_lesson_id: bigint(20)
    user_id: bigint(20)
    status: enum('active', 'banned', 'completed', 'dropped')
    id: bigint(20)
@@ -294,9 +294,9 @@ chapters                              -[#595959,plain]-^  courses               
 comments                              -[#595959,plain]-^  comments                             : "parent_id:id"
 comments                              -[#595959,plain]-^  posts                                : "post_id:id"
 comments                              -[#595959,plain]-^  users                                : "author_id:id"
-course_enrollments                    -[#595959,plain]-^  blocks                               : "last_block_id:id"
+course_enrollments                    -[#595959,plain]-^  blocks                               : "current_block_id:id"
 course_enrollments                    -[#595959,plain]-^  courses                              : "course_id:id"
-course_enrollments                    -[#595959,plain]-^  lessons                              : "last_lesson_id:id"
+course_enrollments                    -[#595959,plain]-^  lessons                              : "current_lesson_id:id"
 course_enrollments                    -[#595959,plain]-^  users                                : "user_id:id"
 course_faqs                           -[#595959,plain]-^  courses                              : "course_id:id"
 course_media                          -[#595959,plain]-^  courses                              : "course_id:id"
