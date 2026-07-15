@@ -417,6 +417,11 @@ public class DashboardOrganizationService {
         User targetUser = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
+        if (request.getRole() == Role.OWNER)
+            throw new BadRequestException(
+                    "you can not use Role OWNER in invite"
+            );
+
         OrganizationInvite invite =
                 OrganizationInvite.builder()
                         .organization(organization)
