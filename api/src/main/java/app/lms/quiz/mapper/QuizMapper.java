@@ -86,7 +86,8 @@ public class QuizMapper {
                                         answer.getOptions(),
                                         answer.getSelectedAnswerIndex(),
                                         answer.getCorrectAnswerIndex(),
-                                        answer.getCorrect()
+                                        answer.getCorrect(),
+                                        BaseEntityResponse.from(answer)
                                 )
                         )
                         .toList(),
