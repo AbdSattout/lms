@@ -22,7 +22,6 @@ public class GamificationService {
     private final XPEventRepository xpEventRepository;
     private final UserProgressRepository userProgressRepository;
     private final LevelRepository levelRepository;
-    private final GamificationAccessService gamificationAccessService;
     private final UserActivityService userActivityService;
 
     @Transactional
@@ -300,11 +299,6 @@ public class GamificationService {
                 .xpIntoLevel(xpIntoLevel)
                 .xpToNextLevel(xpToNextLevel)
                 .progressPercentage(progressPercentage)
-                .unlocks(
-                        gamificationAccessService.getUnlocks(
-                                totalXp
-                        )
-                )
                 .baseEntity(
                         BaseEntityResponse.from(progress)
                 )
