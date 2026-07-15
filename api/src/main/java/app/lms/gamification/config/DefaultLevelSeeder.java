@@ -45,7 +45,6 @@ public class DefaultLevelSeeder implements ApplicationRunner {
                             .levelNumber(levelNumber)
                             .requiredXp(requiredXpFor(levelNumber))
                             .title(titleFor(levelNumber))
-                            .badgeIcon(badgeIconFor(levelNumber))
                             .tier(tierFor(levelNumber))
                             .build();
 
@@ -98,20 +97,6 @@ public class DefaultLevelSeeder implements ApplicationRunner {
             case ACHIEVER -> "Achiever";
             case SPECIALIST -> "Specialist";
             case MASTER -> "Master";
-        };
-    }
-
-    private String badgeIconFor(
-            int levelNumber
-    ) {
-
-        return switch (tierFor(levelNumber)) {
-            case BEGINNER -> "seedling";
-            case LEARNER -> "book-open";
-            case EXPLORER -> "compass";
-            case ACHIEVER -> "trophy";
-            case SPECIALIST -> "medal";
-            case MASTER -> "crown";
         };
     }
 
