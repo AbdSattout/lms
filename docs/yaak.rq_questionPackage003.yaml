@@ -1,0 +1,32 @@
+type: http_request
+model: http_request
+id: rq_questionPackage003
+createdAt: 2026-07-16T00:00:00
+updatedAt: 2026-07-16T00:00:00
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_GkMNXFRG5u
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "content": "Updated question content?",
+      "options": [
+        "Updated option A",
+        "Updated option B",
+        "Updated option C"
+      ],
+      "correctAnswerIndex": 1
+    }
+bodyType: application/json
+description: Update a dashboard question. All request fields are optional, but provided values must be valid.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: null
+method: PATCH
+name: Update Question
+sortPriority: 3000.0
+url: http://localhost:8080/dashboard/questions/{questionId}
+urlParameters: []
