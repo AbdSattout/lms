@@ -1,7 +1,9 @@
 package app.lms.post.service;
 
 import app.lms.common.exception.ConflictException;
+import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
+import app.lms.course.repository.CourseRepository;
 import app.lms.course.service.CourseAccessService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
@@ -27,6 +29,7 @@ public class PostService {
     private final PostMapper postMapper;
     private final PostAccessService postAccessService;
     private final OrganizationAccessService organizationAccessService;
+    private final CourseRepository courseRepository;
 
     @Transactional
     public PostResponse create(
@@ -148,13 +151,20 @@ public class PostService {
             Long courseId,
             Pageable pageable
     ) {
+        courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundException("Course not found"));
 
-        return postRepository
+
+
+        Page<Post> posts = postRepository
                 .findByCourseId(
                         courseId,
                         pageable
-                )
-                .map(postMapper::toResponse);
+                );
+        if (posts.isEmpty())
+            throw new NotFoundException("No posts found for this course");
+
+        return posts.map(postMapper::toResponse);
     }
 
 }
