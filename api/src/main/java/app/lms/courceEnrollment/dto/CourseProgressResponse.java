@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 public record CourseProgressResponse(
 
+        Long currentChapterId,
+
         Long currentLessonId,
 
         Long currentBlockId,

@@ -9,6 +9,7 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationInvite;
 import app.lms.organization.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
+import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.user.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 public class OrganizationMapper {
 
     private final UserMapper userMapper;
+    private final OrganizationMemberRepository memberRepository;
 
     public OrganizationResponse ToResponse(
             Organization organization
@@ -33,6 +35,9 @@ public class OrganizationMapper {
                 .ownerName(
                         organization.getOwner().getName()
                 )
+                .membersCount(memberRepository.countByOrganizationId(
+                        organization.getId()
+                ))
                 .baseEntity(BaseEntityResponse.from(organization))
                 .build();
     }

@@ -52,13 +52,4 @@ public class OrganizationService {
                 .toList();
     }
 
-    public long getMembersCount(String slug) {
-
-        Organization organization =
-                organizationAccessService.getBySlug(slug);
-
-        return memberRepository.countByOrganizationId(
-                organization.getId()
-        );
-    }
 }
