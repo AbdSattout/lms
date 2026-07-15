@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lms/features/profile/domain/entities/profile_entity.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/organization_entity.dart';
@@ -6,7 +7,6 @@ import '../../domain/entities/organization_entity.dart';
 class OrganizationCard extends StatelessWidget {
   final OrganizationEntity organization;
   final VoidCallback onTap;
-
   const OrganizationCard({
     super.key,
     required this.organization,
@@ -114,7 +114,7 @@ class OrganizationCard extends StatelessWidget {
                         width: 22,
                         height: 22,
                         decoration: const BoxDecoration(
-                          color: AppColors.greyLight,
+                          color: AppColors.darkSoft,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(
