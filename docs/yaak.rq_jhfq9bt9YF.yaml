@@ -14,7 +14,21 @@ body:
       "answerIndex": 0
     }
 bodyType: application/json
-description: ''
+description: |-
+  Response now includes a rewards array. Each reward tells the frontend whether XP was awarded, how much XP was gained, total XP after the award, and whether the user leveled up.
+
+  Example reward:
+  {
+    "eventType": "BLOCK_COMPLETE",
+    "referenceId": 15,
+    "awarded": true,
+    "xpAwarded": 10,
+    "totalXp": 120,
+    "previousLevelNumber": 1,
+    "currentLevelNumber": 2,
+    "currentLevelTitle": "Beginner",
+    "leveledUp": true
+  }
 headers:
 - enabled: true
   name: Content-Type

@@ -1,0 +1,15 @@
+package app.lms.gamification.enums;
+
+public enum XPEventType {
+
+    COURSE_ENROLL,
+    BLOCK_COMPLETE,
+    LESSON_COMPLETE,
+    CHAPTER_COMPLETE,
+    COURSE_COMPLETE,
+    QUESTION_CORRECT,
+    PRACTICE_QUIZ_COMPLETE,
+    FINAL_QUIZ_COMPLETE,
+    DAILY_STREAK,
+    QUIZ_COMPLETE
+}

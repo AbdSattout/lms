@@ -1,0 +1,18 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi004
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: List Chapter Lessons
+sortPriority: 4000.0
+url: http://localhost:8080/chapters/{chapterId}/lessons
+urlParameters: []

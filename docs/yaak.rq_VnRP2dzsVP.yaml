@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_VnRP2dzsVP
 createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-07-12T00:37:33.004299900
+updatedAt: 2026-07-14T16:53:07.974803
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bcxgeqLASJ
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODE2NTQyLCJleHAiOjE3ODQ0MjEzNDJ9.vyZi9zdt2qbGFCZ3tXtWgbQQ5PB9x7mXuBgfBeR2b_E
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQ3ODAyLCJleHAiOjE3ODQ2NTI2MDJ9.Vx0fokiYiS1VKE3KZfmxVNvk5ZlP0RlR-Q5tjeArnEU
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,20 +15,5 @@ headers: []
 method: GET
 name: get all organizations
 sortPriority: 1000.0
-url: https://lms.koyeb.app/organizations
+url: http://localhost:8080/organizations
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

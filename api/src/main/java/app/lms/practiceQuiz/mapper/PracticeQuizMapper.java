@@ -1,7 +1,9 @@
 package app.lms.practiceQuiz.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.course.model.Course;
+import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.practiceQuiz.dto.CreatePracticeQuizRequest;
 import app.lms.practiceQuiz.dto.PracticeQuizPublicResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizQuestionResultResponse;
@@ -10,7 +12,6 @@ import app.lms.practiceQuiz.dto.PracticeQuizSummaryResponse;
 import app.lms.practiceQuiz.dto.PracticeQuizSubmitResponse;
 import app.lms.practiceQuiz.model.PracticeQuiz;
 import app.lms.practiceQuiz.model.PracticeQuizAttempt;
-import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
@@ -61,7 +62,8 @@ public class PracticeQuizMapper {
                 practiceQuiz.getQuestions()
                         .stream()
                         .map(questionMapper::toResponse)
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(practiceQuiz)
         );
     }
 
@@ -79,14 +81,9 @@ public class PracticeQuizMapper {
                 ),
                 practiceQuiz.getQuestions()
                         .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
+                        .map(questionMapper::toPublicResponse)
+                        .toList(),
+                BaseEntityResponse.from(practiceQuiz)
         );
     }
 
@@ -102,12 +99,24 @@ public class PracticeQuizMapper {
                 quizDifficultyService.calculate(
                         practiceQuiz.getQuestions()
                 ),
-                practiceQuiz.getQuestions().size()
+                practiceQuiz.getQuestions().size(),
+                BaseEntityResponse.from(practiceQuiz)
         );
     }
 
     public PracticeQuizSubmitResponse toSubmitResponse(
             PracticeQuizAttempt attempt
+    ) {
+
+        return toSubmitResponse(
+                attempt,
+                List.of()
+        );
+    }
+
+    public PracticeQuizSubmitResponse toSubmitResponse(
+            PracticeQuizAttempt attempt,
+            List<GamificationAwardResponse> rewards
     ) {
 
         return new PracticeQuizSubmitResponse(
@@ -126,7 +135,9 @@ public class PracticeQuizMapper {
                                         answer.getCorrect()
                                 )
                         )
-                        .toList()
+                        .toList(),
+                rewards,
+                BaseEntityResponse.from(attempt)
         );
     }
 

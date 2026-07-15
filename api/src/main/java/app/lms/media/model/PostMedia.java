@@ -1,0 +1,37 @@
+package app.lms.media.model;
+
+import app.lms.common.model.BaseEntity;
+import app.lms.organization.model.Organization;
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(
+        name = "post_media",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {"organization_id", "organization_media_id"}
+                )
+        }
+)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class PostMedia extends BaseEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id" , nullable = false)
+    private Organization organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "organization_media_id"
+    )
+    private OrganizationMedia organizationMedia;
+}

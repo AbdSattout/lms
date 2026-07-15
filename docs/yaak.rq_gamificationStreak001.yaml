@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_gamificationStreak001
+createdAt: 2026-07-15T01:35:00
+updatedAt: 2026-07-14T22:39:01.059439100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_gamification01
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: |-
+  Returns the authenticated user's streak summary.
+
+  currentStreak counts consecutive active days ending today.
+  longestStreak is the user's best historical streak.
+headers: []
+method: GET
+name: Get My Streak
+sortPriority: 2000.0
+url: http://localhost:8080/gamification/streak
+urlParameters: []

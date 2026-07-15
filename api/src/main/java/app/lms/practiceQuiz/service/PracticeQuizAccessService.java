@@ -60,4 +60,29 @@ public class PracticeQuizAccessService {
                         course.getId()
                 );
     }
+
+    public PracticeQuiz getManageablePracticeQuiz(
+            Long courseId,
+            Long practiceQuizId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                courseId,
+                                user
+                        );
+
+        return practiceQuizRepository
+                .findByIdAndCourseId(
+                        practiceQuizId,
+                        course.getId()
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Practice quiz not found"
+                        )
+                );
+    }
 }
