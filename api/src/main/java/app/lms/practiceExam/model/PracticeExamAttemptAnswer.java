@@ -1,4 +1,4 @@
-package app.lms.practiceQuiz.model;
+package app.lms.practiceExam.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.common.quiz.interfaces.GradableQuizQuestion;
@@ -9,13 +9,13 @@ import lombok.*;
 import java.util.List;
 
 @Entity
-@Table(name = "practice_quiz_attempt_answers")
+@Table(name = "practice_exam_attempt_answers")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PracticeQuizAttemptAnswer extends BaseEntity implements GradableQuizQuestion {
+public class PracticeExamAttemptAnswer extends BaseEntity implements GradableQuizQuestion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class PracticeQuizAttemptAnswer extends BaseEntity implements GradableQui
 
     @ElementCollection
     @CollectionTable(
-            name = "practice_quiz_attempt_answer_options",
+            name = "practice_exam_attempt_answer_options",
             joinColumns = @JoinColumn(name = "attempt_answer_id")
     )
     @Column(name = "option_value", nullable = false)
@@ -47,7 +47,7 @@ public class PracticeQuizAttemptAnswer extends BaseEntity implements GradableQui
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "attempt_id", nullable = false)
-    private PracticeQuizAttempt attempt;
+    private PracticeExamAttempt attempt;
 
     @Override
     public Long gradingQuestionId() {

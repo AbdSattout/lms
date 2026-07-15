@@ -57,6 +57,41 @@ public class UserActivityService {
         );
     }
 
+    @Transactional
+    public void recordCorrectQuestions(
+            User user,
+            Integer correctQuestionCount
+    ) {
+
+        if (correctQuestionCount == null || correctQuestionCount <= 0) {
+            return;
+        }
+
+        LocalDate today =
+                LocalDate.now();
+
+        UserActivityDay activityDay =
+                userActivityDayRepository
+                        .findByUserIdAndActivityDate(
+                                user.getId(),
+                                today
+                        )
+                        .orElseGet(() ->
+                                createActivityDay(
+                                        user,
+                                        today
+                                )
+                        );
+
+        activityDay.setCorrectQuestions(
+                activityDay.getCorrectQuestions() + correctQuestionCount
+        );
+
+        userActivityDayRepository.save(
+                activityDay
+        );
+    }
+
     public List<UserActivityDayResponse> getActivity(
             User user,
             LocalDate from,
@@ -166,7 +201,7 @@ public class UserActivityService {
                     activityDay.setCompletedCourses(
                             activityDay.getCompletedCourses() + 1
                     );
-            case PRACTICE_QUIZ_COMPLETE ->
+            case PRACTICE_EXAM_COMPLETE ->
                     activityDay.setCompletedPracticeQuizzes(
                             activityDay.getCompletedPracticeQuizzes() + 1
                     );
@@ -174,16 +209,6 @@ public class UserActivityService {
                     activityDay.setCompletedFinalQuizzes(
                             activityDay.getCompletedFinalQuizzes() + 1
                     );
-            case QUIZ_COMPLETE ->
-                    activityDay.setCompletedQuizzes(
-                            activityDay.getCompletedQuizzes() + 1
-                    );
-            case QUESTION_CORRECT ->
-                    activityDay.setCorrectQuestions(
-                            activityDay.getCorrectQuestions() + 1
-                    );
-            case DAILY_STREAK -> {
-            }
         }
     }
 
