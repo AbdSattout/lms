@@ -43,6 +43,7 @@ interface FinalQuizSectionProps {
   courseSlug: string
   initialQuiz: QuizResponse | null
   initialBankQuestions: QuestionResponse[]
+  isEditable: boolean
 }
 
 export function FinalQuizSection({
@@ -51,6 +52,7 @@ export function FinalQuizSection({
   courseSlug,
   initialQuiz,
   initialBankQuestions,
+  isEditable,
 }: FinalQuizSectionProps) {
   const [quiz, setQuiz] = useState(initialQuiz)
   const [bankQuestions, setBankQuestions] = useState(initialBankQuestions)
@@ -137,20 +139,22 @@ export function FinalQuizSection({
 
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">الاختبار النهائي</h2>
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setSelectFromBankOpen(true)}
-            disabled={availableBankQuestions.length === 0}
-          >
-            <Plus />
-            إضافة من بنك الأسئلة
-          </Button>
-          <Button onClick={() => setCreatingQuestion(true)}>
-            <Plus />
-            إضافة سؤال جديد
-          </Button>
-        </div>
+        {isEditable && (
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setSelectFromBankOpen(true)}
+              disabled={availableBankQuestions.length === 0}
+            >
+              <Plus />
+              إضافة من بنك الأسئلة
+            </Button>
+            <Button onClick={() => setCreatingQuestion(true)}>
+              <Plus />
+              إضافة سؤال جديد
+            </Button>
+          </div>
+        )}
       </div>
 
       {questions.length === 0 ? (
@@ -179,17 +183,21 @@ export function FinalQuizSection({
               >
                 تعديل
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setRemovingQuestion(q)
-                }}
-              >
-                <Trash2 />
-                إزالة من الاختبار النهائي
-              </DropdownMenuItem>
+              {isEditable && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setRemovingQuestion(q)
+                    }}
+                  >
+                    <Trash2 />
+                    إزالة من الاختبار النهائي
+                  </DropdownMenuItem>
+                </>
+              )}
             </>
           )}
         />
@@ -254,7 +262,9 @@ export function FinalQuizSection({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>إزالة السؤال من الاختبار النهائي</AlertDialogTitle>
+            <AlertDialogTitle>
+              إزالة السؤال من الاختبار النهائي
+            </AlertDialogTitle>
             <AlertDialogDescription>
               هل أنت متأكد من إزالة هذا السؤال من الاختبار النهائي؟ لن يتم حذفه
               من بنك الأسئلة.
