@@ -1,0 +1,18 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi010
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: List Lesson Blocks
+sortPriority: 10000.0
+url: http://localhost:8080/dashboard/lessons/{lessonId}/blocks
+urlParameters: []

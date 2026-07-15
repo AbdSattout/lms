@@ -1,5 +1,6 @@
 package app.lms.roadmap.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.enums.CourseStatus;
 import app.lms.roadmap.dto.RoadmapItemResponse;
@@ -49,7 +50,8 @@ public class RoadmapMapper {
                                 )
                         )
                         .map(this::toItemResponse)
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(roadmap)
         );
     }
 
@@ -62,7 +64,8 @@ public class RoadmapMapper {
                 item.getPosition(),
                 courseMapper.toResponse(
                         item.getCourse()
-                )
+                ),
+                BaseEntityResponse.from(item)
         );
     }
 }

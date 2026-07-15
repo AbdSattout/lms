@@ -75,4 +75,21 @@ public class CourseEnrollmentController {
                 )
         );
     }
+
+    @GetMapping("/{courseId}/enroll")
+    public ResponseEntity<Boolean> isEnrolled(
+
+            @PathVariable Long courseId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                enrollmentService.isEnrolled(
+                        courseId,
+                        principal.user()
+                )
+        );
+    }
 }

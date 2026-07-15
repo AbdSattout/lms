@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_yR8CSQNta4
+createdAt: 2026-07-14T15:52:44.165223300
+updatedAt: 2026-07-14T16:48:40.700088300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_NRRWNohAxw
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: localhost:8080/dashboard/courses/7/practice-quizzes
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/courses/7/practice-quizzes
+urlParameters: []

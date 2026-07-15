@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_oB66ZiuV3d
 createdAt: 2026-05-31T19:49:05.500026200
-updatedAt: 2026-07-12T12:32:17.118116800
+updatedAt: 2026-07-14T15:23:27.140705900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bPEMGkkY8L
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODU3NTgwLCJleHAiOjE3ODQ0NjIzODB9.JVIybucy2ZuliOABecBNru9_A032W0Ygwi39bjUvHHU
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
 authenticationType: bearer
 body:
   form:
@@ -33,20 +33,5 @@ headers:
 method: POST
 name: Create Course
 sortPriority: 1000.0
-url: https://lms.koyeb.app/dashboard/organizations/bug-company/courses
+url: http://localhost:8080/dashboard/organizations/bug-company/courses
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

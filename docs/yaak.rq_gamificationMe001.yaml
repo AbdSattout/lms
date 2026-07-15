@@ -1,0 +1,36 @@
+type: http_request
+model: http_request
+id: rq_gamificationMe001
+createdAt: 2026-07-14T18:20:00
+updatedAt: 2026-07-14T15:23:51.308360400
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_gamification01
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+authenticationType: bearer
+body: {}
+bodyType: null
+description: |-
+  Returns the authenticated user's current gamification state.
+
+  Response includes total XP, current level, tier, progress toward the next level, and unlocks.
+
+  Example response:
+  {
+    "totalXp": 120,
+    "levelNumber": 2,
+    "levelTitle": "Beginner",
+    "tier": "BEGINNER",
+    "currentLevelXp": 100,
+    "nextLevelXp": 283,
+    "xpIntoLevel": 20,
+    "xpToNextLevel": 163,
+    "progressPercentage": 11,
+    "unlocks": []
+  }
+headers: []
+method: GET
+name: Get My Gamification Progress
+sortPriority: 0.0
+url: http://localhost:8080/gamification/me
+urlParameters: []

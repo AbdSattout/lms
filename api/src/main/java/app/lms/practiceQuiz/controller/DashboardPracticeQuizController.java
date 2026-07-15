@@ -69,4 +69,20 @@ public class DashboardPracticeQuizController {
                 )
         );
     }
+
+    @GetMapping("/{practiceQuizId}")
+    public ResponseEntity<PracticeQuizResponse> getById(
+            @PathVariable Long courseId,
+            @PathVariable Long practiceQuizId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardPracticeQuizService.getById(
+                        courseId,
+                        practiceQuizId,
+                        principal.user()
+                )
+        );
+    }
 }

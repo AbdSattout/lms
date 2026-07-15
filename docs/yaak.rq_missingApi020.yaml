@@ -1,0 +1,22 @@
+﻿type: http_request
+model: http_request
+id: rq_missingApi020
+createdAt: 2026-07-13T00:00:00.000000000
+updatedAt: 2026-07-13T00:00:00.000000000
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_missingApis01
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "name": "Student User"
+    }
+bodyType: application/json
+description: ''
+headers: []
+method: PATCH
+name: Update Current User
+sortPriority: 20000.0
+url: http://localhost:8080/users/me
+urlParameters: []

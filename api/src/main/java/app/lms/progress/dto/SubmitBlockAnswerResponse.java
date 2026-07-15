@@ -1,6 +1,9 @@
 package app.lms.progress.dto;
 
+import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.progress.enums.NextStepType;
+
+import java.util.List;
 
 public record SubmitBlockAnswerResponse(
         NextStepType nextType,
@@ -8,6 +11,7 @@ public record SubmitBlockAnswerResponse(
         Long nextLessonId,
         Long nextChapterId,
         Long quizId,
-        String message
+        String message,
+        List<GamificationAwardResponse> rewards
 ) {
 }

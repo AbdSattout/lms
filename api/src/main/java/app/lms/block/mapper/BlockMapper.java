@@ -3,6 +3,7 @@ package app.lms.block.mapper;
 import app.lms.block.dto.BlockPublicResponse;
 import app.lms.block.dto.BlockResponse;
 import app.lms.block.model.Block;
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.question.mapper.QuestionMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,8 @@ public class BlockMapper {
                         ? null
                         : questionMapper.toResponse(
                         block.getQuestion()
-                )
+                ),
+                BaseEntityResponse.from(block)
         );
     }
 
@@ -39,7 +41,8 @@ public class BlockMapper {
                 block.getPosition(),
                 block.getQuestion() == null
                         ? null
-                        : questionMapper.toPublicResponse(block.getQuestion())
+                        : questionMapper.toPublicResponse(block.getQuestion()),
+                BaseEntityResponse.from(block)
         );
     }
 

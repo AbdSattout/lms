@@ -1,5 +1,8 @@
 package app.lms.quiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+import app.lms.gamification.dto.GamificationAwardResponse;
+
 import java.util.List;
 
 public record FinalQuizSubmitResponse(
@@ -10,6 +13,10 @@ public record FinalQuizSubmitResponse(
 
         Integer total,
 
-        List<FinalQuizQuestionResultResponse> results
+        List<FinalQuizQuestionResultResponse> results,
+
+        List<GamificationAwardResponse> rewards,
+
+        BaseEntityResponse baseEntity
 ) {
 }

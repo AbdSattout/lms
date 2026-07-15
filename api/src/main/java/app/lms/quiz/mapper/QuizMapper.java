@@ -1,6 +1,8 @@
 package app.lms.quiz.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
+import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.quiz.dto.FinalQuizQuestionResultResponse;
@@ -12,6 +14,7 @@ import app.lms.quiz.model.Quiz;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -31,7 +34,8 @@ public class QuizMapper {
                 ),
                 quiz.getQuestions().stream()
                         .map(questionMapper::toResponse)
-                        .collect(Collectors.toList())
+                        .collect(Collectors.toList()),
+                BaseEntityResponse.from(quiz)
         );
     }
 
@@ -47,19 +51,25 @@ public class QuizMapper {
                 ),
                 quiz.getQuestions()
                         .stream()
-                        .map(question ->
-                                new QuestionPublicResponse(
-                                        question.getId(),
-                                        question.getContent(),
-                                        question.getOptions()
-                                )
-                        )
-                        .toList()
+                        .map(questionMapper::toPublicResponse)
+                        .toList(),
+                BaseEntityResponse.from(quiz)
         );
     }
 
     public FinalQuizSubmitResponse toSubmitResponse(
             FinalQuizAttempt attempt
+    ) {
+
+        return toSubmitResponse(
+                attempt,
+                List.of()
+        );
+    }
+
+    public FinalQuizSubmitResponse toSubmitResponse(
+            FinalQuizAttempt attempt,
+            List<GamificationAwardResponse> rewards
     ) {
 
         return new FinalQuizSubmitResponse(
@@ -79,7 +89,9 @@ public class QuizMapper {
                                         answer.getCorrect()
                                 )
                         )
-                        .toList()
+                        .toList(),
+                rewards,
+                BaseEntityResponse.from(attempt)
         );
     }
 }

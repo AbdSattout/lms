@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface CourseMediaRepository extends JpaRepository<CourseMedia, Long> {
 
     Page<CourseMedia> findAllByCourseIdOrderByCreatedAtDesc(
@@ -12,14 +14,12 @@ public interface CourseMediaRepository extends JpaRepository<CourseMedia, Long> 
             Pageable pageable
     );
 
-    boolean existsByCourseIdAndNameIgnoreCase(
-            Long courseId,
-            String name
+    Optional<CourseMedia> findByIdAndCourseId(
+            Long mediaId,
+            Long courseId
     );
 
-    boolean existsByCourseIdAndNameIgnoreCaseAndIdNot(
-            Long courseId,
-            String name,
-            Long mediaId
+    long countByOrganizationMediaId(
+            Long organizationMediaId
     );
 }

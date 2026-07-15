@@ -1,5 +1,6 @@
 package app.lms.lesson.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.lesson.dto.LessonDetailsResponse;
 import app.lms.lesson.dto.LessonResponse;
 import app.lms.lesson.model.Lesson;
@@ -14,7 +15,8 @@ public class LessonMapper {
         return new LessonResponse(
                 lesson.getId(),
                 lesson.getTitle(),
-                lesson.getPosition()
+                lesson.getPosition(),
+                BaseEntityResponse.from(lesson)
 
         );
     }
@@ -27,7 +29,8 @@ public class LessonMapper {
                 lesson.getPosition(),
                 lesson.getChapter().getId(),
                 lesson.getChapter().getCourse().getId(),
-                lesson.getChapter().getCourse().getOrganization().getId()
+                lesson.getChapter().getCourse().getOrganization().getId(),
+                BaseEntityResponse.from(lesson)
         );
     }
 }

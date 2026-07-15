@@ -51,4 +51,14 @@ public class OrganizationService {
                 .map(organizationMapper::ToResponse)
                 .toList();
     }
+
+    public long getMembersCount(String slug) {
+
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
+
+        return memberRepository.countByOrganizationId(
+                organization.getId()
+        );
+    }
 }

@@ -1,5 +1,6 @@
 package app.lms.randomquiz.mapper;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.randomquiz.dto.BankRandomQuizQuestionResultResponse;
@@ -32,10 +33,12 @@ public class BankRandomQuizMapper {
                                 new QuestionPublicResponse(
                                         question.getId(),
                                         question.getContent(),
-                                        question.getOptions()
+                                        question.getOptions(),
+                                        BaseEntityResponse.from(question)
                                 )
                         )
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -59,7 +62,8 @@ public class BankRandomQuizMapper {
                                         question.getCorrect()
                                 )
                         )
-                        .toList()
+                        .toList(),
+                BaseEntityResponse.from(attempt)
         );
     }
 }

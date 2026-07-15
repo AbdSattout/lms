@@ -1,5 +1,6 @@
 package app.lms.course.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.course.enums.CourseStatus;
 import lombok.Builder;
 
@@ -12,6 +13,7 @@ public record CourseResponse(
         String description,
         String coverUrl,
         String organizationName,
-        CourseStatus status
+        CourseStatus status,
+        BaseEntityResponse baseEntity
 
 ) {}
