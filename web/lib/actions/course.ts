@@ -1,8 +1,17 @@
 "use server"
 
 import { api } from "@/lib/api"
-import type { ChapterResponse, LessonResponse } from "@/lib/api/types"
-import { createCourseSchema, updateCourseSchema } from "@/lib/validation"
+import type {
+  ChapterResponse,
+  LessonResponse,
+  QuestionResponse,
+} from "@/lib/api/types"
+import {
+  createCourseSchema,
+  createQuestionSchema,
+  updateCourseSchema,
+  updateQuestionSchema,
+} from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -232,4 +241,71 @@ export async function reorderLessonsAction(
 
   revalidatePath(`/${orgSlug}/courses`)
   return {}
+}
+
+export async function createQuestionAction(
+  courseId: number,
+  data: { content: string; options: string[]; correctAnswerIndex: number },
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; question?: QuestionResponse }> {
+  const parsed = createQuestionSchema.safeParse(data)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const question = await api.dashboard.questions.create
+    .post(courseId, parsed.data)
+    .catch(() => null)
+
+  if (!question) return { error: "حدث خطأ أثناء إنشاء السؤال" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+  return { question }
+}
+
+export async function updateQuestionAction(
+  questionId: number,
+  data: {
+    content?: string
+    options?: string[]
+    correctAnswerIndex?: number
+  },
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; question?: QuestionResponse }> {
+  const parsed = updateQuestionSchema.safeParse(data)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const question = await api.dashboard.questions.byId
+    .patch(questionId, parsed.data)
+    .catch(() => null)
+
+  if (!question) return { error: "حدث خطأ أثناء تحديث السؤال" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+  return { question }
+}
+
+export async function deleteQuestionAction(
+  questionId: number,
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; conflict?: boolean }> {
+  try {
+    await api.dashboard.questions.byId.delete(questionId)
+    revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+    return {}
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("(409)")) {
+      return {
+        error:
+          "لا يمكن حذف السؤال لأنه مستخدم في درس أو اختبار. قم بإزالته من هناك أولاً.",
+        conflict: true,
+      }
+    }
+    return { error: "حدث خطأ أثناء حذف السؤال" }
+  }
 }

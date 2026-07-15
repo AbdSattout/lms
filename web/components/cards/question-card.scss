@@ -1,0 +1,63 @@
+.question-card-markdown {
+  > :first-child { margin-top: 0; }
+  > :last-child { margin-bottom: 0; }
+
+  p { margin-block: 0.25em; }
+
+  ul {
+    margin: 0.5em 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.375rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+
+    &:has(input:checked) {
+      border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+      background: color-mix(in oklab, var(--primary) 5%, transparent);
+      color: var(--primary);
+    }
+  }
+
+  input[type="checkbox"] {
+    appearance: none;
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.125rem;
+    border: 1.5px solid var(--border);
+    border-radius: 0.25rem;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    transition: all 0.15s;
+
+    &::before {
+      content: "";
+      width: 0.5rem;
+      height: 0.5rem;
+      transform: scale(0);
+      transition: transform 0.15s;
+      box-shadow: inset 1em 1em currentColor;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+    }
+
+    &:checked {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: var(--primary-foreground);
+
+      &::before { transform: scale(1); }
+    }
+  }
+}

@@ -2,10 +2,7 @@ import "server-only"
 
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
-import type {
-  CourseMediaResponse,
-  PageCourseMediaResponse,
-} from "@/lib/api/types"
+import type { Page, PostMediaResponse } from "@/lib/api/types"
 import type { PageableInput } from "@/lib/validation"
 
 function toQueryString(pageable: PageableInput) {
@@ -19,18 +16,18 @@ function toQueryString(pageable: PageableInput) {
   return query ? `?${query}` : ""
 }
 
-export const byCourse = defineApiRoute({
-  get: (courseId: number, pageable: PageableInput, options?: BackendFetchOptions) =>
-    backend<PageCourseMediaResponse>(
-      `/courseMedia/courses/${courseId}/media${toQueryString(pageable)}`,
+export const byOrg = defineApiRoute({
+  get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
+    backend<Page<PostMediaResponse>>(
+      `/postMedia/organizations/${slug}/media${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
-  post: (courseId: number, file: File, options?: BackendFetchOptions) => {
+  post: (slug: string, file: File, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     body.set("file", file)
 
-    return backend<CourseMediaResponse>(`/courseMedia/courses/${courseId}/media`, {
+    return backend<PostMediaResponse>(`/postMedia/organizations/${slug}/media`, {
       method: "POST",
       body,
       ...options,
@@ -39,25 +36,25 @@ export const byCourse = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
-  get: (courseId: number, mediaId: number, options?: BackendFetchOptions) =>
-    backend<CourseMediaResponse>(`/courseMedia/courses/${courseId}/media/${mediaId}`, {
+  get: (mediaId: number, options?: BackendFetchOptions) =>
+    backend<PostMediaResponse>(`/postMedia/media/${mediaId}`, {
       method: "GET",
       ...options,
     }),
-  patch: (courseId: number, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
+  patch: (mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     if (file) body.set("file", file)
     if (name) body.set("name", name)
 
-    return backend<CourseMediaResponse>(`/courseMedia/courses/${courseId}/media/${mediaId}`, {
+    return backend<PostMediaResponse>(`/postMedia/media/${mediaId}`, {
       method: "PATCH",
       body,
       ...options,
     })
   },
-  delete: (courseId: number, mediaId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/courseMedia/courses/${courseId}/media/${mediaId}`, {
+  delete: (mediaId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/postMedia/media/${mediaId}`, {
       method: "DELETE",
       ...options,
     }),

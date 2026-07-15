@@ -161,7 +161,7 @@ function SortableChapter({
               if (e.key === "Enter") onCommitRename()
               if (e.key === "Escape") onCommitRename()
             }}
-            className="h-7 px-2 text-sm"
+            className="h-6 px-2 text-sm"
             autoFocus
             onClick={(e) => e.stopPropagation()}
           />
@@ -174,9 +174,9 @@ function SortableChapter({
         <DropdownMenu>
           <DropdownMenuTrigger
             onClick={(e) => e.stopPropagation()}
-            render={<Button variant="ghost" size="icon-sm" />}
+            render={<Button variant="ghost" size="icon-xs" />}
           >
-            <EllipsisVertical className="size-4" />
+            <EllipsisVertical />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem
@@ -296,7 +296,7 @@ function SortableLesson({
               if (e.key === "Enter") onCommitRename()
               if (e.key === "Escape") onCommitRename()
             }}
-            className="h-7 px-2 text-sm"
+            className="h-6 px-2 text-sm"
             autoFocus
             onClick={(e) => e.stopPropagation()}
           />
@@ -309,9 +309,9 @@ function SortableLesson({
         <DropdownMenu>
           <DropdownMenuTrigger
             onClick={(e) => e.stopPropagation()}
-            render={<Button variant="ghost" size="icon-sm" />}
+            render={<Button variant="ghost" size="icon-xs" />}
           >
-            <EllipsisVertical className="size-4" />
+            <EllipsisVertical />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem
@@ -415,7 +415,7 @@ export function CourseManagement({
     setChapters((prev) =>
       prev.map((ch) => (ch.id === id ? { ...ch, title } : ch))
     )
-          const result = await updateChapterAction(id, title, orgSlug)
+    const result = await updateChapterAction(id, title, orgSlug)
     if (result.error) toast.error(result.error)
   }
 
@@ -640,7 +640,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/questions` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileQuestion className="size-4" />
@@ -650,7 +655,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/quizzes` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="size-4" />
@@ -724,7 +734,7 @@ export function CourseManagement({
                     value={newChapterTitle}
                     onChange={(e) => setNewChapterTitle(e.target.value)}
                     placeholder="إضافة فصل جديد..."
-                    className="h-7 rounded-none border-none bg-transparent px-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+                    className="h-6 rounded-none border-none bg-transparent px-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleCreateChapter(newChapterTitle)
@@ -803,7 +813,7 @@ export function CourseManagement({
                       value={newLessonTitle}
                       onChange={(e) => setNewLessonTitle(e.target.value)}
                       placeholder="إضافة درس جديد..."
-                      className="h-7 rounded-none border-none bg-transparent px-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
+                      className="h-6 rounded-none border-none bg-transparent px-0 text-sm shadow-none placeholder:text-muted-foreground focus-visible:ring-0"
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           handleCreateLesson(newLessonTitle)
@@ -831,7 +841,10 @@ export function CourseManagement({
               ) : (
                 <FileText className="size-4 text-muted-foreground" />
               )}
-              <span className="text-sm font-medium">{activeItem.title}</span>
+              <span className="min-h-6 truncate text-sm font-medium">
+                {activeItem.title}
+              </span>
+              <Button variant="ghost" size="icon-xs" />
             </div>
           )}
         </DragOverlay>

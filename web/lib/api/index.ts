@@ -3,6 +3,7 @@ import "server-only"
 import { login } from "@/lib/api/auth"
 import {
   byId as blocksById,
+  byLesson as blocksByLesson,
   create as createBlock,
   getPublic as getPublicBlock,
   reorder as reorderBlocks,
@@ -30,7 +31,10 @@ import {
   courses,
   create as createOrg,
   getCourseBySlug,
+  invites,
+  joinRequests,
   list,
+  members,
 } from "@/lib/api/organizations"
 import {
   comments,
@@ -42,22 +46,40 @@ import {
 } from "@/lib/api/posts"
 import { create, me as profileMe } from "@/lib/api/profile"
 import {
-  addQuestion,
-  byId as quizById,
-  deleteQuestion as deleteQuizQuestion,
+  getFinalQuiz,
+  updateFinalQuizQuestions,
 } from "@/lib/api/quizzes"
 import {
+  byId as practiceQuizById,
+  create as createPracticeQuiz,
+  list as listPracticeQuizzes,
+  updateQuestions as updatePracticeQuizQuestions,
+} from "@/lib/api/practice-quizzes"
+import {
+  create as createRoadmap,
+  getManageable as getManageableRoadmap,
+  getPublished as getPublishedRoadmap,
+  update as updateRoadmap,
+} from "@/lib/api/roadmap"
+import {
   byCourse as questionsByCourse,
+  byId as questionById,
   create as createQuestion,
-  remove as deleteQuestion,
-  update as updateQuestion,
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
-import { me, picture } from "@/lib/api/users"
+import { me, picture, search as userSearch } from "@/lib/api/users"
 import {
   generateQuestionFromBlock,
   transformText,
 } from "@/lib/api/ai"
+import {
+  byOrg as postMediaByOrg,
+  byId as postMediaById,
+} from "@/lib/api/post-media"
+import {
+  list as orgMediaList,
+  summary as orgMediaSummary,
+} from "@/lib/api/organization-media"
 
 export const api = {
   auth: {
@@ -65,10 +87,15 @@ export const api = {
   },
   organizations: {
     list,
+    joinRequests: {
+      create: joinRequests.create,
+      cancel: joinRequests.cancel,
+    },
   },
   users: {
     me,
     picture,
+    search: userSearch,
   },
   profile: {
     create,
@@ -88,6 +115,9 @@ export const api = {
       checkSlugAvailability,
       getCourseBySlug,
       checkCourseSlugAvailability,
+      invites,
+      members,
+      joinRequests: joinRequests.dashboard,
     },
     courses: {
       byId: coursesById,
@@ -106,6 +136,7 @@ export const api = {
     blocks: {
       create: createBlock,
       byId: blocksById,
+      byLesson: blocksByLesson,
       reorder: reorderBlocks,
     },
     media: {
@@ -115,13 +146,23 @@ export const api = {
     questions: {
       create: createQuestion,
       byCourse: questionsByCourse,
-      update: updateQuestion,
-      delete: deleteQuestion,
+      byId: questionById,
     },
     quizzes: {
-      byId: quizById,
-      addQuestion,
-      deleteQuestion: deleteQuizQuestion,
+      getFinalQuiz,
+      updateFinalQuizQuestions,
+    },
+    practiceQuizzes: {
+      create: createPracticeQuiz,
+      byId: practiceQuizById,
+      list: listPracticeQuizzes,
+      updateQuestions: updatePracticeQuizQuestions,
+    },
+    roadmap: {
+      create: createRoadmap,
+      update: updateRoadmap,
+      getManageable: getManageableRoadmap,
+      getPublished: getPublishedRoadmap,
     },
     posts: {
       byCourse: postsByCourse,
@@ -130,6 +171,14 @@ export const api = {
       likes,
       comments,
       deleteComment,
+    },
+    postMedia: {
+      byOrg: postMediaByOrg,
+      byId: postMediaById,
+    },
+    organizationMedia: {
+      list: orgMediaList,
+      summary: orgMediaSummary,
     },
     ai: {
       generateQuestionFromBlock,
