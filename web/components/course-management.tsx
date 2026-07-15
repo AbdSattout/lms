@@ -1,5 +1,6 @@
 "use client"
 
+import { FinalQuizSection } from "@/components/final-quiz-section"
 import { CourseFormDialog } from "@/components/forms/course-form-dialog"
 import {
   AlertDialog,
@@ -48,6 +49,8 @@ import type {
   ChapterResponse,
   CourseResponse,
   LessonResponse,
+  QuestionResponse,
+  QuizResponse,
 } from "@/lib/api/types"
 import {
   DndContext,
@@ -87,6 +90,8 @@ interface CourseManagementProps {
   course: CourseResponse
   orgSlug: string
   initialChapters: ChapterResponse[]
+  finalQuiz: QuizResponse | null
+  bankQuestions: QuestionResponse[]
 }
 
 function SortableChapter({
@@ -345,6 +350,8 @@ export function CourseManagement({
   course,
   orgSlug,
   initialChapters,
+  finalQuiz,
+  bankQuestions,
 }: CourseManagementProps) {
   const router = useRouter()
   const isEditable = course.status === "DRAFT"
@@ -849,6 +856,14 @@ export function CourseManagement({
           )}
         </DragOverlay>
       </DndContext>
+
+      <FinalQuizSection
+        courseId={course.id}
+        orgSlug={orgSlug}
+        courseSlug={course.slug}
+        initialQuiz={finalQuiz}
+        initialBankQuestions={bankQuestions}
+      />
 
       <CourseFormDialog
         key={course.id}
