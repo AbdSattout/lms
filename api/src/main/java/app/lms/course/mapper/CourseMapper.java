@@ -71,6 +71,9 @@ public class CourseMapper {
                 .enrolledAt(enrollment.getEnrolledAt())
                 .status(enrollment.getStatus())
                 .progressPercentage(enrollment.getProgressPercentage())
+                .currentChapterId(
+                        currentChapterIdFor(enrollment)
+                )
                 .currentLessonId(
                         enrollment.getCurrentLesson() != null
                                 ? enrollment.getCurrentLesson()
@@ -85,6 +88,37 @@ public class CourseMapper {
                 )
                 .completedAt(enrollment.getCompletedAt())
                 .build();
+    }
+
+    private Long currentChapterIdFor(
+            CourseEnrollment enrollment
+    ) {
+
+        if (
+                enrollment.getCurrentLesson() != null
+                        && enrollment.getCurrentLesson()
+                                .getChapter() != null
+        ) {
+            return enrollment.getCurrentLesson()
+                    .getChapter()
+                    .getId();
+        }
+
+        if (
+                enrollment.getCurrentBlock() != null
+                        && enrollment.getCurrentBlock()
+                                .getLesson() != null
+                        && enrollment.getCurrentBlock()
+                                .getLesson()
+                                .getChapter() != null
+        ) {
+            return enrollment.getCurrentBlock()
+                    .getLesson()
+                    .getChapter()
+                    .getId();
+        }
+
+        return null;
     }
 
     public CourseDetailsResponse toDetailsResponse(
@@ -123,6 +157,7 @@ public class CourseMapper {
                 )
                 .progress(
                         new CourseProgressResponse(
+                                currentChapterIdFor(enrollment),
                                 currentBlock != null
                                         ? currentBlock.getLesson().getId()
                                         : null,
