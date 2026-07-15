@@ -1,6 +1,7 @@
 package app.lms.certificate.service;
 
 import app.lms.certificate.dto.CertificateResponse;
+import app.lms.certificate.enums.CertificateGrade;
 import app.lms.certificate.mapper.CertificateMapper;
 import app.lms.certificate.model.Certificate;
 import app.lms.certificate.repository.CertificateRepository;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -37,7 +37,9 @@ public class CertificateService {
     @Transactional
     public void issueCertificate(
             Course course,
-            User user
+            User user,
+            Integer finalQuizScore,
+            Integer finalQuizTotal
     ){
 
         if(certificateRepository.existsByCourseIdAndUserId(
@@ -48,17 +50,58 @@ public class CertificateService {
 
 
         String code = generate();
+        Integer finalQuizPercentage =
+                calculatePercentage(
+                        finalQuizScore,
+                        finalQuizTotal
+                );
 
         Certificate certificate =
                 Certificate.builder()
                         .code(code)
                         .course(course)
                         .user(user)
-                        .issuedAt(LocalDateTime.now())
+                        .finalQuizScore(finalQuizScore)
+                        .finalQuizTotal(finalQuizTotal)
+                        .finalQuizPercentage(finalQuizPercentage)
+                        .grade(gradeFor(finalQuizPercentage))
                         .build();
 
         certificateRepository.save(certificate);
 
+    }
+
+    private Integer calculatePercentage(
+            Integer score,
+            Integer total
+    ) {
+
+        if (score == null || total == null || total <= 0) {
+            return 0;
+        }
+
+        return (int) Math.round(
+                score * 100.0 / total
+        );
+    }
+
+    private CertificateGrade gradeFor(
+            Integer percentage
+    ) {
+
+        if (percentage >= 90) {
+            return CertificateGrade.EXCELLENT;
+        }
+
+        if (percentage >= 75) {
+            return CertificateGrade.VERY_GOOD;
+        }
+
+        if (percentage >= 60) {
+            return CertificateGrade.GOOD;
+        }
+
+        return CertificateGrade.BASIC;
     }
 
     public CertificateResponse getByCode(
