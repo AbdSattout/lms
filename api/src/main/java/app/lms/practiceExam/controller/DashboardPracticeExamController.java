@@ -1,9 +1,9 @@
-package app.lms.practiceQuiz.controller;
+package app.lms.practiceExam.controller;
 
-import app.lms.practiceQuiz.dto.CreatePracticeQuizRequest;
-import app.lms.practiceQuiz.dto.PracticeQuizResponse;
-import app.lms.practiceQuiz.dto.UpdatePracticeQuizQuestionsRequest;
-import app.lms.practiceQuiz.service.DashboardPracticeQuizService;
+import app.lms.practiceExam.dto.CreatePracticeExamRequest;
+import app.lms.practiceExam.dto.PracticeExamResponse;
+import app.lms.practiceExam.dto.UpdatePracticeExamQuestionsRequest;
+import app.lms.practiceExam.service.DashboardPracticeExamService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,21 +16,21 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dashboard/courses/{courseId}/practice-quizzes")
-public class DashboardPracticeQuizController {
+@RequestMapping("/dashboard/courses/{courseId}/practice-exams")
+public class DashboardPracticeExamController {
 
-    private final DashboardPracticeQuizService dashboardPracticeQuizService;
+    private final DashboardPracticeExamService dashboardPracticeExamService;
 
     @PostMapping
-    public ResponseEntity<PracticeQuizResponse> create(
+    public ResponseEntity<PracticeExamResponse> create(
             @PathVariable Long courseId,
-            @RequestBody @Valid CreatePracticeQuizRequest request,
+            @RequestBody @Valid CreatePracticeExamRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(
-                        dashboardPracticeQuizService.create(
+                        dashboardPracticeExamService.create(
                                 courseId,
                                 request,
                                 principal.user()
@@ -38,18 +38,18 @@ public class DashboardPracticeQuizController {
                 );
     }
 
-    @PatchMapping("/{practiceQuizId}/questions")
-    public ResponseEntity<PracticeQuizResponse> updateQuestions(
+    @PatchMapping("/{practiceExamId}/questions")
+    public ResponseEntity<PracticeExamResponse> updateQuestions(
             @PathVariable Long courseId,
-            @PathVariable Long practiceQuizId,
-            @RequestBody @Valid UpdatePracticeQuizQuestionsRequest request,
+            @PathVariable Long practiceExamId,
+            @RequestBody @Valid UpdatePracticeExamQuestionsRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
-                dashboardPracticeQuizService.updateQuestions(
+                dashboardPracticeExamService.updateQuestions(
                         courseId,
-                        practiceQuizId,
+                        practiceExamId,
                         request,
                         principal.user()
                 )
@@ -57,45 +57,45 @@ public class DashboardPracticeQuizController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PracticeQuizResponse>> list(
+    public ResponseEntity<List<PracticeExamResponse>> list(
             @PathVariable Long courseId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
-                dashboardPracticeQuizService.list(
+                dashboardPracticeExamService.list(
                         courseId,
                         principal.user()
                 )
         );
     }
 
-    @GetMapping("/{practiceQuizId}")
-    public ResponseEntity<PracticeQuizResponse> getById(
+    @GetMapping("/{practiceExamId}")
+    public ResponseEntity<PracticeExamResponse> getById(
             @PathVariable Long courseId,
-            @PathVariable Long practiceQuizId,
+            @PathVariable Long practiceExamId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
-                dashboardPracticeQuizService.getById(
+                dashboardPracticeExamService.getById(
                         courseId,
-                        practiceQuizId,
+                        practiceExamId,
                         principal.user()
                 )
         );
     }
 
-    @DeleteMapping("/{practiceQuizId}")
+    @DeleteMapping("/{practiceExamId}")
     public ResponseEntity<Void> delete(
             @PathVariable Long courseId,
-            @PathVariable Long practiceQuizId,
+            @PathVariable Long practiceExamId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
-        dashboardPracticeQuizService.delete(
+        dashboardPracticeExamService.delete(
                 courseId,
-                practiceQuizId,
+                practiceExamId,
                 principal.user()
         );
 
