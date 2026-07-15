@@ -20,6 +20,8 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
+import app.lms.practiceExam.model.PracticeExam;
+import app.lms.practiceExam.repository.PracticeExamRepository;
 import app.lms.practiceQuiz.model.PracticeQuiz;
 import app.lms.practiceQuiz.repository.PracticeQuizRepository;
 import app.lms.question.enums.QuestionDifficulty;
@@ -61,6 +63,7 @@ public class TempDummyDataSeeder {
     private final BlockRepository blockRepository;
     private final QuizRepository quizRepository;
     private final PracticeQuizRepository practiceQuizRepository;
+    private final PracticeExamRepository practiceExamRepository;
     private final CourseEnrollmentRepository enrollmentRepository;
     private final GamificationService gamificationService;
     private final JdbcTemplate jdbcTemplate;
@@ -76,6 +79,7 @@ public class TempDummyDataSeeder {
             BlockRepository blockRepository,
             QuizRepository quizRepository,
             PracticeQuizRepository practiceQuizRepository,
+            PracticeExamRepository practiceExamRepository,
             CourseEnrollmentRepository enrollmentRepository,
             GamificationService gamificationService,
             JdbcTemplate jdbcTemplate
@@ -90,6 +94,7 @@ public class TempDummyDataSeeder {
         this.blockRepository = blockRepository;
         this.quizRepository = quizRepository;
         this.practiceQuizRepository = practiceQuizRepository;
+        this.practiceExamRepository = practiceExamRepository;
         this.enrollmentRepository = enrollmentRepository;
         this.gamificationService = gamificationService;
         this.jdbcTemplate = jdbcTemplate;
@@ -201,6 +206,11 @@ public class TempDummyDataSeeder {
                 );
 
         upsertPracticeQuiz(
+                course,
+                questions
+        );
+
+        upsertPracticeExam(
                 course,
                 questions
         );
@@ -502,6 +512,32 @@ public class TempDummyDataSeeder {
         );
 
         practiceQuizRepository.save(practiceQuiz);
+    }
+
+    private void upsertPracticeExam(
+            Course course,
+            List<Question> questions
+    ) {
+
+        PracticeExam practiceExam =
+                practiceExamRepository
+                        .findAllByCourseIdOrderByCreatedAtDesc(
+                                course.getId()
+                        )
+                        .stream()
+                        .filter(exam -> "Dummy Practice Exam".equals(exam.getTitle()))
+                        .findFirst()
+                        .orElseGet(PracticeExam::new);
+
+        practiceExam.setCourse(course);
+        practiceExam.setTitle("Dummy Practice Exam");
+        practiceExam.setDescription("Seeded practice exam.");
+        practiceExam.getQuestions().clear();
+        practiceExam.getQuestions().addAll(
+                questions.subList(0, 5)
+        );
+
+        practiceExamRepository.save(practiceExam);
     }
 
     private void upsertFinalQuiz(
