@@ -1,5 +1,7 @@
 package app.lms.placementTest.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record PlacementTestQuestionResponse(
@@ -8,6 +10,7 @@ public record PlacementTestQuestionResponse(
         Long chapterId,
         Long questionId,
         String content,
-        List<String> options
+        List<String> options,
+        BaseEntityResponse baseEntity
 ) {
 }
