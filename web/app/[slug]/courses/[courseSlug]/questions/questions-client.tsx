@@ -14,9 +14,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+import {
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { deleteQuestionAction } from "@/lib/actions/course"
 import type { QuestionResponse } from "@/lib/api/types"
-import { Plus } from "lucide-react"
+import { Pen, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -92,9 +96,30 @@ export function QuestionsPageClient({
 
       <QuestionBank
         questions={questions}
-        mode="edit"
-        onEdit={(q) => setEditingQuestion(q)}
-        onDelete={(q) => setDeletingQuestion(q)}
+        renderActions={(q) => (
+          <>
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation()
+                setEditingQuestion(q)
+              }}
+            >
+              <Pen />
+              تعديل
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={(e) => {
+                e.stopPropagation()
+                setDeletingQuestion(q)
+              }}
+            >
+              <Trash2 />
+              حذف
+            </DropdownMenuItem>
+          </>
+        )}
       />
 
       <QuestionFormDialog

@@ -193,7 +193,7 @@ export type GenerateAiTextInput = z.infer<typeof generateAiTextSchema>
 export const createPracticeQuizSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   description: z.string().optional(),
-  questionIds: z.array(z.number().int()).min(1, "يجب اختيار سؤال واحد على الأقل"),
+  questionIds: z.array(z.number().int()),
 })
 export type CreatePracticeQuizInput = z.infer<typeof createPracticeQuizSchema>
 
