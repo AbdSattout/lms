@@ -1,0 +1,23 @@
+package app.lms.courceEnrollment.dto;
+
+import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+
+import java.time.LocalDateTime;
+
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public record CourseEnrollmentResponse(
+
+        Long id,
+        Long courseId,
+        String courseTitle,
+        LocalDateTime enrolledAt,
+        EnrollmentStatus status,
+        Integer progressPercentage,
+        Long currentLessonId,
+        Long currentBlockId,
+        LocalDateTime completedAt
+
+) {}
