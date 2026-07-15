@@ -2,6 +2,7 @@ package app.lms.placementTest.service;
 
 import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
+import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.courceEnrollment.model.CourseEnrollment;
@@ -99,7 +100,8 @@ public class CoursePlacementTestService {
                 null,
                 null,
                 enrollment.getProgressPercentage(),
-                "Placement test question"
+                "Placement test question",
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -296,7 +298,8 @@ public class CoursePlacementTestService {
                 startBlock.getLesson().getId(),
                 startBlock.getLesson().getChapter().getId(),
                 enrollment.getProgressPercentage(),
-                "Placement test skipped"
+                "Placement test skipped",
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -330,7 +333,8 @@ public class CoursePlacementTestService {
                     null,
                     null,
                     enrollment.getProgressPercentage(),
-                    "Correct answer"
+                    "Correct answer",
+                    BaseEntityResponse.from(attempt)
             );
         }
 
@@ -368,7 +372,8 @@ public class CoursePlacementTestService {
                 100,
                 quizRepository.existsByCourseId(enrollment.getCourse().getId())
                         ? "Placement test completed. Go to final quiz."
-                        : "Placement test completed. Course content completed."
+                        : "Placement test completed. Course content completed.",
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -419,7 +424,8 @@ public class CoursePlacementTestService {
                 currentBlock.getLesson().getId(),
                 currentBlock.getLesson().getChapter().getId(),
                 enrollment.getProgressPercentage(),
-                "Placement test completed"
+                "Placement test completed",
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -472,7 +478,8 @@ public class CoursePlacementTestService {
                         ? placedBlock.getLesson().getChapter().getId()
                         : null,
                 enrollment.getProgressPercentage(),
-                "Placement test already completed"
+                "Placement test already completed",
+                BaseEntityResponse.from(attempt)
         );
     }
 
@@ -591,7 +598,8 @@ public class CoursePlacementTestService {
                 block.getLesson().getChapter().getId(),
                 question.getId(),
                 question.getContent(),
-                question.getOptions()
+                question.getOptions(),
+                BaseEntityResponse.from(question)
         );
     }
 }

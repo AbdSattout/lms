@@ -1,5 +1,7 @@
 package app.lms.practiceExam.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record PracticeExamQuestionResultResponse(
@@ -8,6 +10,7 @@ public record PracticeExamQuestionResultResponse(
         List<String> options,
         Integer selectedAnswerIndex,
         Integer correctAnswerIndex,
-        Boolean correct
+        Boolean correct,
+        BaseEntityResponse baseEntity
 ) {
 }

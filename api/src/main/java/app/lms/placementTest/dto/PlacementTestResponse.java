@@ -1,5 +1,7 @@
 package app.lms.placementTest.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 public record PlacementTestResponse(
         Boolean completed,
         Integer correctAnswers,
@@ -9,6 +11,7 @@ public record PlacementTestResponse(
         Long startLessonId,
         Long startChapterId,
         Integer progressPercentage,
-        String message
+        String message,
+        BaseEntityResponse baseEntity
 ) {
 }
