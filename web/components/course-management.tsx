@@ -700,7 +700,7 @@ export function CourseManagement({
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">الفصول</h2>
             <div className="flex flex-col gap-2">
-              {chapters.length === 0 ? (
+              {chapters.length === 0 && !isEditable ? (
                 <Empty>
                   <EmptyHeader>
                     <EmptyMedia variant="icon">
@@ -843,12 +843,8 @@ export function CourseManagement({
         <DragOverlay>
           {activeItem && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-lg">
-              {activeItem.type === "chapter" ? (
-                <GraduationCap className="size-4 text-muted-foreground" />
-              ) : (
-                <FileText className="size-4 text-muted-foreground" />
-              )}
-              <span className="min-h-6 truncate text-sm font-medium">
+              <GripVertical className="size-4 text-muted-foreground" />
+              <span className="truncate text-sm font-medium">
                 {activeItem.title}
               </span>
               <Button variant="ghost" size="icon-xs" />
@@ -863,6 +859,7 @@ export function CourseManagement({
         courseSlug={course.slug}
         initialQuiz={finalQuiz}
         initialBankQuestions={bankQuestions}
+        isEditable={isEditable}
       />
 
       <CourseFormDialog
