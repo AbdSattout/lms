@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_hT9gjAyUWB
 createdAt: 2026-07-10T16:11:25.369083500
-updatedAt: 2026-07-13T11:27:49.800516
+updatedAt: 2026-07-15T22:22:46.181932300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GkMNXFRG5u
 authentication:
@@ -25,18 +25,3 @@ name: generate question
 sortPriority: 0.0
 url: https://lms.koyeb.app/ai/questions/from-block-content
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0
