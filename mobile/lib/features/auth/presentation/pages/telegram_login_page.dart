@@ -17,7 +17,8 @@ class TelegramLoginPage extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor:
+        Theme.of(context).scaffoldBackgroundColor,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
@@ -80,7 +81,8 @@ class TelegramLoginPage extends StatelessWidget {
                                 context.read<AuthBloc>().add(LoginWithTelegramRequested());
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: kLightPrimaryColor,
+                                backgroundColor:
+                                Theme.of(context).scaffoldBackgroundColor,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                 elevation: 8,

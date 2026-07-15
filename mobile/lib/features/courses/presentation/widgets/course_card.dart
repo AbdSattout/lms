@@ -44,8 +44,6 @@ class CourseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Full-width cover — this is the main thing that visually
-                // separates this from the organization row card.
                 Stack(
                   children: [
                     ClipRRect(
@@ -76,19 +74,21 @@ class CourseCard extends StatelessWidget {
                             color: const Color(0xff2E7D53),
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Row(
+                          child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.check_circle_rounded,
-                                  size: 13, color: Colors.white),
+                                  size: 13, color: Theme.of(context).cardColor),
                               SizedBox(width: 4),
                               Text(
                                 'مكتملة',
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .bodyLarge!
+                                      .color,                                ),
                               ),
                             ],
                           ),
@@ -147,7 +147,7 @@ class CourseCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: (progressPercentage / 100).clamp(0, 1),
                           minHeight: 6,
-                          backgroundColor: AppColors.greyLight,
+                          backgroundColor: AppColors.darkSoft,
                           valueColor: AlwaysStoppedAnimation(
                             isCompleted
                                 ? const Color(0xff2E7D53)

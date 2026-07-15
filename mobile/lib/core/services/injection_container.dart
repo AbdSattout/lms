@@ -42,6 +42,8 @@ import 'package:lms/features/organizations/domain/usecases/get_all_organizations
 import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
 import 'package:lms/features/organizations/presentation/bloc/organization_bloc.dart';
 
+import '../theme/theme_cubit.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -88,7 +90,7 @@ Future<void> init() async {
       receiveDataWhenStatusError: true,
     ),
   ));
-  
+
 
 
   sl.registerLazySingleton<ProfileRemoteDataSource>(
@@ -177,7 +179,13 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => sharedPreferences);
 
-  
+  sl.registerSingleton(
+    ThemeCubit()..setTheme(
+      sl<CacheHelper>().getTheme(),
+    ),
+  );
+
+
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton(() => DataConnectionChecker());
 }

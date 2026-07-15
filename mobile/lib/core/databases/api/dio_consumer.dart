@@ -18,9 +18,15 @@ class DioConsumer extends ApiConsumer {
 
           print("INTERCEPTOR RUNNING");
 
+          if (options.path == EndPoints.login ||
+              options.path.endsWith(EndPoints.login)) {
+            print("LOGIN REQUEST -> SKIP AUTH HEADER");
+            handler.next(options);
+            return;
+          }
+
           try {
-            final auth =
-            await authLocalDataSource.getCachedAuthData();
+            final auth = await authLocalDataSource.getCachedAuthData();
 
             print("TOKEN FOUND:");
             print(auth.token);
@@ -69,7 +75,6 @@ class DioConsumer extends ApiConsumer {
       await dio.get(path, data: data, queryParameters: queryParameters);
       return res.data;
     } on DioException catch (e) {
-      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
       print('DioException on $path -> type: ${e.type}');
       print('DioException message: ${e.message}');
       print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
@@ -98,7 +103,6 @@ class DioConsumer extends ApiConsumer {
       return res.data;
 
     } on DioException catch (e) {
-      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
       print('DioException on $path -> type: ${e.type}');
       print('DioException message: ${e.message}');
       print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
@@ -117,7 +121,6 @@ class DioConsumer extends ApiConsumer {
       );
       return res.data;
     } on DioException catch (e) {
-      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
       print('DioException on $path -> type: ${e.type}');
       print('DioException message: ${e.message}');
       print('DioException response: ${e.response?.statusCode} ${e.response?.data}');
@@ -139,7 +142,6 @@ class DioConsumer extends ApiConsumer {
       );
       return res.data;
     } on DioException catch (e) {
-      // TEMPORARY DIAGNOSTIC — remove once the issue is traced.
       print('DioException on $path -> type: ${e.type}');
       print('DioException message: ${e.message}');
       print('DioException response: ${e.response?.statusCode} ${e.response?.data}');

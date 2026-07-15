@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CacheHelper {
@@ -68,6 +69,25 @@ class CacheHelper {
       return await sharedPreferences.setDouble(key, value);
     } else {
       return await sharedPreferences.setInt(key, value);
+    }
+  }
+  Future<void> saveTheme(ThemeMode mode) async {
+    await saveData(
+      key: "theme",
+      value: mode.name,
+    );
+  }
+
+  ThemeMode getTheme() {
+    final value = getDataString(key: "theme");
+
+    switch (value) {
+      case "dark":
+        return ThemeMode.dark;
+      case "system":
+        return ThemeMode.system;
+      default:
+        return ThemeMode.light;
     }
   }
 }

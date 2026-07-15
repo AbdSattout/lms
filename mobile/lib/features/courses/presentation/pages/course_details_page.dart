@@ -216,7 +216,7 @@ class _CourseDetailsContent extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.greyLight,
+                          color: AppColors.darkSoft,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
