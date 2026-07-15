@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 public record CourseProgressResponse(
 
-        Long lastLessonId,
+        Long currentLessonId,
 
-        Long lastBlockId,
+        Long currentBlockId,
 
         Integer progressPercentage,
 

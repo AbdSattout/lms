@@ -286,10 +286,10 @@ public class ProgressService {
                                 user
                         );
 
-        Block lastAccessedBlock =
-                enrollment.getLastAccessedBlock();
+        Block currentBlock =
+                enrollment.getCurrentBlock();
 
-        if (lastAccessedBlock == null) {
+        if (currentBlock == null) {
 
             Block firstBlock =
                     getFirstBlockInCourse(
@@ -305,7 +305,7 @@ public class ProgressService {
             return;
         }
 
-        if (!lastAccessedBlock.getId().equals(block.getId())) {
+        if (!currentBlock.getId().equals(block.getId())) {
             throw new ForbiddenException(
                     "You cannot submit this block yet"
             );
