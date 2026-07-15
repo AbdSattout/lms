@@ -5,12 +5,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { QuestionResponse } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
-import { EllipsisVertical, Pen, Trash2 } from "lucide-react"
+import { EllipsisVertical } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import "./question-card.scss"
@@ -25,36 +24,33 @@ function buildMarkdown(question: QuestionResponse): string {
 
 interface QuestionCardProps {
   question: QuestionResponse
-  mode?: "edit" | "select"
-  onEdit?: (question: QuestionResponse) => void
-  onDelete?: (question: QuestionResponse) => void
-  onSelect?: (question: QuestionResponse) => void
+  onClick?: (question: QuestionResponse) => void
+  renderActions?: (question: QuestionResponse) => React.ReactNode
 }
 
 export function QuestionCard({
   question,
-  mode = "edit",
-  onEdit,
-  onDelete,
-  onSelect,
+  onClick,
+  renderActions,
 }: QuestionCardProps) {
   const md = buildMarkdown(question)
 
-  const interactive = mode === "edit" ? !!onEdit : !!onSelect
   const handleClick = () => {
-    if (mode === "edit") onEdit?.(question)
-    else onSelect?.(question)
+    onClick?.(question)
   }
+
+  const hasClickHandler = !!onClick
+  const hasActions = !!renderActions
 
   return (
     <div className="group relative overflow-hidden rounded-4xl border border-border bg-card p-4 transition-colors hover:bg-accent/50">
       <div
-        role={interactive ? "button" : undefined}
-        tabIndex={interactive ? 0 : undefined}
-        className={cn(interactive && "cursor-pointer")}
+        role={hasClickHandler ? "button" : undefined}
+        tabIndex={hasClickHandler ? 0 : undefined}
+        className={cn(hasClickHandler && "cursor-pointer")}
         onClick={handleClick}
         onKeyDown={(e) => {
-          if (e.key === "Enter" && interactive) handleClick()
+          if (e.key === "Enter" && hasClickHandler) handleClick()
         }}
       >
         <div className="question-card-markdown line-clamp-8 text-sm leading-relaxed">
@@ -62,7 +58,7 @@ export function QuestionCard({
         </div>
       </div>
 
-      {mode === "edit" && (
+      {hasActions && (
         <DropdownMenu>
           <DropdownMenuTrigger
             onClick={(e) => e.stopPropagation()}
@@ -77,26 +73,7 @@ export function QuestionCard({
             <EllipsisVertical className="size-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            <DropdownMenuItem
-              onClick={(e) => {
-                e.stopPropagation()
-                onEdit?.(question)
-              }}
-            >
-              <Pen />
-              تعديل
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              variant="destructive"
-              onClick={(e) => {
-                e.stopPropagation()
-                onDelete?.(question)
-              }}
-            >
-              <Trash2 />
-              حذف
-            </DropdownMenuItem>
+            {renderActions(question)}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

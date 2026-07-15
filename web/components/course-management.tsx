@@ -655,7 +655,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/quizzes` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="size-4" />
