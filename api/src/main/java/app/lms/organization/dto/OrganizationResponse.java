@@ -14,6 +14,7 @@ public record OrganizationResponse(
         String image,
         Visibility visibility,
         String ownerName,
+        Long membersCount,
         BaseEntityResponse baseEntity
 
 ) {}
