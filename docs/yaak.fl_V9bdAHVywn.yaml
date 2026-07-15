@@ -2,7 +2,7 @@ type: folder
 model: folder
 id: fl_V9bdAHVywn
 createdAt: 2026-07-11T15:20:54.383489900
-updatedAt: 2026-07-12T15:11:50.980502700
+updatedAt: 2026-07-15T22:22:39.966645600
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication: {}
@@ -10,4 +10,4 @@ authenticationType: null
 description: ''
 headers: []
 name: Organization Invite
-sortPriority: 12000.0
+sortPriority: 13000.0
