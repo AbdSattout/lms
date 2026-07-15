@@ -5,7 +5,6 @@ import { defineApiRoute } from "@/lib/api/route"
 import type {
   CreatePracticeQuizRequest,
   PracticeQuizResponse,
-  PracticeQuizSummaryResponse,
   UpdatePracticeQuizQuestionsRequest,
 } from "@/lib/api/types"
 
@@ -24,10 +23,21 @@ export const create = defineApiRoute({
 
 export const list = defineApiRoute({
   get: (courseId: number, options?: BackendFetchOptions) =>
-    backend<PracticeQuizSummaryResponse[]>(`/dashboard/courses/${courseId}/practice-quizzes`, {
+    backend<PracticeQuizResponse[]>(`/dashboard/courses/${courseId}/practice-quizzes`, {
       method: "GET",
       ...options,
     }),
+})
+
+export const byId = defineApiRoute({
+  get: (courseId: number, practiceQuizId: number, options?: BackendFetchOptions) =>
+    backend<PracticeQuizResponse>(
+      `/dashboard/courses/${courseId}/practice-quizzes/${practiceQuizId}`,
+      {
+        method: "GET",
+        ...options,
+      }
+    ),
 })
 
 export const updateQuestions = defineApiRoute({

@@ -50,6 +50,7 @@ import {
   updateFinalQuizQuestions,
 } from "@/lib/api/quizzes"
 import {
+  byId as practiceQuizById,
   create as createPracticeQuiz,
   list as listPracticeQuizzes,
   updateQuestions as updatePracticeQuizQuestions,
@@ -71,6 +72,14 @@ import {
   generateQuestionFromBlock,
   transformText,
 } from "@/lib/api/ai"
+import {
+  byOrg as postMediaByOrg,
+  byId as postMediaById,
+} from "@/lib/api/post-media"
+import {
+  list as orgMediaList,
+  summary as orgMediaSummary,
+} from "@/lib/api/organization-media"
 
 export const api = {
   auth: {
@@ -145,6 +154,7 @@ export const api = {
     },
     practiceQuizzes: {
       create: createPracticeQuiz,
+      byId: practiceQuizById,
       list: listPracticeQuizzes,
       updateQuestions: updatePracticeQuizQuestions,
     },
@@ -161,6 +171,14 @@ export const api = {
       likes,
       comments,
       deleteComment,
+    },
+    postMedia: {
+      byOrg: postMediaByOrg,
+      byId: postMediaById,
+    },
+    organizationMedia: {
+      list: orgMediaList,
+      summary: orgMediaSummary,
     },
     ai: {
       generateQuestionFromBlock,
