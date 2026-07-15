@@ -3,6 +3,7 @@ package app.lms.course.mapper;
 import app.lms.block.model.Block;
 import app.lms.chapter.model.Chapter;
 import app.lms.common.dto.BaseEntityResponse;
+import app.lms.courceEnrollment.dto.CourseEnrollmentResponse;
 import app.lms.courceEnrollment.dto.CourseProgressResponse;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.course.dto.CourseBlockMapResponse;
@@ -29,6 +30,17 @@ public class CourseMapper {
             Course course
     ) {
 
+        return toResponse(
+                course,
+                null
+        );
+    }
+
+    public CourseResponse toResponse(
+            Course course,
+            CourseEnrollment enrollment
+    ) {
+
         return CourseResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
@@ -39,9 +51,42 @@ public class CourseMapper {
                 )
                 .slug(course.getSlug())
                 .status(course.getStatus())
+                .enrollment(
+                        enrollment != null
+                                ? toEnrollmentResponse(enrollment)
+                                : null
+                )
                 .baseEntity(BaseEntityResponse.from(course))
                 .build();
     }
+
+    private CourseEnrollmentResponse toEnrollmentResponse(
+            CourseEnrollment enrollment
+    ) {
+
+        return CourseEnrollmentResponse.builder()
+                .id(enrollment.getId())
+                .courseId(enrollment.getCourse().getId())
+                .courseTitle(enrollment.getCourse().getTitle())
+                .enrolledAt(enrollment.getEnrolledAt())
+                .status(enrollment.getStatus())
+                .progressPercentage(enrollment.getProgressPercentage())
+                .currentLessonId(
+                        enrollment.getCurrentLesson() != null
+                                ? enrollment.getCurrentLesson()
+                                        .getId()
+                                : null
+                )
+                .currentBlockId(
+                        enrollment.getCurrentBlock() != null
+                                ? enrollment.getCurrentBlock()
+                                        .getId()
+                                : null
+                )
+                .completedAt(enrollment.getCompletedAt())
+                .build();
+    }
+
     public CourseDetailsResponse toDetailsResponse(
             Course course,
             CourseEnrollment enrollment,
