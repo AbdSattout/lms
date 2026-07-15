@@ -17,9 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -49,10 +49,7 @@ public class CourseMapper {
     ) {
 
         Set<Long> completedBlockIdSet =
-                completedBlockIds.stream()
-                        .collect(
-                                Collectors.toSet()
-                        );
+                new HashSet<>(completedBlockIds);
 
         Block currentBlock =
                 currentBlockFor(
@@ -228,8 +225,7 @@ public class CourseMapper {
         }
 
         if (
-                currentBlockId != null &&
-                        block.getId().equals(currentBlockId)
+                block.getId().equals(currentBlockId)
         ) {
             return CourseNodeStatus.CURRENT;
         }
