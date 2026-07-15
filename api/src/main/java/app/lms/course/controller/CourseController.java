@@ -20,11 +20,16 @@ public class CourseController {
 
     @GetMapping("/courses")
     public ResponseEntity<Page<CourseResponse>> getAllCourses(
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
-                courseService.getAll(pageable)
+                courseService.getAll(
+                        pageable,
+                        principal.user()
+                )
         );
     }
 
