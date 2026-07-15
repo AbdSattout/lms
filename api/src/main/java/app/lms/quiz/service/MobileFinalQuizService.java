@@ -190,7 +190,9 @@ public class MobileFinalQuizService {
         certificateService.issueCertificate(
 
                 quiz.getCourse(),
-                user
+                user,
+                attempt.getScore(),
+                attempt.getTotal()
         );
 
         List<GamificationAwardResponse> rewards =

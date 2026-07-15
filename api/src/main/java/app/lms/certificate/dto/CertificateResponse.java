@@ -1,8 +1,8 @@
 package app.lms.certificate.dto;
 
+import app.lms.certificate.enums.CertificateGrade;
+import app.lms.common.dto.BaseEntityResponse;
 import lombok.Builder;
-
-import java.time.LocalDateTime;
 
 @Builder
 public record CertificateResponse(
@@ -11,6 +11,10 @@ public record CertificateResponse(
         String studentName,
         String courseName,
         String organizationName,
-        LocalDateTime issuedAt
+        Integer finalQuizScore,
+        Integer finalQuizTotal,
+        Integer finalQuizPercentage,
+        CertificateGrade grade,
+        BaseEntityResponse baseEntity
 
 ) {}
