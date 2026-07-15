@@ -1,12 +1,7 @@
-export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
-export type FileType = "IMAGE" | "VIDEO" | "FILE"
-
 export interface BaseEntityResponse {
   createdAt: string
   updatedAt: string
 }
-
-export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
 
 export interface User {
   id: number
@@ -27,6 +22,8 @@ export interface ProfileResponse {
   user: User
 }
 
+export type OrganizationVisibility = "PUBLIC" | "PRIVATE"
+
 export interface OrganizationResponse {
   id: number
   name: string
@@ -38,13 +35,15 @@ export interface OrganizationResponse {
   baseEntity?: BaseEntityResponse
 }
 
+export type CourseStatus = "DRAFT" | "PUBLISHED"
+
 export interface CourseResponse {
   id: number
   title: string
   slug: string
   description?: string
   coverUrl?: string
-  status: "DRAFT" | "PUBLISHED"
+  status: CourseStatus
   organizationName: string
   baseEntity?: BaseEntityResponse
 }
@@ -88,6 +87,8 @@ export interface BlockPublicResponse {
   question?: QuestionPublicResponse
   baseEntity?: BaseEntityResponse
 }
+
+export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
 
 export interface QuestionResponse {
   id: number
@@ -140,6 +141,8 @@ export interface CommentResponse {
   parentCommentId?: number
   baseEntity?: BaseEntityResponse
 }
+
+export type FileType = "IMAGE" | "VIDEO" | "FILE"
 
 export interface CourseMediaResponse {
   id: number
@@ -224,18 +227,6 @@ export interface GeneratedQuestionResponse {
   correctAnswerIndex: number
 }
 
-export interface GenerateAiTextRequest {
-  text: string
-  action: AiTextAction
-  tone?: AiTextTone
-}
-
-export interface GeneratedAiTextResponse {
-  action: AiTextAction
-  tone?: AiTextTone
-  result: string
-}
-
 export type AiTextAction =
   | "PROOFREAD"
   | "REWRITE"
@@ -250,6 +241,18 @@ export type AiTextTone =
   | "SIMPLE"
   | "ACADEMIC"
   | "MOTIVATIONAL"
+
+export interface GenerateAiTextRequest {
+  text: string
+  action: AiTextAction
+  tone?: AiTextTone
+}
+
+export interface GeneratedAiTextResponse {
+  action: AiTextAction
+  tone?: AiTextTone
+  result: string
+}
 
 export interface GamificationAwardResponse {
   eventType: string

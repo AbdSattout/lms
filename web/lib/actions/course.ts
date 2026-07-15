@@ -270,6 +270,7 @@ export async function updateQuestionAction(
     content?: string
     options?: string[]
     correctAnswerIndex?: number
+    difficulty?: "EASY" | "MEDIUM" | "HARD"
   },
   orgSlug: string,
   courseSlug: string

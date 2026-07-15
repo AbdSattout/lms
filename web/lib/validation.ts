@@ -116,6 +116,7 @@ export const updateQuestionSchema = z.object({
   content: z.string().optional(),
   options: z.array(z.string()).min(2, "يجب توفير خيارين على الأقل").optional(),
   correctAnswerIndex: z.number().int().min(0).optional(),
+  difficulty: questionDifficultySchema.optional(),
 })
 export type UpdateQuestionInput = z.infer<typeof updateQuestionSchema>
 
