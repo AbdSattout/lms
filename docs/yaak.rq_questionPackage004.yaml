@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_questionPackage004
+createdAt: 2026-07-16T00:00:00
+updatedAt: 2026-07-16T00:00:00
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_GkMNXFRG5u
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: Delete a dashboard question. Requires access to the question course.
+headers: []
+method: DELETE
+name: Delete Question
+sortPriority: 4000.0
+url: http://localhost:8080/dashboard/questions/{questionId}
+urlParameters: []
