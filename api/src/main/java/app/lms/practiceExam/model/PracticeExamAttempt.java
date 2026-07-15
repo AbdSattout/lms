@@ -1,4 +1,4 @@
-package app.lms.practiceQuiz.model;
+package app.lms.practiceExam.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.course.model.Course;
@@ -10,13 +10,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "practice_quiz_attempts")
+@Table(name = "practice_exam_attempts")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PracticeQuizAttempt extends BaseEntity {
+public class PracticeExamAttempt extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +29,8 @@ public class PracticeQuizAttempt extends BaseEntity {
     private Integer total;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "practice_quiz_id", nullable = false)
-    private PracticeQuiz practiceQuiz;
+    @JoinColumn(name = "practice_exam_id", nullable = false)
+    private PracticeExam practiceExam;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
@@ -46,5 +46,5 @@ public class PracticeQuizAttempt extends BaseEntity {
             orphanRemoval = true
     )
     @Builder.Default
-    private List<PracticeQuizAttemptAnswer> answers = new ArrayList<>();
+    private List<PracticeExamAttemptAnswer> answers = new ArrayList<>();
 }

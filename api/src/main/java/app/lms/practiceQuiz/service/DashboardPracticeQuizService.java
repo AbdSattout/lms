@@ -36,7 +36,7 @@ public class DashboardPracticeQuizService {
 
         Course course =
                 courseAccessService
-                        .getEditableCourse(
+                        .getManageableCourse(
                                 courseId,
                                 user
                         );
@@ -76,7 +76,7 @@ public class DashboardPracticeQuizService {
 
         PracticeQuiz practiceQuiz =
                 practiceQuizAccessService
-                        .getEditablePracticeQuiz(
+                        .getManageablePracticeQuiz(
                                 courseId,
                                 practiceQuizId,
                                 user
@@ -135,6 +135,26 @@ public class DashboardPracticeQuizService {
                         );
 
         return practiceQuizMapper.toResponse(
+                practiceQuiz
+        );
+    }
+
+    @Transactional
+    public void delete(
+            Long courseId,
+            Long practiceQuizId,
+            User user
+    ) {
+
+        PracticeQuiz practiceQuiz =
+                practiceQuizAccessService
+                        .getManageablePracticeQuiz(
+                                courseId,
+                                practiceQuizId,
+                                user
+                        );
+
+        practiceQuizRepository.delete(
                 practiceQuiz
         );
     }
