@@ -18,11 +18,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+
 import {
   createQuestionAction,
   updateQuestionAction,
 } from "@/lib/actions/course"
-import type { QuestionResponse } from "@/lib/api/types"
+import type { QuestionDifficulty, QuestionResponse } from "@/lib/api/types"
 import { Plus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -52,6 +53,9 @@ export function QuestionFormDialog({
   const [correctIndex, setCorrectIndex] = useState(
     question?.correctAnswerIndex ?? 0
   )
+  const [difficulty, setDifficulty] = useState<QuestionDifficulty>(
+    question?.difficulty ?? "EASY"
+  )
   const [newOption, setNewOption] = useState("")
   const [saving, setSaving] = useState(false)
   const [confirmClose, setConfirmClose] = useState(false)
@@ -69,16 +73,21 @@ export function QuestionFormDialog({
       const optionsChanged =
         options.join("\0") !== (orig.options ?? []).join("\0")
       const indexChanged = correctIndex !== orig.correctAnswerIndex
+      const difficultyChanged = difficulty !== orig.difficulty
       const hasNew = newOption.trim().length > 0
       dirtyRef.current =
-        contentChanged || optionsChanged || indexChanged || hasNew
+        contentChanged ||
+        optionsChanged ||
+        indexChanged ||
+        difficultyChanged ||
+        hasNew
     } else {
       dirtyRef.current =
         content.trim().length > 0 ||
         options.length > 0 ||
         newOption.trim().length > 0
     }
-  }, [content, options, correctIndex, newOption, isEdit, question])
+  }, [content, options, correctIndex, difficulty, newOption, isEdit, question])
 
   function addOption() {
     const trimmed = newOption.trim()
@@ -131,6 +140,7 @@ export function QuestionFormDialog({
       content: content.trim(),
       options: allOptions,
       correctAnswerIndex: correctIndex,
+      difficulty,
     }
 
     let result: { error?: string; question?: QuestionResponse }
@@ -178,6 +188,30 @@ export function QuestionFormDialog({
             </div>
 
             <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium">مستوى الصعوبة</label>
+              <div className="flex w-full overflow-hidden rounded-full border border-border">
+                {(["EASY", "MEDIUM", "HARD"] as const).map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    onClick={() => setDifficulty(level)}
+                    className={`flex-1 cursor-pointer rounded-full px-3 py-2 text-sm font-medium transition-colors ${
+                      difficulty === level
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    {level === "EASY"
+                      ? "سهل"
+                      : level === "MEDIUM"
+                        ? "متوسط"
+                        : "صعب"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">الإجابات</label>
               <div className="flex flex-col gap-2">
                 {options.map((option, index) => (
@@ -201,7 +235,7 @@ export function QuestionFormDialog({
                       }
                       onBlur={(e) => handleOptionBlur(index, e.target.value)}
                       placeholder={`الإجابة ${index + 1}`}
-                      className="h-7 flex-1 rounded-none border-none bg-transparent px-0 text-sm shadow-none outline-none placeholder:text-muted-foreground"
+                      className="h-7 rounded-none border-none bg-transparent px-0 text-sm shadow-none outline-none placeholder:text-muted-foreground"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>

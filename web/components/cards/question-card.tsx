@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { QuestionResponse } from "@/lib/api/types"
@@ -72,9 +71,7 @@ export function QuestionCard({
           >
             <EllipsisVertical className="size-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            {renderActions(question)}
-          </DropdownMenuContent>
+          <DropdownMenuContent>{renderActions(question)}</DropdownMenuContent>
         </DropdownMenu>
       )}
     </div>
