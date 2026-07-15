@@ -1,6 +1,5 @@
 package app.lms.course.dto;
 
-import app.lms.chapter.dto.ChapterResponse;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.courceEnrollment.dto.CourseProgressResponse;
 import lombok.*;
@@ -25,7 +24,7 @@ import java.util.List;
         private String coverUrl;
 
         private String organizationName;
-        private List<ChapterResponse> chapters;
+        private List<CourseChapterMapResponse> chapters;
         private CourseProgressResponse progress;
         private BaseEntityResponse baseEntity;
 

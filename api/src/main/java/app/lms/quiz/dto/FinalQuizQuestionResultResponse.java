@@ -1,5 +1,7 @@
 package app.lms.quiz.dto;
 
+import app.lms.common.dto.BaseEntityResponse;
+
 import java.util.List;
 
 public record FinalQuizQuestionResultResponse(
@@ -14,6 +16,8 @@ public record FinalQuizQuestionResultResponse(
 
         Integer correctAnswerIndex,
 
-        Boolean correct
+        Boolean correct,
+
+        BaseEntityResponse baseEntity
 ) {
 }
