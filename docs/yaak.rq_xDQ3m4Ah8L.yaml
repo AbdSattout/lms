@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_xDQ3m4Ah8L
 createdAt: 2026-07-12T15:07:41.924453100
-updatedAt: 2026-07-15T21:51:52.312855100
+updatedAt: 2026-07-15T23:24:35.566794200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MTM0MjEzLCJleHAiOjE3ODQ3MzkwMTN9.R9lTnm0g7BZIGdqmEUoWFkmBrk_NKCYwZhriAriQl18
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MTU3Nzg4LCJleHAiOjE3ODQ3NjI1ODh9.dGlsS3joiYAPxsTVYzi7I6S-FdmSWf-rvKq1MBt6pzU
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,7 +15,7 @@ headers: []
 method: GET
 name: Get my courses
 sortPriority: 0.001
-url: https://lms.koyeb.app/courses/me/enrollments
+url: https://beaulah-fabulous-delectably.ngrok-free.dev/courses/me/enrollments
 urlParameters: []
 settingSendCookies:
   enabled: false

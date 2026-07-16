@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_eJcGmvRZNX
 createdAt: 2026-06-01T08:49:29.084483900
-updatedAt: 2026-07-15T22:04:08.181129300
+updatedAt: 2026-07-16T11:37:39.091085
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MTM0MjEzLCJleHAiOjE3ODQ3MzkwMTN9.R9lTnm0g7BZIGdqmEUoWFkmBrk_NKCYwZhriAriQl18
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
 authenticationType: bearer
 body:
   form:
@@ -36,7 +36,7 @@ headers:
 method: POST
 name: create chapter
 sortPriority: 0.0
-url: https://lms.koyeb.app/courses/6/chapters
+url: https://lms.koyeb.app/courses/1/chapters
 urlParameters: []
 settingSendCookies:
   enabled: false

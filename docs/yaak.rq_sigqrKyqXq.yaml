@@ -1,26 +1,29 @@
 type: http_request
 model: http_request
-id: rq_cSYqsGZEDs
-createdAt: 2026-06-01T09:09:27.755213600
-updatedAt: 2026-07-16T11:40:25.622617600
+id: rq_sigqrKyqXq
+createdAt: 2026-07-15T23:50:54.150746300
+updatedAt: 2026-07-16T00:38:38.618755400
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bPEMGkkY8L
+folderId: fl_wecLYqvPA8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MTU3Nzg4LCJleHAiOjE3ODQ3NjI1ODh9.dGlsS3joiYAPxsTVYzi7I6S-FdmSWf-rvKq1MBt6pzU
 authenticationType: bearer
 body:
-  text: '{}'
+  text: |-
+    {
+      "answerIndex": 0
+    }
 bodyType: application/json
 description: ''
 headers:
 - enabled: true
   name: Content-Type
   value: application/json
-  id: vGqEXJ9urz
+  id: hJWuxHfqhc
 method: POST
-name: Publish Course
-sortPriority: 5000.0
-url: https://lms.koyeb.app/dashboard/courses/1/publish
+name: submit answer to placement
+sortPriority: 0.001
+url: https://beaulah-fabulous-delectably.ngrok-free.dev/mobile/courses/1/placement-test
 urlParameters: []
 settingSendCookies:
   enabled: false

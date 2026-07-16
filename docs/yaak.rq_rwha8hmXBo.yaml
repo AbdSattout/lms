@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_rwha8hmXBo
 createdAt: 2026-06-01T13:42:58.706906200
-updatedAt: 2026-07-12T12:32:59.084158600
+updatedAt: 2026-07-16T01:00:46.786887900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
@@ -23,7 +23,7 @@ headers:
 method: GET
 name: Get Course By slug
 sortPriority: 1000.0
-url: https://lms.koyeb.app/organizations/bug-company/courses
+url: https://beaulah-fabulous-delectably.ngrok-free.dev/organizations/bug-company/courses
 urlParameters: []
 settingSendCookies:
   enabled: false

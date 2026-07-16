@@ -16,3 +16,18 @@ name: List Course Questions
 sortPriority: 2000.0
 url: http://localhost:8080/dashboard/courses/{courseId}/questions
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0
