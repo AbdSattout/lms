@@ -4,12 +4,7 @@
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import { useEffect, useRef, useState } from "react"
 
-import { TaskItem, TaskList } from "@tiptap/extension-list"
-import { Typography } from "@tiptap/extension-typography"
-import { Selection } from "@tiptap/extensions"
-import { Markdown } from "@tiptap/markdown"
-import { StarterKit } from "@tiptap/starter-kit"
-
+import { RtlDirection } from "@/components/tiptap-extension/rtl-direction-extension"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
@@ -17,6 +12,11 @@ import {
   ToolbarGroup,
   ToolbarSeparator,
 } from "@/components/tiptap-ui-primitive/toolbar"
+import { TaskItem, TaskList } from "@tiptap/extension-list"
+import { Typography } from "@tiptap/extension-typography"
+import { Selection } from "@tiptap/extensions"
+import { Markdown } from "@tiptap/markdown"
+import { StarterKit } from "@tiptap/starter-kit"
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
 import "@/components/tiptap-node/code-block-node/code-block-node.scss"
@@ -40,26 +40,53 @@ import { MarkButton } from "@/components/tiptap-ui/mark-button"
 import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 
+import { useAiTools } from "@/hooks/use-ai-tools"
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
+import type { AiTextAction, AiTextTone } from "@/lib/api/types"
+import { toast } from "sonner"
 
 import "./editor.scss"
+import { AiToolsDropdown } from "./tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
 
 const MainToolbarContent = ({
   onLinkClick,
   isMobile,
+  onAiAction,
+  isAiLoading,
+  aiError,
+  onClearAiError,
 }: {
   onLinkClick: () => void
   isMobile: boolean
+  onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
+  isAiLoading?: boolean
+  aiError?: string | null
+  onClearAiError?: () => void
 }) => {
   return (
     <>
       <Spacer />
 
       <ToolbarGroup>
-        <HeadingDropdownMenu modal={false} levels={[1, 2, 3, 4]} />
+        <AiToolsDropdown
+          onAction={onAiAction}
+          isLoading={isAiLoading}
+          error={aiError}
+          onClearError={onClearAiError}
+        />
+      </ToolbarGroup>
+      <ToolbarSeparator />
+
+      <ToolbarGroup>
+        <HeadingDropdownMenu
+          modal={false}
+          levels={[1, 2, 3, 4]}
+          tooltip="أنماط العناوين"
+        />
         <ListDropdownMenu
           modal={false}
           types={["bulletList", "orderedList", "taskList"]}
+          tooltip="القوائم"
         />
         <BlockquoteButton />
         <CodeBlockButton />
@@ -85,6 +112,10 @@ const MobileToolbarContent = ({
   onBack,
 }: {
   onBack: () => void
+  onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
+  isAiLoading?: boolean
+  aiError?: string | null
+  onClearAiError?: () => void
 }) => (
   <>
     <ToolbarGroup>
@@ -148,6 +179,7 @@ export function Editor({ onChange, content }: EditorProps) {
       HorizontalRule,
       TaskList,
       TaskItem.configure({ nested: true }),
+      RtlDirection,
       Typography,
       Selection,
       Markdown,
@@ -156,6 +188,24 @@ export function Editor({ onChange, content }: EditorProps) {
       onChange?.(editor.getMarkdown())
     },
   })
+
+  // AI tools hook
+  const { isLoading, error, handleAiAction, clearError } = useAiTools({
+    editor,
+  })
+
+  // Tracks active loading cycles to notify successful completion
+  const wasLoading = useRef(false)
+  useEffect(() => {
+    if (isLoading) {
+      wasLoading.current = true
+    } else if (wasLoading.current && !isLoading) {
+      wasLoading.current = false
+      if (!error) {
+        toast.success(<span dir="rtl">تم تحديث المحتوى بنجاح!</span>)
+      }
+    }
+  }, [isLoading, error])
 
   useEffect(() => {
     if (!editor || content === undefined) return
@@ -173,10 +223,18 @@ export function Editor({ onChange, content }: EditorProps) {
             <MainToolbarContent
               onLinkClick={() => setShowLink(true)}
               isMobile={isMobile}
+              onAiAction={handleAiAction}
+              isAiLoading={isLoading}
+              aiError={error}
+              onClearAiError={clearError}
             />
           ) : (
             <MobileToolbarContent
               onBack={() => setShowLink(false)}
+              onAiAction={handleAiAction}
+              isAiLoading={isLoading}
+              aiError={error}
+              onClearAiError={clearError}
             />
           )}
         </Toolbar>
