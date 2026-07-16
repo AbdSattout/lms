@@ -695,7 +695,6 @@ export function CourseManagement({
       </div>
 
       <Separator />
-
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -704,6 +703,7 @@ export function CourseManagement({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">الفصول</h2>
+
             <div className="flex flex-col gap-2">
               {chapters.length === 0 && !isEditable ? (
                 <Empty>
@@ -779,7 +779,7 @@ export function CourseManagement({
                 </EmptyHeader>
                 <EmptyContent>اختر فصلاً من القائمة لعرض دروسه</EmptyContent>
               </Empty>
-            ) : lessons.length === 0 ? (
+            ) : lessons.length === 0 && !isEditable ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
@@ -791,33 +791,35 @@ export function CourseManagement({
               </Empty>
             ) : (
               <div className="flex flex-col gap-2">
-                <SortableContext
-                  items={lessons.map((l) => `lesson:${l.id}`)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {lessons.map((lesson) => (
-                    <SortableLesson
-                      key={lesson.id}
-                      lesson={lesson}
-                      isEditable={isEditable}
-                      renaming={renamingLessonId === lesson.id}
-                      renamingTitle={
-                        renamingLessonId === lesson.id ? renameTitle : ""
-                      }
-                      onSelect={() =>
-                        router.push(
-                          `${course.slug}/lessons/${lesson.id}` as unknown as Parameters<
-                            typeof router.push
-                          >[0]
-                        )
-                      }
-                      onStartRename={() => handleStartRenameLesson(lesson)}
-                      onRenameChange={setRenameTitle}
-                      onCommitRename={handleCommitRenameLesson}
-                      onDelete={() => setDeletingLesson(lesson)}
-                    />
-                  ))}
-                </SortableContext>
+                {lessons.length > 0 && (
+                  <SortableContext
+                    items={lessons.map((l) => `lesson:${l.id}`)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {lessons.map((lesson) => (
+                      <SortableLesson
+                        key={lesson.id}
+                        lesson={lesson}
+                        isEditable={isEditable}
+                        renaming={renamingLessonId === lesson.id}
+                        renamingTitle={
+                          renamingLessonId === lesson.id ? renameTitle : ""
+                        }
+                        onSelect={() =>
+                          router.push(
+                            `${course.slug}/lessons/${lesson.id}` as unknown as Parameters<
+                              typeof router.push
+                            >[0]
+                          )
+                        }
+                        onStartRename={() => handleStartRenameLesson(lesson)}
+                        onRenameChange={setRenameTitle}
+                        onCommitRename={handleCommitRenameLesson}
+                        onDelete={() => setDeletingLesson(lesson)}
+                      />
+                    ))}
+                  </SortableContext>
+                )}
 
                 {isEditable && (
                   <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-transparent p-3">
