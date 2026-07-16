@@ -1,7 +1,7 @@
-package app.lms.organization.controller;
+package app.lms.organization.organizationJoinRequest.controller;
 
-import app.lms.organization.dto.JoinRequestResponse;
-import app.lms.organization.service.OrganizationJoinRequestService;
+import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
+import app.lms.organization.organizationJoinRequest.service.OrganizationJoinRequestService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

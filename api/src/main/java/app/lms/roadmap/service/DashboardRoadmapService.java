@@ -10,11 +10,12 @@ import app.lms.roadmap.dto.RoadmapResponse;
 import app.lms.roadmap.dto.UpsertRoadmapRequest;
 import app.lms.roadmap.mapper.RoadmapMapper;
 import app.lms.roadmap.model.Roadmap;
-import app.lms.roadmap.model.RoadmapItem;
 import app.lms.roadmap.repository.RoadmapRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class RoadmapService {
+public class DashboardRoadmapService {
 
     private final OrganizationAccessService organizationAccessService;
     private final CourseRepository courseRepository;
@@ -45,41 +46,24 @@ public class RoadmapService {
                                 user
                         );
 
-        if (
-                roadmapRepository.existsByOrganizationId(
-                        organization.getId()
-                )
-        ) {
-            throw new ConflictException(
-                    "Roadmap already exists"
-            );
-        }
-
         Roadmap roadmap =
-                Roadmap.builder()
-                        .organization(
-                                organization
+                roadmapMapper.toEntity(
+                        organization,
+                        orderedCourses(
+                                request.courseIds(),
+                                organization.getId()
                         )
-                        .build();
+                );
 
-        replaceItems(
-                roadmap,
-                request.courseIds(),
-                organization.getId()
-        );
+        roadmapRepository.save(roadmap);
 
-        roadmapRepository.save(
-                roadmap
-        );
-
-        return roadmapMapper.toResponse(
-                roadmap
-        );
+        return roadmapMapper.toResponse(roadmap);
     }
 
     @Transactional
     public RoadmapResponse update(
             String organizationSlug,
+            Long roadmapId,
             UpsertRoadmapRequest request,
             User user
     ) {
@@ -92,24 +76,26 @@ public class RoadmapService {
                         );
 
         Roadmap roadmap =
-                getByOrganizationId(
+                getByIdAndOrganizationId(
+                        roadmapId,
                         organization.getId()
                 );
 
-        replaceItems(
+        roadmapMapper.replaceItems(
                 roadmap,
-                request.courseIds(),
-                organization.getId()
+                orderedCourses(
+                        request.courseIds(),
+                        organization.getId()
+                )
         );
 
-        return roadmapMapper.toResponse(
-                roadmap
-        );
+        return roadmapMapper.toResponse(roadmap);
     }
 
     @Transactional
-    public RoadmapResponse getManageable(
+    public RoadmapResponse getById(
             String organizationSlug,
+            Long roadmapId,
             User user
     ) {
 
@@ -121,37 +107,43 @@ public class RoadmapService {
                         );
 
         return roadmapMapper.toResponse(
-                getByOrganizationId(
+                getByIdAndOrganizationId(
+                        roadmapId,
                         organization.getId()
                 )
         );
     }
 
     @Transactional
-    public RoadmapResponse getPublished(
-            String organizationSlug
+    public Page<RoadmapResponse> list(
+            String organizationSlug,
+            Pageable pageable,
+            User user
     ) {
 
         Organization organization =
                 organizationAccessService
-                        .getBySlug(
-                                organizationSlug
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
                         );
 
-        return roadmapMapper.toResponse(
-                getByOrganizationId(
-                        organization.getId()
-                ),
-                true
-        );
+        return roadmapRepository
+                .findAllByOrganizationIdOrderByCreatedAtDesc(
+                        organization.getId(),
+                        pageable
+                )
+                .map(roadmapMapper::toResponse);
     }
 
-    private Roadmap getByOrganizationId(
+    private Roadmap getByIdAndOrganizationId(
+            Long roadmapId,
             Long organizationId
     ) {
 
         return roadmapRepository
-                .findByOrganizationId(
+                .findByIdAndOrganizationId(
+                        roadmapId,
                         organizationId
                 )
                 .orElseThrow(() ->
@@ -161,16 +153,13 @@ public class RoadmapService {
                 );
     }
 
-    private void replaceItems(
-            Roadmap roadmap,
+    private List<Course> orderedCourses(
             List<Long> courseIds,
             Long organizationId
     ) {
 
         List<Course> courses =
-                courseRepository.findAllById(
-                        courseIds
-                );
+                courseRepository.findAllById(courseIds);
 
         validateCourseIds(
                 courseIds,
@@ -187,31 +176,9 @@ public class RoadmapService {
                                 )
                         );
 
-        roadmap.getItems()
-                .clear();
-
-        int position = 1;
-
-        for (Long courseId : courseIds) {
-
-            RoadmapItem item =
-                    RoadmapItem.builder()
-                            .roadmap(
-                                    roadmap
-                            )
-                            .course(
-                                    courseMap.get(courseId)
-                            )
-                            .position(
-                                    position++
-                            )
-                            .build();
-
-            roadmap.getItems()
-                    .add(
-                            item
-                    );
-        }
+        return courseIds.stream()
+                .map(courseMap::get)
+                .toList();
     }
 
     private void validateCourseIds(
@@ -242,9 +209,7 @@ public class RoadmapService {
                         .anyMatch(course ->
                                 !course.getOrganization()
                                         .getId()
-                                        .equals(
-                                                organizationId
-                                        )
+                                        .equals(organizationId)
                         );
 
         if (hasCourseFromAnotherOrganization) {
