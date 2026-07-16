@@ -1,7 +1,8 @@
-package app.lms.organization.repository;
+package app.lms.organization.organizationInvite.repository;
 
-import app.lms.organization.enums.InviteStatus;
-import app.lms.organization.model.OrganizationInvite;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
+import app.lms.organization.enums.Role;
+import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -22,5 +23,7 @@ public interface OrganizationInviteRepository
             Long organizationId,
             InviteStatus status
     );
+    List<OrganizationInvite> findAllByUserIdAndRoleAndStatus(
+            Long userId, Role role, InviteStatus status);
 
 }
