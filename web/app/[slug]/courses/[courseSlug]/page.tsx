@@ -16,9 +16,11 @@ export default async function CoursePage({
 
   if (!course) notFound()
 
-  const chapters = await api.dashboard.courses.chapters.list
-    .get(course.id)
-    .catch(() => [])
+  const [chapters, finalQuiz, bankQuestions] = await Promise.all([
+    api.dashboard.courses.chapters.list.get(course.id).catch(() => []),
+    api.dashboard.quizzes.getFinalQuiz.get(course.id).catch(() => null),
+    api.dashboard.questions.byCourse.get(course.id).catch(() => []),
+  ])
 
   return (
     <>
@@ -32,6 +34,8 @@ export default async function CoursePage({
         course={course}
         orgSlug={slug}
         initialChapters={chapters}
+        finalQuiz={finalQuiz}
+        bankQuestions={bankQuestions}
       />
     </>
   )
