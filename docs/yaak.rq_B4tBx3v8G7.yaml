@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_B4tBx3v8G7
 createdAt: 2026-06-11T18:35:13.122359600
-updatedAt: 2026-07-15T22:07:35.238149100
+updatedAt: 2026-07-16T11:38:12.458401
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_eNTyjDNDJ3
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MTM0MjEzLCJleHAiOjE3ODQ3MzkwMTN9.R9lTnm0g7BZIGdqmEUoWFkmBrk_NKCYwZhriAriQl18
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
 authenticationType: bearer
 body:
   text: |-
@@ -23,7 +23,7 @@ headers:
 method: POST
 name: create lesson
 sortPriority: 3000.0
-url: https://lms.koyeb.app/chapters/3/lessons
+url: https://lms.koyeb.app/chapters//lessons
 urlParameters: []
 settingSendCookies:
   enabled: false
