@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizationMediaService {
+public class DashboardOrganizationMediaService {
 
     private final OrganizationAccessService organizationAccessService;
     private final OrganizationMediaRepository organizationMediaRepository;
@@ -38,9 +38,7 @@ public class OrganizationMediaService {
                         organization.getId(),
                         pageable
                 )
-                .map(
-                        organizationMediaMapper::toResponse
-                );
+                .map(organizationMediaMapper::toResponse);
     }
 
     public OrganizationMediaSummaryResponse summary(

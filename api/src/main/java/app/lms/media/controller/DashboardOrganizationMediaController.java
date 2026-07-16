@@ -2,7 +2,7 @@ package app.lms.media.controller;
 
 import app.lms.media.dto.OrganizationMediaResponse;
 import app.lms.media.dto.OrganizationMediaSummaryResponse;
-import app.lms.media.service.OrganizationMediaService;
+import app.lms.media.service.DashboardOrganizationMediaService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/organizations/{slug}/media-library")
-public class OrganizationMediaController {
+@RequestMapping("/dashboard/organizations/{slug}/media-library")
+public class DashboardOrganizationMediaController {
 
-    private final OrganizationMediaService organizationMediaService;
+    private final DashboardOrganizationMediaService organizationMediaService;
 
     @GetMapping
     public ResponseEntity<Page<OrganizationMediaResponse>> list(
