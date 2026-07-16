@@ -1,6 +1,7 @@
-package app.lms.organization.model;
+package app.lms.organization.organizationJoinRequest.model;
 
-import app.lms.organization.enums.JoinRequestStatus;
+import app.lms.organization.model.Organization;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
