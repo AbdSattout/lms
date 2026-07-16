@@ -22,4 +22,8 @@ public interface CourseMediaRepository extends JpaRepository<CourseMedia, Long> 
     long countByOrganizationMediaId(
             Long organizationMediaId
     );
+
+    void deleteByOrganizationMediaOrganizationId(
+            Long organizationId
+    );
 }
