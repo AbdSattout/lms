@@ -17,4 +17,8 @@ public interface PostRepository
             Long organizationId,
             Pageable pageable
     );
+
+    void deleteByOrganizationId(
+            Long organizationId
+    );
 }

@@ -8,6 +8,10 @@ import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
+import app.lms.media.model.OrganizationMedia;
+import app.lms.media.repository.CourseMediaRepository;
+import app.lms.media.repository.OrganizationMediaRepository;
+import app.lms.media.repository.PostMediaRepository;
 import app.lms.media.service.MediaService;
 import app.lms.organization.dto.*;
 import app.lms.organization.organizationInvite.enums.InviteStatus;
@@ -22,8 +26,11 @@ import app.lms.organization.organizationInvite.dto.CreatePublicInviteRequest;
 import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
 import app.lms.organization.organizationInvite.dto.UpdateInviteCapacityRequest;
 import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
+import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
+import app.lms.post.repository.PostRepository;
+import app.lms.roadmap.repository.RoadmapRepository;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -52,6 +59,12 @@ public class DashboardOrganizationService {
     private final CourseRepository courseRepository;
     private final OrganizationInviteRepository organizationInviteRepository;
     private final UserRepository userRepository;
+    private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
+    private final OrganizationMediaRepository organizationMediaRepository;
+    private final PostMediaRepository postMediaRepository;
+    private final CourseMediaRepository courseMediaRepository;
+    private final PostRepository postRepository;
+    private final RoadmapRepository roadmapRepository;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -214,13 +227,64 @@ public class DashboardOrganizationService {
                         user
                 );
 
+        Long organizationId =
+                organization.getId();
+
+        organizationInviteRepository.deleteByOrganizationId(
+                organizationId
+        );
+
+        organizationJoinRequestRepository.deleteByOrganizationId(
+                organizationId
+        );
+
+        roadmapRepository.deleteByOrganizationId(
+                organizationId
+        );
+
+        postRepository.deleteByOrganizationId(
+                organizationId
+        );
+
+        List<OrganizationMedia> organizationMedia =
+                organizationMediaRepository.findAllByOrganizationId(
+                        organizationId
+                );
+
+        organizationMedia.stream()
+                .map(OrganizationMedia::getFileId)
+                .filter(Objects::nonNull)
+                .forEach(fileId -> {
+                    try {
+                        mediaService.delete(fileId);
+                    } catch (ImageDeleteException ex) {
+                        log.error(
+                                "Failed to delete organization media {}",
+                                fileId,
+                                ex
+                        );
+                    }
+                });
+
+        postMediaRepository.deleteByOrganizationId(
+                organizationId
+        );
+
+        courseMediaRepository.deleteByOrganizationMediaOrganizationId(
+                organizationId
+        );
+
+        organizationMediaRepository.deleteByOrganizationId(
+                organizationId
+        );
+
         organizationMemberRepository.deleteByOrganizationId(
-                organization.getId()
+                organizationId
         );
 
         List<Course> courses =
                 courseRepository.findAllByOrganizationId(
-                        organization.getId()
+                        organizationId
                 );
 
         courses.stream()

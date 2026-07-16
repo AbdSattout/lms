@@ -21,4 +21,8 @@ public interface PostMediaRepository extends JpaRepository<PostMedia,Long> {
     long countByOrganizationMediaId(
             Long organizationMediaId
     );
+
+    void deleteByOrganizationId(
+            Long organizationId
+    );
 }
