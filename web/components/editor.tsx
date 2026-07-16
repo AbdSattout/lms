@@ -37,7 +37,7 @@ import {
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
 
-import { ArrowLeftIcon } from "@/components/tiptap-icons/arrow-left-icon"
+import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
 
 import { useAiTools } from "@/hooks/use-ai-tools"
@@ -120,7 +120,7 @@ const MobileToolbarContent = ({
   <>
     <ToolbarGroup>
       <Button variant="ghost" onClick={onBack}>
-        <ArrowLeftIcon className="tiptap-button-icon" />
+        <ArrowRightIcon className="tiptap-button-icon" />
         <LinkIcon className="tiptap-button-icon" />
       </Button>
     </ToolbarGroup>
@@ -159,6 +159,7 @@ export function Editor({ onChange, content }: EditorProps) {
     immediatelyRender: false,
     textDirection: "auto",
     contentType: "markdown",
+    autofocus: true,
     editorProps: {
       attributes: {
         autocomplete: "off",
