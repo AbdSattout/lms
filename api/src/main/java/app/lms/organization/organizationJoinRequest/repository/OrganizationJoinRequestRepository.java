@@ -1,7 +1,7 @@
-package app.lms.organization.repository;
+package app.lms.organization.organizationJoinRequest.repository;
 
-import app.lms.organization.enums.JoinRequestStatus;
-import app.lms.organization.model.OrganizationJoinRequest;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

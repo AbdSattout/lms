@@ -1,4 +1,4 @@
-package app.lms.organization.dto;
+package app.lms.organization.organizationInvite.dto;
 
 import lombok.Data;
 

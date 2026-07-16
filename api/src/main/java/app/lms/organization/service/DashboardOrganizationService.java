@@ -10,14 +10,18 @@ import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
 import app.lms.organization.dto.*;
-import app.lms.organization.enums.InviteStatus;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
-import app.lms.organization.model.OrganizationInvite;
+import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.repository.OrganizationInviteRepository;
+import app.lms.organization.organizationInvite.dto.CreateInviteRequest;
+import app.lms.organization.organizationInvite.dto.CreatePublicInviteRequest;
+import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
+import app.lms.organization.organizationInvite.dto.UpdateInviteCapacityRequest;
+import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
@@ -52,7 +56,7 @@ public class DashboardOrganizationService {
     private static final Logger log =
             LoggerFactory.getLogger(
                     DashboardOrganizationService.class
-    );
+            );
 
     @Transactional
     public OrganizationResponse create(
@@ -80,14 +84,14 @@ public class DashboardOrganizationService {
         }
 
         UploadedFile uploaded =
-              image != null && !image.isEmpty()
+                image != null && !image.isEmpty()
                         ? uploadOrganizationImage(image)
                         : null;
 
         Organization organization = Organization.builder()
                 .name(name)
                 .slug(slug)
-                .description(request.getDescription()!=null? request.getDescription().trim():null)
+                .description(request.getDescription() != null ? request.getDescription().trim() : null)
                 .imageUrl(
                         uploaded != null
                                 ? uploaded.url()
@@ -225,7 +229,7 @@ public class DashboardOrganizationService {
                 .forEach(fileId -> {
                     try {
                         mediaService.delete(fileId);
-                    }catch (ImageDeleteException ex) {
+                    } catch (ImageDeleteException ex) {
                         log.error(
                                 "Failed to delete course cover {}",
                                 fileId,
@@ -282,6 +286,7 @@ public class DashboardOrganizationService {
                 newSlug
         );
     }
+
     private void updateOrganizationName(
             Organization organization,
             String newName
@@ -318,6 +323,7 @@ public class DashboardOrganizationService {
                 FileType.IMAGE
         );
     }
+
     private void createOwnerMember(
             Organization organization,
             User user
@@ -354,6 +360,7 @@ public class DashboardOrganizationService {
                         organization
                 );
     }
+
     public List<OrganizationResponse>
     getDashboardOrganizations(
             User user
@@ -392,155 +399,4 @@ public class DashboardOrganizationService {
 
     }
 
-    public OrganizationInviteResponse invite(
-            String slug,
-            CreateInviteRequest request,
-            User currentUser
-    ) {
-
-        Organization organization =
-                organizationAccessService.getManageableOrganization(
-                        slug,
-                        currentUser
-                );
-
-        if (organizationInviteRepository.existsByOrganizationIdAndUserIdAndStatus(
-                organization.getId(),
-                request.getUserId(),
-                InviteStatus.PENDING
-        )) {
-
-            throw new BadRequestException(
-                    "User already invited"
-            );
-        }
-        User targetUser = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-
-        if (request.getRole() == Role.OWNER)
-            throw new BadRequestException(
-                    "you can not use Role OWNER in invite"
-            );
-
-        OrganizationInvite invite =
-                OrganizationInvite.builder()
-                        .organization(organization)
-                        .user(targetUser)
-                        .role(request.getRole() != null ? request.getRole() : Role.STUDENT)
-                        .status(InviteStatus.PENDING)
-                        .token(UUID.randomUUID().toString())
-                        .expiresAt(LocalDateTime.now().plusDays(7))
-                        .invitedBy(currentUser)
-                        .build();
-
-        OrganizationInvite savedInvite = organizationInviteRepository.save(invite);
-
-        return organizationMapper.toResponse(savedInvite);
-
-    }
-    @Transactional
-    public OrganizationInviteResponse resendInvite(
-            String slug,
-            Long inviteId,
-            User currentUser
-    ) {
-        Organization organization =
-                organizationAccessService.getManageableOrganization(slug, currentUser);
-
-        OrganizationInvite invite = organizationInviteRepository.findById(inviteId)
-                .orElseThrow(() -> new NotFoundException("Invite not found"));
-
-        if (!invite.getOrganization().getId().equals(organization.getId())) {
-            throw new BadRequestException("Invalid invite");
-        }
-
-        if (invite.getStatus() == InviteStatus.ACCEPTED) {
-            throw new BadRequestException("User has already accepted the invitation");
-        }
-
-        invite.setToken(UUID.randomUUID().toString());
-        invite.setExpiresAt(LocalDateTime.now().plusDays(7));
-        invite.setStatus(InviteStatus.PENDING);
-        invite.setInvitedBy(currentUser);
-
-        OrganizationInvite updatedInvite = organizationInviteRepository.save(invite);
-
-        return organizationMapper.toResponse(updatedInvite);
-
-    }
-
-    public List<OrganizationInviteResponse> getPendingInvites(
-            String slug,
-            User currentUser
-    ) {
-        Organization organization =
-                organizationAccessService.getManageableOrganization(slug, currentUser);
-
-        return organizationInviteRepository.findAllByOrganizationIdAndStatus(
-                        organization.getId(),
-                        InviteStatus.PENDING
-                ).stream()
-                .map(organizationMapper::toResponse)
-                .toList();
-    }
-
-    @Transactional
-    public OrganizationInviteResponse createPublicInvite(
-            String slug,
-            CreatePublicInviteRequest request,
-            User currentUser
-    ) {
-        Organization organization =
-                organizationAccessService.getManageableOrganization(slug, currentUser);
-
-        OrganizationInvite invite = OrganizationInvite.builder()
-                .organization(organization)
-                .user(null)
-                .role(request.getRole() != null ? request.getRole() : Role.STUDENT)
-                .status(InviteStatus.PENDING)
-                .token(UUID.randomUUID().toString())
-                .expiresAt(LocalDateTime.now().plusDays(30))
-                .maxUses(request.getMaxUses())
-                .usedCount(0)
-                .invitedBy(currentUser)
-                .build();
-
-        OrganizationInvite savedInvite = organizationInviteRepository.save(invite);
-        return organizationMapper.toResponse(savedInvite);
-    }
-    @Transactional
-    public OrganizationInviteResponse updatePublicInviteCapacity(
-            String slug,
-            Long inviteId,
-            UpdateInviteCapacityRequest request,
-            User currentUser
-    ) {
-        Organization organization =
-                organizationAccessService.getManageableOrganization(slug, currentUser);
-
-        OrganizationInvite invite = organizationInviteRepository.findById(inviteId)
-                .orElseThrow(() -> new NotFoundException("Invite not found"));
-
-        if (!invite.getOrganization().getId().equals(organization.getId())) {
-            throw new BadRequestException("Invalid invite");
-        }
-
-        if (invite.getUser() != null) {
-            throw new BadRequestException("Cannot change capacity for a personal invite");
-        }
-
-        if (request.getMaxUses() != null && request.getMaxUses() < invite.getUsedCount()) {
-            throw new BadRequestException("Max uses cannot be less than the current used count (" + invite.getUsedCount() + ")");
-        }
-
-        invite.setMaxUses(request.getMaxUses());
-
-        if (invite.getStatus() == InviteStatus.EXPIRED &&
-                (request.getMaxUses() == null || invite.getUsedCount() < request.getMaxUses())) {
-            invite.setStatus(InviteStatus.PENDING);
-        }
-
-        OrganizationInvite updatedInvite = organizationInviteRepository.save(invite);
-        return organizationMapper.toResponse(updatedInvite);
-    }
 }
