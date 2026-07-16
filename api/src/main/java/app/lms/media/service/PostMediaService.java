@@ -95,6 +95,7 @@ public class PostMediaService {
     @Transactional
     public PostMediaResponse update(
 
+            String slug,
             Long mediaId,
             MultipartFile file,
             String name,
@@ -104,6 +105,7 @@ public class PostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getEditableMedia(
+                                slug,
                                 mediaId,
                                 user
                         );
@@ -189,6 +191,7 @@ public class PostMediaService {
     @Transactional
     public void delete(
 
+            String slug,
             Long mediaId,
             User user
     ) {
@@ -196,6 +199,7 @@ public class PostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getEditableMedia(
+                                slug,
                                 mediaId,
                                 user
                         );
@@ -318,6 +322,7 @@ public class PostMediaService {
 
     public PostMediaResponse getById(
 
+            String slug,
             Long mediaId,
             User user
     ) {
@@ -325,6 +330,7 @@ public class PostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getAccessibleMedia(
+                                slug,
                                 mediaId,
                                 user
                         );
