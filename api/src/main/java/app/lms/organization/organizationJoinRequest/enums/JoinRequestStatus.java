@@ -1,4 +1,4 @@
-package app.lms.organization.enums;
+package app.lms.organization.organizationJoinRequest.enums;
 
 public enum JoinRequestStatus {
     PENDING,

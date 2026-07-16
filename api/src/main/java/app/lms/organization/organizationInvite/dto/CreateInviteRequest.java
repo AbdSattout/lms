@@ -1,4 +1,4 @@
-package app.lms.organization.dto;
+package app.lms.organization.organizationInvite.dto;
 
 import app.lms.organization.enums.Role;
 import jakarta.validation.constraints.NotNull;

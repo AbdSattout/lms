@@ -1,4 +1,4 @@
-package app.lms.organization.enums;
+package app.lms.organization.organizationInvite.enums;
 
 public enum InviteStatus {
 

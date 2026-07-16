@@ -1,6 +1,6 @@
-package app.lms.organization.dto;
+package app.lms.organization.organizationJoinRequest.dto;
 
-import app.lms.organization.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.user.dto.UserResponse;
 import lombok.Builder;
 import lombok.Data;
