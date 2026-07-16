@@ -1,7 +1,8 @@
-package app.lms.organization.model;
+package app.lms.organization.organizationInvite.model;
 
 import app.lms.common.model.BaseEntity;
-import app.lms.organization.enums.InviteStatus;
+import app.lms.organization.model.Organization;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
 import app.lms.organization.enums.Role;
 import app.lms.user.model.User;
 import jakarta.persistence.*;

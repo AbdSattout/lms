@@ -1,10 +1,11 @@
-package app.lms.organization.controller;
+package app.lms.organization.organizationInvite.controller;
 
-import app.lms.organization.dto.CreateInviteRequest;
-import app.lms.organization.dto.CreatePublicInviteRequest;
-import app.lms.organization.dto.OrganizationInviteResponse;
-import app.lms.organization.dto.UpdateInviteCapacityRequest;
-import app.lms.organization.service.DashboardOrganizationService;
+import app.lms.organization.organizationInvite.dto.CreateInviteRequest;
+import app.lms.organization.organizationInvite.dto.CreatePublicInviteRequest;
+import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
+import app.lms.organization.organizationInvite.dto.UpdateInviteCapacityRequest;
+import app.lms.organization.enums.Role;
+import app.lms.organization.organizationInvite.service.OrganizationInviteService;
 import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -21,8 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DashboardOrganizationInviteController {
 
-    private final DashboardOrganizationService dashboardOrganizationService;
-    private final OrganizationMemberAccessService organizationMemberAccessService;
+    private final OrganizationInviteService organizationInviteService;
 
     @PostMapping
     public ResponseEntity<OrganizationInviteResponse> createInvite(
@@ -31,7 +31,7 @@ public class DashboardOrganizationInviteController {
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(dashboardOrganizationService.invite(slug, request, principal.user()));
+                .body(organizationInviteService.invite(slug, request, principal.user()));
     }
 
     @PostMapping("/public")
@@ -41,7 +41,7 @@ public class DashboardOrganizationInviteController {
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(dashboardOrganizationService.createPublicInvite(slug, request, principal.user()));
+                .body(organizationInviteService.createPublicInvite(slug, request, principal.user()));
     }
 
     @GetMapping
@@ -49,7 +49,15 @@ public class DashboardOrganizationInviteController {
             @PathVariable String slug,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(dashboardOrganizationService.getPendingInvites(slug, principal.user()));
+        return ResponseEntity.ok(organizationInviteService.getPendingInvites(slug, principal.user()));
+    }
+    @GetMapping("/my-invites")
+    public ResponseEntity<List<OrganizationInviteResponse>> getMyAdminInvites(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                organizationInviteService.getMyInvites(principal.user(), Role.ADMIN)
+        );
     }
 
     @PostMapping("/{inviteId}/resend")
@@ -58,7 +66,7 @@ public class DashboardOrganizationInviteController {
             @PathVariable Long inviteId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(dashboardOrganizationService.resendInvite(slug, inviteId, principal.user()));
+        return ResponseEntity.ok(organizationInviteService.resendInvite(slug, inviteId, principal.user()));
     }
 
     @PostMapping("/{inviteId}/cancel")
@@ -67,7 +75,7 @@ public class DashboardOrganizationInviteController {
             @PathVariable Long inviteId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        organizationMemberAccessService.cancelInvite(slug, inviteId, principal.user());
+        organizationInviteService.cancelInvite(slug, inviteId, principal.user());
         return ResponseEntity.ok().build();
     }
 
@@ -78,6 +86,6 @@ public class DashboardOrganizationInviteController {
             @Valid @RequestBody UpdateInviteCapacityRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(dashboardOrganizationService.updatePublicInviteCapacity(slug, inviteId, request, principal.user()));
+        return ResponseEntity.ok(organizationInviteService.updatePublicInviteCapacity(slug, inviteId, request, principal.user()));
     }
 }
