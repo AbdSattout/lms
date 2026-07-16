@@ -677,7 +677,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/media` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
