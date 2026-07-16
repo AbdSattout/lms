@@ -1,0 +1,718 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>C:/Users/ASUS/Desktop/Project1/lms/api/src/main</OriginalElement>
+  <nodes>
+    <node x="2406.0" y="46.0">app.lms.quiz.dto.QuizResponse</node>
+    <node x="2485.5" y="1966.0">app.lms.placementTest.model.CoursePlacementTestAttempt</node>
+    <node x="2362.5" y="186.0">app.lms.quiz.repository.QuizRepository</node>
+    <node x="2949.5" y="1566.0">app.lms.quiz.dto.FinalQuizQuestionResultResponse</node>
+    <node x="2724.5" y="1306.0">app.lms.practiceExam.dto.PracticeExamSubmitResponse</node>
+    <node x="3177.0" y="126.0">app.lms.roadmap.service.RoadmapService</node>
+    <node x="1304.0" y="826.0">app.lms.courceEnrollment.service.CourseEnrollmentService</node>
+    <node x="3453.5" y="1906.0">app.lms.course.model.Course</node>
+    <node x="861.0" y="126.0">app.lms.chapter.mapper.ChapterMapper</node>
+    <node x="375.0" y="126.0">app.lms.courceEnrollment.enums.EnrollmentStatus</node>
+    <node x="2005.0" y="46.0">app.lms.lesson.service.LessonService</node>
+    <node x="-199.0" y="1306.0">app.lms.ai.dashboard.faq.dto.GeneratedCourseFaqResponse</node>
+    <node x="778.5" y="1026.0">app.lms.block.controller.DashboardBlockController</node>
+    <node x="2433.5" y="1626.0">app.lms.practiceExam.dto.SubmitPracticeExamAnswer</node>
+    <node x="447.5" y="1906.0">app.lms.randomquiz.model.BankRandomQuizAttemptQuestion</node>
+    <node x="2538.0" y="966.0">app.lms.ai.dashboard.faq.controller.DashboardAiFaqController</node>
+    <node x="2461.0" y="826.0">app.lms.courceEnrollment.dto.CourseProgressResponse</node>
+    <node x="767.0" y="1306.0">app.lms.organization.dto.UpdateInviteCapacityRequest</node>
+    <node x="17.5" y="186.0">app.lms.progress.mapper.ProgressMapper</node>
+    <node x="2935.5" y="1446.0">app.lms.practiceExam.dto.PracticeExamSummaryResponse</node>
+    <node x="1684.0" y="1966.0">app.lms.quiz.model.Quiz</node>
+    <node x="512.0" y="686.0">app.lms.media.exception.ImageUploadException</node>
+    <node x="3380.5" y="1706.0">app.lms.randomquiz.repository.BankRandomQuizAttemptRepository</node>
+    <node x="-39.5" y="546.0">app.lms.user.controller.HelloWorldController</node>
+    <node x="3048.5" y="1306.0">app.lms.placementTest.service.CoursePlacementTestService</node>
+    <node x="2772.0" y="1626.0">app.lms.practiceQuiz.controller.DashboardPracticeQuizController</node>
+    <node x="3457.0" y="606.0">app.lms.lesson.service.LessonAccessService</node>
+    <node x="1895.5" y="966.0">app.lms.ai.dashboard.text.controller.DashboardAiTextController</node>
+    <node x="2888.0" y="1246.0">app.lms.course.dto.CourseChapterMapResponse</node>
+    <node x="931.0" y="746.0">app.lms.practiceExam.dto.PracticeExamResponse</node>
+    <node x="2084.0" y="406.0">app.lms.user.dto.UpdateUserRequest</node>
+    <node x="2388.5" y="1906.0">app.lms.gamification.model.UserProgress</node>
+    <node x="-39.0" y="1246.0">app.lms.ai.mobile.quiz.controller.MobileAiRandomQuizController</node>
+    <node x="1912.0" y="686.0">app.lms.quiz.service.MobileFinalQuizService</node>
+    <node x="2370.5" y="1166.0">app.lms.ai.mobile.quiz.mapper.MobileAiRandomQuizMapper</node>
+    <node x="138.5" y="1026.0">app.lms.security.CustomUserDetailsService</node>
+    <node x="2605.5" y="886.0">app.lms.chapter.dto.ChapterDetailsResponse</node>
+    <node x="-198.0" y="186.0">app.lms.chapter.service.ChapterService</node>
+    <node x="1347.5" y="1386.0">app.lms.lesson.dto.ReorderLessonsRequest</node>
+    <node x="1719.0" y="-14.0">app.lms.security.JwtService</node>
+    <node x="2699.5" y="1026.0">app.lms.practiceQuiz.service.MobilePracticeQuizService</node>
+    <node x="1892.5" y="1106.0">app.lms.organization.dto.OrganizationInviteResponse</node>
+    <node x="1882.5" y="1246.0">app.lms.practiceQuiz.service.DashboardPracticeQuizService</node>
+    <node x="209.0" y="1966.0">app.lms.practiceExam.model.PracticeExamAttemptAnswer</node>
+    <node x="1749.0" y="1906.0">app.lms.practiceExam.model.PracticeExam</node>
+    <node x="3902.0" y="1966.0">app.lms.randomquiz.model.BankRandomQuizAttempt</node>
+    <node x="2057.5" y="1026.0">app.lms.gamification.repository.UserActivityDayRepository</node>
+    <node x="75.0" y="1706.0">app.lms.common.quiz.interfaces.GradableQuizQuestion</node>
+    <node x="3027.5" y="826.0">app.lms.question.dto.UpdateQuestionRequest</node>
+    <node x="2039.0" y="1966.0">app.lms.gamification.model.UserActivityDay</node>
+    <node x="1505.5" y="-14.0">app.lms.course.service.CourseService</node>
+    <node x="2943.0" y="-14.0">app.lms.user.model.User</node>
+    <node x="3008.5" y="46.0">app.lms.auth.dto.LoginRequest</node>
+    <node x="750.5" y="1566.0">app.lms.organization.controller.DashboardOrganizationController</node>
+    <node x="1246.5" y="1246.0">app.lms.common.quiz.service.QuizAttemptValidationService</node>
+    <node x="1071.5" y="686.0">app.lms.practiceQuiz.repository.PracticeQuizRepository</node>
+    <node x="3161.5" y="886.0">app.lms.quiz.controller.MobileFinalQuizController</node>
+    <node x="2724.0" y="126.0">app.lms.lesson.mapper.LessonMapper</node>
+    <node x="1328.5" y="1626.0">app.lms.randomquiz.dto.BankRandomQuizSubmitResponse</node>
+    <node x="3016.5" y="1026.0">app.lms.media.controller.MobilePostMediaController</node>
+    <node x="2398.5" y="1386.0">app.lms.practiceExam.service.DashboardPracticeExamService</node>
+    <node x="3167.0" y="466.0">app.lms.ai.common.exception.AiServiceException</node>
+    <node x="745.5" y="826.0">app.lms.question.dto.QuestionPublicResponse</node>
+    <node x="1914.0" y="-14.0">app.lms.user.mapper.UserMapper</node>
+    <node x="961.5" y="186.0">app.lms.user.repository.UserRepository</node>
+    <node x="768.5" y="326.0">app.lms.gamification.service.ScoreboardService</node>
+    <node x="3119.5" y="1386.0">app.lms.practiceQuiz.dto.PracticeQuizSummaryResponse</node>
+    <node x="1696.5" y="1706.0">app.lms.ai.mobile.quiz.dto.RandomQuizQuestionResultResponse</node>
+    <node x="-180.5" y="1026.0">app.lms.media.mapper.OrganizationMediaMapper</node>
+    <node x="1482.5" y="466.0">app.lms.organization.mapper.OrganizationMapper</node>
+    <node x="2197.5" y="546.0">app.lms.faq.repository.CourseFaqRepository</node>
+    <node x="2843.5" y="1966.0">app.lms.post.model.Post</node>
+    <node x="5.0" y="46.0">app.lms.user.dto.UserResponse</node>
+    <node x="1287.5" y="1706.0">app.lms.media.controller.DashboardOrganizationMediaController</node>
+    <node x="2261.5" y="126.0">app.lms.config.ImageKitConfig</node>
+    <node x="2209.0" y="1106.0">app.lms.organization.repository.OrganizationInviteRepository</node>
+    <node x="1848.0" y="266.0">app.lms.quiz.service.QuizAccessService</node>
+    <node x="3350.0" y="1566.0">app.lms.quiz.dto.SubmitFinalQuizAnswer</node>
+    <node x="904.5" y="-14.0">app.lms.course.mapper.CourseMapper</node>
+    <node x="1252.5" y="1106.0">app.lms.organization.dto.UpdateOrganizationRequest</node>
+    <node x="2043.5" y="1626.0">app.lms.ai.mobile.quiz.service.MobileAiRandomQuizAccessService</node>
+    <node x="800.5" y="546.0">app.lms.block.dto.UpdateBlockRequest</node>
+    <node x="1496.5" y="1166.0">app.lms.user.model.Profile</node>
+    <node x="1856.5" y="1446.0">app.lms.practiceExam.repository.PracticeExamAttemptRepository</node>
+    <node x="-75.0" y="406.0">app.lms.question.repository.QuestionRepository</node>
+    <node x="2753.0" y="686.0">app.lms.organization.controller.OrganizationController</node>
+    <node x="1610.0" y="266.0">app.lms.faq.mapper.CourseFaqMapper</node>
+    <node x="1921.5" y="546.0">app.lms.common.quiz.service.QuizDifficultyService</node>
+    <node x="1515.5" y="746.0">app.lms.course.dto.CourseResponse</node>
+    <node x="2747.0" y="826.0">app.lms.post.dto.CreateCommentRequest</node>
+    <node x="649.0" y="746.0">app.lms.media.repository.CourseMediaRepository</node>
+    <node x="-184.5" y="886.0">app.lms.organization.enums.InviteStatus</node>
+    <node x="2532.5" y="1106.0">app.lms.practiceExam.dto.CreatePracticeExamRequest</node>
+    <node x="-90.0" y="126.0">app.lms.security.UserPrincipal</node>
+    <node x="291.5" y="326.0">app.lms.lesson.repository.LessonRepository</node>
+    <node x="1257.0" y="966.0">app.lms.media.service.MobileCourseMediaService</node>
+    <node x="2193.5" y="686.0">app.lms.quiz.service.DashboardQuizService</node>
+    <node x="2537.0" y="1706.0">app.lms.randomquiz.dto.BankRandomQuizQuestionResultResponse</node>
+    <node x="3671.5" y="1566.0">app.lms.placementTest.dto.PlacementTestQuestionResponse</node>
+    <node x="2773.0" y="1766.0">app.lms.practiceExam.dto.PracticeExamQuestionResultResponse</node>
+    <node x="1490.0" y="326.0">app.lms.common.quiz.dto.QuizGradingResult</node>
+    <node x="2160.5" y="826.0">app.lms.organization.dto.CreatePublicInviteRequest</node>
+    <node x="1252.0" y="326.0">app.lms.common.exception.ConflictException</node>
+    <node x="184.0" y="826.0">app.lms.randomquiz.mapper.BankRandomQuizMapper</node>
+    <node x="523.0" y="466.0">app.lms.certificate.dto.CertificateResponse</node>
+    <node x="455.0" y="1026.0">app.lms.randomquiz.dto.BankRandomQuizResponse</node>
+    <node x="-186.5" y="746.0">app.lms.organization.dto.OrganizationResponse</node>
+    <node x="1213.5" y="746.0">app.lms.chapter.dto.CreateChapterRequest</node>
+    <node x="920.5" y="1706.0">app.lms.ai.dashboard.faq.service.DashboardAiFaqAccessService</node>
+    <node x="779.5" y="1446.0">app.lms.placementTest.dto.SubmitPlacementTestResponse</node>
+    <node x="2212.0" y="326.0">app.lms.course.repository.CourseRepository</node>
+    <node x="1946.5" y="1906.0">app.lms.question.model.Question</node>
+    <node x="-188.5" y="46.0">app.lms.ai.dashboard.text.enums.AiTextAction</node>
+    <node x="725.5" y="1966.0">app.lms.quiz.model.FinalQuizAttemptAnswer</node>
+    <node x="1088.5" y="1306.0">app.lms.ai.dashboard.question.service.DashboardAiQuestionService</node>
+    <node x="1678.0" y="1386.0">app.lms.ai.dashboard.text.service.DashboardAiTextPromptService</node>
+    <node x="2626.5" y="1246.0">app.lms.progress.enums.NextStepType</node>
+    <node x="3482.5" y="1626.0">app.lms.organization.repository.OrganizationJoinRequestRepository</node>
+    <node x="3128.5" y="-14.0">app.lms.media.enums.FileType</node>
+    <node x="3258.0" y="1966.0">app.lms.practiceExam.model.PracticeExamAttempt</node>
+    <node x="612.0" y="1106.0">app.lms.organization.controller.OrganizationInviteController</node>
+    <node x="2705.5" y="-14.0">app.lms.post.dto.PostResponse</node>
+    <node x="927.5" y="1626.0">app.lms.quiz.dto.UpdateFinalQuizQuestionsRequest</node>
+    <node x="204.5" y="46.0">app.lms.user.controller.UserController</node>
+    <node x="938.0" y="966.0">app.lms.gamification.dto.ScoreboardEntryResponse</node>
+    <node x="2223.5" y="1566.0">app.lms.ai.mobile.quiz.service.MobileAiRandomQuizPromptService</node>
+    <node x="1406.0" y="1306.0">app.lms.common.quiz.service.QuizQuestionSelectionService</node>
+    <node x="648.0" y="266.0">app.lms.question.controller.QuestionController</node>
+    <node x="-49.0" y="686.0">app.lms.security.JwtAuthenticationFilter</node>
+    <node x="617.0" y="966.0">app.lms.practiceQuiz.service.PracticeQuizAccessService</node>
+    <node x="1555.0" y="126.0">app.lms.course.controller.CourseController</node>
+    <node x="2571.5" y="266.0">app.lms.media.mapper.PostMediaMapper</node>
+    <node x="1002.5" y="466.0">app.lms.certificate.controller.CertificateController</node>
+    <node x="2924.0" y="466.0">app.lms.practiceQuiz.mapper.PracticeQuizMapper</node>
+    <node x="2610.0" y="46.0">app.lms.gamification.enums.XPEventType</node>
+    <node x="461.0" y="826.0">app.lms.quiz.dto.FinalQuizSubmitResponse</node>
+    <node x="3335.0" y="1026.0">app.lms.ai.mobile.quiz.dto.SubmitRandomQuizRequest</node>
+    <node x="48.5" y="326.0">app.lms.question.dto.QuestionResponse</node>
+    <node x="239.0" y="546.0">app.lms.media.repository.PostMediaRepository</node>
+    <node x="3839.0" y="1386.0">app.lms.organization.repository.OrganizationMemberRepository</node>
+    <node x="2334.0" y="746.0">app.lms.gamification.controller.GamificationController</node>
+    <node x="528.5" y="326.0">app.lms.course.enums.CourseNodeStatus</node>
+    <node x="-187.5" y="1166.0">app.lms.course.controller.DashboardCourseController</node>
+    <node x="2914.5" y="1906.0">app.lms.quiz.model.FinalQuizAttempt</node>
+    <node x="407.5" y="266.0">app.lms.quiz.dto.FinalQuizResponse</node>
+    <node x="2933.0" y="326.0">app.lms.certificate.service.CertificateService</node>
+    <node x="1801.5" y="126.0">app.lms.block.dto.BlockResponse</node>
+    <node x="2150.5" y="1906.0">app.lms.organization.model.OrganizationInvite</node>
+    <node x="-33.0" y="1906.0">app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion</node>
+    <node x="883.5" y="406.0">app.lms.block.service.BlockAccessService</node>
+    <node x="42.5" y="466.0">app.lms.media.dto.PostMediaResponse</node>
+    <node x="2854.5" y="966.0">app.lms.media.service.CourseMediaAccessService</node>
+    <node x="-192.0" y="1966.0">app.lms.practiceQuiz.dto.PracticeQuizGradingQuestion</node>
+    <node x="501.5" y="186.0">app.lms.LmsApplication</node>
+    <node x="616.0" y="1386.0">app.lms.common.quiz.interfaces.SubmittedQuizAnswer</node>
+    <node x="2684.5" y="466.0">app.lms.gamification.service.GamificationService</node>
+    <node x="881.0" y="886.0">app.lms.gamification.dto.UserActivityDayResponse</node>
+    <node x="2509.0" y="-14.0">app.lms.course.enums.CourseStatus</node>
+    <node x="128.0" y="1306.0">app.lms.ai.mobile.quiz.dto.RandomQuizSubmitResponse</node>
+    <node x="3171.0" y="1766.0">app.lms.practiceExam.dto.UpdatePracticeExamQuestionsRequest</node>
+    <node x="3040.0" y="546.0">app.lms.practiceExam.mapper.PracticeExamMapper</node>
+    <node x="-182.5" y="606.0">app.lms.course.service.CourseAccessService</node>
+    <node x="137.0" y="126.0">app.lms.post.dto.AuthorResponse</node>
+    <node x="2578.0" y="1446.0">app.lms.ai.dashboard.question.controller.DashboardAiQuestionController</node>
+    <node x="2050.5" y="746.0">app.lms.question.service.QuestionAccessService</node>
+    <node x="658.5" y="606.0">app.lms.gamification.dto.ScoreboardResponse</node>
+    <node x="1722.5" y="1306.0">app.lms.organization.dto.OrganizationMemberResponse</node>
+    <node x="1198.0" y="186.0">app.lms.block.repository.BlockRepository</node>
+    <node x="2162.0" y="186.0">app.lms.post.repository.PostRepository</node>
+    <node x="2617.0" y="606.0">app.lms.course.dto.CreateCourseRequest</node>
+    <node x="2938.5" y="126.0">app.lms.user.dto.ProfileResponse</node>
+    <node x="2754.0" y="1386.0">app.lms.common.exception.CustomAuthenticationEntryPoint</node>
+    <node x="1410.5" y="46.0">app.lms.block.mapper.BlockMapper</node>
+    <node x="2441.5" y="466.0">app.lms.common.dto.BaseEntityResponse</node>
+    <node x="1573.0" y="1106.0">app.lms.progress.dto.SubmitBlockAnswerRequest</node>
+    <node x="1084.0" y="1766.0">app.lms.placementTest.repository.CoursePlacementTestAttemptRepository</node>
+    <node x="3969.5" y="1766.0">app.lms.organization.controller.DashboardOrganizationInviteController</node>
+    <node x="-79.0" y="-14.0">app.lms.config.JwtConfig</node>
+    <node x="643.5" y="406.0">app.lms.organization.dto.CreateInviteRequest</node>
+    <node x="404.0" y="406.0">app.lms.common.exception.NotFoundException</node>
+    <node x="1517.5" y="1566.0">app.lms.randomquiz.dto.SubmitBankRandomQuizAnswer</node>
+    <node x="395.5" y="1446.0">app.lms.randomquiz.dto.SubmitBankRandomQuizRequest</node>
+    <node x="2817.0" y="46.0">app.lms.ai.dashboard.text.enums.AiTextTone</node>
+    <node x="1415.5" y="1026.0">app.lms.practiceExam.service.MobilePracticeExamService</node>
+    <node x="1726.0" y="466.0">app.lms.gamification.service.UserActivityService</node>
+    <node x="-185.0" y="1766.0">app.lms.practiceQuiz.dto.UpdatePracticeQuizQuestionsRequest</node>
+    <node x="2206.5" y="466.0">app.lms.post.repository.PostLikeRepository</node>
+    <node x="3621.0" y="1906.0">app.lms.gamification.model.Level</node>
+    <node x="2007.0" y="886.0">app.lms.gamification.repository.UserProgressRepository</node>
+    <node x="597.5" y="1626.0">app.lms.practiceQuiz.dto.SubmitPracticeQuizAnswer</node>
+    <node x="1863.0" y="826.0">app.lms.course.service.DashboardCourseService</node>
+    <node x="1253.0" y="1966.0">app.lms.practiceQuiz.model.PracticeQuiz</node>
+    <node x="2087.5" y="1706.0">app.lms.ai.dashboard.question.dto.GenerateQuestionFromBlockContentRequest</node>
+    <node x="2691.5" y="1166.0">app.lms.ai.mobile.quiz.service.MobileAiRandomQuizService</node>
+    <node x="3845.5" y="1626.0">app.lms.organization.controller.OrganizationJoinRequestController</node>
+    <node x="3418.5" y="126.0">app.lms.question.service.QuestionService</node>
+    <node x="288.5" y="1246.0">app.lms.ai.dashboard.question.dto.GeneratedQuestionResponse</node>
+    <node x="3294.5" y="186.0">app.lms.post.mapper.CommentMapper</node>
+    <node x="604.5" y="886.0">app.lms.media.service.PostMediaAccessService</node>
+    <node x="2710.5" y="1906.0">app.lms.media.model.CourseMedia</node>
+    <node x="1601.5" y="406.0">app.lms.media.mapper.CourseMediaMapper</node>
+    <node x="3011.5" y="1166.0">app.lms.practiceExam.dto.SubmitPracticeExamRequest</node>
+    <node x="925.0" y="1246.0">app.lms.practiceExam.controller.MobilePracticeExamController</node>
+    <node x="1847.0" y="406.0">app.lms.roadmap.dto.RoadmapResponse</node>
+    <node x="2478.5" y="546.0">app.lms.block.dto.BlockPublicResponse</node>
+    <node x="3300.0" y="1446.0">app.lms.media.service.DashboardCourseMediaService</node>
+    <node x="2821.0" y="186.0">app.lms.block.controller.BlockController</node>
+    <node x="1470.0" y="1966.0">app.lms.chapter.model.Chapter</node>
+    <node x="3480.0" y="1386.0">app.lms.gamification.dto.GamificationProgressResponse</node>
+    <node x="2401.0" y="1306.0">app.lms.organization.service.DashboardOrganizationService</node>
+    <node x="2327.0" y="886.0">app.lms.media.service.MobilePostMediaService</node>
+    <node x="4057.0" y="1566.0">app.lms.ai.mobile.quiz.dto.SubmitRandomQuizAnswer</node>
+    <node x="3572.5" y="1766.0">app.lms.placementTest.controller.MobileCoursePlacementTestController</node>
+    <node x="815.0" y="46.0">app.lms.user.service.UserService</node>
+    <node x="374.0" y="606.0">app.lms.block.dto.ReorderBlocksRequest</node>
+    <node x="2208.5" y="46.0">app.lms.user.dto.UpdateProfile</node>
+    <node x="2301.0" y="1966.0">app.lms.certificate.model.Certificate</node>
+    <node x="295.5" y="966.0">app.lms.organization.service.OrganizationAccessService</node>
+    <node x="1999.5" y="1766.0">app.lms.common.model.BaseEntity</node>
+    <node x="1075.0" y="546.0">app.lms.media.exception.ImageDeleteException</node>
+    <node x="2036.0" y="1386.0">app.lms.organization.service.OrganizationJoinRequestService</node>
+    <node x="608.0" y="1246.0">app.lms.practiceExam.dto.PracticeExamPublicResponse</node>
+    <node x="46.0" y="886.0">app.lms.placementTest.dto.PlacementTestResponse</node>
+    <node x="2853.5" y="1106.0">app.lms.courceEnrollment.controller.CourseEnrollmentController</node>
+    <node x="1724.0" y="886.0">app.lms.organization.model.OrganizationJoinRequest</node>
+    <node x="2219.5" y="1446.0">app.lms.media.controller.DashboardPostMediaController</node>
+    <node x="1243.5" y="466.0">app.lms.roadmap.repository.RoadmapRepository</node>
+    <node x="1497.0" y="1446.0">app.lms.randomquiz.service.BankRandomQuizAccessService</node>
+    <node x="-30.0" y="1106.0">app.lms.gamification.dto.GamificationAwardResponse</node>
+    <node x="710.5" y="-14.0">app.lms.media.dto.UploadedFile</node>
+    <node x="1315.5" y="126.0">app.lms.post.service.CommentService</node>
+    <node x="3206.0" y="1246.0">app.lms.progress.dto.SubmitBlockAnswerResponse</node>
+    <node x="2218.5" y="966.0">app.lms.ai.dashboard.text.dto.GeneratedAiTextResponse</node>
+    <node x="2978.0" y="1706.0">app.lms.media.service.DashboardOrganizationMediaService</node>
+    <node x="1770.0" y="746.0">app.lms.question.dto.CreateQuestionRequest</node>
+    <node x="2894.0" y="606.0">app.lms.lesson.dto.UpdateLessonRequest</node>
+    <node x="1964.5" y="466.0">app.lms.post.dto.UpdatePostRequest</node>
+    <node x="3128.0" y="1626.0">app.lms.practiceExam.controller.DashboardPracticeExamController</node>
+    <node x="2584.5" y="1566.0">app.lms.organization.service.OrganizationMemberAccessService</node>
+    <node x="3308.5" y="686.0">app.lms.ai.dashboard.faq.service.DashboardAiFaqService</node>
+    <node x="1867.0" y="1566.0">app.lms.randomquiz.dto.GenerateBankRandomQuizRequest</node>
+    <node x="2760.5" y="546.0">app.lms.gamification.dto.UserStreakResponse</node>
+    <node x="2377.5" y="1026.0">app.lms.course.dto.CourseBlockMapResponse</node>
+    <node x="1735.5" y="1026.0">app.lms.practiceQuiz.dto.SubmitPracticeQuizRequest</node>
+    <node x="1629.0" y="686.0">app.lms.course.dto.CourseDetailsResponse</node>
+    <node x="1094.5" y="1026.0">app.lms.randomquiz.controller.BankRandomQuizController</node>
+    <node x="1310.0" y="-14.0">app.lms.media.service.MediaService</node>
+    <node x="449.0" y="1166.0">app.lms.practiceQuiz.controller.MobilePracticeQuizController</node>
+    <node x="1216.5" y="606.0">app.lms.common.exception.BadRequestException</node>
+    <node x="521.0" y="546.0">app.lms.faq.dto.CourseFaqResponse</node>
+    <node x="1166.0" y="886.0">app.lms.ai.dashboard.text.service.DashboardAiTextService</node>
+    <node x="934.5" y="606.0">app.lms.ai.mobile.quiz.dto.RandomQuizResponse</node>
+    <node x="3328.5" y="1166.0">app.lms.practiceQuiz.dto.PracticeQuizSubmitResponse</node>
+    <node x="1350.5" y="686.0">app.lms.ai.dashboard.text.dto.GenerateAiTextRequest</node>
+    <node x="738.0" y="186.0">app.lms.certificate.enums.CertificateGrade</node>
+    <node x="88.0" y="746.0">app.lms.quiz.dto.SubmitFinalQuizRequest</node>
+    <node x="3172.0" y="326.0">app.lms.gamification.enums.ScoreboardPeriod</node>
+    <node x="3063.5" y="1966.0">app.lms.post.model.Comment</node>
+    <node x="292.0" y="1106.0">app.lms.practiceQuiz.dto.PracticeQuizPublicResponse</node>
+    <node x="1575.0" y="966.0">app.lms.organization.dto.CreateOrganizationRequest</node>
+    <node x="1173.0" y="1906.0">app.lms.lesson.model.Lesson</node>
+    <node x="2447.5" y="326.0">app.lms.post.service.PostAccessService</node>
+    <node x="1008.5" y="1966.0">app.lms.media.model.OrganizationMedia</node>
+    <node x="2328.0" y="-14.0">app.lms.post.model.PostLike</node>
+    <node x="504.5" y="-14.0">app.lms.auth.controller.AuthController</node>
+    <node x="958.0" y="1386.0">app.lms.ai.mobile.quiz.dto.GeneratedRandomQuizQuestion</node>
+    <node x="3169.0" y="746.0">app.lms.block.service.DashboardBlockService</node>
+    <node x="-192.0" y="326.0">app.lms.progress.controller.ProgressController</node>
+    <node x="3054.5" y="186.0">app.lms.lesson.controller.LessonController</node>
+    <node x="3176.5" y="966.0">app.lms.practiceQuiz.dto.CreatePracticeQuizRequest</node>
+    <node x="790.5" y="686.0">app.lms.roadmap.dto.RoadmapItemResponse</node>
+    <node x="94.5" y="606.0">app.lms.course.dto.UpdateCourseRequest</node>
+    <node x="-193.5" y="466.0">app.lms.roadmap.controller.RoadmapController</node>
+    <node x="3525.0" y="1966.0">app.lms.roadmap.model.Roadmap</node>
+    <node x="-97.0" y="826.0">app.lms.quiz.controller.DashboardQuizController</node>
+    <node x="1689.5" y="1626.0">app.lms.media.controller.DashboardCourseMediaController</node>
+    <node x="2563.0" y="406.0">app.lms.block.dto.CreateBlockRequest</node>
+    <node x="1447.5" y="886.0">app.lms.post.service.CommentAccessService</node>
+    <node x="771.0" y="1166.0">app.lms.course.dto.CourseLessonMapResponse</node>
+    <node x="2047.0" y="1306.0">app.lms.media.repository.OrganizationMediaRepository</node>
+    <node x="165.0" y="406.0">app.lms.post.controller.CommentController</node>
+    <node x="2220.5" y="1246.0">app.lms.ai.dashboard.faq.service.DashboardAiFaqPromptService</node>
+    <node x="1009.5" y="326.0">app.lms.post.controller.PostLikeController</node>
+    <node x="2476.0" y="126.0">app.lms.roadmap.mapper.RoadmapMapper</node>
+    <node x="1869.0" y="1966.0">app.lms.gamification.model.XPEvent</node>
+    <node x="2599.5" y="186.0">app.lms.gamification.repository.LevelRepository</node>
+    <node x="1732.0" y="326.0">app.lms.organization.enums.QuestionDifficulty</node>
+    <node x="2883.5" y="886.0">app.lms.progress.repository.BlockProgressRepository</node>
+    <node x="2325.5" y="406.0">app.lms.post.dto.CommentResponse</node>
+    <node x="2090.0" y="266.0">app.lms.ai.dashboard.faq.dto.GeneratedFaqItem</node>
+    <node x="939.5" y="1906.0">app.lms.block.model.Block</node>
+    <node x="1918.5" y="186.0">app.lms.progress.service.ProgressService</node>
+    <node x="1499.5" y="606.0">app.lms.certificate.repository.CertificateRepository</node>
+    <node x="1360.0" y="546.0">app.lms.user.dto.CreateProfileRequest</node>
+    <node x="1215.0" y="46.0">app.lms.auth.service.AuthService</node>
+    <node x="-73.0" y="266.0">app.lms.post.dto.CreatePostRequest</node>
+    <node x="315.0" y="-14.0">app.lms.quiz.mapper.QuizMapper</node>
+    <node x="930.5" y="1106.0">app.lms.media.dto.OrganizationMediaResponse</node>
+    <node x="1025.0" y="826.0">app.lms.randomquiz.service.BankRandomQuizService</node>
+    <node x="324.5" y="886.0">app.lms.chapter.dto.ReorderChaptersRequest</node>
+    <node x="1093.0" y="1166.0">app.lms.ai.dashboard.faq.dto.GenerateCourseFaqRequest</node>
+    <node x="2338.5" y="606.0">app.lms.user.dto.UserSearchResponse</node>
+    <node x="3048.0" y="266.0">app.lms.config.ImageKitProperties</node>
+    <node x="168.5" y="266.0">app.lms.chapter.repository.ChapterRepository</node>
+    <node x="1134.5" y="1446.0">app.lms.ai.mobile.quiz.dto.GeneratedRandomQuizResponse</node>
+    <node x="762.0" y="466.0">app.lms.post.repository.CommentRepository</node>
+    <node x="3028.0" y="686.0">app.lms.common.exception.GlobalExceptionHandler</node>
+    <node x="3656.0" y="1446.0">app.lms.courceEnrollment.service.CourseEnrollmentAccessService</node>
+    <node x="115.5" y="-14.0">app.lms.post.service.PostService</node>
+    <node x="891.5" y="266.0">app.lms.chapter.controller.ChapterController</node>
+    <node x="1132.0" y="266.0">app.lms.certificate.mapper.CertificateMapper</node>
+    <node x="1495.0" y="1766.0">app.lms.media.dto.OrganizationMediaSummaryResponse</node>
+    <node x="133.0" y="1166.0">app.lms.practiceExam.service.PracticeExamAccessService</node>
+    <node x="1367.5" y="266.0">app.lms.gamification.repository.XPEventRepository</node>
+    <node x="446.5" y="1306.0">app.lms.media.controller.MobileCourseMediaController</node>
+    <node x="1587.5" y="826.0">app.lms.practiceExam.repository.PracticeExamRepository</node>
+    <node x="4020.0" y="1446.0">app.lms.ai.mobile.quiz.repository.RandomQuizAttemptRepository</node>
+    <node x="3691.5" y="1966.0">app.lms.organization.model.Organization</node>
+    <node x="3043.0" y="406.0">app.lms.common.exception.ForbiddenException</node>
+    <node x="605.0" y="46.0">app.lms.post.controller.PostController</node>
+    <node x="1608.5" y="46.0">app.lms.user.service.ProfileService</node>
+    <node x="255.0" y="186.0">app.lms.user.repository.ProfileRepository</node>
+    <node x="3315.5" y="546.0">app.lms.organization.dto.JoinRequestResponse</node>
+    <node x="1111.5" y="-14.0">app.lms.block.service.BlockService</node>
+    <node x="1969.0" y="326.0">app.lms.organization.enums.JoinRequestStatus</node>
+    <node x="1828.5" y="46.0">app.lms.organization.enums.Visibility</node>
+    <node x="3175.0" y="606.0">app.lms.practiceQuiz.dto.PracticeQuizResponse</node>
+    <node x="1566.5" y="1246.0">app.lms.placementTest.dto.SubmitPlacementTestRequest</node>
+    <node x="1080.0" y="126.0">app.lms.post.service.PostLikeService</node>
+    <node x="2144.5" y="-14.0">app.lms.organization.enums.Role</node>
+    <node x="2332.0" y="266.0">app.lms.question.enums.QuestionDifficulty</node>
+    <node x="2040.0" y="126.0">app.lms.gamification.repository.projection.ScoreboardRow</node>
+    <node x="3537.5" y="186.0">app.lms.question.mapper.QuestionMapper</node>
+    <node x="285.5" y="466.0">app.lms.common.quiz.service.QuizGradingService</node>
+    <node x="1394.5" y="406.0">app.lms.post.mapper.PostMapper</node>
+    <node x="1678.0" y="186.0">app.lms.user.controller.ProfileController</node>
+    <node x="1123.5" y="406.0">app.lms.organization.service.OrganizationService</node>
+    <node x="697.0" y="1766.0">app.lms.practiceQuiz.dto.PracticeQuizQuestionResultResponse</node>
+    <node x="1120.5" y="1566.0">app.lms.ai.dashboard.question.service.DashboardAiQuestionPromptService</node>
+    <node x="2050.5" y="1166.0">app.lms.courceEnrollment.repository.CourseEnrollmentRepository</node>
+    <node x="1444.0" y="186.0">app.lms.config.SecurityConfig</node>
+    <node x="1005.0" y="46.0">app.lms.auth.dto.AuthResponse</node>
+    <node x="2333.0" y="1766.0">app.lms.ai.mobile.quiz.service.MobileAiRandomQuizValidationService</node>
+    <node x="1360.5" y="1906.0">app.lms.media.model.PostMedia</node>
+    <node x="2608.0" y="746.0">app.lms.roadmap.dto.UpsertRoadmapRequest</node>
+    <node x="2692.0" y="326.0">app.lms.chapter.dto.ChapterResponse</node>
+    <node x="3170.0" y="1106.0">app.lms.media.service.DashboardPostMediaService</node>
+    <node x="4121.5" y="1906.0">app.lms.ai.mobile.quiz.model.RandomQuizAttempt</node>
+    <node x="2801.5" y="406.0">app.lms.courceEnrollment.dto.EnrollmentResponse</node>
+    <node x="230.0" y="686.0">app.lms.organization.repository.OrganizationRepository</node>
+    <node x="2472.5" y="686.0">app.lms.media.dto.CourseMediaResponse</node>
+    <node x="-26.0" y="966.0">app.lms.courceEnrollment.dto.CourseEnrollmentResponse</node>
+    <node x="1636.5" y="546.0">app.lms.lesson.dto.CreateLessonRequest</node>
+    <node x="1733.0" y="1166.0">app.lms.quiz.repository.FinalQuizAttemptRepository</node>
+    <node x="3292.0" y="266.0">app.lms.courceEnrollment.model.CourseEnrollment</node>
+    <node x="3788.5" y="1906.0">app.lms.roadmap.model.RoadmapItem</node>
+    <node x="426.5" y="46.0">app.lms.gamification.enums.LevelTier</node>
+    <node x="3159.0" y="1906.0">app.lms.faq.model.CourseFaq</node>
+    <node x="2807.0" y="266.0">app.lms.gamification.config.DefaultLevelSeeder</node>
+    <node x="1545.0" y="1906.0">app.lms.progress.model.BlockProgress</node>
+    <node x="2891.0" y="746.0">app.lms.chapter.dto.UpdateChapterRequest</node>
+    <node x="368.5" y="746.0">app.lms.lesson.dto.LessonDetailsResponse</node>
+    <node x="3824.5" y="1706.0">app.lms.common.quiz.interfaces.CompletableQuizAttempt</node>
+    <node x="1780.5" y="606.0">app.lms.organization.model.OrganizationMember</node>
+    <node x="2054.0" y="606.0">app.lms.chapter.service.ChapterAccessService</node>
+    <node x="615.0" y="126.0">app.lms.lesson.dto.LessonResponse</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="app.lms.practiceQuiz.model.PracticeQuiz" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1326.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.roadmap.model.Roadmap" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3586.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.randomquiz.model.BankRandomQuizAttemptQuestion" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="79.25" y="-14.0" />
+      <point x="685.25" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceQuiz.dto.SubmitPracticeQuizAnswer" target="app.lms.common.quiz.interfaces.SubmittedQuizAnswer" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.question.model.Question" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2006.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.course.model.Course" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3506.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.quiz.dto.SubmitFinalQuizAnswer" target="app.lms.common.quiz.interfaces.SubmittedQuizAnswer" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3466.0" y="1540.0" />
+      <point x="726.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.media.model.OrganizationMedia" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1106.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion" target="app.lms.common.quiz.interfaces.GradableQuizQuestion" relationship="REALIZATION">
+      <point x="-69.5" y="-14.0" />
+      <point x="36.5" y="1880.0" />
+      <point x="186.0" y="1880.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceExam.model.PracticeExam" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1826.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.organization.model.OrganizationInvite" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.randomquiz.model.BankRandomQuizAttempt" target="app.lms.common.quiz.interfaces.CompletableQuizAttempt" relationship="REALIZATION">
+      <point x="62.0" y="-14.0" />
+      <point x="4088.0" y="1840.0" />
+      <point x="4086.0" y="1840.0" />
+      <point x="4086.0" y="1820.0" />
+      <point x="3946.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.placementTest.model.CoursePlacementTestAttempt" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2626.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.ai.mobile.quiz.model.RandomQuizAttempt" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="-52.25" y="-14.0" />
+      <point x="4173.75" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.quiz.model.FinalQuizAttemptAnswer" target="app.lms.common.quiz.interfaces.GradableQuizQuestion" relationship="REALIZATION">
+      <point x="-60.25" y="-14.0" />
+      <point x="785.75" y="1880.0" />
+      <point x="186.0" y="1880.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.organization.model.Organization" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3766.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceQuiz.dto.PracticeQuizGradingQuestion" target="app.lms.common.quiz.interfaces.GradableQuizQuestion" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="-54.0" y="1880.0" />
+      <point x="186.0" y="1880.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.post.model.Comment" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3126.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.roadmap.model.RoadmapItem" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3866.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.gamification.model.UserActivityDay" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2126.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.randomquiz.model.BankRandomQuizAttemptQuestion" target="app.lms.common.quiz.interfaces.GradableQuizQuestion" relationship="REALIZATION">
+      <point x="-79.25" y="-14.0" />
+      <point x="526.75" y="1880.0" />
+      <point x="186.0" y="1880.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceExam.model.PracticeExamAttemptAnswer" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="68.5" y="-14.0" />
+      <point x="414.5" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.chapter.model.Chapter" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1526.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.ai.mobile.quiz.model.RandomQuizAttempt" target="app.lms.common.quiz.interfaces.CompletableQuizAttempt" relationship="REALIZATION">
+      <point x="52.25" y="-14.0" />
+      <point x="4278.25" y="1840.0" />
+      <point x="4086.0" y="1840.0" />
+      <point x="4086.0" y="1820.0" />
+      <point x="3946.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.gamification.model.UserProgress" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2466.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.ai.mobile.quiz.dto.SubmitRandomQuizAnswer" target="app.lms.common.quiz.interfaces.SubmittedQuizAnswer" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="4186.0" y="1540.0" />
+      <point x="726.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceExam.dto.SubmitPracticeExamAnswer" target="app.lms.common.quiz.interfaces.SubmittedQuizAnswer" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2566.0" y="1540.0" />
+      <point x="726.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="69.5" y="-14.0" />
+      <point x="175.5" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.quiz.model.FinalQuizAttemptAnswer" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="60.25" y="-14.0" />
+      <point x="906.25" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.certificate.model.Certificate" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2366.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.gamification.model.Level" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3666.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.quiz.model.FinalQuizAttempt" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3006.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.randomquiz.dto.SubmitBankRandomQuizAnswer" target="app.lms.common.quiz.interfaces.SubmittedQuizAnswer" relationship="REALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1666.0" y="1540.0" />
+      <point x="726.0" y="1540.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.progress.model.BlockProgress" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1626.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceExam.model.PracticeExamAttempt" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3366.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.lesson.model.Lesson" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1226.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.post.model.Post" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2886.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.media.model.PostMedia" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1426.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.media.model.CourseMedia" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="2786.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.block.model.Block" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="986.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.gamification.model.XPEvent" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1926.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.practiceExam.model.PracticeExamAttemptAnswer" target="app.lms.common.quiz.interfaces.GradableQuizQuestion" relationship="REALIZATION">
+      <point x="-68.5" y="-14.0" />
+      <point x="277.5" y="1880.0" />
+      <point x="186.0" y="1880.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.randomquiz.model.BankRandomQuizAttempt" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="-62.0" y="-14.0" />
+      <point x="3964.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.quiz.model.Quiz" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="1726.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+    <edge source="app.lms.faq.model.CourseFaq" target="app.lms.common.model.BaseEntity" relationship="GENERALIZATION">
+      <point x="0.0" y="-14.0" />
+      <point x="3226.0" y="1860.0" />
+      <point x="2246.0" y="1860.0" />
+      <point x="2246.0" y="1820.0" />
+      <point x="2066.0" y="1820.0" />
+      <point x="0.0" y="14.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.2916483516483516" showDependencies="false" x="2066.0" y="990.0" />
+  <SelectedNodes />
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
