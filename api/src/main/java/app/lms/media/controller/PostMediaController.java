@@ -48,10 +48,13 @@ public class    PostMediaController {
     }
 
     @PatchMapping(
-            value = "/media/{mediaId}",
+            value = "/organizations/{slug}/media/{mediaId}",
             consumes = "multipart/form-data"
     )
     public ResponseEntity<PostMediaResponse> update(
+
+            @PathVariable
+            String slug,
 
             @PathVariable
             Long mediaId,
@@ -68,6 +71,7 @@ public class    PostMediaController {
 
         return ResponseEntity.ok(
                 postMediaService.update(
+                        slug,
                         mediaId,
                         file,
                         name,
@@ -77,9 +81,12 @@ public class    PostMediaController {
     }
 
     @DeleteMapping(
-            "/media/{mediaId}"
+            "/organizations/{slug}/media/{mediaId}"
     )
     public ResponseEntity<Void> delete(
+
+            @PathVariable
+            String slug,
 
             @PathVariable
             Long mediaId,
@@ -89,6 +96,7 @@ public class    PostMediaController {
     ) {
 
         postMediaService.delete(
+                slug,
                 mediaId,
                 principal.user()
         );
@@ -100,11 +108,14 @@ public class    PostMediaController {
 
 
     @GetMapping(
-            "/media/{mediaId}"
+            "/organizations/{slug}/media/{mediaId}"
     )
     public ResponseEntity<
             PostMediaResponse
             > getById(
+
+            @PathVariable
+            String slug,
 
             @PathVariable
             Long mediaId,
@@ -115,6 +126,7 @@ public class    PostMediaController {
 
         return ResponseEntity.ok(
                 postMediaService.getById(
+                        slug,
                         mediaId,
                         principal.user()
                 )
