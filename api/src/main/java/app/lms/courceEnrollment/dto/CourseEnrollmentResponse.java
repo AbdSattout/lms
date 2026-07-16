@@ -15,6 +15,7 @@ public record CourseEnrollmentResponse(
         String courseTitle,
         LocalDateTime enrolledAt,
         EnrollmentStatus status,
+        Boolean placementTestCompleted,
         Integer progressPercentage,
         Long currentChapterId,
         Long currentLessonId,
