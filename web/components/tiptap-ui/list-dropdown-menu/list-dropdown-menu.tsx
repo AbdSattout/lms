@@ -11,7 +11,6 @@ import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon"
 
 // --- Tiptap UI ---
 import { ListButton, type ListType } from "@/components/tiptap-ui/list-button"
-
 import { useListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu/use-list-dropdown-menu"
 
 // --- UI Primitives ---
@@ -47,6 +46,13 @@ export interface ListDropdownMenuProps extends Omit<ButtonProps, "type"> {
    * Whether the dropdown should use a modal
    */
   modal?: boolean
+}
+
+// Arabic translation dictionary for the lists inside the dropdown
+const ARABIC_LIST_LABELS: Record<string, string> = {
+  bulletList: "قائمة نقطية",
+  orderedList: "قائمة رقمية",
+  taskList: "قائمة مهام",
 }
 
 function ListDropdownMenuImpl(
@@ -93,8 +99,8 @@ function ListDropdownMenuImpl(
           tabIndex={-1}
           disabled={!canToggle}
           data-disabled={!canToggle}
-          aria-label="List options"
-          tooltip="List"
+          aria-label="خيارات القائمة"
+          tooltip="القوائم"
           {...props}
           ref={ref}
         >
@@ -110,7 +116,7 @@ function ListDropdownMenuImpl(
               <ListButton
                 editor={editor}
                 type={option.type}
-                text={option.label}
+                text={ARABIC_LIST_LABELS[option.type] || option.label}
                 showTooltip={false}
               />
             </DropdownMenuItem>

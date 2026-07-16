@@ -40,11 +40,14 @@ export function MarkShortcutBadge({
   return <Badge>{parseShortcutKeys({ shortcutKeys })}</Badge>
 }
 
-/**
- * Button component for toggling marks in a Tiptap editor.
- *
- * For custom button implementations, use the `useMark` hook instead.
- */
+const ARABIC_MARK_LABELS: Record<string, string> = {
+  bold: "عريض",
+  italic: "مائل",
+  strike: "مشطوب",
+  code: "كود مصغر",
+  underline: "تحته خط",
+}
+
 export const MarkButton = forwardRef<HTMLButtonElement, MarkButtonProps>(
   (
     {
@@ -89,6 +92,8 @@ export const MarkButton = forwardRef<HTMLButtonElement, MarkButtonProps>(
       return null
     }
 
+    const displayLabel = ARABIC_MARK_LABELS[type] || label
+
     return (
       <Button
         type="button"
@@ -98,9 +103,9 @@ export const MarkButton = forwardRef<HTMLButtonElement, MarkButtonProps>(
         data-disabled={!canToggle}
         role="button"
         tabIndex={-1}
-        aria-label={label}
+        aria-label={displayLabel}
         aria-pressed={isActive}
-        tooltip={label}
+        tooltip={displayLabel}
         onClick={handleClick}
         {...buttonProps}
         ref={ref}
