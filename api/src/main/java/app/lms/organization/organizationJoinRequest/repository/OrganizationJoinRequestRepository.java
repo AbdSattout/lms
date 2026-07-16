@@ -27,4 +27,6 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
             Long userId,
             JoinRequestStatus status
     );
+
+    void deleteByOrganizationId(Long organizationId);
 }
