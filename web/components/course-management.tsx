@@ -1,5 +1,6 @@
 "use client"
 
+import { FinalQuizSection } from "@/components/final-quiz-section"
 import { CourseFormDialog } from "@/components/forms/course-form-dialog"
 import {
   AlertDialog,
@@ -48,6 +49,8 @@ import type {
   ChapterResponse,
   CourseResponse,
   LessonResponse,
+  QuestionResponse,
+  QuizResponse,
 } from "@/lib/api/types"
 import {
   DndContext,
@@ -87,6 +90,8 @@ interface CourseManagementProps {
   course: CourseResponse
   orgSlug: string
   initialChapters: ChapterResponse[]
+  finalQuiz: QuizResponse | null
+  bankQuestions: QuestionResponse[]
 }
 
 function SortableChapter({
@@ -345,6 +350,8 @@ export function CourseManagement({
   course,
   orgSlug,
   initialChapters,
+  finalQuiz,
+  bankQuestions,
 }: CourseManagementProps) {
   const router = useRouter()
   const isEditable = course.status === "DRAFT"
@@ -670,7 +677,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/media` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
@@ -693,7 +705,7 @@ export function CourseManagement({
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">الفصول</h2>
             <div className="flex flex-col gap-2">
-              {chapters.length === 0 ? (
+              {chapters.length === 0 && !isEditable ? (
                 <Empty>
                   <EmptyHeader>
                     <EmptyMedia variant="icon">
@@ -836,12 +848,8 @@ export function CourseManagement({
         <DragOverlay>
           {activeItem && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-lg">
-              {activeItem.type === "chapter" ? (
-                <GraduationCap className="size-4 text-muted-foreground" />
-              ) : (
-                <FileText className="size-4 text-muted-foreground" />
-              )}
-              <span className="min-h-6 truncate text-sm font-medium">
+              <GripVertical className="size-4 text-muted-foreground" />
+              <span className="truncate text-sm font-medium">
                 {activeItem.title}
               </span>
               <Button variant="ghost" size="icon-xs" />
@@ -849,6 +857,15 @@ export function CourseManagement({
           )}
         </DragOverlay>
       </DndContext>
+
+      <FinalQuizSection
+        courseId={course.id}
+        orgSlug={orgSlug}
+        courseSlug={course.slug}
+        initialQuiz={finalQuiz}
+        initialBankQuestions={bankQuestions}
+        isEditable={isEditable}
+      />
 
       <CourseFormDialog
         key={course.id}

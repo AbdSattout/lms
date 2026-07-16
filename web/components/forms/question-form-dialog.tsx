@@ -24,9 +24,43 @@ import {
   updateQuestionAction,
 } from "@/lib/actions/course"
 import type { QuestionDifficulty, QuestionResponse } from "@/lib/api/types"
-import { Plus } from "lucide-react"
+import {
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent,
+} from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
+import { GripVertical, Plus } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { toast } from "sonner"
+
+interface OptionItem {
+  id: string
+  text: string
+}
+
+let optionCounter = 0
+function createOptionItem(text: string): OptionItem {
+  return { id: `opt_${++optionCounter}`, text }
+}
+function toOptionItems(strings: string[]): OptionItem[] {
+  return strings.map((s) => createOptionItem(s))
+}
+function toOptionStrings(items: OptionItem[]): string[] {
+  return items.map((o) => o.text)
+}
 
 interface QuestionFormDialogProps {
   open: boolean
@@ -36,6 +70,67 @@ interface QuestionFormDialogProps {
   orgSlug: string
   courseSlug: string
   onSaved: (question: QuestionResponse) => void
+}
+
+function SortableOption({
+  option,
+  isCorrect,
+  onSelect,
+  onChange,
+  onBlur,
+  placeholder,
+}: {
+  option: OptionItem
+  isCorrect: boolean
+  onSelect: () => void
+  onChange: (value: string) => void
+  onBlur: () => void
+  placeholder: string
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: option.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      onDoubleClick={onSelect}
+      className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 transition-colors ${
+        isDragging ? "z-50 opacity-50" : ""
+      } ${isCorrect ? "border-primary bg-primary/5" : "border-border bg-card"}`}
+    >
+      <button
+        className="touch-none text-muted-foreground hover:text-foreground"
+        onClick={(e) => e.stopPropagation()}
+        {...attributes}
+        {...listeners}
+      >
+        <GripVertical className="size-4" />
+      </button>
+      <input
+        ref={inputRef}
+        value={option.text}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        placeholder={placeholder}
+        onClick={() => inputRef.current?.focus()}
+        className="h-7 flex-1 rounded-none border-none bg-transparent px-0 text-sm shadow-none outline-none placeholder:text-muted-foreground"
+      />
+    </div>
+  )
 }
 
 export function QuestionFormDialog({
@@ -49,7 +144,9 @@ export function QuestionFormDialog({
 }: QuestionFormDialogProps) {
   const isEdit = !!question
   const [content, setContent] = useState(question?.content ?? "")
-  const [options, setOptions] = useState<string[]>(question?.options ?? [])
+  const [options, setOptions] = useState<OptionItem[]>(() =>
+    toOptionItems(question?.options ?? [])
+  )
   const [correctIndex, setCorrectIndex] = useState(
     question?.correctAnswerIndex ?? 0
   )
@@ -71,7 +168,7 @@ export function QuestionFormDialog({
       const orig = question!
       const contentChanged = content !== orig.content
       const optionsChanged =
-        options.join("\0") !== (orig.options ?? []).join("\0")
+        toOptionStrings(options).join("\0") !== (orig.options ?? []).join("\0")
       const indexChanged = correctIndex !== orig.correctAnswerIndex
       const difficultyChanged = difficulty !== orig.difficulty
       const hasNew = newOption.trim().length > 0
@@ -89,20 +186,54 @@ export function QuestionFormDialog({
     }
   }, [content, options, correctIndex, difficulty, newOption, isEdit, question])
 
+  const [activeOptionId, setActiveOptionId] = useState<string | null>(null)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  )
+
+  function handleOptionDragStart(event: DragStartEvent) {
+    setActiveOptionId(event.active.id as string)
+  }
+
+  function handleOptionDragEnd(event: DragEndEvent) {
+    const { active, over } = event
+    setActiveOptionId(null)
+    if (!over || active.id === over.id) return
+
+    const activeIndex = options.findIndex((o) => o.id === active.id)
+    const overIndex = options.findIndex((o) => o.id === over.id)
+
+    setOptions((prev) => arrayMove(prev, activeIndex, overIndex))
+    setCorrectIndex((prev) => {
+      if (prev === activeIndex) return overIndex
+      if (activeIndex < overIndex && prev > activeIndex && prev <= overIndex)
+        return prev - 1
+      if (activeIndex > overIndex && prev < activeIndex && prev >= overIndex)
+        return prev + 1
+      return prev
+    })
+  }
+
   function addOption() {
     const trimmed = newOption.trim()
     if (!trimmed) return
-    setOptions((prev) => [...prev, trimmed])
+    setOptions((prev) => [...prev, createOptionItem(trimmed)])
     setNewOption("")
   }
 
-  function handleOptionBlur(index: number, value: string) {
-    if (value !== "" || options.length <= 2) return
-    setOptions((prev) => prev.filter((_, i) => i !== index))
-    setCorrectIndex((prev) => {
-      if (prev === index) return 0
-      if (prev > index) return prev - 1
-      return prev
+  function handleOptionBlur(id: string) {
+    setOptions((prev) => {
+      const item = prev.find((o) => o.id === id)
+      if (!item || item.text !== "" || prev.length <= 2) return prev
+      const index = prev.findIndex((o) => o.id === id)
+      setCorrectIndex((ci) => {
+        if (ci === index) return 0
+        if (ci > index) return ci - 1
+        return ci
+      })
+      return prev.filter((o) => o.id !== id)
     })
   }
 
@@ -120,16 +251,16 @@ export function QuestionFormDialog({
       return
     }
 
-    const allOptions = newOption.trim()
-      ? [...options, newOption.trim()]
-      : options
+    const allOptionStrings = newOption.trim()
+      ? [...toOptionStrings(options), newOption.trim()]
+      : toOptionStrings(options)
 
-    if (allOptions.length < 2) {
+    if (allOptionStrings.length < 2) {
       toast.error("يجب توفير خيارين على الأقل")
       return
     }
 
-    if (correctIndex >= allOptions.length) {
+    if (correctIndex >= allOptionStrings.length) {
       toast.error("الرجاء تحديد الإجابة الصحيحة")
       return
     }
@@ -138,7 +269,7 @@ export function QuestionFormDialog({
 
     const data = {
       content: content.trim(),
-      options: allOptions,
+      options: allOptionStrings,
       correctAnswerIndex: correctIndex,
       difficulty,
     }
@@ -213,49 +344,71 @@ export function QuestionFormDialog({
 
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">الإجابات</label>
-              <div className="flex flex-col gap-2">
-                {options.map((option, index) => (
-                  <div
-                    key={index}
-                    className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 transition-colors ${
-                      index === correctIndex
-                        ? "border-primary bg-primary/5"
-                        : "border-border bg-card"
-                    }`}
-                    onClick={() => setCorrectIndex(index)}
-                  >
-                    <input
-                      value={option}
-                      onChange={(e) =>
-                        setOptions((prev) =>
-                          prev.map((opt, i) =>
-                            i === index ? e.target.value : opt
+              <p className="text-xs text-muted-foreground">
+                انقر نقرًا مزدوجًا لتحديد الإجابة الصحيحة
+              </p>
+              <DndContext
+                sensors={sensors}
+                onDragStart={handleOptionDragStart}
+                onDragEnd={handleOptionDragEnd}
+              >
+                <SortableContext
+                  items={options.map((o) => o.id)}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <div className="flex flex-col gap-2">
+                    {options.map((option, index) => (
+                      <SortableOption
+                        key={option.id}
+                        option={option}
+                        isCorrect={index === correctIndex}
+                        onSelect={() => setCorrectIndex(index)}
+                        onChange={(value) =>
+                          setOptions((prev) =>
+                            prev.map((opt) =>
+                              opt.id === option.id
+                                ? { ...opt, text: value }
+                                : opt
+                            )
                           )
-                        )
-                      }
-                      onBlur={(e) => handleOptionBlur(index, e.target.value)}
-                      placeholder={`الإجابة ${index + 1}`}
-                      className="h-7 rounded-none border-none bg-transparent px-0 text-sm shadow-none outline-none placeholder:text-muted-foreground"
-                      onClick={(e) => e.stopPropagation()}
-                    />
+                        }
+                        onBlur={() => handleOptionBlur(option.id)}
+                        placeholder={`الإجابة ${index + 1}`}
+                      />
+                    ))}
                   </div>
-                ))}
-                <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-transparent p-3">
-                  <input
-                    value={newOption}
-                    onChange={(e) => setNewOption(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault()
-                        addOption()
-                      }
-                    }}
-                    onBlur={addOption}
-                    placeholder="إضافة إجابة جديدة..."
-                    className="h-7 flex-1 rounded-none border-none bg-transparent px-0 text-sm shadow-none outline-none placeholder:text-muted-foreground"
-                  />
-                  <Plus className="size-4 shrink-0 text-muted-foreground" />
-                </div>
+                </SortableContext>
+                {typeof document !== "undefined" &&
+                  createPortal(
+                    <DragOverlay dropAnimation={null}>
+                      {activeOptionId !== null && (
+                        <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-lg">
+                          <GripVertical className="size-4 text-muted-foreground" />
+                          <span className="truncate text-sm">
+                            {options.find((o) => o.id === activeOptionId)
+                              ?.text ?? ""}
+                          </span>
+                        </div>
+                      )}
+                    </DragOverlay>,
+                    document.body
+                  )}
+              </DndContext>
+              <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-transparent p-3">
+                <input
+                  value={newOption}
+                  onChange={(e) => setNewOption(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault()
+                      addOption()
+                    }
+                  }}
+                  onBlur={addOption}
+                  placeholder="إضافة إجابة جديدة..."
+                  className="h-7 flex-1 rounded-none border-none bg-transparent px-0 text-sm shadow-none outline-none placeholder:text-muted-foreground"
+                />
+                <Plus className="size-4 shrink-0 text-muted-foreground" />
               </div>
             </div>
 

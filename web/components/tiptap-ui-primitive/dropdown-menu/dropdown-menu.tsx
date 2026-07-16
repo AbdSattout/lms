@@ -10,7 +10,11 @@ function DropdownMenu({
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return (
-    <DropdownMenuPrimitive.Root data-slot="tiptap-dropdown-menu" {...props} />
+    <DropdownMenuPrimitive.Root
+      data-slot="tiptap-dropdown-menu"
+      dir="rtl"
+      {...props}
+    />
   )
 }
 
