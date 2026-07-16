@@ -71,7 +71,6 @@ class TelegramLoginPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 40),
                           
-                          // زر تسجيل الدخول المصمم بشكل عصري
                           SizedBox(
                             width: double.infinity,
                             height: 60,
@@ -82,7 +81,7 @@ class TelegramLoginPage extends StatelessWidget {
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
-                                Theme.of(context).scaffoldBackgroundColor,
+                                Theme.of(context).primaryColor,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                 elevation: 8,

@@ -15,13 +15,11 @@ class CourseDetailsPage extends StatefulWidget {
 }
 
 class _CourseDetailsPageState extends State<CourseDetailsPage> {
-  // i will replace it with course.isEnrolled once the backend adds one.
   bool _justEnrolled = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8F9FA),
       body: BlocConsumer<CourseDetailsBloc, CourseDetailsState>(
         listenWhen: (previous, current) =>
         current is CourseEnrollSuccess || current is CourseDetailsError,
@@ -30,7 +28,7 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
             setState(() => _justEnrolled = true);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('تم تسجيلك في "${state.enrollment.courseTitle}"'),
+                content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
               ),
             );
           }
@@ -92,8 +90,9 @@ class _CourseDetailsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final progressPercentage = course.progress?.progressPercentage ?? 0;
-    final isCompleted = course.progress?.completed == true;
+    final colors = Theme.of(context).colorScheme;
+    final progressPercentage = course.enrollment?.progressPercentage ?? 0;
+    final isCompleted = course.enrollment?.isCompleted == true;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
     return Stack(
@@ -184,10 +183,10 @@ class _CourseDetailsContent extends StatelessWidget {
                   children: [
                     Text(
                       course.title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
-                        color: AppColors.dark,
+                        color: colors.onSurface,
                         height: 1.3,
                       ),
                     ),
@@ -197,16 +196,16 @@ class _CourseDetailsContent extends StatelessWidget {
                     if (course.description != null &&
                         course.description!.isNotEmpty) ...[
                       Row(
-                        children: const [
-                          Icon(Icons.info_outline_rounded,
+                        children: [
+                          const Icon(Icons.info_outline_rounded,
                               size: 18, color: AppColors.primary),
-                          SizedBox(width: 8),
+                          const SizedBox(width: 8),
                           Text(
                             'عن هذا الكورس',
                             style: TextStyle(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.dark,
+                              color: colors.onSurface,
                             ),
                           ),
                         ],
@@ -216,14 +215,14 @@ class _CourseDetailsContent extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.darkSoft,
+                          color: colors.surfaceContainerHighest,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Text(
                           course.description!,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13.5,
-                            color: AppColors.darkSoft,
+                            color: colors.onSurfaceVariant,
                             height: 1.6,
                           ),
                         ),
@@ -231,12 +230,6 @@ class _CourseDetailsContent extends StatelessWidget {
                       const SizedBox(height: 20),
                     ],
 
-                    // Stat cards — using what the API actually gives us
-                    // (progress) rather than the level/duration/XP shown
-                    // in the Figma mock, which aren't backed by real
-                    // fields yet. A "chapters" count card would be a good
-                    // addition once that field is modeled and populated
-                    // by the backend (currently comes back empty).
                     Row(
                       children: [
                         Expanded(
@@ -275,7 +268,6 @@ class _CourseDetailsContent extends StatelessWidget {
           ),
         ),
 
-        // Fixed enroll button
         Positioned(
           left: 20,
           right: 20,
@@ -289,7 +281,7 @@ class _CourseDetailsContent extends StatelessWidget {
                 onPressed: justEnrolled ? null : onEnroll,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: AppColors.darkSoft,
+                  disabledBackgroundColor: colors.onSurfaceVariant,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(18),
                   ),
@@ -338,6 +330,7 @@ class _CourseDetailsContent extends StatelessWidget {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    //NOTE TO SELF:KEEP THE COLORS WHITE DUMDUM
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -369,12 +362,14 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: Theme.of(context).dividerColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,18 +385,18 @@ class _StatCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.darkSoft,
+              color: colors.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 2),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: AppColors.dark,
+              color: colors.onSurface,
             ),
           ),
         ],

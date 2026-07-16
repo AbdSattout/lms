@@ -39,7 +39,7 @@ class CourseRepositoryImpl implements CourseRepository {
   }
 
   @override
-  Future<CourseEnrollmentEntity> enrollInCourse(int courseId) {
+  Future<EnrollActionResultEntity> enrollInCourse(int courseId) {
     return remote.enrollInCourse(courseId);
   }
 }

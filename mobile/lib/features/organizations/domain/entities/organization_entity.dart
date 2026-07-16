@@ -1,6 +1,5 @@
 enum OrganizationVisibility {
   public,
-  private,
   inviteOnly,
   unknown;
 
@@ -8,8 +7,6 @@ enum OrganizationVisibility {
     switch (value) {
       case 'PUBLIC':
         return OrganizationVisibility.public;
-      case 'PRIVATE':
-        return OrganizationVisibility.private;
       case 'INVITE-ONLY':
       case 'INVITE_ONLY':
         return OrganizationVisibility.inviteOnly;
@@ -27,6 +24,7 @@ class OrganizationEntity {
   final String? image;
   final OrganizationVisibility visibility;
   final String? ownerName;
+  final int membersCount;
 
   const OrganizationEntity({
     required this.id,
@@ -36,5 +34,6 @@ class OrganizationEntity {
     this.image,
     this.visibility = OrganizationVisibility.unknown,
     this.ownerName,
+    this.membersCount = 0,
   });
 }

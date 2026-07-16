@@ -23,9 +23,9 @@ class CourseDetailsError extends CourseDetailsState {
 }
 
 class CourseEnrollSuccess extends CourseDetailsState {
-  final CourseEnrollmentEntity enrollment;
+  final EnrollActionResultEntity result;
 
   CourseEnrollSuccess(
-      this.enrollment,
+      this.result,
       );
 }

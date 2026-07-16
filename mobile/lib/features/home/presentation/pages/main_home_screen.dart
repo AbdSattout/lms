@@ -45,7 +45,7 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                   BlocProvider(
                     create: (_) => sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
-                    child: const OrganizationsPage(),
+                    child: OrganizationsPage(currentUserName: user.name),
                   ),
                   BlocProvider(
                     create: (_) => sl<ProfileBloc>()
