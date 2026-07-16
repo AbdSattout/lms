@@ -17,7 +17,7 @@ abstract class CourseRemoteDataSource {
 
   Future<List<CourseModel>> getMyEnrollments();
 
-  Future<CourseEnrollmentModel> enrollInCourse(int courseId);
+  Future<EnrollActionResultModel> enrollInCourse(int courseId);
 }
 
 class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
@@ -27,7 +27,6 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
 
   @override
   Future<List<CourseModel>> getAllCourses() async {
-    // Confirmed: same Page<T> wrapper as the other list endpoints.
     final response = await api.get(
       EndPoints.courses,
     );
@@ -93,11 +92,11 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
   }
 
   @override
-  Future<CourseEnrollmentModel> enrollInCourse(int courseId) async {
+  Future<EnrollActionResultModel> enrollInCourse(int courseId) async {
     final response = await api.post(
       EndPoints.enrollInCourse(courseId),
     );
 
-    return CourseEnrollmentModel.fromJson(response);
+    return EnrollActionResultModel.fromJson(response);
   }
 }

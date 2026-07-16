@@ -43,7 +43,7 @@ class CourseDetailsBloc
         courseSlug: event.courseSlug!,
       );
 
-      final resolvedCourse = event.knownProgress != null
+      final resolvedCourse = event.knownEnrollment != null
           ? CourseEntity(
         id: course.id,
         title: course.title,
@@ -53,7 +53,7 @@ class CourseDetailsBloc
         organizationName: course.organizationName,
         status: course.status,
         // authoritative source: the enrollments list, not /courses/{id}
-        progress: event.knownProgress,
+        enrollment: event.knownEnrollment,
       )
           : course;
 
@@ -74,12 +74,18 @@ class CourseDetailsBloc
       Emitter<CourseDetailsState> emit,
       ) async {
     try {
-      final enrollment = await enrollInCourseUseCase(event.courseId);
+      final result = await enrollInCourseUseCase(event.courseId);
 
       emit(
-        CourseEnrollSuccess(enrollment),
+        CourseEnrollSuccess(result),
       );
 
+      // Refresh the course's static fields from /courses/{id}. Its
+      // "enrollment" data (if that route even includes one) still isn't
+      // trusted — TODO once the placement-test flow is built: after a
+      // fresh enroll, the correct next step is starting the placement
+      // test, not just showing 0% progress. Revisit this when we get to
+      // that step.
       final course = await getCourseByIdUseCase(event.courseId);
 
       final resolvedCourse = CourseEntity(
@@ -90,7 +96,7 @@ class CourseDetailsBloc
         coverUrl: course.coverUrl,
         organizationName: course.organizationName,
         status: course.status,
-        progress: const CourseProgressEntity(),
+        enrollment: null,
       );
 
       emit(
