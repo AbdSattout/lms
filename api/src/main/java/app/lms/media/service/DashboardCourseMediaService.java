@@ -2,13 +2,15 @@ package app.lms.media.service;
 
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
-import app.lms.media.dto.PostMediaResponse;
+import app.lms.course.model.Course;
+import app.lms.course.service.CourseAccessService;
+import app.lms.media.dto.CourseMediaResponse;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageUploadException;
-import app.lms.media.mapper.PostMediaMapper;
+import app.lms.media.mapper.CourseMediaMapper;
+import app.lms.media.model.CourseMedia;
 import app.lms.media.model.OrganizationMedia;
-import app.lms.media.model.PostMedia;
 import app.lms.media.repository.CourseMediaRepository;
 import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.media.repository.PostMediaRepository;
@@ -22,46 +24,44 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
 @Service
 @RequiredArgsConstructor
-public class PostMediaService {
-
-    private final PostMediaRepository
-            postMediaRepository;
-
-    private final PostMediaAccessService
-            postMediaAccessService;
-
-    private final MediaService mediaService;
-
-    private final PostMediaMapper
-            postMediaMapper;
-    private final OrganizationAccessService
-            organizationAccessService;
-
-    private final OrganizationMediaRepository organizationMediaRepository;
+public class DashboardCourseMediaService {
 
     private final CourseMediaRepository courseMediaRepository;
+    private final CourseAccessService courseAccessService;
+    private final CourseMediaAccessService courseMediaAccessService;
+    private final MediaService mediaService;
+    private final CourseMediaMapper courseMediaMapper;
+    private final OrganizationMediaRepository organizationMediaRepository;
+    private final PostMediaRepository postMediaRepository;
+    private final OrganizationAccessService organizationAccessService;
 
     @Transactional
-    public PostMediaResponse create(
-
-            String slug,
+    public CourseMediaResponse create(
+            String organizationSlug,
+            String courseSlug,
             MultipartFile file,
             User user
     ) {
 
         Organization organization =
                 organizationAccessService
-                        .getManageableOrganization(
-                                slug,
+                        .getBySlug(
+                                organizationSlug
+                        );
+
+        Course course =
+                courseAccessService
+                        .getEditableCourse(
+                                organization.getId(),
+                                courseSlug,
                                 user
                         );
 
         String mediaName =
                 generateAvailableMediaName(
-                        organization.getId(),
+                        course.getOrganization().getId(),
                         getOriginalFileName(file)
                 );
 
@@ -71,39 +71,45 @@ public class PostMediaService {
         UploadedFile uploaded =
                 mediaService.upload(
                         file,
-                        "/posts/" + slug,
+                        "/courses/" + course.getId(),
                         type
                 );
 
-        PostMedia media =
+        CourseMedia media =
                 buildMedia(
                         mediaName,
                         uploaded,
                         type,
                         file.getSize(),
-                        organization
+                        course
                 );
 
-        postMediaRepository.save(
-                media
-        );
+        courseMediaRepository.save(media);
 
-        return postMediaMapper
-                .toResponse(media);
+        return courseMediaMapper.toResponse(media);
     }
 
     @Transactional
-    public PostMediaResponse update(
-
+    public CourseMediaResponse update(
+            String organizationSlug,
+            String courseSlug,
             Long mediaId,
             MultipartFile file,
             String name,
             User user
     ) {
 
-        PostMedia media =
-                postMediaAccessService
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(
+                                organizationSlug
+                        );
+
+        CourseMedia media =
+                courseMediaAccessService
                         .getEditableMedia(
+                                organization.getId(),
+                                courseSlug,
                                 mediaId,
                                 user
                         );
@@ -115,87 +121,41 @@ public class PostMediaService {
         }
 
         if (name != null) {
-
-            String newName =
-                    normalizeMediaName(
-                            name
-                    );
-
-            if (
-                    media.getOrganizationMedia() != null &&
-                            organizationMediaRepository
-                                    .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
-                                            media.getOrganization().getId(),
-                                            newName,
-                                            media.getOrganizationMedia()
-                                                    .getId()
-                                    )
-            ) {
-                throw new ConflictException(
-                        "Media name already exists in this organization"
-                );
-            }
-
-            if (media.getOrganizationMedia() != null) {
-                media.getOrganizationMedia()
-                        .setName(newName);
-            }
+            updateName(
+                    media,
+                    name
+            );
         }
 
         if (file != null) {
-
-            String oldFileId =
-                    media.getOrganizationMedia() != null
-                            ? media.getOrganizationMedia().getFileId()
-                            : null;
-
-            FileType type =
-                    detectFileType(file);
-
-            UploadedFile uploaded =
-                    mediaService.upload(
-                            file,
-                            "/posts/" +
-                                    media.getOrganization().getId(),
-                            type
-                    );
-
-            if (media.getOrganizationMedia() != null) {
-                media.getOrganizationMedia()
-                        .setUrl(uploaded.url());
-                media.getOrganizationMedia()
-                        .setFileId(uploaded.fileId());
-                media.getOrganizationMedia()
-                        .setType(type);
-                media.getOrganizationMedia()
-                        .setSizeBytes(file.getSize());
-            }
-
-            if (oldFileId != null) {
-
-                try {
-                    mediaService.delete(
-                            oldFileId
-                    );
-                } catch (Exception ignored) {
-                }
-            }
+            updateFile(
+                    media,
+                    file
+            );
         }
 
-        return postMediaMapper
-                .toResponse(media);
+        return courseMediaMapper.toResponse(media);
     }
 
     @Transactional
     public void delete(
-
+            String organizationSlug,
+            String courseSlug,
             Long mediaId,
             User user
     ) {
 
-        PostMedia media =
-                postMediaAccessService
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(
+                                organizationSlug
+                        );
+
+        CourseMedia media =
+                courseMediaAccessService
                         .getEditableMedia(
+                                organization.getId(),
+                                courseSlug,
                                 mediaId,
                                 user
                         );
@@ -210,28 +170,119 @@ public class PostMediaService {
 
         boolean removeSharedFile =
                 organizationMedia != null &&
-                        postMediaRepository.countByOrganizationMediaId(
+                        courseMediaRepository.countByOrganizationMediaId(
                                 organizationMedia.getId()
                         ) <= 1 &&
-                        courseMediaRepository.countByOrganizationMediaId(
+                        postMediaRepository.countByOrganizationMediaId(
                                 organizationMedia.getId()
                         ) == 0;
 
         if (fileId != null && removeSharedFile) {
+            mediaService.delete(fileId);
+        }
 
-            mediaService.delete(
-                    fileId
+        courseMediaRepository.delete(media);
+
+        if (removeSharedFile) {
+            organizationMediaRepository.delete(organizationMedia);
+        }
+    }
+
+    public Page<CourseMediaResponse> list(
+            String organizationSlug,
+            String courseSlug,
+            Pageable pageable,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(
+                                organizationSlug
+                        );
+
+        Course course =
+                courseAccessService
+                        .getManageableCourse(
+                                organization.getId(),
+                                courseSlug,
+                                user
+                        );
+
+        return courseMediaRepository
+                .findAllByCourseIdOrderByCreatedAtDesc(
+                        course.getId(),
+                        pageable
+                )
+                .map(courseMediaMapper::toResponse);
+    }
+
+    private void updateName(
+            CourseMedia media,
+            String name
+    ) {
+
+        String newName =
+                normalizeMediaName(name);
+
+        if (
+                media.getOrganizationMedia() != null &&
+                        organizationMediaRepository
+                                .existsByOrganizationIdAndNameIgnoreCaseAndIdNot(
+                                        media.getCourse()
+                                                .getOrganization()
+                                                .getId(),
+                                        newName,
+                                        media.getOrganizationMedia().getId()
+                                )
+        ) {
+            throw new ConflictException(
+                    "Media name already exists in this course"
             );
         }
 
-        postMediaRepository.delete(
-                media
-        );
+        if (media.getOrganizationMedia() != null) {
+            media.getOrganizationMedia()
+                    .setName(newName);
+        }
+    }
 
-        if (removeSharedFile) {
-            organizationMediaRepository.delete(
-                    organizationMedia
-            );
+    private void updateFile(
+            CourseMedia media,
+            MultipartFile file
+    ) {
+
+        String oldFileId =
+                media.getOrganizationMedia() != null
+                        ? media.getOrganizationMedia().getFileId()
+                        : null;
+
+        FileType type =
+                detectFileType(file);
+
+        UploadedFile uploaded =
+                mediaService.upload(
+                        file,
+                        "/courses/" + media.getCourse().getId(),
+                        type
+                );
+
+        if (media.getOrganizationMedia() != null) {
+            media.getOrganizationMedia()
+                    .setUrl(uploaded.url());
+            media.getOrganizationMedia()
+                    .setFileId(uploaded.fileId());
+            media.getOrganizationMedia()
+                    .setType(type);
+            media.getOrganizationMedia()
+                    .setSizeBytes(file.getSize());
+        }
+
+        if (oldFileId != null) {
+            try {
+                mediaService.delete(oldFileId);
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -247,6 +298,7 @@ public class PostMediaService {
 
         return name.trim();
     }
+
     private String getOriginalFileName(
             MultipartFile file
     ) {
@@ -261,17 +313,15 @@ public class PostMediaService {
             );
         }
 
-        return file.getOriginalFilename()
-                .trim();
+        return file.getOriginalFilename().trim();
     }
 
-    private PostMedia buildMedia(
-
+    private CourseMedia buildMedia(
             String name,
             UploadedFile uploaded,
             FileType type,
             Long sizeBytes,
-            Organization organization
+            Course course
     ) {
 
         OrganizationMedia organizationMedia =
@@ -282,64 +332,21 @@ public class PostMediaService {
                                 .fileId(uploaded.fileId())
                                 .type(type)
                                 .sizeBytes(sizeBytes)
-                                .organization(organization)
+                                .organization(course.getOrganization())
                                 .build()
                 );
 
-        return PostMedia.builder()
-                .organization(organization)
+        return CourseMedia.builder()
+                .course(course)
                 .organizationMedia(organizationMedia)
                 .build();
     }
 
-    public Page<PostMediaResponse> list(
-
-            String slug,
-            Pageable pageable,
-            User user
-    ) {
-
-        Organization organization =
-                organizationAccessService
-                        .getManageableOrganization(
-                                slug,
-                                user
-                        );
-
-        return postMediaRepository
-                .findAllByOrganizationIdOrderByCreatedAtDesc(
-                        organization.getId(),
-                        pageable
-                )
-                .map(
-                        postMediaMapper::toResponse
-                );
-    }
-
-    public PostMediaResponse getById(
-
-            Long mediaId,
-            User user
-    ) {
-
-        PostMedia media =
-                postMediaAccessService
-                        .getAccessibleMedia(
-                                mediaId,
-                                user
-                        );
-
-        return postMediaMapper
-                .toResponse(
-                        media
-                );
-    }
     private FileType detectFileType(
             MultipartFile file
     ) {
 
         if (file == null) {
-
             throw new ImageUploadException(
                     "File is required"
             );
@@ -348,31 +355,16 @@ public class PostMediaService {
         String contentType =
                 file.getContentType();
 
-        if (
-                contentType != null
-                        &&
-                        contentType.startsWith(
-                                "image/"
-                        )
-        ) {
-
+        if (contentType != null && contentType.startsWith("image/")) {
             return FileType.IMAGE;
         }
 
-        if (
-                contentType != null
-                        &&
-                        contentType.startsWith(
-                                "video/"
-                        )
-        ) {
-
+        if (contentType != null && contentType.startsWith("video/")) {
             return FileType.VIDEO;
         }
 
         return FileType.FILE;
     }
-
 
     private String extractBaseName(
             String fileName
@@ -385,10 +377,7 @@ public class PostMediaService {
             return fileName;
         }
 
-        return fileName.substring(
-                0,
-                dotIndex
-        );
+        return fileName.substring(0, dotIndex);
     }
 
     private String extractExtension(
@@ -402,12 +391,11 @@ public class PostMediaService {
             return "";
         }
 
-        return fileName.substring(
-                dotIndex
-        );
+        return fileName.substring(dotIndex);
     }
+
     private String generateAvailableMediaName(
-            Long postId,
+            Long organizationId,
             String originalName
     ) {
 
@@ -417,7 +405,7 @@ public class PostMediaService {
         if (
                 !organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
-                                postId,
+                                organizationId,
                                 cleanName
                         )
         ) {
@@ -431,7 +419,6 @@ public class PostMediaService {
                 extractExtension(cleanName);
 
         int counter = 1;
-
         String candidate;
 
         do {
@@ -441,13 +428,11 @@ public class PostMediaService {
                             counter +
                             ")" +
                             extension;
-
             counter++;
-
         } while (
                 organizationMediaRepository
                         .existsByOrganizationIdAndNameIgnoreCase(
-                                postId,
+                                organizationId,
                                 candidate
                         )
         );
@@ -455,5 +440,3 @@ public class PostMediaService {
         return candidate;
     }
 }
-
-

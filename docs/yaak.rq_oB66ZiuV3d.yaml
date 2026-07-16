@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_oB66ZiuV3d
 createdAt: 2026-05-31T19:49:05.500026200
-updatedAt: 2026-07-14T15:23:27.140705900
+updatedAt: 2026-07-16T12:18:52.040120500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bPEMGkkY8L
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQyNTA1LCJleHAiOjE3ODQ2NDczMDV9.JLAiiRBRMlqLculDA1lK1coSNHxACAvVj15WaBQl6lc
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
 authenticationType: bearer
 body:
   form:
@@ -33,5 +33,5 @@ headers:
 method: POST
 name: Create Course
 sortPriority: 1000.0
-url: http://localhost:8080/dashboard/organizations/bug-company/courses
+url: https://lms.koyeb.app/dashboard/organizations/tech-company/courses
 urlParameters: []

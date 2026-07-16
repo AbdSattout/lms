@@ -1,24 +1,27 @@
 type: http_request
 model: http_request
-id: rq_cSYqsGZEDs
-createdAt: 2026-06-01T09:09:27.755213600
-updatedAt: 2026-07-16T12:26:17.204814300
+id: rq_4Y2gF2yirR
+createdAt: 2026-07-16T12:29:30.947122
+updatedAt: 2026-07-16T12:31:11.099747200
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bPEMGkkY8L
+folderId: fl_GkMNXFRG5u
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
 authenticationType: bearer
 body:
-  text: '{}'
+  text: |-
+    {
+      "questionIds" : [21 , 22 , 23 ,24 , 25 ,26 ,27,28,29,30,31]
+    }
 bodyType: application/json
 description: ''
 headers:
 - enabled: true
   name: Content-Type
   value: application/json
-  id: vGqEXJ9urz
-method: POST
-name: Publish Course
-sortPriority: 5000.0
-url: https://lms.koyeb.app/dashboard/courses/3/publish
+  id: ZnDsHFa0Z3
+method: PATCH
+name: ''
+sortPriority: 2000.0
+url: https://lms.koyeb.app/dashboard/courses/3/final-quiz/questions
 urlParameters: []

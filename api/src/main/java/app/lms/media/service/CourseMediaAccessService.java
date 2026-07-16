@@ -1,6 +1,7 @@
 package app.lms.media.service;
 
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.model.Course;
 import app.lms.media.model.CourseMedia;
 import app.lms.media.repository.CourseMediaRepository;
 import app.lms.course.service.CourseAccessService;
@@ -34,6 +35,27 @@ public class CourseMediaAccessService {
     }
 
     public CourseMedia getEditableMedia(
+            Long organizationId,
+            String courseSlug,
+            Long mediaId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getEditableCourse(
+                                organizationId,
+                                courseSlug,
+                                user
+                        );
+
+        return getByIdAndCourseId(
+                mediaId,
+                course.getId()
+        );
+    }
+
+    public CourseMedia getEditableMedia(
             Long courseId,
             Long mediaId,
             User user
@@ -48,6 +70,27 @@ public class CourseMediaAccessService {
         return getByIdAndCourseId(
                 mediaId,
                 courseId
+        );
+    }
+
+    public CourseMedia getAccessibleMedia(
+            Long organizationId,
+            String courseSlug,
+            Long mediaId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getEnrolledCourse(
+                                organizationId,
+                                courseSlug,
+                                user
+                        );
+
+        return getByIdAndCourseId(
+                mediaId,
+                course.getId()
         );
     }
 
