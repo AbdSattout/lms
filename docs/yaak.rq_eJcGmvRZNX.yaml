@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_eJcGmvRZNX
 createdAt: 2026-06-01T08:49:29.084483900
-updatedAt: 2026-06-11T18:18:41.262316100
+updatedAt: 2026-07-16T12:22:31.700719100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
 authenticationType: bearer
 body:
   form:
@@ -24,7 +24,7 @@ body:
     value: ''
   text: |-
     {
-      "title": "Introduction"
+      "title": "Details5"
     }
 bodyType: application/json
 description: ''
@@ -36,5 +36,5 @@ headers:
 method: POST
 name: create chapter
 sortPriority: 0.0
-url: http://localhost:8080/courses/3/chapters
+url: https://lms.koyeb.app/courses/3/chapters
 urlParameters: []

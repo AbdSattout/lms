@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_jJuVozpFfh
 createdAt: 2026-06-01T08:51:24.940809200
-updatedAt: 2026-06-08T05:48:18.728013
+updatedAt: 2026-07-16T12:24:02.109936300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_dt6hs3HrkH
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,5 +15,5 @@ headers: []
 method: DELETE
 name: delete chapter
 sortPriority: 2000.0
-url: http://localhost:8080/chapters/4
+url: https://lms.koyeb.app/chapters/5
 urlParameters: []
