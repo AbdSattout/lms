@@ -26,4 +26,5 @@ public interface OrganizationInviteRepository
     List<OrganizationInvite> findAllByUserIdAndRoleAndStatus(
             Long userId, Role role, InviteStatus status);
 
+    void deleteByOrganizationId(Long organizationId);
 }

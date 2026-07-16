@@ -22,4 +22,8 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     Page<Roadmap> findAllByOrderByCreatedAtDesc(
             Pageable pageable
     );
+
+    void deleteByOrganizationId(
+            Long organizationId
+    );
 }
