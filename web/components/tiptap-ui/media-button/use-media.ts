@@ -1,10 +1,10 @@
 "use no memo"
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import type { Editor } from "@tiptap/react"
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 import { isExtensionAvailable } from "@/lib/tiptap-utils"
+import type { Editor } from "@tiptap/react"
+import { useCallback, useEffect, useState } from "react"
 
 export function canInsertMedia(editor: Editor | null): boolean {
   if (!editor || !editor.isEditable) return false
@@ -89,13 +89,13 @@ export function useMedia(config?: {
       if (success) onInserted?.()
       return success
     },
-    [editor, onInserted, orgSlug, courseSlug],
+    [editor, onInserted, orgSlug, courseSlug]
   )
 
   return {
     isVisible,
     canInsert,
     handleMediaInsert,
-    label: "Add media",
+    label: "إضافة وسائط",
   }
 }

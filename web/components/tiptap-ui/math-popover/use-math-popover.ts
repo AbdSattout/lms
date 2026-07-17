@@ -1,8 +1,8 @@
 "use no memo"
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
 import type { Editor } from "@tiptap/react"
+import { useCallback, useEffect, useState } from "react"
 
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 
@@ -86,7 +86,8 @@ export function useMathHandler(props: {
     } else {
       const { selection } = editor.state
       const $from = selection.$from
-      const isAtStartOfBlock = $from.parentOffset === 0 && $from.parent.content.size === 0
+      const isAtStartOfBlock =
+        $from.parentOffset === 0 && $from.parent.content.size === 0
 
       if (isAtStartOfBlock) {
         editor.chain().focus().insertBlockMath({ latex }).run()
@@ -99,6 +100,28 @@ export function useMathHandler(props: {
     onSetMath?.()
   }, [editor, latex, onSetMath])
 
+  const toggleMode = useCallback(() => {
+    if (!editor) return
+    const currentLatex = getSelectedMathLatex(editor)
+    if (!currentLatex) return
+
+    if (editor.isActive("inlineMath")) {
+      editor
+        .chain()
+        .focus()
+        .deleteInlineMath()
+        .insertBlockMath({ latex: currentLatex })
+        .run()
+    } else if (editor.isActive("blockMath")) {
+      editor
+        .chain()
+        .focus()
+        .deleteBlockMath()
+        .insertInlineMath({ latex: currentLatex })
+        .run()
+    }
+  }, [editor])
+
   const removeMath = useCallback(() => {
     if (!editor) return
     if (editor.isActive("inlineMath")) {
@@ -110,6 +133,7 @@ export function useMathHandler(props: {
   }, [editor])
 
   return {
+    toggleMode,
     latex: latex || "",
     setLatex,
     insertMath,
@@ -152,5 +176,5 @@ export function useMathPopover(config?: UseMathPopoverConfig) {
     label: "رياضيات",
     Icon: SigmaIcon,
     ...mathHandler,
-  }
+  } as const
 }

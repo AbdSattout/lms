@@ -4,10 +4,8 @@
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import { useEffect, useRef, useState } from "react"
 
-import { Mathematics } from "@tiptap/extension-mathematics"
 import "katex/dist/katex.min.css"
 
-import { RtlDirection } from "@/components/tiptap-extension/rtl-direction-extension"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
@@ -15,19 +13,12 @@ import {
   ToolbarGroup,
   ToolbarSeparator,
 } from "@/components/tiptap-ui-primitive/toolbar"
-import { TaskItem, TaskList } from "@tiptap/extension-list"
-import { Typography } from "@tiptap/extension-typography"
-import { Selection } from "@tiptap/extensions"
-import { Markdown } from "@tiptap/markdown"
-import { StarterKit } from "@tiptap/starter-kit"
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
 import "@/components/tiptap-node/code-block-node/code-block-node.scss"
 import "@/components/tiptap-node/heading-node/heading-node.scss"
-import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension"
 import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss"
 import "@/components/tiptap-node/list-node/list-node.scss"
-import { MediaNode } from "@/components/tiptap-node/media-node"
 import "@/components/tiptap-node/media-node/media-node.scss"
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 
@@ -45,7 +36,10 @@ import {
   MathButton,
   MathContent,
   MathPopover,
+  canSetMath,
+  isMathActive,
 } from "@/components/tiptap-ui/math-popover"
+import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 import { MediaButton } from "@/components/tiptap-ui/media-button"
 
 import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
@@ -58,7 +52,8 @@ import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 import { toast } from "sonner"
 
 import "./editor.scss"
-import { AiToolsDropdown } from "./tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
+import { AiToolsDropdown } from "../tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
+import { editorExtensions } from "./editor-config"
 
 const MainToolbarContent = ({
   onLinkClick,
@@ -81,6 +76,10 @@ const MainToolbarContent = ({
   orgSlug?: string
   course?: import("@/lib/api/types").CourseResponse
 }) => {
+  const { editor } = useTiptapEditor()
+  const mathIsActive = isMathActive(editor)
+  const canSet = canSetMath(editor)
+
   return (
     <>
       <Spacer />
@@ -120,7 +119,16 @@ const MainToolbarContent = ({
         <MarkButton type="code" />
         <MarkButton type="underline" />
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
-        {!isMobile ? <MathPopover /> : <MathButton onClick={onMathClick} />}
+        {!isMobile ? (
+          <MathPopover />
+        ) : (
+          <MathButton
+            onClick={onMathClick}
+            data-active-state={mathIsActive ? "on" : "off"}
+            aria-pressed={mathIsActive}
+            disabled={!canSet}
+          />
+        )}
       </ToolbarGroup>
 
       <Spacer />
@@ -205,28 +213,7 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
         class: "simple-editor",
       },
     },
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-        },
-      }),
-      HorizontalRule,
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      RtlDirection,
-      Typography,
-      Selection,
-      MediaNode,
-      Markdown,
-      Mathematics.configure({
-        katexOptions: {
-          throwOnError: false,
-        },
-      }),
-    ],
+    extensions: editorExtensions,
     onUpdate: ({ editor }) => {
       onChange?.(editor.getMarkdown())
     },

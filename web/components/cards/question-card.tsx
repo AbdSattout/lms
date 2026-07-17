@@ -1,5 +1,6 @@
 "use client"
 
+import { TiptapRenderer } from "@/components/editor/renderer"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,11 +10,8 @@ import {
 import type { QuestionResponse } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
 import { EllipsisVertical } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import "./question-card.scss"
 
-function buildMarkdown(question: QuestionResponse): string {
+function buildContent(question: QuestionResponse): string {
   const options = question.options ?? []
   const lines = options.map(
     (opt, i) => `- [${i === question.correctAnswerIndex ? "x" : " "}] ${opt}`
@@ -32,7 +30,7 @@ export function QuestionCard({
   onClick,
   renderActions,
 }: QuestionCardProps) {
-  const md = buildMarkdown(question)
+  const md = buildContent(question)
 
   const handleClick = () => {
     onClick?.(question)
@@ -53,7 +51,7 @@ export function QuestionCard({
         }}
       >
         <div className="question-card-markdown line-clamp-8 text-sm leading-relaxed">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
+          <TiptapRenderer content={md} />
         </div>
       </div>
 
