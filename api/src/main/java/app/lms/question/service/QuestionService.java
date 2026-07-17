@@ -34,7 +34,7 @@ public class QuestionService {
     ) {
 
         Course course =
-                courseAccessService.getEditableCourse(
+                courseAccessService.getManageableCourse(
                         courseId,
                         user
                 );
@@ -86,7 +86,7 @@ public class QuestionService {
     ) {
 
         Question question =
-                questionAccessService.getEditableQuestion(
+                questionAccessService.getManageableQuestion(
                         questionId,
                         user
                 );
@@ -142,7 +142,7 @@ public class QuestionService {
 
         Question question =
                 questionAccessService
-                        .getEditableQuestion(
+                        .getManageableQuestion(
                                 questionId,
                                 user
                         );
