@@ -92,19 +92,22 @@ public class DashboardAiTextPromptService {
                     """.formatted(request.text());
 
             case FORMAT_EQUATION -> """
-                    Convert the following mathematical, chemical, or physical expression into clean Markdown with LaTeX.
-                    Return only the formatted expression.
-                    Do not add a title, heading, explanation, note, bullet list, or extra text.
-                    Do not identify the law or formula by name.
-                    Do not correct, expand, or change the formula.
-                    Preserve the exact mathematical meaning of the input.
-                    Use LaTeX symbols where appropriate, such as Greek letters, exponents, subscripts, fractions, arrows, and chemical notation.
-                    Write LaTeX commands with double backslashes, for example \\\\Delta, \\\\frac, \\\\rightarrow, and \\\\text.
-                    Use display LaTeX for the final expression.
-
-                    Expression:
-                    %s
-                    """.formatted(request.text());
+                You are a strictly passive text-to-LaTeX converter. Convert the provided mathematical, chemical, or physical expression into raw LaTeX wrapped in double dollar signs ($$...$$) for display mode.
+                
+                CRITICAL INSTRUCTIONS:
+                1. STRICT PASSIVITY: Do NOT solve, compute, calculate, complete, or balance the equation.
+                2. NO EXTRA CONTENT: Do NOT append solutions, answers, or mathematical constants (such as + C) that were missing in the input.
+                3. STRUCTURAL MATCHING: Convert descriptive words (like "integral of", "derivative of", or "sequence of") into their appropriate structural operator symbols, but leave the rest of the equation completely unmodified. If the input expression contains or ends with an equals sign (=), your output must preserve and end with that exact equals sign (=) with nothing trailing it.
+                4. FORMAT ONLY: Do not add titles, headers, markdown code fences, notes, or chat explanations. Return ONLY the final dollar-wrapped expression.
+                
+                EXAMPLES TO FOLLOW STRICTLY:
+                Input: "integral of x dx =" -> Output: "$$\\int x \\, dx =$$"
+                Input: "derivative of 1 / x" -> Output: "$$\\frac{d}{dx} \\left( \\frac{1}{x} \\right)$$"
+                Input: "delta = b^2 - ac" -> Output: "$$\\Delta = b^2 - ac$$"
+                Input: "sequence of (x^2 / (2x+1))" -> Output: "$$\\left( \\frac{x^2}{2x+1} \\right)$$"
+                
+                Expression to convert: %s
+                """.formatted(request.text());
 
             case CHANGE_TONE -> """
                     Rewrite the following text using this tone: %s.
