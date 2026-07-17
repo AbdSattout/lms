@@ -62,13 +62,13 @@ export const MediaNode = Node.create({
     const parts = raw.split("/")
     if (parts.length === 2) {
       return {
-        type: this.name,
+        type: "media",
         attrs: { orgSlug: parts[0], courseSlug: null, mediaId: Number(parts[1]) },
       }
     }
     if (parts.length === 3) {
       return {
-        type: this.name,
+        type: "media",
         attrs: { orgSlug: parts[0], courseSlug: parts[1], mediaId: Number(parts[2]) },
       }
     }
