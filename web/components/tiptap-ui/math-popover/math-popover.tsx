@@ -1,7 +1,8 @@
+"use no memo"
 "use client"
 
-import { forwardRef, useCallback, useState } from "react"
 import type { Editor } from "@tiptap/react"
+import { forwardRef, useCallback, useState } from "react"
 
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
@@ -10,22 +11,25 @@ import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-i
 import { SigmaIcon } from "@/components/tiptap-icons/sigma-icon"
 
 import type { UseMathPopoverConfig } from "@/components/tiptap-ui/math-popover"
-import { useMathPopover, getSelectedMathLatex } from "@/components/tiptap-ui/math-popover"
+import {
+  getSelectedMathLatex,
+  useMathPopover,
+} from "@/components/tiptap-ui/math-popover"
 
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button"
 import { Button } from "@/components/tiptap-ui-primitive/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/tiptap-ui-primitive/popover"
+import { ButtonGroup } from "@/components/tiptap-ui-primitive/button-group"
 import {
   Card,
   CardBody,
   CardItemGroup,
 } from "@/components/tiptap-ui-primitive/card"
 import { Input } from "@/components/tiptap-ui-primitive/input"
-import { ButtonGroup } from "@/components/tiptap-ui-primitive/button-group"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/tiptap-ui-primitive/popover"
 
 import "./math-popover.scss"
 

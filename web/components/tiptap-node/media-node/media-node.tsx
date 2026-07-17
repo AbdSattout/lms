@@ -26,7 +26,7 @@ function formatSize(bytes?: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function MediaNodeComponent({ node }: NodeViewProps) {
+export function MediaNodeComponent({ node, editor }: NodeViewProps) {
   const { orgSlug, courseSlug, mediaId } = node.attrs as {
     orgSlug: string | null
     courseSlug: string | null
@@ -62,7 +62,7 @@ export function MediaNodeComponent({ node }: NodeViewProps) {
   }, [orgSlug, courseSlug, mediaId])
 
   return (
-    <NodeViewWrapper className="rounded-3xl" data-type="media" data-media-id={mediaId}>
+    <NodeViewWrapper className="rounded-3xl" data-type="media" data-media-id={mediaId} draggable={editor.isEditable}>
       {loading && (
         <Attachment state="processing" orientation="horizontal" size="default">
           <AttachmentMedia variant="icon">
@@ -87,35 +87,37 @@ export function MediaNodeComponent({ node }: NodeViewProps) {
 
       {!loading && !error && media?.type === "IMAGE" && (
         <figure className="not-prose">
-          <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
-            <img
-              src={media.url}
-              alt={media.name}
-              className="w-full rounded-3xl border object-cover"
-            />
-          </a>
+          {editor.isEditable ? (
+            <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
+              <img src={media.url} alt={media.name} className="w-full rounded-3xl border object-cover" />
+            </a>
+          ) : (
+            <img src={media.url} alt={media.name} className="w-full rounded-3xl border object-cover" />
+          )}
         </figure>
       )}
 
       {!loading && !error && media?.type === "VIDEO" && (
         <figure className="not-prose">
-          <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
-            <video
-              src={media.url}
-              controls
-              className="w-full rounded-3xl border"
-            >
-              Your browser does not support the video element.
-            </video>
-          </a>
+          {editor.isEditable ? (
+            <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
+              <video src={media.url} controls className="w-full rounded-3xl border">
+                Your browser does not support the video element.
+              </video>
+            </a>
+          ) : (
+            <video src={media.url} className="w-full rounded-3xl border" />
+          )}
         </figure>
       )}
 
       {!loading && !error && media?.type === "FILE" && (
         <Attachment state="done" orientation="horizontal" size="default">
-          <AttachmentTrigger
-            render={<a href={media.url} download={media.name} target="_blank" rel="noreferrer" />}
-          />
+          {editor.isEditable && (
+            <AttachmentTrigger
+              render={<a href={media.url} download={media.name} target="_blank" rel="noreferrer" />}
+            />
+          )}
           <AttachmentMedia variant="icon">
             <FileTextIcon className="size-4" />
           </AttachmentMedia>
