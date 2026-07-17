@@ -28,10 +28,6 @@ public class PostMapper {
                         ? post.getCourse().getId()
                         : null,
 
-                post.getLikesCount(),
-
-                post.getCommentsCount(),
-
                 BaseEntityResponse.from(post)
         );
     }

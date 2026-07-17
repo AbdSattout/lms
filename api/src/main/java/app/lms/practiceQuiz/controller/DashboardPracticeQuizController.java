@@ -85,4 +85,21 @@ public class DashboardPracticeQuizController {
                 )
         );
     }
+
+    @DeleteMapping("/{practiceQuizId}")
+    public ResponseEntity<Void> delete(
+            @PathVariable Long courseId,
+            @PathVariable Long practiceQuizId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardPracticeQuizService.delete(
+                courseId,
+                practiceQuizId,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent()
+                .build();
+    }
 }

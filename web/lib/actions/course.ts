@@ -100,7 +100,10 @@ export async function publishCourse(
     .post(courseId)
     .catch(() => null)
 
-  if (published === null) return { error: "حدث خطأ أثناء نشر الدورة." }
+  if (published === null)
+    return {
+      error: "يجب أن يحوي الاختبار النهائي 10 أسئلة على الأقل لنشر الكورس.",
+    }
 
   revalidatePath(`/${orgSlug}/courses`)
   return { success: true }

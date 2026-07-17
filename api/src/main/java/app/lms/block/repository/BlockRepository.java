@@ -22,6 +22,10 @@ import java.util.Optional;
                 Long lessonId
         );
 
+        List<Block> findAllByLessonChapterCourseIdOrderByLessonChapterPositionAscLessonPositionAscPositionAsc(
+                Long courseId
+        );
+
         @Query("""
         SELECT MAX(b.position)
         FROM Block b

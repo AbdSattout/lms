@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_questionPackage002
+createdAt: 2026-07-16T00:00:00
+updatedAt: 2026-07-16T12:27:29.995473600
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_GkMNXFRG5u
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
+authenticationType: bearer
+body: {}
+bodyType: null
+description: List all dashboard questions for a course. Requires course admin/owner access.
+headers: []
+method: GET
+name: List Course Questions
+sortPriority: 2000.0
+url: https://lms.koyeb.app/dashboard/courses/3/questions
+urlParameters: []

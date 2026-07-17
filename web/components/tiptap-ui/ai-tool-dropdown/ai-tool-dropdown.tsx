@@ -1,28 +1,29 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
   DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
 } from "@/components/tiptap-ui-primitive/dropdown-menu"
+import { useEffect, useRef, useState } from "react"
 
-import type { AiTextAction, AiTextTone } from "@/lib/api/types"
-import { cn } from "@/lib/utils"
-import "./ai-tool-dropdown.scss"
-import { LoaderIcon } from "@/components/tiptap-icons/loader-icon"
 import { AlertCircleIcon } from "@/components/tiptap-icons/alert-icon"
+import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon"
+import { LoaderIcon } from "@/components/tiptap-icons/loader-icon"
 import { SparklesIcon } from "@/components/tiptap-icons/sparkles-icon"
 import { AI_ACTIONS, AI_TONES } from "@/lib/ai-tools-types"
+import type { AiTextAction, AiTextTone } from "@/lib/api/types"
+import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import "./ai-tool-dropdown.scss"
 
 // Vector Line Icons for Actions
 function SpellCheckIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -271,7 +272,7 @@ export function AiToolsDropdown({
 
   useEffect(() => {
     if (error) {
-      toast.error(<span dir="ltr">{error}</span>)
+      toast.error(error)
       onClearError?.()
     }
   }, [error, onClearError])
@@ -287,7 +288,6 @@ export function AiToolsDropdown({
         <Button
           ref={triggerRef}
           variant="ghost"
-          size="small"
           className={cn(
             "ai-tools-trigger",
             isLoading && "ai-tools-trigger--loading",
@@ -302,16 +302,17 @@ export function AiToolsDropdown({
           ) : (
             <SparklesIcon className="tiptap-button-icon" />
           )}
+          <ChevronDownIcon className="tiptap-button-dropdown-small" />
           <span className="sr-only">AI Tools</span>
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="ai-tools-content border border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800/80 dark:bg-zinc-950 dark:text-zinc-50"
+        className="ai-tools-content"
         align="start"
         sideOffset={8}
       >
-        <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800/60" />
+        <DropdownMenuSeparator />
 
         {AI_ACTIONS.map((action) => {
           const ActionIcon = ACTION_ICONS[action.value] || SparklesIcon
@@ -321,14 +322,14 @@ export function AiToolsDropdown({
               <DropdownMenuSub key={action.value}>
                 <DropdownMenuSubTrigger className="ai-tools-item">
                   <div className="ai-tools-item-content-wrapper">
-                    <div className="ai-tools-item-icon-container text-indigo-500 dark:text-indigo-400">
+                    <div className="ai-tools-item-icon-container">
                       <ActionIcon className="ai-tools-item-icon" />
                     </div>
                     <div className="ai-tools-item-content">
-                      <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
+                      <span className="ai-tools-item-label">
                         {action.label}
                       </span>
-                      <span className="ai-tools-item-description text-zinc-500 dark:text-zinc-400">
+                      <span className="ai-tools-item-description">
                         {action.description}
                       </span>
                     </div>
@@ -336,11 +337,11 @@ export function AiToolsDropdown({
                 </DropdownMenuSubTrigger>
 
                 <DropdownMenuPortal>
-                  <DropdownMenuSubContent className="ai-tools-subcontent border border-zinc-200 bg-white text-zinc-950 dark:border-zinc-800/80 dark:bg-zinc-950 dark:text-zinc-50">
-                    <DropdownMenuLabel className="ai-tools-label text-zinc-900 dark:text-zinc-200">
+                  <DropdownMenuSubContent className="ai-tools-subcontent">
+                    <DropdownMenuLabel className="ai-tools-label">
                       اختر النبرة
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-zinc-100 dark:bg-zinc-800/60" />
+                    <DropdownMenuSeparator />
 
                     {AI_TONES.map((tone) => {
                       const ToneIcon = TONE_ICONS[tone.value] || SparklesIcon
@@ -354,11 +355,11 @@ export function AiToolsDropdown({
                           }}
                         >
                           <div className="ai-tools-item-content-wrapper">
-                            <div className="ai-tools-item-icon-container text-zinc-500 dark:text-zinc-400">
+                            <div className="ai-tools-item-icon-container">
                               <ToneIcon className="ai-tools-item-icon" />
                             </div>
                             <div className="ai-tools-item-content">
-                              <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
+                              <span className="ai-tools-item-label">
                                 {tone.label}
                               </span>
                             </div>
@@ -382,14 +383,12 @@ export function AiToolsDropdown({
               }}
             >
               <div className="ai-tools-item-content-wrapper">
-                <div className="ai-tools-item-icon-container text-indigo-500 dark:text-indigo-400">
+                <div className="ai-tools-item-icon-container">
                   <ActionIcon className="ai-tools-item-icon" />
                 </div>
                 <div className="ai-tools-item-content">
-                  <span className="ai-tools-item-label text-zinc-900 dark:text-zinc-200">
-                    {action.label}
-                  </span>
-                  <span className="ai-tools-item-description text-zinc-500 dark:text-zinc-400">
+                  <span className="ai-tools-item-label">{action.label}</span>
+                  <span className="ai-tools-item-description">
                     {action.description}
                   </span>
                 </div>
