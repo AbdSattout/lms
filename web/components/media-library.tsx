@@ -84,7 +84,7 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await fetchCourseMediaAction(course.id!, page, PAGE_SIZE)
+        ? await fetchCourseMediaAction(orgSlug, course.slug, page, PAGE_SIZE)
         : await fetchPostMediaAction(orgSlug, page, PAGE_SIZE)
 
       setItems(result.content ?? [])
@@ -112,7 +112,7 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await uploadCourseMediaAction(course.id!, file, orgSlug, course.slug)
+        ? await uploadCourseMediaAction(orgSlug, course.slug, file)
         : await uploadPostMediaAction(orgSlug, file)
 
       if (result.error) {
@@ -138,13 +138,8 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await deleteCourseMediaAction(
-            course.id!,
-            item.id,
-            orgSlug,
-            course.slug
-          )
-        : await deletePostMediaAction(item.id, orgSlug)
+        ? await deleteCourseMediaAction(orgSlug, course.slug, item.id)
+        : await deletePostMediaAction(orgSlug, item.id)
 
       if (result.error) {
         toast.error(result.error)
@@ -166,18 +161,12 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await updateCourseMediaAction(
-            course.id!,
-            editingItem.id,
-            { name: editName.trim() },
-            orgSlug,
-            course.slug
-          )
-        : await updatePostMediaAction(
-            editingItem.id,
-            { name: editName.trim() },
-            orgSlug
-          )
+        ? await updateCourseMediaAction(orgSlug, course.slug, editingItem.id, {
+            name: editName.trim(),
+          })
+        : await updatePostMediaAction(orgSlug, editingItem.id, {
+            name: editName.trim(),
+          })
 
       if (result.error) {
         toast.error(result.error)
@@ -200,9 +189,7 @@ export function MediaLibrary({
     replaceInputRef.current?.click()
   }
 
-  async function onReplaceFileSelected(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
+  async function onReplaceFileSelected(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !replacingItem) return
 
@@ -214,13 +201,12 @@ export function MediaLibrary({
 
       const result = isCourse
         ? await updateCourseMediaAction(
-            course.id!,
-            replacingItem.id,
-            { file },
             orgSlug,
-            course.slug
+            course.slug,
+            replacingItem.id,
+            { file }
           )
-        : await updatePostMediaAction(replacingItem.id, { file }, orgSlug)
+        : await updatePostMediaAction(orgSlug, replacingItem.id, { file })
 
       if (result.error) {
         toast.error(result.error)
