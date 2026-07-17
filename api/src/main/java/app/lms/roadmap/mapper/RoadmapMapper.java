@@ -9,6 +9,7 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.roadmap.dto.RoadmapItemResponse;
 import app.lms.roadmap.dto.RoadmapResponse;
+import app.lms.roadmap.enums.RoadmapFollowStatus;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.roadmap.model.RoadmapItem;
 import lombok.RequiredArgsConstructor;
@@ -93,6 +94,21 @@ public class RoadmapMapper {
             Map<Long, CourseEnrollment> enrollmentsByCourseId
     ) {
 
+        return toResponse(
+                roadmap,
+                publishedOnly,
+                enrollmentsByCourseId,
+                RoadmapFollowStatus.NOT_FOLLOWING
+        );
+    }
+
+    public RoadmapResponse toResponse(
+            Roadmap roadmap,
+            boolean publishedOnly,
+            Map<Long, CourseEnrollment> enrollmentsByCourseId,
+            RoadmapFollowStatus followStatus
+    ) {
+
         return new RoadmapResponse(
                 roadmap.getId(),
                 organizationMapper.ToResponse(
@@ -117,7 +133,22 @@ public class RoadmapMapper {
                                 )
                         )
                         .toList(),
+                followStatus,
                 BaseEntityResponse.from(roadmap)
+        );
+    }
+
+    public RoadmapResponse toMobileResponse(
+            Roadmap roadmap,
+            Map<Long, CourseEnrollment> enrollmentsByCourseId,
+            RoadmapFollowStatus followStatus
+    ) {
+
+        return toResponse(
+                roadmap,
+                true,
+                enrollmentsByCourseId,
+                followStatus
         );
     }
 
