@@ -38,7 +38,8 @@ public class DashboardAiTextPromptService {
             Do not explain what you did.
             Do not translate the input.
             Write the paragraph in the same language as the topic or instructions.
-            Return only the final paragraph.
+            Format the result as Markdown.
+            Return only the final Markdown content.
     
             Topic or instructions:
             %s
@@ -87,6 +88,21 @@ public class DashboardAiTextPromptService {
                     Return only the expanded text.
 
                     Text:
+                    %s
+                    """.formatted(request.text());
+
+            case FORMAT_EQUATION -> """
+                    Convert the following mathematical, chemical, or physical expression into clean Markdown with LaTeX.
+                    Return only the formatted expression.
+                    Do not add a title, heading, explanation, note, bullet list, or extra text.
+                    Do not identify the law or formula by name.
+                    Do not correct, expand, or change the formula.
+                    Preserve the exact mathematical meaning of the input.
+                    Use LaTeX symbols where appropriate, such as Greek letters, exponents, subscripts, fractions, arrows, and chemical notation.
+                    Write LaTeX commands with double backslashes, for example \\\\Delta, \\\\frac, \\\\rightarrow, and \\\\text.
+                    Use display LaTeX for the final expression.
+
+                    Expression:
                     %s
                     """.formatted(request.text());
 
