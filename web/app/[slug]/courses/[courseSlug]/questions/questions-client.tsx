@@ -19,26 +19,26 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { deleteQuestionAction } from "@/lib/actions/course"
-import type { QuestionResponse } from "@/lib/api/types"
+import type { CourseResponse, QuestionResponse } from "@/lib/api/types"
 import { Pen, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
 interface QuestionsPageClientProps {
-  courseId: number
+  course: CourseResponse
   orgSlug: string
   courseSlug: string
-  courseTitle: string
   initialQuestions: QuestionResponse[]
 }
 
 export function QuestionsPageClient({
-  courseId,
+  course,
   orgSlug,
   courseSlug,
-  courseTitle,
   initialQuestions,
 }: QuestionsPageClientProps) {
+  const courseId = course.id
+  const courseTitle = course.title
   const [questions, setQuestions] =
     useState<QuestionResponse[]>(initialQuestions)
   const [editingQuestion, setEditingQuestion] =
@@ -133,6 +133,7 @@ export function QuestionsPageClient({
         }}
         question={editingQuestion}
         courseId={courseId}
+        course={course}
         orgSlug={orgSlug}
         courseSlug={courseSlug}
         onSaved={handleSaved}

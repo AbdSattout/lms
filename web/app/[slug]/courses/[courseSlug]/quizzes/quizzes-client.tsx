@@ -18,28 +18,27 @@ import {
 } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
 import { createPracticeQuizAction } from "@/lib/actions/practice-quizzes"
-import type { PracticeQuizResponse, QuestionResponse } from "@/lib/api/types"
+import type { CourseResponse, PracticeQuizResponse, QuestionResponse } from "@/lib/api/types"
 import { ClipboardList, Plus, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
 interface QuizzesClientProps {
-  courseId: number
+  course: CourseResponse
   orgSlug: string
-  courseSlug: string
-  courseTitle: string
   initialQuizzes: PracticeQuizResponse[]
   initialBankQuestions: QuestionResponse[]
 }
 
 export function QuizzesClient({
-  courseId,
+  course,
   orgSlug,
-  courseSlug,
   initialQuizzes,
   initialBankQuestions,
 }: QuizzesClientProps) {
+  const courseId = course.id
+  const courseSlug = course.slug
   const router = useRouter()
   const [quizzes, setQuizzes] = useState(initialQuizzes)
   const [bankQuestions, setBankQuestions] = useState(initialBankQuestions)
@@ -268,6 +267,7 @@ export function QuizzesClient({
         }}
         question={null}
         courseId={courseId}
+        course={course}
         orgSlug={orgSlug}
         courseSlug={courseSlug}
         onSaved={handleCreateQuestionSaved}

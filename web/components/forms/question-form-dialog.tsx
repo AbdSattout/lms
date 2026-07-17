@@ -23,7 +23,7 @@ import {
   createQuestionAction,
   updateQuestionAction,
 } from "@/lib/actions/course"
-import type { QuestionDifficulty, QuestionResponse } from "@/lib/api/types"
+import type { CourseResponse, QuestionDifficulty, QuestionResponse } from "@/lib/api/types"
 import {
   DndContext,
   DragOverlay,
@@ -67,6 +67,7 @@ interface QuestionFormDialogProps {
   onOpenChange: (open: boolean) => void
   question: QuestionResponse | null
   courseId: number
+  course: CourseResponse
   orgSlug: string
   courseSlug: string
   onSaved: (question: QuestionResponse) => void
@@ -138,6 +139,7 @@ export function QuestionFormDialog({
   onOpenChange,
   question,
   courseId,
+  course,
   orgSlug,
   courseSlug,
   onSaved,
@@ -315,6 +317,8 @@ export function QuestionFormDialog({
                 key={question?.id ?? "new-question"}
                 content={content ?? ""}
                 onChange={setContent}
+                orgSlug={orgSlug}
+                course={course}
               />
             </div>
 

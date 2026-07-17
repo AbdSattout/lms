@@ -31,10 +31,8 @@ export default async function QuizzesPage({
         ]}
       />
       <QuizzesClient
-        courseId={course.id}
+        course={course}
         orgSlug={slug}
-        courseSlug={courseSlug}
-        courseTitle={course.title}
         initialQuizzes={quizzes}
         initialBankQuestions={bankQuestions}
       />

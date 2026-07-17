@@ -32,28 +32,28 @@ import {
 } from "@/components/ui/empty"
 import { Separator } from "@/components/ui/separator"
 import { updateFinalQuizQuestionsAction } from "@/lib/actions/quizzes"
-import type { QuestionResponse, QuizResponse } from "@/lib/api/types"
+import type { CourseResponse, QuestionResponse, QuizResponse } from "@/lib/api/types"
 import { ClipboardList, Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
 interface FinalQuizSectionProps {
-  courseId: number
+  course: CourseResponse
   orgSlug: string
-  courseSlug: string
   initialQuiz: QuizResponse | null
   initialBankQuestions: QuestionResponse[]
   isEditable: boolean
 }
 
 export function FinalQuizSection({
-  courseId,
+  course,
   orgSlug,
-  courseSlug,
   initialQuiz,
   initialBankQuestions,
   isEditable,
 }: FinalQuizSectionProps) {
+  const courseId = course.id
+  const courseSlug = course.slug
   const [quiz, setQuiz] = useState(initialQuiz)
   const [bankQuestions, setBankQuestions] = useState(initialBankQuestions)
 
@@ -218,6 +218,7 @@ export function FinalQuizSection({
         }}
         question={editingQuestion}
         courseId={courseId}
+        course={course}
         orgSlug={orgSlug}
         courseSlug={courseSlug}
         onSaved={

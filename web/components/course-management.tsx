@@ -861,9 +861,8 @@ export function CourseManagement({
       </DndContext>
 
       <FinalQuizSection
-        courseId={course.id}
+        course={course}
         orgSlug={orgSlug}
-        courseSlug={course.slug}
         initialQuiz={finalQuiz}
         initialBankQuestions={bankQuestions}
         isEditable={isEditable}

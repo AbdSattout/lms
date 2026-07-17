@@ -27,26 +27,26 @@ import {
   deletePracticeQuizAction,
   updatePracticeQuizQuestionsAction,
 } from "@/lib/actions/practice-quizzes"
-import type { PracticeQuizResponse, QuestionResponse } from "@/lib/api/types"
+import type { CourseResponse, PracticeQuizResponse, QuestionResponse } from "@/lib/api/types"
 import { Plus, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
 interface QuizDetailClientProps {
-  courseId: number
+  course: CourseResponse
   orgSlug: string
-  courseSlug: string
   quiz: PracticeQuizResponse
   bankQuestions: QuestionResponse[]
 }
 
 export function QuizDetailClient({
-  courseId,
+  course,
   orgSlug,
-  courseSlug,
   quiz: initialQuiz,
   bankQuestions: initialBankQuestions,
 }: QuizDetailClientProps) {
+  const courseId = course.id
+  const courseSlug = course.slug
   const [quiz, setQuiz] = useState(initialQuiz)
   const [bankQuestions, setBankQuestions] = useState(initialBankQuestions)
 
@@ -217,6 +217,7 @@ export function QuizDetailClient({
         }}
         question={editingQuestion}
         courseId={courseId}
+        course={course}
         orgSlug={orgSlug}
         courseSlug={courseSlug}
         onSaved={
