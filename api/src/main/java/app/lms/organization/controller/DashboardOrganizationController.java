@@ -4,6 +4,7 @@ import app.lms.organization.dto.CreateOrganizationRequest;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.UpdateOrganizationRequest;
+import app.lms.organization.enums.Role;
 import app.lms.organization.service.DashboardOrganizationService;
 import app.lms.security.UserPrincipal;
 import jakarta.validation.Valid;
@@ -155,6 +156,68 @@ public class DashboardOrganizationController {
         return ResponseEntity.ok(
                 dashboardOrganizationService.getMembers(
                         slug,
+                        pageable,
+                        principal.user()
+                )
+        );
+    }
+    @GetMapping("/{slug}/members/owners")
+    public ResponseEntity<Page<OrganizationMemberResponse>> getOwners(
+
+            @PathVariable String slug,
+
+            @PageableDefault(size = 20)
+            Pageable pageable,
+
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.getMembersByRole(
+                        slug,
+                        Role.OWNER,
+                        pageable,
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/{slug}/members/admins")
+    public ResponseEntity<Page<OrganizationMemberResponse>> getAdmins(
+
+            @PathVariable String slug,
+
+            @PageableDefault(size = 20)
+            Pageable pageable,
+
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.getMembersByRole(
+                        slug,
+                        Role.ADMIN,
+                        pageable,
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/{slug}/members/students")
+    public ResponseEntity<Page<OrganizationMemberResponse>> getStudents(
+
+            @PathVariable String slug,
+
+            @PageableDefault(size = 20)
+            Pageable pageable,
+
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.getMembersByRole(
+                        slug,
+                        Role.STUDENT,
                         pageable,
                         principal.user()
                 )
