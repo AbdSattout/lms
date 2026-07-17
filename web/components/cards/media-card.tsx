@@ -129,6 +129,8 @@ export function MediaCard<T extends MediaItemShape>({
                 const a = document.createElement("a")
                 a.href = media.url
                 a.download = media.name
+                a.target = "_blank"
+                a.rel = "noreferrer"
                 a.click()
               }}
             >

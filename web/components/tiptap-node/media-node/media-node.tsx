@@ -99,13 +99,15 @@ export function MediaNodeComponent({ node }: NodeViewProps) {
 
       {!loading && !error && media?.type === "VIDEO" && (
         <figure className="not-prose">
-          <video
-            src={media.url}
-            controls
-            className="w-full rounded-3xl border"
-          >
-            Your browser does not support the video element.
-          </video>
+          <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
+            <video
+              src={media.url}
+              controls
+              className="w-full rounded-3xl border"
+            >
+              Your browser does not support the video element.
+            </video>
+          </a>
         </figure>
       )}
 
