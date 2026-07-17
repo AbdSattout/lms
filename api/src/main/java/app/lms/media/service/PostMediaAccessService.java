@@ -3,9 +3,9 @@ package app.lms.media.service;
 import app.lms.common.exception.NotFoundException;
 import app.lms.media.model.PostMedia;
 import app.lms.media.repository.PostMediaRepository;
+import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.organization.service.OrganizationMemberAccessService;
-import app.lms.post.service.PostAccessService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -39,36 +39,62 @@ public class PostMediaAccessService {
     }
 
     public PostMedia getEditableMedia(
+            String slug,
             Long mediaId,
             User user
     ) {
 
-        PostMedia media =
-                getById(mediaId);
-
-        organizationAccessService
+        Organization organization =
+                organizationAccessService
                 .getManageableOrganization(
-                        media.getOrganization().getSlug(),
+                        slug,
                         user
                 );
 
-        return media;
+        return getByIdAndOrganizationId(
+                mediaId,
+                organization.getId()
+        );
     }
 
     public PostMedia getAccessibleMedia(
+            String slug,
             Long mediaId,
             User user
     ) {
 
-        PostMedia media =
-                getById(mediaId);
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(
+                                slug
+                        );
 
         organizationMemberAccessService
                 .getMember(
-                        media.getOrganization().getId(),
+                        organization.getId(),
                         user.getId()
                 );
 
-        return media;
+        return getByIdAndOrganizationId(
+                mediaId,
+                organization.getId()
+        );
+    }
+
+    private PostMedia getByIdAndOrganizationId(
+            Long mediaId,
+            Long organizationId
+    ) {
+
+        return postMediaRepository
+                .findByIdAndOrganizationId(
+                        mediaId,
+                        organizationId
+                )
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Media not found"
+                        )
+                );
     }
 }

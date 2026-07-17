@@ -59,7 +59,8 @@ public class BankRandomQuizMapper {
                                         question.getOptions(),
                                         question.getSelectedAnswerIndex(),
                                         question.getCorrectAnswerIndex(),
-                                        question.getCorrect()
+                                        question.getCorrect(),
+                                        BaseEntityResponse.from(question)
                                 )
                         )
                         .toList(),

@@ -15,13 +15,13 @@ import app.lms.course.repository.CourseRepository;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
-import app.lms.organization.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
 import app.lms.organization.model.Organization;
-import app.lms.organization.model.OrganizationJoinRequest;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.repository.OrganizationJoinRequestRepository;
+import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.repository.BlockProgressRepository;
@@ -258,11 +258,11 @@ public class CourseEnrollmentService {
                         100
                 );
 
-                enrollment.setLastAccessedLesson(
+                enrollment.setCurrentLesson(
                         currentBlock.getLesson()
                 );
 
-                enrollment.setLastAccessedBlock(
+                enrollment.setCurrentBlock(
                         currentBlock
                 );
 
@@ -275,11 +275,11 @@ public class CourseEnrollmentService {
 
             case QUIZ -> {
 
-                enrollment.setLastAccessedLesson(
+                enrollment.setCurrentLesson(
                         currentBlock.getLesson()
                 );
 
-                enrollment.setLastAccessedBlock(
+                enrollment.setCurrentBlock(
                         currentBlock
                 );
             }
@@ -297,11 +297,11 @@ public class CourseEnrollmentService {
                                         )
                                 );
 
-                enrollment.setLastAccessedLesson(
+                enrollment.setCurrentLesson(
                         nextBlock.getLesson()
                 );
 
-                enrollment.setLastAccessedBlock(
+                enrollment.setCurrentBlock(
                         nextBlock
                 );
             }
@@ -339,31 +339,6 @@ public class CourseEnrollmentService {
         );
     }
 
-//    private void addStudentToOrganizationIfNeeded(
-//            Organization organization,
-//            User user
-//    ) {
-//
-//        boolean isMember =
-//                memberRepository
-//                        .existsByOrganizationIdAndUserId(
-//                                organization.getId(),
-//                                user.getId()
-//                        );
-//
-//        if (isMember) {
-//            return;
-//        }
-//
-//        OrganizationMember member =
-//                OrganizationMember.builder()
-//                        .organization(organization)
-//                        .user(user)
-//                        .role(Role.STUDENT)
-//                        .build();
-//
-//        memberRepository.save(member);
-//    }
 
     private void validateCanEnrollAsStudent(
             Optional<OrganizationMember> existingMember

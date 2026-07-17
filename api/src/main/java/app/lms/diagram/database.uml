@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>2693aedf-ff06-4aad-b65a-87bc4d1c3182</OriginalElement>
+  <nodes>
+    <node x="2409.5" y="2700.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.comments</node>
+    <node x="609.5" y="3700.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.block_progress</node>
+    <node x="262.0" y="2084.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_media</node>
+    <node x="-15.5" y="3316.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempt_answers</node>
+    <node x="29.5" y="1752.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.roadmap_items</node>
+    <node x="534.5" y="2468.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_questions</node>
+    <node x="941.5" y="2480.5">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.question_options</node>
+    <node x="-41.5" y="2676.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempts</node>
+    <node x="-178.0" y="2084.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.post_media</node>
+    <node x="1041.5" y="512.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.user_progress</node>
+    <node x="1234.0" y="1268.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_invites</node>
+    <node x="709.5" y="2072.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exams</node>
+    <node x="2397.0" y="1704.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.posts</node>
+    <node x="941.5" y="2060.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions</node>
+    <node x="1438.0" y="-176.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users</node>
+    <node x="739.0" y="2748.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_quiz_questions</node>
+    <node x="-489.5" y="524.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.profiles</node>
+    <node x="1824.5" y="2676.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempt_questions</node>
+    <node x="1674.0" y="404.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.user_activity_days</node>
+    <node x="1845.0" y="1740.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempts</node>
+    <node x="1389.5" y="2072.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.chapters</node>
+    <node x="1300.0" y="2676.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempt_questions</node>
+    <node x="2571.5" y="2456.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.post_likes</node>
+    <node x="-47.0" y="4080.5">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempt_answer_options</node>
+    <node x="262.5" y="976.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_media</node>
+    <node x="1288.5" y="3400.5">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempt_question_options</node>
+    <node x="157.5" y="2408.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempts</node>
+    <node x="1149.5" y="1740.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_faqs</node>
+    <node x="2685.0" y="1340.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_join_requests</node>
+    <node x="374.5" y="2748.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quiz_questions</node>
+    <node x="732.0" y="4080.5">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempt_answer_options</node>
+    <node x="-173.5" y="1364.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_members</node>
+    <node x="1649.5" y="2432.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.lessons</node>
+    <node x="143.5" y="1376.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.roadmaps</node>
+    <node x="1593.5" y="3972.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_enrollments</node>
+    <node x="469.5" y="1764.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quizzes</node>
+    <node x="763.5" y="3036.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempt_answers</node>
+    <node x="2003.5" y="2012.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.certificates</node>
+    <node x="2089.5" y="500.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.xp_events</node>
+    <node x="829.5" y="1752.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_quizzes</node>
+    <node x="1049.5" y="3328.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.blocks</node>
+    <node x="963.5" y="1304.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses</node>
+    <node x="1620.5" y="2048.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempts</node>
+    <node x="857.0" y="-200.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.levels</node>
+    <node x="1082.0" y="3664.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_placement_test_attempts</node>
+    <node x="1813.0" y="3400.5">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempt_question_options</node>
+    <node x="1204.0" y="104.0">2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_media" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_media" relationship="REFERENCES">
+      <point x="-58.5" y="-80.0" />
+      <point x="320.5" y="1724.0" />
+      <point x="199.0" y="1724.0" />
+      <point x="199.0" y="1524.0" />
+      <point x="379.0" y="1524.0" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.post_likes" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.posts" relationship="REFERENCES">
+      <point x="-43.75" y="-68.0" />
+      <point x="2615.25" y="2424.0" />
+      <point x="2499.0" y="2424.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempt_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="-89.5" y="-128.0" />
+      <point x="1389.5" y="2364.0" />
+      <point x="1199.0" y="2364.0" />
+      <point x="1199.0" y="2304.0" />
+      <point x="1147.75" y="2304.0" />
+      <point x="68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.user_progress" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.levels" relationship="REFERENCES">
+      <point x="-48.75" y="-92.0" />
+      <point x="1090.25" y="44.0" />
+      <point x="1099.0" y="44.0" />
+      <point x="0.0" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_join_requests" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="129.33333333333331" y="-104.0" />
+      <point x="3008.3333333333335" y="764.0" />
+      <point x="2059.0" y="764.0" />
+      <point x="2059.0" y="64.0" />
+      <point x="1619.8000000000002" y="64.0" />
+      <point x="80.80000000000001" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="69.25" y="-116.0" />
+      <point x="1828.25" y="1664.0" />
+      <point x="1699.0" y="1664.0" />
+      <point x="1699.0" y="904.0" />
+      <point x="1539.0" y="904.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.posts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="68.0" y="-140.0" />
+      <point x="2567.0" y="1464.0" />
+      <point x="1999.0" y="1464.0" />
+      <point x="1999.0" y="824.0" />
+      <point x="1939.0" y="824.0" />
+      <point x="1939.0" y="24.0" />
+      <point x="1659.0" y="24.0" />
+      <point x="1659.0" y="4.0" />
+      <point x="1579.4" y="4.0" />
+      <point x="40.400000000000006" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_enrollments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.lessons" relationship="REFERENCES">
+      <point x="-30.916666666666686" y="-152.0" />
+      <point x="1748.0833333333335" y="3944.0" />
+      <point x="1739.0" y="3944.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_quiz_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="60.0" y="-56.0" />
+      <point x="919.0" y="2444.0" />
+      <point x="1019.0" y="2444.0" />
+      <point x="1019.0" y="2304.0" />
+      <point x="1010.25" y="2304.0" />
+      <point x="-68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_members" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="66.25" y="-80.0" />
+      <point x="25.25" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.blocks" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.lessons" relationship="REFERENCES">
+      <point x="44.75" y="-116.0" />
+      <point x="1183.75" y="3304.0" />
+      <point x="1679.3333333333335" y="3304.0" />
+      <point x="-59.66666666666667" y="92.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="57.0" y="-104.0" />
+      <point x="2016.0" y="1524.0" />
+      <point x="1739.0" y="1524.0" />
+      <point x="1739.0" y="884.0" />
+      <point x="1579.0" y="884.0" />
+      <point x="1579.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.posts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="0.0" y="-140.0" />
+      <point x="2499.0" y="1644.0" />
+      <point x="1219.0" y="1644.0" />
+      <point x="1219.0" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="-67.0" y="-128.0" />
+      <point x="-8.0" y="2644.0" />
+      <point x="-241.0" y="2644.0" />
+      <point x="-241.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.certificates" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="87.75" y="-152.0" />
+      <point x="2266.75" y="1504.0" />
+      <point x="1779.0" y="1504.0" />
+      <point x="1779.0" y="864.0" />
+      <point x="1619.0" y="864.0" />
+      <point x="1619.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_enrollments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="154.58333333333334" y="-152.0" />
+      <point x="1933.5833333333335" y="3944.0" />
+      <point x="3139.0" y="3944.0" />
+      <point x="3139.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.user_progress" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="48.75" y="-92.0" />
+      <point x="1187.75" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="0.0" y="-140.0" />
+      <point x="1319.0" y="64.0" />
+      <point x="1458.2" y="64.0" />
+      <point x="-80.8" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempt_answers" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="77.75" y="-128.0" />
+      <point x="996.75" y="3004.0" />
+      <point x="1239.0" y="3004.0" />
+      <point x="1239.0" y="2364.0" />
+      <point x="1199.0" y="2364.0" />
+      <point x="1199.0" y="2304.0" />
+      <point x="1147.75" y="2304.0" />
+      <point x="68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="-81.0" y="-116.0" />
+      <point x="198.0" y="2264.0" />
+      <point x="-201.0" y="2264.0" />
+      <point x="-201.0" y="1344.0" />
+      <point x="-61.0" y="1344.0" />
+      <point x="-61.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exams" relationship="REFERENCES">
+      <point x="81.0" y="-116.0" />
+      <point x="360.0" y="2304.0" />
+      <point x="719.0" y="2304.0" />
+      <point x="719.0" y="2284.0" />
+      <point x="799.0" y="2284.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempt_answers" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempts" relationship="REFERENCES">
+      <point x="-67.25" y="-128.0" />
+      <point x="51.75" y="3284.0" />
+      <point x="59.0" y="3284.0" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_placement_test_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="39.25" y="-140.0" />
+      <point x="1278.25" y="3644.0" />
+      <point x="1259.0" y="3644.0" />
+      <point x="1259.0" y="3384.0" />
+      <point x="1279.0" y="3384.0" />
+      <point x="1279.0" y="2664.0" />
+      <point x="1359.0" y="2664.0" />
+      <point x="1359.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_placement_test_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="117.75" y="-140.0" />
+      <point x="1356.75" y="3584.0" />
+      <point x="2779.0" y="3584.0" />
+      <point x="2779.0" y="2444.0" />
+      <point x="2659.0" y="2444.0" />
+      <point x="2659.0" y="804.0" />
+      <point x="1979.0" y="804.0" />
+      <point x="1979.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempt_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempts" relationship="REFERENCES">
+      <point x="89.5" y="-128.0" />
+      <point x="1568.5" y="2384.0" />
+      <point x="1759.0" y="2384.0" />
+      <point x="0.0" y="116.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.post_media" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="-58.5" y="-80.0" />
+      <point x="-119.5" y="1644.0" />
+      <point x="119.0" y="1644.0" />
+      <point x="119.0" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempt_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempts" relationship="REFERENCES">
+      <point x="77.25" y="-128.0" />
+      <point x="2056.25" y="2644.0" />
+      <point x="1959.0" y="2644.0" />
+      <point x="0.0" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_quizzes" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-92.0" />
+      <point x="919.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exams" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-92.0" />
+      <point x="799.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.block_progress" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="-44.75" y="-104.0" />
+      <point x="654.25" y="3664.0" />
+      <point x="-281.0" y="3664.0" />
+      <point x="-281.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_members" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="-66.25" y="-80.0" />
+      <point x="-107.25" y="1324.0" />
+      <point x="-101.0" y="1324.0" />
+      <point x="-101.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="0.0" y="-140.0" />
+      <point x="1079.0" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempt_question_options" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempt_questions" relationship="REFERENCES">
+      <point x="0.0" y="-43.5" />
+      <point x="1499.0" y="3364.0" />
+      <point x="1479.0" y="3364.0" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.lessons" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.chapters" relationship="REFERENCES">
+      <point x="0.0" y="-92.0" />
+      <point x="1739.0" y="2404.0" />
+      <point x="1479.0" y="2404.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-128.0" />
+      <point x="59.0" y="2284.0" />
+      <point x="239.0" y="2284.0" />
+      <point x="239.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_enrollments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="92.75" y="-152.0" />
+      <point x="1871.75" y="3924.0" />
+      <point x="2219.0" y="3924.0" />
+      <point x="2219.0" y="2344.0" />
+      <point x="1599.0" y="2344.0" />
+      <point x="1599.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempt_answers" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempts" relationship="REFERENCES">
+      <point x="-77.75" y="-128.0" />
+      <point x="841.25" y="3004.0" />
+      <point x="279.0" y="3004.0" />
+      <point x="0.0" y="116.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="-57.0" y="-104.0" />
+      <point x="1902.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.roadmap_items" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="44.75" y="-92.0" />
+      <point x="163.75" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exams" relationship="REFERENCES">
+      <point x="-62.25" y="-56.0" />
+      <point x="596.75" y="2304.0" />
+      <point x="719.0" y="2304.0" />
+      <point x="719.0" y="2284.0" />
+      <point x="799.0" y="2284.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="62.25" y="-56.0" />
+      <point x="721.25" y="2444.0" />
+      <point x="1019.0" y="2444.0" />
+      <point x="1019.0" y="2304.0" />
+      <point x="1010.25" y="2304.0" />
+      <point x="-68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.certificates" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="-87.75" y="-152.0" />
+      <point x="2091.25" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.roadmaps" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="0.0" y="-68.0" />
+      <point x="239.0" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.bank_random_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="-69.25" y="-116.0" />
+      <point x="1689.75" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_quiz_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_quizzes" relationship="REFERENCES">
+      <point x="-60.0" y="-56.0" />
+      <point x="799.0" y="2304.0" />
+      <point x="919.0" y="2304.0" />
+      <point x="0.0" y="92.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.chapters" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-92.0" />
+      <point x="1479.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.xp_events" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="0.0" y="-104.0" />
+      <point x="2579.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempt_answer_options" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempt_answers" relationship="REFERENCES">
+      <point x="0.0" y="-43.5" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quizzes" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-80.0" />
+      <point x="559.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.block_progress" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.blocks" relationship="REFERENCES">
+      <point x="44.75" y="-104.0" />
+      <point x="743.75" y="3644.0" />
+      <point x="1071.875" y="3644.0" />
+      <point x="-67.125" y="116.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.comments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.comments" relationship="REFERENCES">
+      <point x="-89.5" y="-0.0" />
+      <point x="2379.0" y="2804.0" />
+      <point x="2379.0" y="2944.0" />
+      <point x="2499.0" y="2944.0" />
+      <point x="0.0" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.posts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="-68.0" y="-140.0" />
+      <point x="2431.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quiz_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quizzes" relationship="REFERENCES">
+      <point x="-42.25" y="-56.0" />
+      <point x="416.75" y="2384.0" />
+      <point x="279.0" y="2384.0" />
+      <point x="279.0" y="2264.0" />
+      <point x="559.0" y="2264.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_placement_test_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.blocks" relationship="REFERENCES">
+      <point x="-39.25" y="-140.0" />
+      <point x="1199.75" y="3624.0" />
+      <point x="1159.0" y="3624.0" />
+      <point x="1159.0" y="3584.0" />
+      <point x="1161.375" y="3584.0" />
+      <point x="22.375" y="116.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_invites" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="-150.0" y="-176.0" />
+      <point x="1309.0" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempt_question_options" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempt_questions" relationship="REFERENCES">
+      <point x="0.0" y="-43.5" />
+      <point x="1999.0" y="3364.0" />
+      <point x="1979.0" y="3364.0" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_media" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="0.0" y="-128.0" />
+      <point x="379.0" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.post_media" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_media" relationship="REFERENCES">
+      <point x="58.5" y="-80.0" />
+      <point x="-2.5" y="1724.0" />
+      <point x="199.0" y="1724.0" />
+      <point x="199.0" y="1524.0" />
+      <point x="379.0" y="1524.0" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.blocks" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="-44.75" y="-116.0" />
+      <point x="1094.25" y="3304.0" />
+      <point x="1159.0" y="3304.0" />
+      <point x="1159.0" y="2444.0" />
+      <point x="1019.0" y="2444.0" />
+      <point x="1019.0" y="2304.0" />
+      <point x="1010.25" y="2304.0" />
+      <point x="-68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.question_options" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="0.0" y="-43.5" />
+      <point x="1039.0" y="2444.0" />
+      <point x="1019.0" y="2444.0" />
+      <point x="1019.0" y="2304.0" />
+      <point x="1010.25" y="2304.0" />
+      <point x="-68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_enrollments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.blocks" relationship="REFERENCES">
+      <point x="-92.75" y="-152.0" />
+      <point x="1686.25" y="3604.0" />
+      <point x="1206.125" y="3604.0" />
+      <point x="67.125" y="116.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-116.0" />
+      <point x="279.0" y="2284.0" />
+      <point x="679.0" y="2284.0" />
+      <point x="679.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_faqs" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-104.0" />
+      <point x="1239.0" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.profiles" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="0.0" y="-80.0" />
+      <point x="-401.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.course_media" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="58.5" y="-80.0" />
+      <point x="437.5" y="1684.0" />
+      <point x="1079.0" y="1684.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.courses" relationship="REFERENCES">
+      <point x="0.0" y="-104.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempts" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quizzes" relationship="REFERENCES">
+      <point x="67.0" y="-128.0" />
+      <point x="126.0" y="2384.0" />
+      <point x="279.0" y="2384.0" />
+      <point x="279.0" y="2264.0" />
+      <point x="559.0" y="2264.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.comments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.posts" relationship="REFERENCES">
+      <point x="-44.75" y="-104.0" />
+      <point x="2454.25" y="2424.0" />
+      <point x="2499.0" y="2424.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.comments" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="44.75" y="-104.0" />
+      <point x="2543.75" y="2404.0" />
+      <point x="2619.0" y="2404.0" />
+      <point x="2619.0" y="1484.0" />
+      <point x="1959.0" y="1484.0" />
+      <point x="1959.0" y="844.0" />
+      <point x="1659.0" y="844.0" />
+      <point x="1659.0" y="4.0" />
+      <point x="1579.4" y="4.0" />
+      <point x="40.400000000000006" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.final_quiz_attempt_answers" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="67.25" y="-128.0" />
+      <point x="186.25" y="2984.0" />
+      <point x="1199.0" y="2984.0" />
+      <point x="1199.0" y="2304.0" />
+      <point x="1147.75" y="2304.0" />
+      <point x="68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.post_likes" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="43.75" y="-68.0" />
+      <point x="2702.75" y="2424.0" />
+      <point x="3099.0" y="2424.0" />
+      <point x="3099.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.random_quiz_attempt_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="-77.25" y="-128.0" />
+      <point x="1901.75" y="2364.0" />
+      <point x="1199.0" y="2364.0" />
+      <point x="1199.0" y="2304.0" />
+      <point x="1147.75" y="2304.0" />
+      <point x="68.75" y="104.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempt_answer_options" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.practice_exam_attempt_answers" relationship="REFERENCES">
+      <point x="0.0" y="-43.5" />
+      <point x="0.0" y="128.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.user_activity_days" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="0.0" y="-200.0" />
+      <point x="1799.0" y="84.0" />
+      <point x="1539.0" y="84.0" />
+      <point x="0.0" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.roadmap_items" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.roadmaps" relationship="REFERENCES">
+      <point x="-44.75" y="-92.0" />
+      <point x="74.25" y="1664.0" />
+      <point x="239.0" y="1664.0" />
+      <point x="0.0" y="68.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_invites" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.users" relationship="REFERENCES">
+      <point x="150.0" y="-176.0" />
+      <point x="1609.0" y="924.0" />
+      <point x="1499.0" y="924.0" />
+      <point x="1499.0" y="64.0" />
+      <point x="1498.6" y="64.0" />
+      <point x="-40.400000000000006" y="80.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organization_join_requests" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.organizations" relationship="REFERENCES">
+      <point x="-129.33333333333331" y="-104.0" />
+      <point x="2749.6666666666665" y="944.0" />
+      <point x="1319.0" y="944.0" />
+      <point x="0.0" y="140.0" />
+    </edge>
+    <edge source="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.quiz_questions" target="2693aedf-ff06-4aad-b65a-87bc4d1c3182.TABLE:lms.questions" relationship="REFERENCES">
+      <point x="42.25" y="-56.0" />
+      <point x="501.25" y="2444.0" />
+      <point x="1019.0" y="2444.0" />
+      <point x="1019.0" y="2304.0" />
+      <point x="1010.25" y="2304.0" />
+      <point x="-68.75" y="104.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Compact" zoom="0.19995551601423486" showDependencies="false" x="1324.5" y="2038.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+    <Category>Virtual foreign keys</Category>
+  </Categories>
+</Diagram>
+

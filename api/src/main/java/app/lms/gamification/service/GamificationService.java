@@ -22,7 +22,6 @@ public class GamificationService {
     private final XPEventRepository xpEventRepository;
     private final UserProgressRepository userProgressRepository;
     private final LevelRepository levelRepository;
-    private final GamificationAccessService gamificationAccessService;
     private final UserActivityService userActivityService;
 
     @Transactional
@@ -35,15 +34,21 @@ public class GamificationService {
 
         validateAmount(amount);
 
-        if (xpEventRepository.existsByUserIdAndTypeAndReferenceId(
-                user.getId(),
-                type,
-                referenceId
-        )) {
+        XPEvent existingEvent =
+                xpEventRepository
+                        .findByUserIdAndTypeAndReferenceId(
+                                user.getId(),
+                                type,
+                                referenceId
+                        )
+                        .orElse(null);
+
+        if (existingEvent != null) {
             return buildNoAwardResponse(
                     user,
                     type,
-                    referenceId
+                    referenceId,
+                    existingEvent
             );
         }
 
@@ -189,7 +194,8 @@ public class GamificationService {
     private GamificationAwardResponse buildNoAwardResponse(
             User user,
             XPEventType type,
-            Long referenceId
+            Long referenceId,
+            XPEvent existingEvent
     ) {
 
         UserProgress progress =
@@ -224,7 +230,9 @@ public class GamificationService {
                                 : null
                 )
                 .leveledUp(false)
-                .baseEntity(null)
+                .baseEntity(
+                        BaseEntityResponse.from(existingEvent)
+                )
                 .build();
     }
 
@@ -300,11 +308,6 @@ public class GamificationService {
                 .xpIntoLevel(xpIntoLevel)
                 .xpToNextLevel(xpToNextLevel)
                 .progressPercentage(progressPercentage)
-                .unlocks(
-                        gamificationAccessService.getUnlocks(
-                                totalXp
-                        )
-                )
                 .baseEntity(
                         BaseEntityResponse.from(progress)
                 )
