@@ -193,6 +193,7 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
     textDirection: "auto",
+    content: content,
     contentType: "markdown",
     autofocus: true,
     editorProps: {
@@ -248,17 +249,6 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
       }
     }
   }, [isLoading, error])
-
-  useEffect(() => {
-    if (!editor || content === undefined) return
-    const timer = setTimeout(() => {
-      editor.commands.setContent(content, {
-        emitUpdate: false,
-        contentType: "markdown",
-      })
-    }, 0)
-    return () => clearTimeout(timer)
-  }, [editor, content])
 
   return (
     <div className="editor-wrapper">
