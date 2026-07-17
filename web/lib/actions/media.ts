@@ -33,50 +33,50 @@ export async function uploadPostMediaAction(
 }
 
 export async function updatePostMediaAction(
+  slug: string,
   mediaId: number,
-  data: { name?: string; file?: File },
-  orgSlug: string
+  data: { name?: string; file?: File }
 ): Promise<{ error?: string; media?: PostMediaResponse }> {
   const media = await api.dashboard.postMedia.byId
-    .patch(mediaId, data.file, data.name)
+    .patch(slug, mediaId, data.file, data.name)
     .catch(() => null)
 
   if (!media) return { error: "حدث خطأ أثناء تحديث الملف" }
-  revalidatePath(`/${orgSlug}/media`)
+  revalidatePath(`/${slug}/media`)
   return { media }
 }
 
 export async function deletePostMediaAction(
-  mediaId: number,
-  orgSlug: string
+  slug: string,
+  mediaId: number
 ): Promise<{ error?: string }> {
   const deleted = await api.dashboard.postMedia.byId
-    .delete(mediaId)
+    .delete(slug, mediaId)
     .catch(() => null)
 
   if (deleted === null) return { error: "حدث خطأ أثناء حذف الملف" }
-  revalidatePath(`/${orgSlug}/media`)
+  revalidatePath(`/${slug}/media`)
   return {}
 }
 
 /* ───── Course media ───── */
 
 export async function fetchCourseMediaAction(
-  courseId: number,
+  orgSlug: string,
+  courseSlug: string,
   page: number,
   size: number
 ): Promise<PageCourseMediaResponse> {
-  return api.dashboard.media.byCourse.get(courseId, { page, size })
+  return api.dashboard.media.byCourse.get(orgSlug, courseSlug, { page, size })
 }
 
 export async function uploadCourseMediaAction(
-  courseId: number,
-  file: File,
   orgSlug: string,
-  courseSlug: string
+  courseSlug: string,
+  file: File
 ): Promise<{ error?: string; media?: CourseMediaResponse }> {
   const media = await api.dashboard.media.byCourse
-    .post(courseId, file)
+    .post(orgSlug, courseSlug, file)
     .catch(() => null)
 
   if (!media) return { error: "حدث خطأ أثناء رفع الملف" }
@@ -85,14 +85,13 @@ export async function uploadCourseMediaAction(
 }
 
 export async function updateCourseMediaAction(
-  courseId: number,
-  mediaId: number,
-  data: { name?: string; file?: File },
   orgSlug: string,
-  courseSlug: string
+  courseSlug: string,
+  mediaId: number,
+  data: { name?: string; file?: File }
 ): Promise<{ error?: string; media?: CourseMediaResponse }> {
   const media = await api.dashboard.media.byId
-    .patch(courseId, mediaId, data.file, data.name)
+    .patch(orgSlug, courseSlug, mediaId, data.file, data.name)
     .catch(() => null)
 
   if (!media) return { error: "حدث خطأ أثناء تحديث الملف" }
@@ -101,13 +100,12 @@ export async function updateCourseMediaAction(
 }
 
 export async function deleteCourseMediaAction(
-  courseId: number,
-  mediaId: number,
   orgSlug: string,
-  courseSlug: string
+  courseSlug: string,
+  mediaId: number
 ): Promise<{ error?: string }> {
   const deleted = await api.dashboard.media.byId
-    .delete(courseId, mediaId)
+    .delete(orgSlug, courseSlug, mediaId)
     .catch(() => null)
 
   if (deleted === null) return { error: "حدث خطأ أثناء حذف الملف" }

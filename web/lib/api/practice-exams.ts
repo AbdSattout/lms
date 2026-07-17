@@ -3,18 +3,18 @@ import "server-only"
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
-  CreatePracticeQuizRequest,
-  PracticeQuizResponse,
-  UpdatePracticeQuizQuestionsRequest,
+  CreatePracticeExamRequest,
+  PracticeExamResponse,
+  UpdatePracticeExamQuestionsRequest,
 } from "@/lib/api/types"
 
 export const create = defineApiRoute({
   post: (
     courseId: number,
-    request: CreatePracticeQuizRequest,
+    request: CreatePracticeExamRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<PracticeQuizResponse>(`/dashboard/courses/${courseId}/practice-quizzes`, {
+    backend<PracticeExamResponse>(`/dashboard/courses/${courseId}/practice-exams`, {
       method: "POST",
       body: request,
       ...options,
@@ -23,16 +23,16 @@ export const create = defineApiRoute({
 
 export const list = defineApiRoute({
   get: (courseId: number, options?: BackendFetchOptions) =>
-    backend<PracticeQuizResponse[]>(`/dashboard/courses/${courseId}/practice-quizzes`, {
+    backend<PracticeExamResponse[]>(`/dashboard/courses/${courseId}/practice-exams`, {
       method: "GET",
       ...options,
     }),
 })
 
 export const byId = defineApiRoute({
-  get: (courseId: number, practiceQuizId: number, options?: BackendFetchOptions) =>
-    backend<PracticeQuizResponse>(
-      `/dashboard/courses/${courseId}/practice-quizzes/${practiceQuizId}`,
+  get: (courseId: number, practiceExamId: number, options?: BackendFetchOptions) =>
+    backend<PracticeExamResponse>(
+      `/dashboard/courses/${courseId}/practice-exams/${practiceExamId}`,
       {
         method: "GET",
         ...options,
@@ -43,12 +43,12 @@ export const byId = defineApiRoute({
 export const updateQuestions = defineApiRoute({
   patch: (
     courseId: number,
-    practiceQuizId: number,
-    request: UpdatePracticeQuizQuestionsRequest,
+    practiceExamId: number,
+    request: UpdatePracticeExamQuestionsRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<PracticeQuizResponse>(
-      `/dashboard/courses/${courseId}/practice-quizzes/${practiceQuizId}/questions`,
+    backend<PracticeExamResponse>(
+      `/dashboard/courses/${courseId}/practice-exams/${practiceExamId}/questions`,
       {
         method: "PATCH",
         body: request,
@@ -57,10 +57,10 @@ export const updateQuestions = defineApiRoute({
     ),
 })
 
-export const deleteQuiz = defineApiRoute({
-  delete: (courseId: number, practiceQuizId: number, options?: BackendFetchOptions) =>
+export const deleteExam = defineApiRoute({
+  delete: (courseId: number, practiceExamId: number, options?: BackendFetchOptions) =>
     backend<void>(
-      `/dashboard/courses/${courseId}/practice-quizzes/${practiceQuizId}`,
+      `/dashboard/courses/${courseId}/practice-exams/${practiceExamId}`,
       {
         method: "DELETE",
         ...options,
