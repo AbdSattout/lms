@@ -1,19 +1,19 @@
 "use client"
 
-import { useState, useCallback, forwardRef } from "react"
-import type { Editor } from "@tiptap/react"
-import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
-import { Button } from "@/components/tiptap-ui-primitive/button"
-import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon"
+import type { MediaItemShape } from "@/components/cards/media-card"
 import { MediaLibrary } from "@/components/media-library"
+import { ImagePlusIcon } from "@/components/tiptap-icons/image-plus-icon"
+import { Button } from "@/components/tiptap-ui-primitive/button"
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import type { MediaItemShape } from "@/components/cards/media-card"
+import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 import type { CourseResponse } from "@/lib/api/types"
+import type { Editor } from "@tiptap/react"
+import { forwardRef, useCallback, useState } from "react"
 import { useMedia } from "./use-media"
 
 export interface MediaButtonProps {
@@ -33,7 +33,7 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
       orgSlug,
       course,
     },
-    ref,
+    ref
   ) => {
     const { editor } = useTiptapEditor(providedEditor)
     const { isVisible, canInsert, handleMediaInsert } = useMedia({
@@ -50,7 +50,7 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
         handleMediaInsert(item.id)
         setOpen(false)
       },
-      [handleMediaInsert],
+      [handleMediaInsert]
     )
 
     if (!isVisible || !editor) return null
@@ -65,8 +65,8 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
           tabIndex={-1}
           disabled={!canInsert}
           data-disabled={!canInsert}
-          aria-label="Add media"
-          tooltip="Add media"
+          aria-label="إضافة وسائط"
+          tooltip="إضافة وسائط"
           onClick={() => setOpen(true)}
         >
           <ImagePlusIcon className="tiptap-button-icon" />
@@ -92,7 +92,7 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
         </Dialog>
       </>
     )
-  },
+  }
 )
 
 MediaButton.displayName = "MediaButton"
