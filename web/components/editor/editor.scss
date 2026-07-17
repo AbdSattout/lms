@@ -41,12 +41,15 @@
 }
 
 .tiptap-mathematics-render {
-  cursor: pointer;
   border-radius: 4px;
   padding: 0 2px;
   transition: background-color 0.15s ease;
   direction: ltr;
   unicode-bidi: isolate;
+}
+
+.ProseMirror[contenteditable="true"] .tiptap-mathematics-render {
+  cursor: pointer;
 
   &:hover {
     background-color: var(--color-accent);
@@ -72,4 +75,22 @@
 
 .block-math-inner {
   display: inline-block;
+}
+
+.tiptap-renderer-content {
+  .ProseMirror > :first-child {
+    margin-top: 0;
+  }
+
+  .ProseMirror > *:last-child:has(> br.ProseMirror-trailingBreak:only-child) {
+    display: none;
+  }
+
+  .ProseMirror > :nth-last-child(2) {
+    margin-bottom: 0;
+  }
+
+  [data-type="media"] {
+    pointer-events: none;
+  }
 }
