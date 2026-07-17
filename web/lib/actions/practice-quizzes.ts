@@ -7,6 +7,7 @@ import {
   updatePracticeQuizQuestionsSchema,
 } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 export async function createPracticeQuizAction(
   courseId: number,
@@ -64,5 +65,5 @@ export async function deletePracticeQuizAction(
   if (deleted === null) return { error: "حدث خطأ أثناء حذف الاختبار" }
 
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/quizzes`)
-  return {}
+  redirect(`/${orgSlug}/courses/${courseSlug}/quizzes`)
 }
