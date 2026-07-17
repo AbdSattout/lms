@@ -462,5 +462,27 @@ public class DashboardOrganizationService {
                 .map(organizationMapper::toMemberResponse);
 
     }
+    public Page<OrganizationMemberResponse> getMembersByRole(
+            String slug,
+            Role role,
+            Pageable pageable,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        return organizationMemberRepository
+                .findByOrganizationIdAndRole(
+                        organization.getId(),
+                        role,
+                        pageable
+                )
+                .map(organizationMapper::toMemberResponse);
+    }
 
 }
