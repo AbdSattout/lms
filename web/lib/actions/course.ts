@@ -264,6 +264,7 @@ export async function createQuestionAction(
   if (!question) return { error: "حدث خطأ أثناء إنشاء السؤال" }
 
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
   return { question }
 }
 
@@ -290,6 +291,7 @@ export async function updateQuestionAction(
   if (!question) return { error: "حدث خطأ أثناء تحديث السؤال" }
 
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
   return { question }
 }
 
@@ -301,6 +303,7 @@ export async function deleteQuestionAction(
   try {
     await api.dashboard.questions.byId.delete(questionId)
     revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+    revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
     return {}
   } catch (error) {
     if (error instanceof Error && error.message.includes("(409)")) {

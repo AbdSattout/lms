@@ -29,7 +29,6 @@ import {
 } from "@/lib/actions/practice-quizzes"
 import type { PracticeQuizResponse, QuestionResponse } from "@/lib/api/types"
 import { Plus, Trash2 } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -65,7 +64,6 @@ export function QuizDetailClient({
 
   // Delete quiz
   const [deletingQuiz, setDeletingQuiz] = useState(false)
-  const router = useRouter()
 
   async function handleDeleteQuiz() {
     setDeletingQuiz(true)
@@ -78,10 +76,7 @@ export function QuizDetailClient({
     if (result.error) {
       toast.error(result.error)
       setDeletingQuiz(false)
-      return
     }
-    toast.success("تم حذف الاختبار بنجاح")
-    router.push(`/${orgSlug}/courses/${courseSlug}/quizzes`)
   }
 
   const quizQuestionIds = new Set(quiz.questions.map((q) => q.id))
@@ -161,10 +156,7 @@ export function QuizDetailClient({
             {quiz.questions.length} أسئلة
           </p>
         </div>
-        <Button
-          variant="destructive"
-          onClick={() => setDeletingQuiz(true)}
-        >
+        <Button variant="destructive" onClick={() => setDeletingQuiz(true)}>
           <Trash2 />
           حذف الاختبار
         </Button>
@@ -293,10 +285,7 @@ export function QuizDetailClient({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction
-              variant="destructive"
-              onClick={handleDeleteQuiz}
-            >
+            <AlertDialogAction variant="destructive" onClick={handleDeleteQuiz}>
               حذف
             </AlertDialogAction>
           </AlertDialogFooter>
