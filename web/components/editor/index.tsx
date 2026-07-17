@@ -36,7 +36,10 @@ import {
   MathButton,
   MathContent,
   MathPopover,
+  canSetMath,
+  isMathActive,
 } from "@/components/tiptap-ui/math-popover"
+import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 import { MediaButton } from "@/components/tiptap-ui/media-button"
 
 import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
@@ -73,6 +76,10 @@ const MainToolbarContent = ({
   orgSlug?: string
   course?: import("@/lib/api/types").CourseResponse
 }) => {
+  const { editor } = useTiptapEditor()
+  const mathIsActive = isMathActive(editor)
+  const canSet = canSetMath(editor)
+
   return (
     <>
       <Spacer />
@@ -112,7 +119,16 @@ const MainToolbarContent = ({
         <MarkButton type="code" />
         <MarkButton type="underline" />
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
-        {!isMobile ? <MathPopover /> : <MathButton onClick={onMathClick} />}
+        {!isMobile ? (
+          <MathPopover />
+        ) : (
+          <MathButton
+            onClick={onMathClick}
+            data-active-state={mathIsActive ? "on" : "off"}
+            aria-pressed={mathIsActive}
+            disabled={!canSet}
+          />
+        )}
       </ToolbarGroup>
 
       <Spacer />
