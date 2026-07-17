@@ -95,6 +95,24 @@ public class DashboardCourseMediaController {
                 .build();
     }
 
+    @GetMapping("/{mediaId}")
+    public ResponseEntity<CourseMediaResponse> getById(
+            @PathVariable String organizationSlug,
+            @PathVariable String courseSlug,
+            @PathVariable Long mediaId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                courseMediaService.getById(
+                        organizationSlug,
+                        courseSlug,
+                        mediaId,
+                        principal.user()
+                )
+        );
+    }
+
     @GetMapping
     public ResponseEntity<Page<CourseMediaResponse>> list(
             @PathVariable String organizationSlug,
