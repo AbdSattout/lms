@@ -46,6 +46,13 @@ export async function updatePostMediaAction(
   return { media }
 }
 
+export async function getPostMediaByIdAction(
+  slug: string,
+  mediaId: number
+): Promise<PostMediaResponse | null> {
+  return api.dashboard.postMedia.byId.get(slug, mediaId).catch(() => null)
+}
+
 export async function deletePostMediaAction(
   slug: string,
   mediaId: number
@@ -97,6 +104,16 @@ export async function updateCourseMediaAction(
   if (!media) return { error: "حدث خطأ أثناء تحديث الملف" }
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/media`)
   return { media }
+}
+
+export async function getCourseMediaByIdAction(
+  orgSlug: string,
+  courseSlug: string,
+  mediaId: number
+): Promise<CourseMediaResponse | null> {
+  return api.dashboard.media.byId
+    .get(orgSlug, courseSlug, mediaId)
+    .catch(() => null)
 }
 
 export async function deleteCourseMediaAction(

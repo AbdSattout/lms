@@ -24,6 +24,8 @@ import "@/components/tiptap-node/heading-node/heading-node.scss"
 import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension"
 import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss"
 import "@/components/tiptap-node/list-node/list-node.scss"
+import { MediaNode } from "@/components/tiptap-node/media-node"
+import "@/components/tiptap-node/media-node/media-node.scss"
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button"
@@ -36,6 +38,7 @@ import {
 } from "@/components/tiptap-ui/link-popover"
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
+import { MediaButton } from "@/components/tiptap-ui/media-button"
 
 import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
@@ -55,6 +58,8 @@ const MainToolbarContent = ({
   isAiLoading,
   aiError,
   onClearAiError,
+  orgSlug,
+  course,
 }: {
   onLinkClick: () => void
   isMobile: boolean
@@ -62,6 +67,8 @@ const MainToolbarContent = ({
   isAiLoading?: boolean
   aiError?: string | null
   onClearAiError?: () => void
+  orgSlug?: string
+  course?: import("@/lib/api/types").CourseResponse
 }) => {
   return (
     <>
@@ -101,6 +108,7 @@ const MainToolbarContent = ({
         <MarkButton type="code" />
         <MarkButton type="underline" />
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
+        <MediaButton orgSlug={orgSlug} course={course} />
       </ToolbarGroup>
 
       <Spacer />
@@ -134,9 +142,11 @@ const MobileToolbarContent = ({
 interface EditorProps {
   onChange?: (markdown: string) => void
   content?: string
+  orgSlug?: string
+  course?: import("@/lib/api/types").CourseResponse
 }
 
-export function Editor({ onChange, content }: EditorProps) {
+export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
   const isMobile = useIsBreakpoint()
   const [showLink, setShowLink] = useState(false)
   const mobileView = isMobile ? (showLink ? "link" : "main") : "main"
@@ -183,6 +193,7 @@ export function Editor({ onChange, content }: EditorProps) {
       RtlDirection,
       Typography,
       Selection,
+      MediaNode,
       Markdown,
     ],
     onUpdate: ({ editor }) => {
@@ -228,6 +239,8 @@ export function Editor({ onChange, content }: EditorProps) {
               isAiLoading={isLoading}
               aiError={error}
               onClearAiError={clearError}
+              orgSlug={orgSlug}
+              course={course}
             />
           ) : (
             <MobileToolbarContent
