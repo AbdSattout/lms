@@ -129,7 +129,8 @@ public class MobileAiRandomQuizMapper {
                                         question.getOptions(),
                                         question.getSelectedAnswerIndex(),
                                         question.getCorrectAnswerIndex(),
-                                        question.getCorrect()
+                                        question.getCorrect(),
+                                        BaseEntityResponse.from(question)
                                 )
                         )
                         .toList(),

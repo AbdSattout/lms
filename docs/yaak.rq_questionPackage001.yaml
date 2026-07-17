@@ -1,0 +1,35 @@
+type: http_request
+model: http_request
+id: rq_questionPackage001
+createdAt: 2026-07-16T00:00:00
+updatedAt: 2026-07-16T12:25:30.678286200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_GkMNXFRG5u
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "content": "What is Spring Boot?",
+      "options": [
+        "A Java framework for building applications",
+        "A database engine",
+        "A frontend library",
+        "An operating system"
+      ],
+      "correctAnswerIndex": 0,
+      "difficulty": "EASY"
+    }
+bodyType: application/json
+description: Create a dashboard question for a course. Requires course admin/owner access.
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: null
+method: POST
+name: Create Course Question
+sortPriority: 1000.0
+url: https://lms.koyeb.app/dashboard/courses/3/questions
+urlParameters: []

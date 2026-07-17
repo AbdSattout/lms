@@ -1,6 +1,7 @@
 package app.lms.quiz.service;
 
 import app.lms.block.repository.BlockRepository;
+import app.lms.certificate.service.CertificateService;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.quiz.dto.QuizGradingResult;
@@ -10,6 +11,7 @@ import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
+import app.lms.gamification.service.UserActivityService;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.quiz.dto.*;
 import app.lms.quiz.mapper.QuizMapper;
@@ -41,6 +43,8 @@ public class MobileFinalQuizService {
     private final QuizMapper quizMapper;
     private final QuizAccessService quizAccessService;
     private final GamificationService gamificationService;
+    private final UserActivityService userActivityService;
+    private final CertificateService certificateService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -164,6 +168,11 @@ public class MobileFinalQuizService {
                 gradingResult.score()
         );
 
+        userActivityService.recordCorrectQuestions(
+                user,
+                gradingResult.score()
+        );
+
         finalQuizAttemptRepository.save(
                 attempt
         );
@@ -178,18 +187,34 @@ public class MobileFinalQuizService {
             );
         }
 
+        certificateService.issueCertificate(
+
+                quiz.getCourse(),
+                user,
+                attempt.getScore(),
+                attempt.getTotal()
+        );
+
         List<GamificationAwardResponse> rewards =
                 new ArrayList<>();
 
-        addAwardedReward(
-                rewards,
-                gamificationService.awardXp(
-                        user,
-                        XPEventType.FINAL_QUIZ_COMPLETE,
-                        quiz.getId(),
-                        FINAL_QUIZ_COMPLETE_XP
-                )
-        );
+        int earnedFinalQuizXp =
+                calculateEarnedXp(
+                        FINAL_QUIZ_COMPLETE_XP,
+                        gradingResult
+                );
+
+        if (earnedFinalQuizXp > 0) {
+            addAwardedReward(
+                    rewards,
+                    gamificationService.awardXp(
+                            user,
+                            XPEventType.FINAL_QUIZ_COMPLETE,
+                            quiz.getId(),
+                            earnedFinalQuizXp
+                    )
+            );
+        }
 
         addAwardedReward(
                 rewards,
@@ -215,6 +240,18 @@ public class MobileFinalQuizService {
         if (reward.awarded()) {
             rewards.add(reward);
         }
+    }
+
+    private int calculateEarnedXp(
+            int maxXp,
+            QuizGradingResult gradingResult
+    ) {
+
+        if (gradingResult.total() == null || gradingResult.total() <= 0) {
+            return 0;
+        }
+
+        return maxXp * gradingResult.score() / gradingResult.total();
     }
 
     private void validateFinalQuizUnlocked(

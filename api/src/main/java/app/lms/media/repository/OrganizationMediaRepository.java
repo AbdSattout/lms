@@ -6,11 +6,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface OrganizationMediaRepository extends JpaRepository<OrganizationMedia, Long> {
 
     Page<OrganizationMedia> findAllByOrganizationIdOrderByCreatedAtDesc(
             Long organizationId,
             Pageable pageable
+    );
+
+    List<OrganizationMedia> findAllByOrganizationId(
+            Long organizationId
     );
 
     boolean existsByOrganizationIdAndNameIgnoreCase(
@@ -34,6 +40,10 @@ public interface OrganizationMediaRepository extends JpaRepository<OrganizationM
             where media.organization.id = :organizationId
             """)
     long sumSizeBytesByOrganizationId(
+            Long organizationId
+    );
+
+    void deleteByOrganizationId(
             Long organizationId
     );
 }

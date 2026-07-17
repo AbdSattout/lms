@@ -14,11 +14,7 @@ public record PostResponse(
 
         Long organizationId,
 
-        long courseId,
-
-        Long likesCount,
-
-        Long commentsCount,
+        Long courseId,
 
         BaseEntityResponse baseEntity
 ) {

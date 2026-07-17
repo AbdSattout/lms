@@ -24,6 +24,18 @@ public interface BlockProgressRepository
             Long courseId
     );
 
+    @Query("""
+            select bp.block.id
+            from BlockProgress bp
+            where bp.user.id = :userId
+            and bp.block.lesson.chapter.course.id = :courseId
+            and bp.completed = true
+            """)
+    List<Long> findCompletedBlockIdsByUserIdAndCourseId(
+            Long userId,
+            Long courseId
+    );
+
     long countByUserIdAndBlockLessonIdAndCompletedTrue(
             Long userId,
             Long lessonId

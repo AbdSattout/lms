@@ -105,7 +105,7 @@ Block "1" -- "*" BlockProgress
 
 User "1" -- "*" XPEvent
 
-CourseEnrollment "*" --> "0..1" Lesson : lastAccessedLesson
-CourseEnrollment "*" --> "0..1" Block : lastAccessedBlock
+CourseEnrollment "*" --> "0..1" Lesson : currentLesson
+CourseEnrollment "*" --> "0..1" Block : currentBlock
 
 @enduml

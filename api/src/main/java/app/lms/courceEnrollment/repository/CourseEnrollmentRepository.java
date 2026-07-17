@@ -29,6 +29,18 @@ public interface CourseEnrollmentRepository
             Pageable pageable
     );
 
+    List<CourseEnrollment> findAllByUserIdAndStatusAndCourseIdIn(
+            Long userId,
+            EnrollmentStatus status,
+            List<Long> courseIds
+    );
+
+    List<CourseEnrollment> findAllByUserIdAndStatusInAndCourseIdIn(
+            Long userId,
+            List<EnrollmentStatus> statuses,
+            List<Long> courseIds
+    );
+
     List<CourseEnrollment>
     findAllByCourseId(Long courseId);
     boolean existsByCourseIdAndUserId(
