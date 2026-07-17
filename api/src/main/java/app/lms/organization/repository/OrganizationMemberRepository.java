@@ -36,10 +36,10 @@ where m.organization.id = :organizationId
     List<OrganizationMember>
     findAllByUserId(Long userId);
 
-    List<OrganizationMember>
-    findAllByOrganizationIdAndRole(
+    Page<OrganizationMember> findByOrganizationIdAndRole(
             Long organizationId,
-            Role role
+            Role role,
+            Pageable pageable
     );
     void deleteByOrganizationId(Long organizationId);
     List<OrganizationMember>
