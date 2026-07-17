@@ -188,6 +188,31 @@ public class DashboardCourseMediaService {
         }
     }
 
+    public CourseMediaResponse getById(
+            String organizationSlug,
+            String courseSlug,
+            Long mediaId,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(
+                                organizationSlug
+                        );
+
+        CourseMedia media =
+                courseMediaAccessService
+                        .getEditableMedia(
+                                organization.getId(),
+                                courseSlug,
+                                mediaId,
+                                user
+                        );
+
+        return courseMediaMapper.toResponse(media);
+    }
+
     public Page<CourseMediaResponse> list(
             String organizationSlug,
             String courseSlug,
