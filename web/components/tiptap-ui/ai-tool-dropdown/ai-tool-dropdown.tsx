@@ -283,8 +283,8 @@ export function AiToolsDropdown({
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild>
+    <DropdownMenu open={open} onOpenChange={(newOpen) => !isLoading && setOpen(newOpen)}>
+      <DropdownMenuTrigger asChild disabled={isLoading}>
         <Button
           ref={triggerRef}
           variant="ghost"
