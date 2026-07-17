@@ -39,3 +39,37 @@
     padding: 1rem 1.5rem 20vh;
   }
 }
+
+.tiptap-mathematics-render {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 0 2px;
+  transition: background-color 0.15s ease;
+  direction: ltr;
+  unicode-bidi: isolate;
+
+  &:hover {
+    background-color: var(--color-accent);
+  }
+}
+
+.tiptap-mathematics-render--editable {
+  outline: 1px dashed var(--color-border);
+  outline-offset: 2px;
+}
+
+.tiptap-mathematics-render[data-type="inline-math"] {
+  margin-left: 0.15em;
+  margin-right: 0.15em;
+}
+
+.tiptap-mathematics-render[data-type="block-math"] {
+  display: block;
+  text-align: center;
+  padding: 0.5rem 0;
+  margin: 0.5rem 0;
+}
+
+.block-math-inner {
+  display: inline-block;
+}
