@@ -38,6 +38,7 @@ public class MobileRoadmapService {
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final OrganizationMemberRepository organizationMemberRepository;
     private final RoadmapMapper roadmapMapper;
+    private final RoadmapFollowProgressService roadmapFollowProgressService;
 
     @Transactional
     public Page<RoadmapResponse> listAll(
@@ -150,6 +151,11 @@ public class MobileRoadmapService {
                         .build()
         );
 
+        roadmapFollowProgressService.refresh(
+                roadmap,
+                user
+        );
+
         return roadmapResponseFor(
                 roadmap,
                 user
@@ -225,16 +231,14 @@ public class MobileRoadmapService {
                 enrollmentsByCourseId,
                 followStatus(
                         roadmap,
-                        user,
-                        enrollmentsByCourseId
+                        user
                 )
         );
     }
 
     private RoadmapFollowStatus followStatus(
             Roadmap roadmap,
-            User user,
-            Map<Long, CourseEnrollment> enrollmentsByCourseId
+            User user
     ) {
 
         RoadmapFollower follower =
@@ -249,47 +253,13 @@ public class MobileRoadmapService {
             return RoadmapFollowStatus.NOT_FOLLOWING;
         }
 
-        RoadmapFollowStatus status =
-                roadmapCompleted(
-                        roadmap,
-                        enrollmentsByCourseId
-                )
-                        ? RoadmapFollowStatus.COMPLETED
-                        : RoadmapFollowStatus.ACTIVE;
-
-        if (follower.getStatus() != status) {
-            follower.setStatus(status);
+        if (follower.getStatus() == null) {
+            follower.setStatus(
+                    RoadmapFollowStatus.ACTIVE
+            );
         }
 
-        return status;
-    }
-
-    private boolean roadmapCompleted(
-            Roadmap roadmap,
-            Map<Long, CourseEnrollment> enrollmentsByCourseId
-    ) {
-
-        List<Long> publishedCourseIds =
-                publishedCourseIds(
-                        roadmap
-                );
-
-        if (publishedCourseIds.isEmpty()) {
-            return false;
-        }
-
-        return publishedCourseIds
-                .stream()
-                .allMatch(courseId -> {
-                    CourseEnrollment enrollment =
-                            enrollmentsByCourseId.get(
-                                    courseId
-                            );
-
-                    return enrollment != null
-                            && enrollment.getStatus()
-                            == EnrollmentStatus.COMPLETED;
-                });
+        return follower.getStatus();
     }
 
     private List<Long> publishedCourseIds(

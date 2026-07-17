@@ -8,6 +8,7 @@ import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.courceEnrollment.service.CourseEnrollmentService;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
@@ -24,7 +25,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +45,7 @@ public class MobileFinalQuizService {
     private final GamificationService gamificationService;
     private final UserActivityService userActivityService;
     private final CertificateService certificateService;
+    private final CourseEnrollmentService courseEnrollmentService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -181,11 +182,7 @@ public class MobileFinalQuizService {
                 100
         );
 
-        if (enrollment.getCompletedAt() == null) {
-            enrollment.setCompletedAt(
-                    LocalDateTime.now()
-            );
-        }
+        courseEnrollmentService.completeEnrollment(enrollment);
 
         certificateService.issueCertificate(
 
