@@ -23,9 +23,13 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { updatePracticeQuizQuestionsAction } from "@/lib/actions/practice-quizzes"
+import {
+  deletePracticeQuizAction,
+  updatePracticeQuizQuestionsAction,
+} from "@/lib/actions/practice-quizzes"
 import type { PracticeQuizResponse, QuestionResponse } from "@/lib/api/types"
 import { Plus, Trash2 } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -58,6 +62,27 @@ export function QuizDetailClient({
   // Remove confirmation
   const [removingQuestion, setRemovingQuestion] =
     useState<QuestionResponse | null>(null)
+
+  // Delete quiz
+  const [deletingQuiz, setDeletingQuiz] = useState(false)
+  const router = useRouter()
+
+  async function handleDeleteQuiz() {
+    setDeletingQuiz(true)
+    const result = await deletePracticeQuizAction(
+      courseId,
+      quiz.id,
+      orgSlug,
+      courseSlug
+    )
+    if (result.error) {
+      toast.error(result.error)
+      setDeletingQuiz(false)
+      return
+    }
+    toast.success("تم حذف الاختبار بنجاح")
+    router.push(`/${orgSlug}/courses/${courseSlug}/quizzes`)
+  }
 
   const quizQuestionIds = new Set(quiz.questions.map((q) => q.id))
   const availableBankQuestions = bankQuestions.filter(
@@ -136,6 +161,13 @@ export function QuizDetailClient({
             {quiz.questions.length} أسئلة
           </p>
         </div>
+        <Button
+          variant="destructive"
+          onClick={() => setDeletingQuiz(true)}
+        >
+          <Trash2 />
+          حذف الاختبار
+        </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -241,6 +273,31 @@ export function QuizDetailClient({
             <AlertDialogCancel>إلغاء</AlertDialogCancel>
             <AlertDialogAction onClick={handleRemoveFromQuiz}>
               إزالة
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={deletingQuiz}
+        onOpenChange={(open) => {
+          if (!open) setDeletingQuiz(false)
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>حذف الاختبار</AlertDialogTitle>
+            <AlertDialogDescription>
+              هل أنت متأكد من حذف هذا الاختبار؟ لا يمكن التراجع عن هذا الإجراء.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>إلغاء</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={handleDeleteQuiz}
+            >
+              حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
