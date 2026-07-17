@@ -1,10 +1,10 @@
 // hooks/use-ai-tools.ts
 "use client"
 
-import { useState, useCallback } from "react"
-import type { Editor } from "@tiptap/react"
-import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 import { transformTextAction } from "@/lib/actions/ai-actions"
+import type { AiTextAction, AiTextTone } from "@/lib/api/types"
+import type { Editor } from "@tiptap/react"
+import { useCallback, useState } from "react"
 
 interface UseAiToolsProps {
   editor: Editor | null
@@ -44,20 +44,35 @@ export function useAiTools({ editor }: UseAiToolsProps) {
 
         if (response.result) {
           if (empty) {
-            // Replace entire content if nothing is selected, preserving markdown format
             editor.commands.setContent(response.result, {
               contentType: "markdown",
             })
           } else {
-            // Replace only the selected text, preserving markdown format
-            editor
-              .chain()
-              .focus()
-              .deleteSelection()
-              .insertContent(response.result, {
-                contentType: "markdown",
-              })
-              .run()
+            const parsed = editor.storage.markdown.manager.parse(
+              response.result
+            )
+            const inlineContent = parsed.content?.[0]
+            const isSinglePara =
+              parsed.content?.length === 1 &&
+              inlineContent?.type === "paragraph"
+
+            if (isSinglePara && inlineContent?.content?.length) {
+              editor
+                .chain()
+                .focus()
+                .deleteSelection()
+                .insertContent(inlineContent.content)
+                .run()
+            } else {
+              editor
+                .chain()
+                .focus()
+                .deleteSelection()
+                .insertContent(response.result, {
+                  contentType: "markdown",
+                })
+                .run()
+            }
           }
         } else {
           setError("حدث خطأ أثناء معالجة النص.")
