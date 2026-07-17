@@ -8,6 +8,7 @@ import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
 
 import { CornerDownLeftIcon } from "@/components/tiptap-icons/corner-down-left-icon"
+import { MathBlockIcon } from "@/components/tiptap-icons/math-block-icon"
 import { SigmaIcon } from "@/components/tiptap-icons/sigma-icon"
 
 import type { UseMathPopoverConfig } from "@/components/tiptap-ui/math-popover"
@@ -19,6 +20,7 @@ import {
 import type { ButtonProps } from "@/components/tiptap-ui-primitive/button"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { ButtonGroup } from "@/components/tiptap-ui-primitive/button-group"
+import { Separator } from "@/components/tiptap-ui-primitive/separator"
 import {
   Card,
   CardBody,
@@ -34,6 +36,7 @@ import {
 import "./math-popover.scss"
 
 export interface MathMainProps {
+  toggleMode: () => void
   latex: string
   setLatex: React.Dispatch<React.SetStateAction<string | null>>
   insertMath: () => void
@@ -66,11 +69,12 @@ export const MathButton = forwardRef<HTMLButtonElement, ButtonProps>(
 
 MathButton.displayName = "MathButton"
 
-const MathMain: React.FC<{
-  latex: string
-  setLatex: React.Dispatch<React.SetStateAction<string | null>>
-  insertMath: () => void
-}> = ({ latex, setLatex, insertMath }) => {
+const MathMain: React.FC<MathMainProps> = ({
+  toggleMode,
+  latex,
+  setLatex,
+  insertMath,
+}) => {
   const isMobile = useIsBreakpoint()
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -117,6 +121,20 @@ const MathMain: React.FC<{
               <CornerDownLeftIcon className="tiptap-button-icon" />
             </Button>
           </ButtonGroup>
+
+          <Separator />
+
+          <ButtonGroup>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={toggleMode}
+              title="تبديل بين السطر والكتلة"
+              aria-label="تبديل بين السطر والكتلة"
+            >
+              <MathBlockIcon className="tiptap-button-icon" />
+            </Button>
+          </ButtonGroup>
         </CardItemGroup>
       </CardBody>
     </Card>
@@ -126,8 +144,15 @@ const MathMain: React.FC<{
 export const MathContent: React.FC<{
   editor?: Editor | null
 }> = ({ editor }) => {
-  const { latex, setLatex, insertMath } = useMathPopover({ editor })
-  return <MathMain latex={latex} setLatex={setLatex} insertMath={insertMath} />
+  const { toggleMode, latex, setLatex, insertMath } = useMathPopover({ editor })
+  return (
+    <MathMain
+      toggleMode={toggleMode}
+      latex={latex}
+      setLatex={setLatex}
+      insertMath={insertMath}
+    />
+  )
 }
 
 export const MathPopover = forwardRef<HTMLButtonElement, MathPopoverProps>(
@@ -150,6 +175,7 @@ export const MathPopover = forwardRef<HTMLButtonElement, MathPopoverProps>(
       isVisible,
       canSet,
       isActive,
+      toggleMode,
       latex,
       setLatex,
       insertMath,
@@ -211,6 +237,7 @@ export const MathPopover = forwardRef<HTMLButtonElement, MathPopoverProps>(
 
         <PopoverContent collisionPadding={4}>
           <MathMain
+            toggleMode={toggleMode}
             latex={latex}
             setLatex={setLatex}
             insertMath={handleInsertMath}
