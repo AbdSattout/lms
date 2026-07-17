@@ -41,6 +41,11 @@ export const AI_ACTIONS: AiActionOption[] = [
     requiresTone: true,
   },
   {
+    value: "FORMAT_EQUATION",
+    label: "كتابة معادلة",
+    description: "تحويل النص إلى معادلة رياضية أو فيزيائية",
+  },
+  {
     value: "WRITE",
     label: "توليد نص",
     description: "إنشاء محتوى نصي جديد بالكامل",

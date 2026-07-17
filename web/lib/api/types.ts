@@ -248,6 +248,7 @@ export type AiTextAction =
   | "REWRITE"
   | "SUMMARIZE"
   | "EXPAND"
+  | "FORMAT_EQUATION"
   | "CHANGE_TONE"
   | "WRITE"
 

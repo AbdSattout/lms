@@ -231,6 +231,26 @@ function ZapIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
+function MathIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M16 8.9V7H8l4 5-4 5h8v-1.9" />
+    </svg>
+  )
+}
+
 const ACTION_ICONS: Record<
   AiTextAction,
   React.ComponentType<React.SVGProps<SVGSVGElement>>
@@ -239,6 +259,7 @@ const ACTION_ICONS: Record<
   REWRITE: RefreshIcon,
   SUMMARIZE: SummarizeIcon,
   EXPAND: ExpandIcon,
+  FORMAT_EQUATION: MathIcon,
   CHANGE_TONE: SlidersIcon,
   WRITE: WriteIcon,
 }
@@ -283,7 +304,11 @@ export function AiToolsDropdown({
   }
 
   return (
-    <DropdownMenu modal={false} open={open} onOpenChange={(newOpen) => !isLoading && setOpen(newOpen)}>
+    <DropdownMenu
+      modal={false}
+      open={open}
+      onOpenChange={(newOpen) => !isLoading && setOpen(newOpen)}
+    >
       <DropdownMenuTrigger asChild disabled={isLoading}>
         <Button
           ref={triggerRef}
