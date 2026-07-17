@@ -221,10 +221,13 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
 
   useEffect(() => {
     if (!editor || content === undefined) return
-    editor.commands.setContent(content, {
-      emitUpdate: false,
-      contentType: "markdown",
-    })
+    const timer = setTimeout(() => {
+      editor.commands.setContent(content, {
+        emitUpdate: false,
+        contentType: "markdown",
+      })
+    }, 0)
+    return () => clearTimeout(timer)
   }, [editor, content])
 
   return (
