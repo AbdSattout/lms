@@ -4,6 +4,9 @@
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import { useEffect, useRef, useState } from "react"
 
+import { Mathematics } from "@tiptap/extension-mathematics"
+import "katex/dist/katex.min.css"
+
 import { RtlDirection } from "@/components/tiptap-extension/rtl-direction-extension"
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
@@ -38,10 +41,16 @@ import {
 } from "@/components/tiptap-ui/link-popover"
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
+import {
+  MathButton,
+  MathContent,
+  MathPopover,
+} from "@/components/tiptap-ui/math-popover"
 import { MediaButton } from "@/components/tiptap-ui/media-button"
 
 import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
+import { SigmaIcon } from "@/components/tiptap-icons/sigma-icon"
 
 import { useAiTools } from "@/hooks/use-ai-tools"
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
@@ -53,6 +62,7 @@ import { AiToolsDropdown } from "./tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
 
 const MainToolbarContent = ({
   onLinkClick,
+  onMathClick,
   isMobile,
   onAiAction,
   isAiLoading,
@@ -62,6 +72,7 @@ const MainToolbarContent = ({
   course,
 }: {
   onLinkClick: () => void
+  onMathClick: () => void
   isMobile: boolean
   onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
   isAiLoading?: boolean
@@ -81,6 +92,7 @@ const MainToolbarContent = ({
           error={aiError}
           onClearError={onClearAiError}
         />
+        <MediaButton orgSlug={orgSlug} course={course} />
       </ToolbarGroup>
       <ToolbarSeparator />
 
@@ -108,7 +120,7 @@ const MainToolbarContent = ({
         <MarkButton type="code" />
         <MarkButton type="underline" />
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
-        <MediaButton orgSlug={orgSlug} course={course} />
+        {!isMobile ? <MathPopover /> : <MathButton onClick={onMathClick} />}
       </ToolbarGroup>
 
       <Spacer />
@@ -118,8 +130,10 @@ const MainToolbarContent = ({
 
 const MobileToolbarContent = ({
   onBack,
+  mode,
 }: {
   onBack: () => void
+  mode: "link" | "math"
   onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
   isAiLoading?: boolean
   aiError?: string | null
@@ -129,13 +143,17 @@ const MobileToolbarContent = ({
     <ToolbarGroup>
       <Button variant="ghost" onClick={onBack}>
         <ArrowRightIcon className="tiptap-button-icon" />
-        <LinkIcon className="tiptap-button-icon" />
+        {mode === "link" ? (
+          <LinkIcon className="tiptap-button-icon" />
+        ) : (
+          <SigmaIcon className="tiptap-button-icon" />
+        )}
       </Button>
     </ToolbarGroup>
 
     <ToolbarSeparator />
 
-    <LinkContent />
+    {mode === "link" ? <LinkContent /> : <MathContent />}
   </>
 )
 
@@ -149,7 +167,14 @@ interface EditorProps {
 export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
   const isMobile = useIsBreakpoint()
   const [showLink, setShowLink] = useState(false)
-  const mobileView = isMobile ? (showLink ? "link" : "main") : "main"
+  const [showMath, setShowMath] = useState(false)
+  const mobileView = isMobile
+    ? showLink
+      ? "link"
+      : showMath
+        ? "math"
+        : "main"
+    : "main"
   const toolbarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -195,6 +220,11 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
       Selection,
       MediaNode,
       Markdown,
+      Mathematics.configure({
+        katexOptions: {
+          throwOnError: false,
+        },
+      }),
     ],
     onUpdate: ({ editor }) => {
       onChange?.(editor.getMarkdown())
@@ -237,6 +267,7 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
           {mobileView === "main" ? (
             <MainToolbarContent
               onLinkClick={() => setShowLink(true)}
+              onMathClick={() => setShowMath(true)}
               isMobile={isMobile}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
@@ -247,7 +278,11 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
             />
           ) : (
             <MobileToolbarContent
-              onBack={() => setShowLink(false)}
+              onBack={() => {
+                setShowLink(false)
+                setShowMath(false)
+              }}
+              mode={mobileView as "link" | "math"}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
               aiError={error}
