@@ -23,7 +23,7 @@ function toQueryString(pageable: PageableInput) {
 export const list = defineApiRoute({
   get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<Page<OrganizationMediaResponse>>(
-      `/organizations/${slug}/media-library${toQueryString(pageable)}`,
+      `/dashboard/organizations/${slug}/media-library${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
 })
@@ -31,7 +31,7 @@ export const list = defineApiRoute({
 export const summary = defineApiRoute({
   get: (slug: string, options?: BackendFetchOptions) =>
     backend<OrganizationMediaSummaryResponse>(
-      `/organizations/${slug}/media-library/summary`,
+      `/dashboard/organizations/${slug}/media-library/summary`,
       { method: "GET", ...options }
     ),
 })

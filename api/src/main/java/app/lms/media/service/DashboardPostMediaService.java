@@ -161,6 +161,23 @@ public class DashboardPostMediaService {
         }
     }
 
+    public PostMediaResponse getById(
+            String slug,
+            Long mediaId,
+            User user
+    ) {
+
+        PostMedia media =
+                postMediaAccessService
+                        .getEditableMedia(
+                                slug,
+                                mediaId,
+                                user
+                        );
+
+        return postMediaMapper.toResponse(media);
+    }
+
     public Page<PostMediaResponse> list(
             String slug,
             Pageable pageable,

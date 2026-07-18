@@ -87,6 +87,22 @@ public class DashboardPostMediaController {
                 .build();
     }
 
+    @GetMapping("/{mediaId}")
+    public ResponseEntity<PostMediaResponse> getById(
+            @PathVariable String slug,
+            @PathVariable Long mediaId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                postMediaService.getById(
+                        slug,
+                        mediaId,
+                        principal.user()
+                )
+        );
+    }
+
     @GetMapping
     public ResponseEntity<Page<PostMediaResponse>> list(
             @PathVariable String slug,

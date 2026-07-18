@@ -4,7 +4,8 @@
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react"
 import { useEffect, useRef, useState } from "react"
 
-import { RtlDirection } from "@/components/tiptap-extension/rtl-direction-extension"
+import "katex/dist/katex.min.css"
+
 import { Button } from "@/components/tiptap-ui-primitive/button"
 import { Spacer } from "@/components/tiptap-ui-primitive/spacer"
 import {
@@ -12,18 +13,13 @@ import {
   ToolbarGroup,
   ToolbarSeparator,
 } from "@/components/tiptap-ui-primitive/toolbar"
-import { TaskItem, TaskList } from "@tiptap/extension-list"
-import { Typography } from "@tiptap/extension-typography"
-import { Selection } from "@tiptap/extensions"
-import { Markdown } from "@tiptap/markdown"
-import { StarterKit } from "@tiptap/starter-kit"
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss"
 import "@/components/tiptap-node/code-block-node/code-block-node.scss"
 import "@/components/tiptap-node/heading-node/heading-node.scss"
-import { HorizontalRule } from "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node-extension"
 import "@/components/tiptap-node/horizontal-rule-node/horizontal-rule-node.scss"
 import "@/components/tiptap-node/list-node/list-node.scss"
+import "@/components/tiptap-node/media-node/media-node.scss"
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss"
 
 import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button"
@@ -36,9 +32,19 @@ import {
 } from "@/components/tiptap-ui/link-popover"
 import { ListDropdownMenu } from "@/components/tiptap-ui/list-dropdown-menu"
 import { MarkButton } from "@/components/tiptap-ui/mark-button"
+import {
+  MathButton,
+  MathContent,
+  MathPopover,
+  canSetMath,
+  isMathActive,
+} from "@/components/tiptap-ui/math-popover"
+import { useTiptapEditor } from "@/hooks/use-tiptap-editor"
+import { MediaButton } from "@/components/tiptap-ui/media-button"
 
 import { ArrowRightIcon } from "@/components/tiptap-icons/arrow-right-icon"
 import { LinkIcon } from "@/components/tiptap-icons/link-icon"
+import { SigmaIcon } from "@/components/tiptap-icons/sigma-icon"
 
 import { useAiTools } from "@/hooks/use-ai-tools"
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
@@ -46,23 +52,34 @@ import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 import { toast } from "sonner"
 
 import "./editor.scss"
-import { AiToolsDropdown } from "./tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
+import { AiToolsDropdown } from "../tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
+import { editorExtensions } from "./editor-config"
 
 const MainToolbarContent = ({
   onLinkClick,
+  onMathClick,
   isMobile,
   onAiAction,
   isAiLoading,
   aiError,
   onClearAiError,
+  orgSlug,
+  course,
 }: {
   onLinkClick: () => void
+  onMathClick: () => void
   isMobile: boolean
   onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
   isAiLoading?: boolean
   aiError?: string | null
   onClearAiError?: () => void
+  orgSlug?: string
+  course?: import("@/lib/api/types").CourseResponse
 }) => {
+  const { editor } = useTiptapEditor()
+  const mathIsActive = isMathActive(editor)
+  const canSet = canSetMath(editor)
+
   return (
     <>
       <Spacer />
@@ -74,6 +91,7 @@ const MainToolbarContent = ({
           error={aiError}
           onClearError={onClearAiError}
         />
+        <MediaButton orgSlug={orgSlug} course={course} />
       </ToolbarGroup>
       <ToolbarSeparator />
 
@@ -101,6 +119,16 @@ const MainToolbarContent = ({
         <MarkButton type="code" />
         <MarkButton type="underline" />
         {!isMobile ? <LinkPopover /> : <LinkButton onClick={onLinkClick} />}
+        {!isMobile ? (
+          <MathPopover />
+        ) : (
+          <MathButton
+            onClick={onMathClick}
+            data-active-state={mathIsActive ? "on" : "off"}
+            aria-pressed={mathIsActive}
+            disabled={!canSet}
+          />
+        )}
       </ToolbarGroup>
 
       <Spacer />
@@ -110,8 +138,10 @@ const MainToolbarContent = ({
 
 const MobileToolbarContent = ({
   onBack,
+  mode,
 }: {
   onBack: () => void
+  mode: "link" | "math"
   onAiAction: (action: AiTextAction, tone?: AiTextTone) => void
   isAiLoading?: boolean
   aiError?: string | null
@@ -121,25 +151,38 @@ const MobileToolbarContent = ({
     <ToolbarGroup>
       <Button variant="ghost" onClick={onBack}>
         <ArrowRightIcon className="tiptap-button-icon" />
-        <LinkIcon className="tiptap-button-icon" />
+        {mode === "link" ? (
+          <LinkIcon className="tiptap-button-icon" />
+        ) : (
+          <SigmaIcon className="tiptap-button-icon" />
+        )}
       </Button>
     </ToolbarGroup>
 
     <ToolbarSeparator />
 
-    <LinkContent />
+    {mode === "link" ? <LinkContent /> : <MathContent />}
   </>
 )
 
 interface EditorProps {
   onChange?: (markdown: string) => void
   content?: string
+  orgSlug?: string
+  course?: import("@/lib/api/types").CourseResponse
 }
 
-export function Editor({ onChange, content }: EditorProps) {
+export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
   const isMobile = useIsBreakpoint()
   const [showLink, setShowLink] = useState(false)
-  const mobileView = isMobile ? (showLink ? "link" : "main") : "main"
+  const [showMath, setShowMath] = useState(false)
+  const mobileView = isMobile
+    ? showLink
+      ? "link"
+      : showMath
+        ? "math"
+        : "main"
+    : "main"
   const toolbarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -158,6 +201,7 @@ export function Editor({ onChange, content }: EditorProps) {
   const editor = useEditor({
     immediatelyRender: false,
     textDirection: "auto",
+    content: content,
     contentType: "markdown",
     autofocus: true,
     editorProps: {
@@ -169,22 +213,7 @@ export function Editor({ onChange, content }: EditorProps) {
         class: "simple-editor",
       },
     },
-    extensions: [
-      StarterKit.configure({
-        horizontalRule: false,
-        link: {
-          openOnClick: false,
-          enableClickSelection: true,
-        },
-      }),
-      HorizontalRule,
-      TaskList,
-      TaskItem.configure({ nested: true }),
-      RtlDirection,
-      Typography,
-      Selection,
-      Markdown,
-    ],
+    extensions: editorExtensions,
     onUpdate: ({ editor }) => {
       onChange?.(editor.getMarkdown())
     },
@@ -208,14 +237,6 @@ export function Editor({ onChange, content }: EditorProps) {
     }
   }, [isLoading, error])
 
-  useEffect(() => {
-    if (!editor || content === undefined) return
-    editor.commands.setContent(content, {
-      emitUpdate: false,
-      contentType: "markdown",
-    })
-  }, [editor, content])
-
   return (
     <div className="editor-wrapper">
       <EditorContext.Provider value={{ editor }}>
@@ -223,15 +244,22 @@ export function Editor({ onChange, content }: EditorProps) {
           {mobileView === "main" ? (
             <MainToolbarContent
               onLinkClick={() => setShowLink(true)}
+              onMathClick={() => setShowMath(true)}
               isMobile={isMobile}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
               aiError={error}
               onClearAiError={clearError}
+              orgSlug={orgSlug}
+              course={course}
             />
           ) : (
             <MobileToolbarContent
-              onBack={() => setShowLink(false)}
+              onBack={() => {
+                setShowLink(false)
+                setShowMath(false)
+              }}
+              mode={mobileView as "link" | "math"}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
               aiError={error}

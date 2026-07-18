@@ -1,0 +1,18 @@
+.tiptap.ProseMirror {
+  [data-type="media"] {
+    margin-block: 0.25em;
+    box-shadow: 0 0 0 0 transparent;
+    transition:
+      box-shadow 150ms ease,
+      background-color 150ms ease;
+
+    [data-slot="attachment"] {
+      width: 100%;
+    }
+  }
+
+  .ProseMirror-selectednode [data-type="media"] {
+    box-shadow: 0 0 0 0.125rem var(--tt-brand-color-500);
+    background: var(--color-accent);
+  }
+}

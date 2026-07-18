@@ -20,17 +20,17 @@ function toQueryString(pageable: PageableInput) {
 }
 
 export const byCourse = defineApiRoute({
-  get: (courseId: number, pageable: PageableInput, options?: BackendFetchOptions) =>
+  get: (organizationSlug: string, courseSlug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<PageCourseMediaResponse>(
-      `/courseMedia/courses/${courseId}/media${toQueryString(pageable)}`,
+      `/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
-  post: (courseId: number, file: File, options?: BackendFetchOptions) => {
+  post: (organizationSlug: string, courseSlug: string, file: File, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     body.set("file", file)
 
-    return backend<CourseMediaResponse>(`/courseMedia/courses/${courseId}/media`, {
+    return backend<CourseMediaResponse>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media`, {
       method: "POST",
       body,
       ...options,
@@ -39,25 +39,25 @@ export const byCourse = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
-  get: (courseId: number, mediaId: number, options?: BackendFetchOptions) =>
-    backend<CourseMediaResponse>(`/courseMedia/courses/${courseId}/media/${mediaId}`, {
+  get: (organizationSlug: string, courseSlug: string, mediaId: number, options?: BackendFetchOptions) =>
+    backend<CourseMediaResponse>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media/${mediaId}`, {
       method: "GET",
       ...options,
     }),
-  patch: (courseId: number, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
+  patch: (organizationSlug: string, courseSlug: string, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     if (file) body.set("file", file)
     if (name) body.set("name", name)
 
-    return backend<CourseMediaResponse>(`/courseMedia/courses/${courseId}/media/${mediaId}`, {
+    return backend<CourseMediaResponse>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media/${mediaId}`, {
       method: "PATCH",
       body,
       ...options,
     })
   },
-  delete: (courseId: number, mediaId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/courseMedia/courses/${courseId}/media/${mediaId}`, {
+  delete: (organizationSlug: string, courseSlug: string, mediaId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media/${mediaId}`, {
       method: "DELETE",
       ...options,
     }),

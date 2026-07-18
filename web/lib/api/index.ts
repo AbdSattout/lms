@@ -49,14 +49,21 @@ import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
 import {
   byId as practiceQuizById,
   create as createPracticeQuiz,
+  deleteQuiz as deletePracticeQuiz,
   list as listPracticeQuizzes,
   updateQuestions as updatePracticeQuizQuestions,
 } from "@/lib/api/practice-quizzes"
 import {
+  byId as practiceExamById,
+  create as createPracticeExam,
+  deleteExam as deletePracticeExam,
+  list as listPracticeExams,
+  updateQuestions as updatePracticeExamQuestions,
+} from "@/lib/api/practice-exams"
+import {
+  byId as roadmapById,
   create as createRoadmap,
-  getManageable as getManageableRoadmap,
-  getPublished as getPublishedRoadmap,
-  update as updateRoadmap,
+  list as listRoadmaps,
 } from "@/lib/api/roadmap"
 import {
   byCourse as questionsByCourse,
@@ -151,12 +158,19 @@ export const api = {
       byId: practiceQuizById,
       list: listPracticeQuizzes,
       updateQuestions: updatePracticeQuizQuestions,
+      delete: deletePracticeQuiz,
+    },
+    practiceExams: {
+      create: createPracticeExam,
+      byId: practiceExamById,
+      list: listPracticeExams,
+      updateQuestions: updatePracticeExamQuestions,
+      delete: deletePracticeExam,
     },
     roadmap: {
       create: createRoadmap,
-      update: updateRoadmap,
-      getManageable: getManageableRoadmap,
-      getPublished: getPublishedRoadmap,
+      byId: roadmapById,
+      list: listRoadmaps,
     },
     posts: {
       byCourse: postsByCourse,

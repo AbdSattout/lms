@@ -10,6 +10,7 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.roadmap.dto.RoadmapResponse;
+import app.lms.roadmap.enums.RoadmapFollowStatus;
 import app.lms.roadmap.mapper.RoadmapMapper;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.roadmap.model.RoadmapFollower;
@@ -37,6 +38,7 @@ public class MobileRoadmapService {
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final OrganizationMemberRepository organizationMemberRepository;
     private final RoadmapMapper roadmapMapper;
+    private final RoadmapFollowProgressService roadmapFollowProgressService;
 
     @Transactional
     public Page<RoadmapResponse> listAll(
@@ -49,7 +51,7 @@ public class MobileRoadmapService {
                         pageable
                 )
                 .map(roadmap ->
-                        toMobileResponse(
+                        roadmapResponseFor(
                                 roadmap,
                                 user
                         )
@@ -75,7 +77,7 @@ public class MobileRoadmapService {
                         pageable
                 )
                 .map(roadmap ->
-                        toMobileResponse(
+                        roadmapResponseFor(
                                 roadmap,
                                 user
                         )
@@ -101,7 +103,7 @@ public class MobileRoadmapService {
                         organization.getId()
                 );
 
-        return toMobileResponse(
+        return roadmapResponseFor(
                 roadmap,
                 user
         );
@@ -149,7 +151,12 @@ public class MobileRoadmapService {
                         .build()
         );
 
-        return toMobileResponse(
+        roadmapFollowProgressService.refresh(
+                roadmap,
+                user
+        );
+
+        return roadmapResponseFor(
                 roadmap,
                 user
         );
@@ -201,26 +208,74 @@ public class MobileRoadmapService {
                         pageable
                 )
                 .map(follower ->
-                        toMobileResponse(
+                        roadmapResponseFor(
                                 follower.getRoadmap(),
                                 user
                         )
                 );
     }
 
-    private RoadmapResponse toMobileResponse(
+    private RoadmapResponse roadmapResponseFor(
             Roadmap roadmap,
             User user
     ) {
 
-        return roadmapMapper.toResponse(
-                roadmap,
-                true,
+        Map<Long, CourseEnrollment> enrollmentsByCourseId =
                 enrollmentsByCourseId(
+                        roadmap,
+                        user
+                );
+
+        return roadmapMapper.toMobileResponse(
+                roadmap,
+                enrollmentsByCourseId,
+                followStatus(
                         roadmap,
                         user
                 )
         );
+    }
+
+    private RoadmapFollowStatus followStatus(
+            Roadmap roadmap,
+            User user
+    ) {
+
+        RoadmapFollower follower =
+                roadmapFollowerRepository
+                        .findByRoadmapIdAndUserId(
+                                roadmap.getId(),
+                                user.getId()
+                        )
+                        .orElse(null);
+
+        if (follower == null) {
+            return RoadmapFollowStatus.NOT_FOLLOWING;
+        }
+
+        if (follower.getStatus() == null) {
+            follower.setStatus(
+                    RoadmapFollowStatus.ACTIVE
+            );
+        }
+
+        return follower.getStatus();
+    }
+
+    private List<Long> publishedCourseIds(
+            Roadmap roadmap
+    ) {
+
+        return roadmap.getItems()
+                .stream()
+                .filter(item ->
+                        item.getCourse().getStatus()
+                                == CourseStatus.PUBLISHED
+                )
+                .map(item ->
+                        item.getCourse().getId()
+                )
+                .toList();
     }
 
     private Roadmap getByIdAndOrganizationId(
@@ -246,16 +301,9 @@ public class MobileRoadmapService {
     ) {
 
         List<Long> courseIds =
-                roadmap.getItems()
-                        .stream()
-                        .filter(item ->
-                                item.getCourse().getStatus()
-                                        == CourseStatus.PUBLISHED
-                        )
-                        .map(item ->
-                                item.getCourse().getId()
-                        )
-                        .toList();
+                publishedCourseIds(
+                        roadmap
+                );
 
         if (courseIds.isEmpty()) {
             return Map.of();
@@ -263,7 +311,8 @@ public class MobileRoadmapService {
 
         return courseEnrollmentRepository
                 .findAllByUserIdAndStatusInAndCourseIdIn(
-                        user.getId(),
+                        user
+                                .getId(),
                         List.of(
                                 EnrollmentStatus.ACTIVE,
                                 EnrollmentStatus.COMPLETED
