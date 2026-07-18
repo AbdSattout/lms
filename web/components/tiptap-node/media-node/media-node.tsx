@@ -1,8 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import type { NodeViewProps } from "@tiptap/react"
-import { NodeViewWrapper } from "@tiptap/react"
+import type { MediaItemShape } from "@/components/cards/media-card"
 import { LoaderIcon } from "@/components/tiptap-icons/loader-icon"
 import {
   Attachment,
@@ -12,12 +10,14 @@ import {
   AttachmentTitle,
   AttachmentTrigger,
 } from "@/components/ui/attachment"
-import type { MediaItemShape } from "@/components/cards/media-card"
 import {
-  getPostMediaByIdAction,
   getCourseMediaByIdAction,
+  getPostMediaByIdAction,
 } from "@/lib/actions/media"
+import type { NodeViewProps } from "@tiptap/react"
+import { NodeViewWrapper } from "@tiptap/react"
 import { FileTextIcon } from "lucide-react"
+import { useEffect, useState } from "react"
 
 function formatSize(bytes?: number): string {
   if (!bytes) return ""
@@ -33,36 +33,33 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
     mediaId: number | null
   }
   const [media, setMedia] = useState<MediaItemShape | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(false)
+  const [loading, setLoading] = useState(!!mediaId && !!orgSlug)
+  const [error, setError] = useState(!mediaId || !orgSlug)
 
   useEffect(() => {
-    if (!mediaId || !orgSlug) {
-      setLoading(false)
-      setError(true)
-      return
+    if (mediaId && orgSlug) {
+      const promise = courseSlug
+        ? getCourseMediaByIdAction(orgSlug, courseSlug, mediaId)
+        : getPostMediaByIdAction(orgSlug, mediaId)
+
+      promise.then((result) => {
+        if (result) {
+          setMedia(result)
+        } else {
+          setError(true)
+        }
+        setLoading(false)
+      })
     }
-
-    setLoading(true)
-    setError(false)
-
-    const promise = courseSlug
-      ? getCourseMediaByIdAction(orgSlug, courseSlug, mediaId)
-      : getPostMediaByIdAction(orgSlug, mediaId)
-
-    promise.then((result) => {
-      if (result) {
-        setMedia(result)
-        setLoading(false)
-      } else {
-        setError(true)
-        setLoading(false)
-      }
-    })
   }, [orgSlug, courseSlug, mediaId])
 
   return (
-    <NodeViewWrapper className="rounded-3xl" data-type="media" data-media-id={mediaId} draggable={editor.isEditable}>
+    <NodeViewWrapper
+      className="rounded-3xl"
+      data-type="media"
+      data-media-id={mediaId}
+      draggable={editor.isEditable}
+    >
       {loading && (
         <Attachment state="processing" orientation="horizontal" size="default">
           <AttachmentMedia variant="icon">
@@ -88,11 +85,24 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
       {!loading && !error && media?.type === "IMAGE" && (
         <figure className="not-prose">
           {editor.isEditable ? (
-            <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
-              <img src={media.url} alt={media.name} className="w-full rounded-3xl border object-cover" />
+            <a
+              href={media.url}
+              download={media.name}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <img
+                src={media.url}
+                alt={media.name}
+                className="w-full rounded-3xl border object-cover"
+              />
             </a>
           ) : (
-            <img src={media.url} alt={media.name} className="w-full rounded-3xl border object-cover" />
+            <img
+              src={media.url}
+              alt={media.name}
+              className="w-full rounded-3xl border object-cover"
+            />
           )}
         </figure>
       )}
@@ -100,8 +110,17 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
       {!loading && !error && media?.type === "VIDEO" && (
         <figure className="not-prose">
           {editor.isEditable ? (
-            <a href={media.url} download={media.name} target="_blank" rel="noreferrer">
-              <video src={media.url} controls className="w-full rounded-3xl border">
+            <a
+              href={media.url}
+              download={media.name}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <video
+                src={media.url}
+                controls
+                className="w-full rounded-3xl border"
+              >
                 Your browser does not support the video element.
               </video>
             </a>
@@ -115,7 +134,14 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
         <Attachment state="done" orientation="horizontal" size="default">
           {editor.isEditable && (
             <AttachmentTrigger
-              render={<a href={media.url} download={media.name} target="_blank" rel="noreferrer" />}
+              render={
+                <a
+                  href={media.url}
+                  download={media.name}
+                  target="_blank"
+                  rel="noreferrer"
+                />
+              }
             />
           )}
           <AttachmentMedia variant="icon">
