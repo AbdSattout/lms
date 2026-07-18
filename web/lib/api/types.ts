@@ -49,7 +49,7 @@ export interface CourseResponse {
 }
 
 export interface EnrollmentResponse {
-  courseId: number
+  courseId?: number | null
   courseTitle: string
   enrolledAt: string
   rewards?: GamificationAwardResponse[]
@@ -92,7 +92,7 @@ export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
 
 export interface QuestionResponse {
   id: number
-  courseId: number
+  courseId?: number | null
   content: string
   options: string[]
   correctAnswerIndex: number
@@ -110,7 +110,7 @@ export interface QuestionPublicResponse {
 export interface QuizResponse {
   id: number
   title: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
   baseEntity?: BaseEntityResponse
@@ -122,7 +122,7 @@ export interface PostResponse {
   content?: string
   author: AuthorResponse
   organizationId: number
-  courseId: number
+  courseId?: number | null
   likesCount: number
   commentsCount: number
   baseEntity?: BaseEntityResponse
@@ -149,7 +149,7 @@ export interface CourseMediaResponse {
   name: string
   url: string
   type: FileType
-  courseId: number
+  courseId?: number | null
   organizationMediaId?: number
   sizeBytes?: number
   baseEntity?: BaseEntityResponse
@@ -202,7 +202,7 @@ export interface ChapterDetailsResponse {
   id: number
   title: string
   position?: number
-  courseId: number
+  courseId?: number | null
   organizationId: number
   baseEntity?: BaseEntityResponse
 }
@@ -212,7 +212,7 @@ export interface LessonDetailsResponse {
   title: string
   position?: number
   chapterId: number
-  courseId: number
+  courseId?: number | null
   organizationId: number
   baseEntity?: BaseEntityResponse
 }
@@ -366,7 +366,7 @@ export interface OrganizationMediaSummaryResponse {
 
 export interface FinalQuizResponse {
   quizId: number
-  courseId: number
+  courseId?: number | null
   difficulty?: QuestionDifficulty
   questions: QuestionPublicResponse[]
   baseEntity?: BaseEntityResponse
@@ -407,7 +407,7 @@ export interface PracticeQuizResponse {
   id: number
   title: string
   description?: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
   baseEntity?: BaseEntityResponse
@@ -417,7 +417,7 @@ export interface PracticeQuizSummaryResponse {
   id: number
   title: string
   description?: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questionCount: number
   baseEntity?: BaseEntityResponse

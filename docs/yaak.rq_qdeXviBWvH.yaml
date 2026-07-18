@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_qdeXviBWvH
 createdAt: 2026-06-08T09:10:35.874670300
-updatedAt: 2026-06-13T17:11:13.742835100
+updatedAt: 2026-07-17T04:53:35.032179200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GaHPXdypH6
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MTEzMTYxLCJleHAiOjE3ODQ3MTc5NjF9.R2BVEQcp7vkTm9clI0pf3CxdGrsT4iO6XbZnoWuoDSY
 authenticationType: bearer
 body:
   text: |-
@@ -25,5 +25,20 @@ headers:
 method: POST
 name: Create post
 sortPriority: 1000.0
-url: http://localhost:8080/organizations/my-org/posts
+url: http://localhost:8080/organizations/khaled/posts
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

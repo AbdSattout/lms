@@ -137,7 +137,7 @@ export type ReorderBlocksInput = z.infer<typeof reorderBlocksSchema>
 export const createPostSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   content: z.string().min(1, "المحتوى مطلوب"),
-  courseId: z.number().int(),
+  courseId: z.number().int().nullish(),
 })
 export type CreatePostInput = z.infer<typeof createPostSchema>
 
@@ -149,7 +149,7 @@ export type UpdatePostInput = z.infer<typeof updatePostSchema>
 
 export const createCommentSchema = z.object({
   content: z.string().min(1, "محتوى التعليق مطلوب"),
-  parentCommentId: z.number().int().optional(),
+  parentCommentId: z.number().int().optional().nullish(),
 })
 export type CreateCommentInput = z.infer<typeof createCommentSchema>
 
@@ -199,7 +199,9 @@ export const createPracticeQuizSchema = z.object({
 export type CreatePracticeQuizInput = z.infer<typeof createPracticeQuizSchema>
 
 export const updatePracticeQuizQuestionsSchema = z.object({
-  questionIds: z.array(z.number().int()).min(1, "يجب اختيار سؤال واحد على الأقل"),
+  questionIds: z
+    .array(z.number().int())
+    .min(1, "يجب اختيار سؤال واحد على الأقل"),
 })
 export type UpdatePracticeQuizQuestionsInput = z.infer<
   typeof updatePracticeQuizQuestionsSchema

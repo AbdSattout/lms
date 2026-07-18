@@ -45,10 +45,7 @@ import {
   byOrg as postsByOrg,
 } from "@/lib/api/posts"
 import { create, me as profileMe } from "@/lib/api/profile"
-import {
-  getFinalQuiz,
-  updateFinalQuizQuestions,
-} from "@/lib/api/quizzes"
+import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
 import {
   byId as practiceQuizById,
   create as createPracticeQuiz,
@@ -68,10 +65,7 @@ import {
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture, search as userSearch } from "@/lib/api/users"
-import {
-  generateQuestionFromBlock,
-  transformText,
-} from "@/lib/api/ai"
+import { generateQuestionFromBlock, transformText } from "@/lib/api/ai"
 import {
   byOrg as postMediaByOrg,
   byId as postMediaById,

@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_Ccr3DUXcaE
 createdAt: 2026-06-08T09:46:13.308519200
-updatedAt: 2026-06-08T10:14:11.388759400
+updatedAt: 2026-07-16T18:44:45.310873400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Tqpp3398L9
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MjIzNTczLCJleHAiOjE3ODQ4MjgzNzN9.xmmZ9RtapbwYjT1Zkf7_aXAXqgYFd8fyNeNQHZoYEXs
 authenticationType: bearer
 body:
   text: |-
@@ -24,5 +24,20 @@ headers:
 method: POST
 name: Create Comment
 sortPriority: 7000.0
-url: http://localhost:8080/posts/2/comments
+url: http://localhost:8080/posts/12/comments
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

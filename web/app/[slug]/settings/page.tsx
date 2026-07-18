@@ -22,7 +22,8 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
     <div className="flex flex-col gap-6" dir="rtl">
       <BreadcrumbTrail items={[{ label: "الإعدادات" }]} />
       <h1 className="text-2xl font-bold">الإعدادات</h1>
-      <div className="flex w-full max-w-lg flex-col gap-6">
+
+      <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold">معلومات المنظمة</h2>
           <Card>
