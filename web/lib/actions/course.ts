@@ -2,13 +2,16 @@
 
 import { api } from "@/lib/api"
 import type {
+  BlockResponse,
   ChapterResponse,
   LessonResponse,
   QuestionResponse,
 } from "@/lib/api/types"
 import {
+  createBlockSchema,
   createCourseSchema,
   createQuestionSchema,
+  updateBlockSchema,
   updateCourseSchema,
   updateQuestionSchema,
 } from "@/lib/validation"
@@ -293,6 +296,87 @@ export async function updateQuestionAction(
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
   revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
   return { question }
+}
+
+export async function createBlockAction(
+  lessonId: number,
+  title: string,
+  content: string,
+  questionId: number,
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; block?: BlockResponse }> {
+  const parsed = createBlockSchema.safeParse({
+    title,
+    content,
+    questionId,
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const block = await api.dashboard.blocks.create
+    .post(lessonId, parsed.data)
+    .catch(() => null)
+
+  if (!block) return { error: "حدث خطأ أثناء إنشاء البلوك" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return { block }
+}
+
+export async function updateBlockAction(
+  blockId: number,
+  data: { title?: string; content?: string; questionId?: number },
+  orgSlug: string,
+  courseSlug: string,
+  lessonId: number
+): Promise<{ error?: string; block?: BlockResponse }> {
+  const parsed = updateBlockSchema.safeParse(data)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const block = await api.dashboard.blocks.byId
+    .patch(blockId, parsed.data)
+    .catch(() => null)
+
+  if (!block) return { error: "حدث خطأ أثناء تحديث البلوك" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return { block }
+}
+
+export async function deleteBlockAction(
+  blockId: number,
+  orgSlug: string,
+  courseSlug: string,
+  lessonId: number
+): Promise<{ error?: string }> {
+  const deleted = await api.dashboard.blocks.byId
+    .delete(blockId)
+    .catch(() => null)
+
+  if (deleted === null) return { error: "حدث خطأ أثناء حذف البلوك" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return {}
+}
+
+export async function reorderBlocksAction(
+  lessonId: number,
+  blockIds: number[],
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string }> {
+  const result = await api.dashboard.blocks.reorder
+    .patch(lessonId, { blockIds })
+    .catch(() => null)
+
+  if (result === null) return { error: "حدث خطأ أثناء ترتيب البلوكات" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return {}
 }
 
 export async function deleteQuestionAction(

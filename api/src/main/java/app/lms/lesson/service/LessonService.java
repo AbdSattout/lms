@@ -40,7 +40,7 @@
 
             Lesson lesson =
                     lessonAccessService
-                            .getEditableLesson(
+                            .getManageableLesson(
                                     lessonId,
                                     user
                             );
