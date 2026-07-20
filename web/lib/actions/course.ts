@@ -11,6 +11,7 @@ import {
   createBlockSchema,
   createCourseSchema,
   createQuestionSchema,
+  generateQuestionFromBlockContentSchema,
   updateBlockSchema,
   updateCourseSchema,
   updateQuestionSchema,
@@ -269,6 +270,32 @@ export async function createQuestionAction(
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
   revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
   return { question }
+}
+
+export async function generateQuestionFromBlockContentAction(
+  courseId: number,
+  blockContent: string,
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; question?: QuestionResponse }> {
+  const parsed = generateQuestionFromBlockContentSchema.safeParse({
+    blockContent,
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const generated = await api.dashboard.ai.generateQuestionFromBlock
+    .post(parsed.data)
+    .catch(() => null)
+
+  if (!generated)
+    return { error: "حدث خطأ أثناء توليد السؤال بالذكاء الاصطناعي" }
+
+  if (!generated.content.trim() || generated.options.length < 2)
+    return { error: "السؤال المُولد غير صالح. حاول مرة أخرى." }
+
+  return createQuestionAction(courseId, generated, orgSlug, courseSlug)
 }
 
 export async function updateQuestionAction(
