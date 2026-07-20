@@ -40,6 +40,7 @@ import { Input } from "@/components/ui/input"
 import {
   createBlockAction,
   deleteBlockAction,
+  generateQuestionFromBlockContentAction,
   reorderBlocksAction,
   updateBlockAction,
 } from "@/lib/actions/course"
@@ -73,9 +74,11 @@ import {
   FileQuestionMark,
   FileText,
   GripVertical,
+  Loader2,
   Pen,
   Plus,
   Save,
+  Sparkles,
   Trash2,
 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
@@ -308,6 +311,7 @@ function BlockEditorPanel({
   const [removingQuestion, setRemovingQuestion] =
     useState<QuestionResponse | null>(null)
   const [localQuestions, setLocalQuestions] = useState<QuestionResponse[]>([])
+  const [generating, setGenerating] = useState(false)
 
   const dirty =
     editorContent !== originalContent ||
@@ -358,6 +362,29 @@ function BlockEditorPanel({
     setQuestionId(question.id)
     setSelectFromBankOpen(false)
     toast.success("تم تعيين السؤال. احفظ التغييرات لتأكيد التعديل")
+  }
+
+  async function handleGenerateWithAI() {
+    if (!editorContent.trim()) {
+      toast.error("يجب كتابة محتوى الفقرة أولاً")
+      return
+    }
+    setGenerating(true)
+    const result = await generateQuestionFromBlockContentAction(
+      course.id,
+      editorContent,
+      orgSlug,
+      courseSlug
+    )
+    setGenerating(false)
+    if (result.error) {
+      toast.error(result.error)
+      return
+    }
+    if (result.question) {
+      handleQuestionSaved(result.question)
+      toast.success("تم توليد السؤال بنجاح")
+    }
   }
 
   async function handleSave() {
@@ -451,23 +478,44 @@ function BlockEditorPanel({
               </EmptyDescription>
             </EmptyHeader>
             <EmptyContent className="flex-row justify-center gap-2">
-              <Button onClick={() => setCreatingQuestion(true)}>
-                <Plus />
-                سؤال جديد
+              <Button
+                onClick={
+                  generating ? undefined : () => setCreatingQuestion(true)
+                }
+                disabled={generating}
+              >
+                {generating ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  <Plus />
+                )}
+                {generating ? "جاري التوليد..." : "سؤال جديد"}
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger
-                  render={<Button variant="outline" size="icon" />}
+                  render={
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      disabled={generating}
+                    />
+                  }
                 >
                   <EllipsisVertical />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onClick={() => setSelectFromBankOpen(true)}>
+                  <DropdownMenuItem
+                    onClick={() => setSelectFromBankOpen(true)}
+                    disabled={generating}
+                  >
                     <FileQuestion />
                     من بنك الأسئلة
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast.info("قريباً")}>
-                    <Pen />
+                  <DropdownMenuItem
+                    onClick={handleGenerateWithAI}
+                    disabled={generating}
+                  >
+                    <Sparkles className="size-4" />
                     توليد بالذكاء الاصطناعي
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -477,6 +525,7 @@ function BlockEditorPanel({
         ) : (
           <QuestionCard
             question={currentQuestion}
+            onClick={(q) => setEditingQuestion(q)}
             renderActions={(q) => (
               <>
                 <DropdownMenuItem
