@@ -12,6 +12,7 @@ import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.placementTest.service.CoursePlacementTestAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,7 @@ public class CourseService {
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final BlockProgressRepository blockProgressRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
+    private final CoursePlacementTestAccessService placementTestAccessService;
 
     public CourseResponse getBySlug(
             String organizationSlug,
@@ -82,6 +84,12 @@ public class CourseService {
                                 user
                         );
 
+        placementTestAccessService
+                .validateCompletedOrSkipped(
+                        courseId,
+                        user
+                );
+
         return courseMapper.toDetailsResponse(
                 course,
                 enrollment,
@@ -91,7 +99,6 @@ public class CourseService {
                 )
         );
     }
-
 
     public Page<CourseResponse> list(
 

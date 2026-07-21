@@ -13,7 +13,7 @@ public interface PostRepository
             Pageable pageable
     );
 
-    Page<Post> findByOrganizationIdAndCourseIsNull(
+    Page<Post> findByOrganizationId(
             Long organizationId,
             Pageable pageable
     );
