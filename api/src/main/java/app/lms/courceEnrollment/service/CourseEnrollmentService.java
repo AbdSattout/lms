@@ -23,7 +23,8 @@ import app.lms.organization.organizationJoinRequest.model.OrganizationJoinReques
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
-import app.lms.plan.service.PlanLimitService;
+import app.lms.plan.annotation.ConsumesPlanUsage;
+import app.lms.plan.enums.PlanUsageType;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.roadmap.service.RoadmapFollowProgressService;
@@ -60,9 +61,8 @@ public class CourseEnrollmentService {
 
     private final RoadmapFollowProgressService roadmapFollowProgressService;
 
-    private final PlanLimitService planLimitService;
-
     @Transactional
+    @ConsumesPlanUsage(PlanUsageType.COURSE_ENROLLMENT)
     public EnrollmentResponse enroll(
             Long courseId,
             User user
@@ -150,8 +150,6 @@ public class CourseEnrollmentService {
                 );
             }
         }
-
-        planLimitService.consumeWeeklyCourseEnrollment(user);
 
         if (!member) {
             OrganizationMember organizationMember =

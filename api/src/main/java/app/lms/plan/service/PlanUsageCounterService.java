@@ -43,6 +43,21 @@ public class PlanUsageCounterService {
                     Long.class
             );
 
+    private static final DefaultRedisScript<Long> RELEASE_SCRIPT =
+            new DefaultRedisScript<>(
+                    """
+                    local current = tonumber(redis.call('get', KEYS[1]) or '0')
+
+                    if current <= 1 then
+                        redis.call('del', KEYS[1])
+                        return 0
+                    end
+
+                    return redis.call('decr', KEYS[1])
+                    """,
+                    Long.class
+            );
+
     private static final ZoneId ZONE =
             ZoneId.systemDefault();
 
@@ -95,6 +110,22 @@ public class PlanUsageCounterService {
 
         return incremented != null &&
                 incremented == 1;
+    }
+
+    public void releaseWeekly(
+            Long userId,
+            PlanUsageType type
+    ) {
+
+        redisTemplate.execute(
+                RELEASE_SCRIPT,
+                List.of(
+                        weeklyKey(
+                                userId,
+                                type
+                        )
+                )
+        );
     }
 
     public long getWeeklyUsage(
