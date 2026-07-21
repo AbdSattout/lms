@@ -17,7 +17,7 @@ public record UserPlanResponse(
         Integer randomQuizPerCourseLimit,
         Long organizationStorageLimitBytes,
         Integer organizationLimit,
-        Integer weeklyAiToolLimit,
+        Integer dailyAiToolLimit,
         LocalDateTime startedAt,
         LocalDateTime expiresAt
 ) {

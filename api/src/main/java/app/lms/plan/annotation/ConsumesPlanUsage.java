@@ -12,4 +12,6 @@ import java.lang.annotation.Target;
 public @interface ConsumesPlanUsage {
 
     PlanUsageType value();
+
+    int courseIdArgumentIndex() default -1;
 }

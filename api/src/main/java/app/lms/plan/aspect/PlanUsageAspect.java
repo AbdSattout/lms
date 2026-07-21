@@ -39,10 +39,17 @@ public class PlanUsageAspect {
         User user =
                 currentUser();
 
+        Long courseId =
+                courseId(
+                        joinPoint,
+                        consumesPlanUsage
+                );
+
         boolean reserved =
                 planLimitService.reserve(
                         user,
-                        consumesPlanUsage.value()
+                        consumesPlanUsage.value(),
+                        courseId
                 );
 
         try {
@@ -51,7 +58,8 @@ public class PlanUsageAspect {
             if (reserved) {
                 planLimitService.release(
                         user,
-                        consumesPlanUsage.value()
+                        consumesPlanUsage.value(),
+                        courseId
                 );
             }
 
@@ -88,6 +96,39 @@ public class PlanUsageAspect {
 
         return targetMethod.getAnnotation(
                 ConsumesPlanUsage.class
+        );
+    }
+
+    private Long courseId(
+            ProceedingJoinPoint joinPoint,
+            ConsumesPlanUsage consumesPlanUsage
+    ) {
+
+        int argumentIndex =
+                consumesPlanUsage.courseIdArgumentIndex();
+
+        if (argumentIndex < 0) {
+            return null;
+        }
+
+        Object[] args =
+                joinPoint.getArgs();
+
+        if (argumentIndex >= args.length) {
+            throw new IllegalArgumentException(
+                    "@ConsumesPlanUsage courseIdArgumentIndex is out of bounds"
+            );
+        }
+
+        Object value =
+                args[argumentIndex];
+
+        if (value instanceof Long courseId) {
+            return courseId;
+        }
+
+        throw new IllegalArgumentException(
+                "@ConsumesPlanUsage courseIdArgumentIndex must point to a Long courseId"
         );
     }
 

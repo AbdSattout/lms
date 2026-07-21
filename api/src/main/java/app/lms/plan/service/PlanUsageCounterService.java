@@ -1,26 +1,23 @@
 package app.lms.plan.service;
 
 import app.lms.plan.enums.PlanUsageType;
+import app.lms.plan.enums.PlanUsageWindow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjusters;
-import java.time.temporal.WeekFields;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class PlanUsageCounterService {
 
-    private static final String WEEKLY_KEY_FORMAT =
-            "plan:user:%d:%s:week:%d-W%02d";
+    private static final String WINDOW_KEY_FORMAT =
+            "plan:user:%d:%s:%s";
+
+    private static final String COURSE_WINDOW_KEY_FORMAT =
+            "plan:user:%d:%s:course:%d:%s";
 
     private static final DefaultRedisScript<Long> TRY_INCREMENT_SCRIPT =
             new DefaultRedisScript<>(
@@ -33,7 +30,10 @@ public class PlanUsageCounterService {
                     end
 
                     redis.call('incr', KEYS[1])
-                    redis.call('expire', KEYS[1], ARGV[2])
+
+                    if redis.call('ttl', KEYS[1]) < 0 then
+                        redis.call('expire', KEYS[1], ARGV[2])
+                    end
 
                     return 1
                     """,
@@ -55,10 +55,23 @@ public class PlanUsageCounterService {
                     Long.class
             );
 
-    private static final ZoneId ZONE =
-            ZoneId.systemDefault();
-
     private final StringRedisTemplate redisTemplate;
+
+    public boolean tryIncrementDaily(
+            Long userId,
+            PlanUsageType type,
+            int limit
+    ) {
+
+        return tryIncrement(
+                resolveDailyKey(
+                        userId,
+                        type
+                ),
+                limit,
+                PlanUsageWindow.DAILY
+        );
+    }
 
     public boolean tryIncrementWeekly(
             Long userId,
@@ -66,22 +79,66 @@ public class PlanUsageCounterService {
             int limit
     ) {
 
-        String key =
-                weeklyKey(
+        return tryIncrement(
+                resolveWeeklyKey(
                         userId,
                         type
-                );
+                ),
+                limit,
+                PlanUsageWindow.WEEKLY
+        );
+    }
+
+    public boolean tryIncrementCourseWeekly(
+            Long userId,
+            PlanUsageType type,
+            Long courseId,
+            int limit
+    ) {
+
+        return tryIncrement(
+                resolveCourseWeeklyKey(
+                        userId,
+                        type,
+                        courseId
+                ),
+                limit,
+                PlanUsageWindow.WEEKLY
+        );
+    }
+
+    private boolean tryIncrement(
+            String key,
+            int limit,
+            PlanUsageWindow window
+    ) {
 
         Long incremented =
                 redisTemplate.execute(
                         TRY_INCREMENT_SCRIPT,
                         List.of(key),
                         String.valueOf(limit),
-                        String.valueOf(ttlUntilNextWeek().toSeconds())
+                        String.valueOf(
+                                window.getDuration()
+                                        .toSeconds()
+                        )
                 );
 
         return incremented != null &&
                 incremented == 1;
+    }
+
+    public void releaseDaily(
+            Long userId,
+            PlanUsageType type
+    ) {
+
+        release(
+                resolveDailyKey(
+                        userId,
+                        type
+                )
+        );
     }
 
     public void releaseWeekly(
@@ -89,53 +146,100 @@ public class PlanUsageCounterService {
             PlanUsageType type
     ) {
 
-        redisTemplate.execute(
-                RELEASE_SCRIPT,
-                List.of(
-                        weeklyKey(
-                                userId,
-                                type
-                        )
+        release(
+                resolveWeeklyKey(
+                        userId,
+                        type
                 )
         );
     }
 
-    private String weeklyKey(
+    public void releaseCourseWeekly(
+            Long userId,
+            PlanUsageType type,
+            Long courseId
+    ) {
+
+        release(
+                resolveCourseWeeklyKey(
+                        userId,
+                        type,
+                        courseId
+                )
+        );
+    }
+
+    private void release(
+            String key
+    ) {
+
+        redisTemplate.execute(
+                RELEASE_SCRIPT,
+                List.of(key)
+        );
+    }
+
+    private String resolveDailyKey(
             Long userId,
             PlanUsageType type
     ) {
 
-        LocalDate today =
-                LocalDate.now(ZONE);
-
-        WeekFields weekFields =
-                WeekFields.ISO;
-
-        return WEEKLY_KEY_FORMAT.formatted(
+        return resolveUserWindowKey(
                 userId,
-                type.getKeySegment(),
-                today.get(weekFields.weekBasedYear()),
-                today.get(weekFields.weekOfWeekBasedYear())
+                type,
+                PlanUsageWindow.DAILY
         );
     }
 
-    private Duration ttlUntilNextWeek() {
+    private String resolveWeeklyKey(
+            Long userId,
+            PlanUsageType type
+    ) {
 
-        ZonedDateTime now =
-                ZonedDateTime.now(ZONE);
+        return resolveUserWindowKey(
+                userId,
+                type,
+                PlanUsageWindow.WEEKLY
+        );
+    }
 
-        ZonedDateTime nextWeekStart =
-                now.with(
-                                TemporalAdjusters.next(
-                                        DayOfWeek.MONDAY
-                                )
-                        )
-                        .toLocalDate()
-                        .atStartOfDay(ZONE);
+    private String resolveCourseWeeklyKey(
+            Long userId,
+            PlanUsageType type,
+            Long courseId
+    ) {
 
-        return Duration.between(
-                now,
-                nextWeekStart
+        return resolveCourseWindowKey(
+                userId,
+                type,
+                courseId
+        );
+    }
+
+    private String resolveUserWindowKey(
+            Long userId,
+            PlanUsageType type,
+            PlanUsageWindow window
+    ) {
+
+        return WINDOW_KEY_FORMAT.formatted(
+                userId,
+                type.getKeySegment(),
+                window.getKeySegment()
+        );
+    }
+
+    private String resolveCourseWindowKey(
+            Long userId,
+            PlanUsageType type,
+            Long courseId
+    ) {
+
+        return COURSE_WINDOW_KEY_FORMAT.formatted(
+                userId,
+                type.getKeySegment(),
+                courseId,
+                PlanUsageWindow.WEEKLY.getKeySegment()
         );
     }
 }
