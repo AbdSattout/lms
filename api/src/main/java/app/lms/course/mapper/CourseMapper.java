@@ -70,6 +70,9 @@ public class CourseMapper {
                 .courseTitle(enrollment.getCourse().getTitle())
                 .enrolledAt(enrollment.getEnrolledAt())
                 .status(enrollment.getStatus())
+                .placementTestCompleted(
+                        placementTestCompletedFor(enrollment)
+                )
                 .progressPercentage(enrollment.getProgressPercentage())
                 .currentChapterId(
                         currentChapterIdFor(enrollment)
@@ -88,6 +91,15 @@ public class CourseMapper {
                 )
                 .completedAt(enrollment.getCompletedAt())
                 .build();
+    }
+
+    private Boolean placementTestCompletedFor(
+            CourseEnrollment enrollment
+    ) {
+
+        return currentChapterIdFor(enrollment) != null
+                || enrollment.getCurrentLesson() != null
+                || enrollment.getCurrentBlock() != null;
     }
 
     private Long currentChapterIdFor(

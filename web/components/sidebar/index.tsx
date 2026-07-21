@@ -16,6 +16,7 @@ import {
 import type { OrganizationResponse } from "@/lib/api/types"
 import {
   GraduationCap,
+  ImageIcon,
   LayoutDashboardIcon,
   Settings,
   SquarePen,
@@ -46,6 +47,11 @@ export function AppSidebar({
       title: "المنشورات",
       url: `/${orgSlug}/posts` as Route,
       icon: <SquarePen />,
+    },
+    {
+      title: "الوسائط",
+      url: `/${orgSlug}/media` as Route,
+      icon: <ImageIcon />,
     },
     {
       title: "الاعدادات",

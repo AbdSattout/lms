@@ -38,7 +38,8 @@ public class DashboardAiTextPromptService {
             Do not explain what you did.
             Do not translate the input.
             Write the paragraph in the same language as the topic or instructions.
-            Return only the final paragraph.
+            Format the result as Markdown.
+            Return only the final Markdown content.
     
             Topic or instructions:
             %s
@@ -89,6 +90,24 @@ public class DashboardAiTextPromptService {
                     Text:
                     %s
                     """.formatted(request.text());
+
+            case FORMAT_EQUATION -> """
+                You are a strictly passive text-to-LaTeX converter. Convert the provided mathematical, chemical, or physical expression into raw LaTeX wrapped in double dollar signs ($$...$$) for display mode.
+                
+                CRITICAL INSTRUCTIONS:
+                1. STRICT PASSIVITY: Do NOT solve, compute, calculate, complete, or balance the equation.
+                2. NO EXTRA CONTENT: Do NOT append solutions, answers, or mathematical constants (such as + C) that were missing in the input.
+                3. STRUCTURAL MATCHING: Convert descriptive words (like "integral of", "derivative of", or "sequence of") into their appropriate structural operator symbols, but leave the rest of the equation completely unmodified. If the input expression contains or ends with an equals sign (=), your output must preserve and end with that exact equals sign (=) with nothing trailing it.
+                4. FORMAT ONLY: Do not add titles, headers, markdown code fences, notes, or chat explanations. Return ONLY the final dollar-wrapped expression.
+                
+                EXAMPLES TO FOLLOW STRICTLY:
+                Input: "integral of x dx =" -> Output: "$$\\int x \\, dx =$$"
+                Input: "derivative of 1 / x" -> Output: "$$\\frac{d}{dx} \\left( \\frac{1}{x} \\right)$$"
+                Input: "delta = b^2 - ac" -> Output: "$$\\Delta = b^2 - ac$$"
+                Input: "sequence of (x^2 / (2x+1))" -> Output: "$$\\left( \\frac{x^2}{2x+1} \\right)$$"
+                
+                Expression to convert: %s
+                """.formatted(request.text());
 
             case CHANGE_TONE -> """
                     Rewrite the following text using this tone: %s.

@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_seF4pkBexf
 createdAt: 2026-05-31T17:51:51.795939700
-updatedAt: 2026-07-16T11:36:01.717645400
+updatedAt: 2026-07-16T12:17:59.693137600
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
 authenticationType: bearer
 body:
   form:
@@ -14,13 +14,13 @@ body:
     enabled: true
     id: 9Kh339MNzt
     name: request
-    value: '{  "name": "Bug Company",  "slug": "bug-company",  "description": "My organization",  "visibility": "PUBLIC"}'
+    value: '{  "name": "Tech Company",  "slug": "tech-company",  "description": "My organization",  "visibility": "PUBLIC"}'
   - enabled: false
     file: C:\Users\ASUS\Desktop\abdbd.jpg
     id: VDFyZ3H4Ux
     name: image
   - enabled: true
-    id: TM9ftV3TP3
+    id: eqpSNW2rYA
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -35,18 +35,3 @@ name: create organization
 sortPriority: 333.3333333333333
 url: https://lms.koyeb.app/dashboard/organizations
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

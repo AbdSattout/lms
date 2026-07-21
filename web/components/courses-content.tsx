@@ -21,6 +21,7 @@ import { deleteCourse, publishCourse } from "@/lib/actions/course"
 import type { CourseResponse } from "@/lib/api/types"
 import { BookOpen, Plus } from "lucide-react"
 import { useState, useTransition } from "react"
+import { toast } from "sonner"
 
 interface CoursesContentProps {
   orgSlug: string
@@ -87,7 +88,9 @@ export function CoursesContent({ orgSlug, courses }: CoursesContentProps) {
   }
 
   async function handlePublish(course: CourseResponse) {
-    await publishCourse(course.id, orgSlug)
+    const { error } = await publishCourse(course.id, orgSlug)
+    if (error) toast.error(error)
+    else toast.success("تم نشر الكورس.")
   }
 
   function handleDeleteClick(course: CourseResponse) {

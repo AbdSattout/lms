@@ -6,5 +6,6 @@ public enum AiTextAction {
     REWRITE,
     SUMMARIZE,
     EXPAND,
+    FORMAT_EQUATION,
     CHANGE_TONE
 }

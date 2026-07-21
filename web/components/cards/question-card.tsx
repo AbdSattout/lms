@@ -1,5 +1,6 @@
 "use client"
 
+import { TiptapRenderer } from "@/components/editor/renderer"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -9,16 +10,11 @@ import {
 import type { QuestionResponse } from "@/lib/api/types"
 import { cn } from "@/lib/utils"
 import { EllipsisVertical } from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import "./question-card.scss"
 
-function buildMarkdown(question: QuestionResponse): string {
-  const options = question.options ?? []
-  const lines = options.map(
-    (opt, i) => `- [${i === question.correctAnswerIndex ? "x" : " "}] ${opt}`
-  )
-  return [question.content, "", ...lines].join("\n")
+const difficultyMap: Record<string, string> = {
+  EASY: "سهل",
+  MEDIUM: "متوسط",
+  HARD: "صعب",
 }
 
 interface QuestionCardProps {
@@ -32,8 +28,6 @@ export function QuestionCard({
   onClick,
   renderActions,
 }: QuestionCardProps) {
-  const md = buildMarkdown(question)
-
   const handleClick = () => {
     onClick?.(question)
   }
@@ -53,8 +47,12 @@ export function QuestionCard({
         }}
       >
         <div className="question-card-markdown line-clamp-8 text-sm leading-relaxed">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
+          <TiptapRenderer content={question.content} />
         </div>
+      </div>
+
+      <div className="mt-2 text-xs text-muted-foreground">
+        {question.options.length} خيارات · {difficultyMap[question.difficulty]}
       </div>
 
       {hasActions && (

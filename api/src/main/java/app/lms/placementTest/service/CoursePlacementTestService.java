@@ -29,6 +29,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CoursePlacementTestService {
 
+    private static final int PLACEMENT_TEST_HEARTS = 2;
+
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final CoursePlacementTestAttemptRepository placementTestAttemptRepository;
     private final BlockRepository blockRepository;
@@ -90,6 +92,7 @@ public class CoursePlacementTestService {
                 false,
                 attempt.getCorrectAnswers(),
                 attempt.getTotalAnswers(),
+                remainingHearts(attempt),
                 toQuestionResponse(
                         resolveCurrentBlock(
                                 attempt,
@@ -293,6 +296,7 @@ public class CoursePlacementTestService {
                 true,
                 attempt.getCorrectAnswers(),
                 attempt.getTotalAnswers(),
+                remainingHearts(attempt),
                 null,
                 startBlock.getId(),
                 startBlock.getLesson().getId(),
@@ -328,6 +332,7 @@ public class CoursePlacementTestService {
                     false,
                     attempt.getCorrectAnswers(),
                     attempt.getTotalAnswers(),
+                    remainingHearts(attempt),
                     toQuestionResponse(nextBlock),
                     null,
                     null,
@@ -365,6 +370,7 @@ public class CoursePlacementTestService {
                 true,
                 attempt.getCorrectAnswers(),
                 attempt.getTotalAnswers(),
+                remainingHearts(attempt),
                 null,
                 null,
                 null,
@@ -389,6 +395,25 @@ public class CoursePlacementTestService {
                         blocks,
                         currentBlock
                 );
+
+        if (remainingHearts(attempt) > 0) {
+            placementTestAttemptRepository.save(attempt);
+
+            return new SubmitPlacementTestResponse(
+                    false,
+                    false,
+                    attempt.getCorrectAnswers(),
+                    attempt.getTotalAnswers(),
+                    remainingHearts(attempt),
+                    toQuestionResponse(currentBlock),
+                    null,
+                    null,
+                    null,
+                    enrollment.getProgressPercentage(),
+                    "Wrong answer. Try again.",
+                    BaseEntityResponse.from(attempt)
+            );
+        }
 
         completeBlocks(
                 blocks.subList(
@@ -419,6 +444,7 @@ public class CoursePlacementTestService {
                 true,
                 attempt.getCorrectAnswers(),
                 attempt.getTotalAnswers(),
+                remainingHearts(attempt),
                 null,
                 currentBlock.getId(),
                 currentBlock.getLesson().getId(),
@@ -467,6 +493,7 @@ public class CoursePlacementTestService {
                 true,
                 attempt.getCorrectAnswers(),
                 attempt.getTotalAnswers(),
+                remainingHearts(attempt),
                 null,
                 placedBlock != null
                         ? placedBlock.getId()
@@ -499,6 +526,20 @@ public class CoursePlacementTestService {
                     "Placement test is only available before starting the course"
             );
         }
+    }
+
+    private Integer remainingHearts(
+            CoursePlacementTestAttempt attempt
+    ) {
+
+        int wrongAnswers =
+                attempt.getTotalAnswers()
+                        - attempt.getCorrectAnswers();
+
+        return Math.max(
+                0,
+                PLACEMENT_TEST_HEARTS - wrongAnswers
+        );
     }
 
     private List<Block> getOrderedCourseBlocks(

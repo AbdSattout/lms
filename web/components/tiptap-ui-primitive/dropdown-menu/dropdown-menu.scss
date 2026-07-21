@@ -150,3 +150,52 @@
   align-items: center;
   gap: 0.25rem;
 }
+
+/* --- Item --- */
+
+.tiptap-dropdown-menu-item,
+.tiptap-dropdown-menu-sub-trigger {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: calc(var(--tt-radius-lg) * 0.5);
+  font-size: 0.8125rem;
+  line-height: 1.25;
+  color: var(--tt-dropdown-menu-text-color);
+  transition: background-color 75ms ease;
+
+  outline: none;
+
+  .tiptap-button-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+  }
+
+  .tiptap-button-text {
+    flex-grow: 1;
+  }
+}
+
+.tiptap-dropdown-menu-item:hover,
+.tiptap-dropdown-menu-item[data-highlighted],
+.tiptap-dropdown-menu-sub-trigger:hover,
+.tiptap-dropdown-menu-sub-trigger[data-highlighted] {
+  background-color: var(--tt-gray-light-200);
+}
+
+.dark .tiptap-dropdown-menu-item:hover,
+.dark .tiptap-dropdown-menu-item[data-highlighted],
+.dark .tiptap-dropdown-menu-sub-trigger:hover,
+.dark .tiptap-dropdown-menu-sub-trigger[data-highlighted] {
+  background-color: var(--tt-gray-dark-200);
+}
+
+.tiptap-dropdown-menu-item[data-disabled],
+.tiptap-dropdown-menu-sub-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
