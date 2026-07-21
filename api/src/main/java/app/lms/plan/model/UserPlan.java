@@ -1,12 +1,9 @@
 package app.lms.plan.model;
 
 import app.lms.common.model.BaseEntity;
-import app.lms.plan.enums.UserPlanStatus;
 import app.lms.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,11 +40,6 @@ public class UserPlan extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id", nullable = false)
     private Plan plan;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    @Builder.Default
-    private UserPlanStatus status = UserPlanStatus.ACTIVE;
 
     @Column(nullable = false)
     private LocalDateTime startedAt;
