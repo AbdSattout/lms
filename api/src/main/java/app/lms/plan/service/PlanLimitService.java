@@ -40,13 +40,14 @@ public class PlanLimitService {
             return;
         }
 
-        long usage =
-                usageCounterService.incrementWeekly(
+        boolean consumed =
+                usageCounterService.tryIncrementWeekly(
                         user.getId(),
-                        type
+                        type,
+                        limit
                 );
 
-        if (usage > limit) {
+        if (!consumed) {
             throw new PlanLimitExceededException(message);
         }
     }
