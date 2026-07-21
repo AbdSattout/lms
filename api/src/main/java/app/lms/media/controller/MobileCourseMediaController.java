@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(
-        "/mobile/organizations/{organizationSlug}/courses/{courseSlug}/media"
+        "/mobile/organizations/{organizationId}/courses/{courseId}/media"
 )
 @RequiredArgsConstructor
 public class MobileCourseMediaController {
@@ -22,16 +22,16 @@ public class MobileCourseMediaController {
 
     @GetMapping("/{mediaId}")
     public ResponseEntity<CourseMediaResponse> getById(
-            @PathVariable String organizationSlug,
-            @PathVariable String courseSlug,
+            @PathVariable Long organizationId,
+            @PathVariable Long courseId,
             @PathVariable Long mediaId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 courseMediaService.getById(
-                        organizationSlug,
-                        courseSlug,
+                        organizationId,
+                        courseId,
                         mediaId,
                         principal.user()
                 )

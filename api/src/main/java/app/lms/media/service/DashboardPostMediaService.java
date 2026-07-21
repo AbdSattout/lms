@@ -36,7 +36,7 @@ public class DashboardPostMediaService {
 
     @Transactional
     public PostMediaResponse create(
-            String slug,
+            Long organizationId,
             MultipartFile file,
             User user
     ) {
@@ -44,7 +44,7 @@ public class DashboardPostMediaService {
         Organization organization =
                 organizationAccessService
                         .getManageableOrganization(
-                                slug,
+                                organizationId,
                                 user
                         );
 
@@ -60,7 +60,7 @@ public class DashboardPostMediaService {
         UploadedFile uploaded =
                 mediaService.upload(
                         file,
-                        "/posts/" + slug,
+                        "/posts/" + organization.getId(),
                         type
                 );
 
@@ -80,7 +80,7 @@ public class DashboardPostMediaService {
 
     @Transactional
     public PostMediaResponse update(
-            String slug,
+            Long organizationId,
             Long mediaId,
             MultipartFile file,
             String name,
@@ -90,7 +90,7 @@ public class DashboardPostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getEditableMedia(
-                                slug,
+                                organizationId,
                                 mediaId,
                                 user
                         );
@@ -120,7 +120,7 @@ public class DashboardPostMediaService {
 
     @Transactional
     public void delete(
-            String slug,
+            Long organizationId,
             Long mediaId,
             User user
     ) {
@@ -128,7 +128,7 @@ public class DashboardPostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getEditableMedia(
-                                slug,
+                                organizationId,
                                 mediaId,
                                 user
                         );
@@ -162,7 +162,7 @@ public class DashboardPostMediaService {
     }
 
     public PostMediaResponse getById(
-            String slug,
+            Long organizationId,
             Long mediaId,
             User user
     ) {
@@ -170,7 +170,7 @@ public class DashboardPostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getEditableMedia(
-                                slug,
+                                organizationId,
                                 mediaId,
                                 user
                         );
@@ -179,7 +179,7 @@ public class DashboardPostMediaService {
     }
 
     public Page<PostMediaResponse> list(
-            String slug,
+            Long organizationId,
             Pageable pageable,
             User user
     ) {
@@ -187,7 +187,7 @@ public class DashboardPostMediaService {
         Organization organization =
                 organizationAccessService
                         .getManageableOrganization(
-                                slug,
+                                organizationId,
                                 user
                         );
 

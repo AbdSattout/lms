@@ -2,6 +2,7 @@ package app.lms.media.service;
 
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
+import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
 import app.lms.media.dto.CourseMediaResponse;
@@ -14,8 +15,6 @@ import app.lms.media.model.OrganizationMedia;
 import app.lms.media.repository.CourseMediaRepository;
 import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.media.repository.PostMediaRepository;
-import app.lms.organization.model.Organization;
-import app.lms.organization.service.OrganizationAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,29 +34,26 @@ public class DashboardCourseMediaService {
     private final CourseMediaMapper courseMediaMapper;
     private final OrganizationMediaRepository organizationMediaRepository;
     private final PostMediaRepository postMediaRepository;
-    private final OrganizationAccessService organizationAccessService;
 
     @Transactional
     public CourseMediaResponse create(
-            String organizationSlug,
-            String courseSlug,
+            Long organizationId,
+            Long courseId,
             MultipartFile file,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
-                        .getBySlug(
-                                organizationSlug
-                        );
-
         Course course =
                 courseAccessService
                         .getEditableCourse(
-                                organization.getId(),
-                                courseSlug,
+                                courseId,
                                 user
                         );
+
+        validateCourseOrganization(
+                course,
+                organizationId
+        );
 
         String mediaName =
                 generateAvailableMediaName(
@@ -91,25 +87,19 @@ public class DashboardCourseMediaService {
 
     @Transactional
     public CourseMediaResponse update(
-            String organizationSlug,
-            String courseSlug,
+            Long organizationId,
+            Long courseId,
             Long mediaId,
             MultipartFile file,
             String name,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
-                        .getBySlug(
-                                organizationSlug
-                        );
-
         CourseMedia media =
                 courseMediaAccessService
                         .getEditableMedia(
-                                organization.getId(),
-                                courseSlug,
+                                organizationId,
+                                courseId,
                                 mediaId,
                                 user
                         );
@@ -139,23 +129,17 @@ public class DashboardCourseMediaService {
 
     @Transactional
     public void delete(
-            String organizationSlug,
-            String courseSlug,
+            Long organizationId,
+            Long courseId,
             Long mediaId,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
-                        .getBySlug(
-                                organizationSlug
-                        );
-
         CourseMedia media =
                 courseMediaAccessService
                         .getEditableMedia(
-                                organization.getId(),
-                                courseSlug,
+                                organizationId,
+                                courseId,
                                 mediaId,
                                 user
                         );
@@ -189,23 +173,17 @@ public class DashboardCourseMediaService {
     }
 
     public CourseMediaResponse getById(
-            String organizationSlug,
-            String courseSlug,
+            Long organizationId,
+            Long courseId,
             Long mediaId,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
-                        .getBySlug(
-                                organizationSlug
-                        );
-
         CourseMedia media =
                 courseMediaAccessService
                         .getEditableMedia(
-                                organization.getId(),
-                                courseSlug,
+                                organizationId,
+                                courseId,
                                 mediaId,
                                 user
                         );
@@ -214,25 +192,23 @@ public class DashboardCourseMediaService {
     }
 
     public Page<CourseMediaResponse> list(
-            String organizationSlug,
-            String courseSlug,
+            Long organizationId,
+            Long courseId,
             Pageable pageable,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
-                        .getBySlug(
-                                organizationSlug
-                        );
-
         Course course =
                 courseAccessService
                         .getManageableCourse(
-                                organization.getId(),
-                                courseSlug,
+                                courseId,
                                 user
                         );
+
+        validateCourseOrganization(
+                course,
+                organizationId
+        );
 
         return courseMediaRepository
                 .findAllByCourseIdOrderByCreatedAtDesc(
@@ -463,5 +439,21 @@ public class DashboardCourseMediaService {
         );
 
         return candidate;
+    }
+
+    private void validateCourseOrganization(
+            Course course,
+            Long organizationId
+    ) {
+
+        if (
+                !course.getOrganization()
+                        .getId()
+                        .equals(organizationId)
+        ) {
+            throw new NotFoundException(
+                    "Course not found"
+            );
+        }
     }
 }

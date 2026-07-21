@@ -15,7 +15,7 @@ public class MobilePostMediaService {
     private final PostMediaMapper postMediaMapper;
 
     public PostMediaResponse getById(
-            String slug,
+            Long organizationId,
             Long mediaId,
             User user
     ) {
@@ -23,7 +23,7 @@ public class MobilePostMediaService {
         PostMedia media =
                 postMediaAccessService
                         .getAccessibleMedia(
-                                slug,
+                                organizationId,
                                 mediaId,
                                 user
                         );

@@ -36,7 +36,7 @@ public class CourseMediaAccessService {
 
     public CourseMedia getEditableMedia(
             Long organizationId,
-            String courseSlug,
+            Long courseId,
             Long mediaId,
             User user
     ) {
@@ -44,10 +44,14 @@ public class CourseMediaAccessService {
         Course course =
                 courseAccessService
                         .getEditableCourse(
-                                organizationId,
-                                courseSlug,
+                                courseId,
                                 user
                         );
+
+        validateCourseOrganization(
+                course,
+                organizationId
+        );
 
         return getByIdAndCourseId(
                 mediaId,
@@ -75,7 +79,7 @@ public class CourseMediaAccessService {
 
     public CourseMedia getAccessibleMedia(
             Long organizationId,
-            String courseSlug,
+            Long courseId,
             Long mediaId,
             User user
     ) {
@@ -83,10 +87,14 @@ public class CourseMediaAccessService {
         Course course =
                 courseAccessService
                         .getEnrolledCourse(
-                                organizationId,
-                                courseSlug,
+                                courseId,
                                 user
                         );
+
+        validateCourseOrganization(
+                course,
+                organizationId
+        );
 
         return getByIdAndCourseId(
                 mediaId,
@@ -127,5 +135,21 @@ public class CourseMediaAccessService {
                                 "Media not found"
                         )
                 );
+    }
+
+    private void validateCourseOrganization(
+            Course course,
+            Long organizationId
+    ) {
+
+        if (
+                !course.getOrganization()
+                        .getId()
+                        .equals(organizationId)
+        ) {
+            throw new NotFoundException(
+                    "Course not found"
+            );
+        }
     }
 }
