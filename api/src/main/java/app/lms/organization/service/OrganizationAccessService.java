@@ -27,6 +27,19 @@ public class OrganizationAccessService {
                 );
     }
 
+    public Organization getById(
+            Long organizationId
+    ) {
+
+        return organizationRepository
+                .findById(organizationId)
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Organization not found"
+                        )
+                );
+    }
+
     public Organization getManageableOrganization(
             String slug,
             User user
@@ -34,6 +47,23 @@ public class OrganizationAccessService {
 
         Organization organization =
                 getBySlug(slug);
+
+        organizationMemberAccessService
+                .validateManager(
+                        organization.getId(),
+                        user.getId()
+                );
+
+        return organization;
+    }
+
+    public Organization getManageableOrganization(
+            Long organizationId,
+            User user
+    ) {
+
+        Organization organization =
+                getById(organizationId);
 
         organizationMemberAccessService
                 .validateManager(
