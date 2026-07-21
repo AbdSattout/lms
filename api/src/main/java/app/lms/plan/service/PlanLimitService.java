@@ -1,6 +1,7 @@
 package app.lms.plan.service;
 
 import app.lms.plan.enums.PlanUsageType;
+import app.lms.plan.enums.PlanUsageWindow;
 import app.lms.plan.exception.PlanLimitExceededException;
 import app.lms.plan.model.Plan;
 import app.lms.user.model.User;
@@ -16,17 +17,22 @@ public class PlanLimitService {
 
     public boolean reserve(
             User user,
-            PlanUsageType type
+            PlanUsageType type,
+            Long courseId
     ) {
 
         Plan plan =
                 userPlanService.getOrCreateCurrentPlan(user);
 
-        return reserveWeekly(
+        return reserve(
                 user,
                 type,
-                weeklyLimit(
+                courseId,
+                limit(
                         plan,
+                        type
+                ),
+                usageWindow(
                         type
                 )
         );
@@ -34,19 +40,35 @@ public class PlanLimitService {
 
     public void release(
             User user,
-            PlanUsageType type
+            PlanUsageType type,
+            Long courseId
     ) {
 
-        usageCounterService.releaseWeekly(
-                user.getId(),
-                type
+        if (courseId != null) {
+            usageCounterService.releaseCourseWeekly(
+                    user.getId(),
+                    type,
+                    courseId
+            );
+
+            return;
+        }
+
+        releaseUserWindow(
+                user,
+                type,
+                usageWindow(
+                        type
+                )
         );
     }
 
-    private boolean reserveWeekly(
+    private boolean reserve(
             User user,
             PlanUsageType type,
-            Integer limit
+            Long courseId,
+            Integer limit,
+            PlanUsageWindow window
     ) {
 
         if (isUnlimited(limit)) {
@@ -54,11 +76,19 @@ public class PlanLimitService {
         }
 
         boolean reserved =
-                usageCounterService.tryIncrementWeekly(
-                        user.getId(),
-                        type,
-                        limit
-                );
+                courseId == null
+                        ? reserveUserWindow(
+                                user,
+                                type,
+                                limit,
+                                window
+                        )
+                        : usageCounterService.tryIncrementCourseWeekly(
+                                user.getId(),
+                                type,
+                                courseId,
+                                limit
+                        );
 
         if (!reserved) {
             throw new PlanLimitExceededException(
@@ -71,7 +101,46 @@ public class PlanLimitService {
         return true;
     }
 
-    private Integer weeklyLimit(
+    private boolean reserveUserWindow(
+            User user,
+            PlanUsageType type,
+            Integer limit,
+            PlanUsageWindow window
+    ) {
+
+        return switch (window) {
+            case DAILY -> usageCounterService.tryIncrementDaily(
+                    user.getId(),
+                    type,
+                    limit
+            );
+            case WEEKLY -> usageCounterService.tryIncrementWeekly(
+                    user.getId(),
+                    type,
+                    limit
+            );
+        };
+    }
+
+    private void releaseUserWindow(
+            User user,
+            PlanUsageType type,
+            PlanUsageWindow window
+    ) {
+
+        switch (window) {
+            case DAILY -> usageCounterService.releaseDaily(
+                    user.getId(),
+                    type
+            );
+            case WEEKLY -> usageCounterService.releaseWeekly(
+                    user.getId(),
+                    type
+            );
+        }
+    }
+
+    private Integer limit(
             Plan plan,
             PlanUsageType type
     ) {
@@ -80,9 +149,17 @@ public class PlanLimitService {
             case AI_QUIZ -> plan.getWeeklyAiQuizLimit();
             case COURSE_ENROLLMENT -> plan.getWeeklyCourseEnrollmentLimit();
             case AI_TOOL -> plan.getWeeklyAiToolLimit();
-            case RANDOM_QUIZ -> throw new IllegalArgumentException(
-                    "Random quiz usage requires a course-scoped limit"
-            );
+            case RANDOM_QUIZ -> plan.getRandomQuizPerCourseLimit();
+        };
+    }
+
+    private PlanUsageWindow usageWindow(
+            PlanUsageType type
+    ) {
+
+        return switch (type) {
+            case AI_TOOL -> PlanUsageWindow.DAILY;
+            case AI_QUIZ, COURSE_ENROLLMENT, RANDOM_QUIZ -> PlanUsageWindow.WEEKLY;
         };
     }
 
@@ -93,7 +170,7 @@ public class PlanLimitService {
         return switch (type) {
             case AI_QUIZ -> "Weekly AI quiz limit reached";
             case COURSE_ENROLLMENT -> "Weekly course enrollment limit reached";
-            case AI_TOOL -> "Weekly AI tools limit reached";
+            case AI_TOOL -> "Daily AI tools limit reached";
             case RANDOM_QUIZ -> "Random quiz limit reached";
         };
     }
