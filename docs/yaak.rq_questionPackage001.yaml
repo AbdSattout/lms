@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_questionPackage001
 createdAt: 2026-07-16T00:00:00
-updatedAt: 2026-07-16T11:39:17.126924400
+updatedAt: 2026-07-16T12:25:30.678286200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GkMNXFRG5u
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
 authenticationType: bearer
 body:
   text: |-
@@ -31,20 +31,5 @@ headers:
 method: POST
 name: Create Course Question
 sortPriority: 1000.0
-url: https://lms.koyeb.app/dashboard/courses/1/questions
+url: https://lms.koyeb.app/dashboard/courses/3/questions
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

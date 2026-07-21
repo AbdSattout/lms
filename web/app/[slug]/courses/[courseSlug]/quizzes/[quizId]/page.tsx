@@ -40,9 +40,8 @@ export default async function QuizDetailPage({
         ]}
       />
       <QuizDetailClient
-        courseId={course.id}
+        course={course}
         orgSlug={slug}
-        courseSlug={courseSlug}
         quiz={quiz}
         bankQuestions={bankQuestions}
       />

@@ -36,6 +36,21 @@ export interface OrganizationResponse {
 }
 
 export type CourseStatus = "DRAFT" | "PUBLISHED"
+export type EnrollmentStatus = "ACTIVE" | "COMPLETED" | "DROPPED"
+
+export interface CourseEnrollmentResponse {
+  id: number
+  courseId: number
+  courseTitle: string
+  enrolledAt: string
+  status: EnrollmentStatus
+  placementTestCompleted?: boolean
+  progressPercentage?: number
+  currentChapterId?: number
+  currentLessonId?: number
+  currentBlockId?: number
+  completedAt?: string
+}
 
 export interface CourseResponse {
   id: number
@@ -45,6 +60,7 @@ export interface CourseResponse {
   coverUrl?: string
   status: CourseStatus
   organizationName: string
+  enrollment?: CourseEnrollmentResponse
   baseEntity?: BaseEntityResponse
 }
 
@@ -232,6 +248,7 @@ export type AiTextAction =
   | "REWRITE"
   | "SUMMARIZE"
   | "EXPAND"
+  | "FORMAT_EQUATION"
   | "CHANGE_TONE"
   | "WRITE"
 
@@ -431,10 +448,46 @@ export interface UpdateFinalQuizQuestionsRequest {
   questionIds: number[]
 }
 
+export type CourseNodeStatus = "LOCKED" | "CURRENT" | "COMPLETED"
+
+export interface CourseBlockMapResponse {
+  id: number
+  title: string
+  position: number
+  status: CourseNodeStatus
+  baseEntity?: BaseEntityResponse
+}
+
+export interface CourseLessonMapResponse {
+  id: number
+  title: string
+  position: number
+  status: CourseNodeStatus
+  blocks: CourseBlockMapResponse[]
+  baseEntity?: BaseEntityResponse
+}
+
+export interface CourseChapterMapResponse {
+  id: number
+  title: string
+  position: number
+  status: CourseNodeStatus
+  lessons: CourseLessonMapResponse[]
+  baseEntity?: BaseEntityResponse
+}
+
+export interface CourseProgressResponse {
+  currentChapterId?: number
+  currentLessonId?: number
+  currentBlockId?: number
+  progressPercentage?: number
+  completed?: boolean
+  completedAt?: string
+}
+
 export interface RoadmapResponse {
   id: number
-  organizationId: number
-  organizationSlug: string
+  organization: OrganizationResponse
   items: RoadmapItemResponse[]
   baseEntity?: BaseEntityResponse
 }
@@ -448,4 +501,24 @@ export interface RoadmapItemResponse {
 
 export interface UpsertRoadmapRequest {
   courseIds: number[]
+}
+
+export interface PracticeExamResponse {
+  id: number
+  title: string
+  description?: string
+  courseId: number
+  difficulty: QuestionDifficulty
+  questions: QuestionResponse[]
+  baseEntity?: BaseEntityResponse
+}
+
+export interface CreatePracticeExamRequest {
+  title: string
+  description?: string
+  questionIds: number[]
+}
+
+export interface UpdatePracticeExamQuestionsRequest {
+  questionIds: number[]
 }

@@ -101,6 +101,38 @@ public class CourseAccessService {
         return course;
     }
 
+    public Course getEnrolledCourse(
+            Long organizationId,
+            String slug,
+            User user
+    ) {
+
+        Course course =
+                getAccessibleCourse(
+                        organizationId,
+                        slug,
+                        user
+                );
+
+        boolean manager =
+                organizationMemberAccessService
+                        .isManager(
+                                organizationId,
+                                user.getId()
+                        );
+
+        if (!manager) {
+
+            courseEnrollmentAccessService
+                    .validateEnrolled(
+                            course.getId(),
+                            user
+                    );
+        }
+
+        return course;
+    }
+
 
     public Course getAccessibleCourse(
             Long courseId,
@@ -129,6 +161,41 @@ public class CourseAccessService {
         organizationMemberAccessService
                 .validateManager(
                         course.getOrganization().getId(),
+                        user.getId()
+                );
+
+        return course;
+    }
+
+    public Course getAccessibleCourse(
+            Long organizationId,
+            String slug,
+            User user
+    ) {
+
+        Course course =
+                getBySlug(
+                        organizationId,
+                        slug
+                );
+
+        if (
+                course.getStatus()
+                        == CourseStatus.PUBLISHED
+        ) {
+
+            organizationMemberAccessService
+                    .getMember(
+                            organizationId,
+                            user.getId()
+                    );
+
+            return course;
+        }
+
+        organizationMemberAccessService
+                .validateManager(
+                        organizationId,
                         user.getId()
                 );
 
@@ -183,6 +250,29 @@ public class CourseAccessService {
         organizationMemberAccessService
                 .validateManager(
                         course.getOrganization().getId(),
+                        user.getId()
+                );
+
+        validateDraft(course);
+
+        return course;
+    }
+
+    public Course getEditableCourse(
+            Long organizationId,
+            String slug,
+            User user
+    ) {
+
+        Course course =
+                getBySlug(
+                        organizationId,
+                        slug
+                );
+
+        organizationMemberAccessService
+                .validateManager(
+                        organizationId,
                         user.getId()
                 );
 

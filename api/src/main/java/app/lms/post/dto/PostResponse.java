@@ -16,6 +16,10 @@ public record PostResponse(
 
         Long courseId,
 
+        Long commentCount,
+
+        Long likeCount,
+
         BaseEntityResponse baseEntity
 ) {
 }

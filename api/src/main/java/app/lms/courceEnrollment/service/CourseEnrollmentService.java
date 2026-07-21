@@ -15,16 +15,17 @@ import app.lms.course.repository.CourseRepository;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
-import app.lms.organization.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
 import app.lms.organization.model.Organization;
-import app.lms.organization.model.OrganizationJoinRequest;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.repository.OrganizationJoinRequestRepository;
+import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.repository.BlockProgressRepository;
+import app.lms.roadmap.service.RoadmapFollowProgressService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,8 @@ public class CourseEnrollmentService {
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
     private final OrganizationJoinRequestRepository joinRequestRepository;
+
+    private final RoadmapFollowProgressService roadmapFollowProgressService;
 
     @Transactional
     public EnrollmentResponse enroll(
@@ -163,6 +166,11 @@ public class CourseEnrollmentService {
                     EnrollmentStatus.ACTIVE
             );
 
+            roadmapFollowProgressService.refreshForCourse(
+                    course.getId(),
+                    user
+            );
+
             return EnrollmentResponse.builder()
                     .courseId(course.getId())
                     .courseTitle(course.getTitle())
@@ -222,6 +230,11 @@ public class CourseEnrollmentService {
         enrollment.setStatus(
                 EnrollmentStatus.DROPPED
         );
+
+        roadmapFollowProgressService.refreshForCourse(
+                courseId,
+                user
+        );
     }
     @Transactional
     public void updateProgressAfterCorrectAnswer(
@@ -265,12 +278,6 @@ public class CourseEnrollmentService {
                 enrollment.setCurrentBlock(
                         currentBlock
                 );
-
-                if (enrollment.getCompletedAt() == null) {
-                    enrollment.setCompletedAt(
-                            LocalDateTime.now()
-                    );
-                }
             }
 
             case QUIZ -> {
@@ -368,6 +375,26 @@ public class CourseEnrollmentService {
         return enrollmentRepository.existsByCourseIdAndUserId(
                 courseId,
                 user.getId()
+        );
+    }
+
+    public void completeEnrollment(
+            CourseEnrollment enrollment
+    ) {
+
+        enrollment.setStatus(
+                EnrollmentStatus.COMPLETED
+        );
+
+        if (enrollment.getCompletedAt() == null) {
+            enrollment.setCompletedAt(
+                    LocalDateTime.now()
+            );
+        }
+
+        roadmapFollowProgressService.refreshForCourse(
+                enrollment.getCourse().getId(),
+                enrollment.getUser()
         );
     }
 }

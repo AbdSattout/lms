@@ -1,5 +1,6 @@
 "use client"
 
+import { FinalQuizSection } from "@/components/final-quiz-section"
 import { CourseFormDialog } from "@/components/forms/course-form-dialog"
 import {
   AlertDialog,
@@ -48,6 +49,8 @@ import type {
   ChapterResponse,
   CourseResponse,
   LessonResponse,
+  QuestionResponse,
+  QuizResponse,
 } from "@/lib/api/types"
 import {
   DndContext,
@@ -87,6 +90,8 @@ interface CourseManagementProps {
   course: CourseResponse
   orgSlug: string
   initialChapters: ChapterResponse[]
+  finalQuiz: QuizResponse | null
+  bankQuestions: QuestionResponse[]
 }
 
 function SortableChapter({
@@ -345,6 +350,8 @@ export function CourseManagement({
   course,
   orgSlug,
   initialChapters,
+  finalQuiz,
+  bankQuestions,
 }: CourseManagementProps) {
   const router = useRouter()
   const isEditable = course.status === "DRAFT"
@@ -670,7 +677,12 @@ export function CourseManagement({
           </CardHeader>
         </Card>
 
-        <Card className="cursor-pointer transition-colors hover:bg-accent/50">
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/media` as never)
+          }
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
@@ -683,7 +695,6 @@ export function CourseManagement({
       </div>
 
       <Separator />
-
       <DndContext
         sensors={sensors}
         onDragStart={handleDragStart}
@@ -692,8 +703,9 @@ export function CourseManagement({
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold">الفصول</h2>
+
             <div className="flex flex-col gap-2">
-              {chapters.length === 0 ? (
+              {chapters.length === 0 && !isEditable ? (
                 <Empty>
                   <EmptyHeader>
                     <EmptyMedia variant="icon">
@@ -767,7 +779,7 @@ export function CourseManagement({
                 </EmptyHeader>
                 <EmptyContent>اختر فصلاً من القائمة لعرض دروسه</EmptyContent>
               </Empty>
-            ) : lessons.length === 0 ? (
+            ) : lessons.length === 0 && !isEditable ? (
               <Empty>
                 <EmptyHeader>
                   <EmptyMedia variant="icon">
@@ -779,33 +791,35 @@ export function CourseManagement({
               </Empty>
             ) : (
               <div className="flex flex-col gap-2">
-                <SortableContext
-                  items={lessons.map((l) => `lesson:${l.id}`)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {lessons.map((lesson) => (
-                    <SortableLesson
-                      key={lesson.id}
-                      lesson={lesson}
-                      isEditable={isEditable}
-                      renaming={renamingLessonId === lesson.id}
-                      renamingTitle={
-                        renamingLessonId === lesson.id ? renameTitle : ""
-                      }
-                      onSelect={() =>
-                        router.push(
-                          `${course.slug}/lessons/${lesson.id}` as unknown as Parameters<
-                            typeof router.push
-                          >[0]
-                        )
-                      }
-                      onStartRename={() => handleStartRenameLesson(lesson)}
-                      onRenameChange={setRenameTitle}
-                      onCommitRename={handleCommitRenameLesson}
-                      onDelete={() => setDeletingLesson(lesson)}
-                    />
-                  ))}
-                </SortableContext>
+                {lessons.length > 0 && (
+                  <SortableContext
+                    items={lessons.map((l) => `lesson:${l.id}`)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {lessons.map((lesson) => (
+                      <SortableLesson
+                        key={lesson.id}
+                        lesson={lesson}
+                        isEditable={isEditable}
+                        renaming={renamingLessonId === lesson.id}
+                        renamingTitle={
+                          renamingLessonId === lesson.id ? renameTitle : ""
+                        }
+                        onSelect={() =>
+                          router.push(
+                            `${course.slug}/lessons/${lesson.id}` as unknown as Parameters<
+                              typeof router.push
+                            >[0]
+                          )
+                        }
+                        onStartRename={() => handleStartRenameLesson(lesson)}
+                        onRenameChange={setRenameTitle}
+                        onCommitRename={handleCommitRenameLesson}
+                        onDelete={() => setDeletingLesson(lesson)}
+                      />
+                    ))}
+                  </SortableContext>
+                )}
 
                 {isEditable && (
                   <div className="flex items-center gap-2 rounded-xl border border-dashed border-border bg-transparent p-3">
@@ -836,19 +850,27 @@ export function CourseManagement({
         <DragOverlay>
           {activeItem && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-lg">
-              {activeItem.type === "chapter" ? (
-                <GraduationCap className="size-4 text-muted-foreground" />
-              ) : (
-                <FileText className="size-4 text-muted-foreground" />
-              )}
-              <span className="min-h-6 truncate text-sm font-medium">
+              <button className="touch-none text-muted-foreground">
+                <GripVertical className="size-4" />
+              </button>
+              <div className="flex-1 truncate overflow-hidden rounded-3xl text-sm font-medium">
                 {activeItem.title}
-              </span>
-              <Button variant="ghost" size="icon-xs" />
+              </div>
+              <Button variant="ghost" size="icon-xs">
+                <EllipsisVertical />
+              </Button>
             </div>
           )}
         </DragOverlay>
       </DndContext>
+
+      <FinalQuizSection
+        course={course}
+        orgSlug={orgSlug}
+        initialQuiz={finalQuiz}
+        initialBankQuestions={bankQuestions}
+        isEditable={isEditable}
+      />
 
       <CourseFormDialog
         key={course.id}

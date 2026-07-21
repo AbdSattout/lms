@@ -59,7 +59,8 @@ public class CourseEnrollmentAccessService {
                 )
                 .map(enrollment ->
                         courseMapper.toResponse(
-                                enrollment.getCourse()
+                                enrollment.getCourse(),
+                                enrollment
                         )
                 );
 

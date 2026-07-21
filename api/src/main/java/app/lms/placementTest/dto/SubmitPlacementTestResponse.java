@@ -7,6 +7,7 @@ public record SubmitPlacementTestResponse(
         Boolean completed,
         Integer correctAnswers,
         Integer totalAnswers,
+        Integer remainingHearts,
         PlacementTestQuestionResponse nextQuestion,
         Long startBlockId,
         Long startLessonId,

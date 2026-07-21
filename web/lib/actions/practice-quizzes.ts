@@ -7,6 +7,7 @@ import {
   updatePracticeQuizQuestionsSchema,
 } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 
 export async function createPracticeQuizAction(
   courseId: number,
@@ -49,4 +50,20 @@ export async function updatePracticeQuizQuestionsAction(
 
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/quizzes/${quizId}`)
   return { quiz }
+}
+
+export async function deletePracticeQuizAction(
+  courseId: number,
+  quizId: number,
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string }> {
+  const deleted = await api.dashboard.practiceQuizzes.delete
+    .delete(courseId, quizId)
+    .catch(() => null)
+
+  if (deleted === null) return { error: "حدث خطأ أثناء حذف الاختبار" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/quizzes`)
+  redirect(`/${orgSlug}/courses/${courseSlug}/quizzes`)
 }

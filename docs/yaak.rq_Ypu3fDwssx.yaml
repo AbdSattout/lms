@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_Ypu3fDwssx
 createdAt: 2026-05-06T14:53:04.183251800
-updatedAt: 2026-07-16T11:33:26.354561700
+updatedAt: 2026-07-16T12:17:13.303991700
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Qf63cswemc
 authentication: {}
@@ -10,7 +10,7 @@ authenticationType: none
 body:
   text: |-
     {
-      "idToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9pZGMtMSJ9.eyJzdWIiOiIxMDI5MTQyNTM0OTc5NTYyMjQxOCIsImF1ZCI6Ijg2NDEwOTk5NTMiLCJleHAiOjE3ODQxNTc3ODgsImlhdCI6MTc4NDE1Nzc1OCwiaXNzIjoiaHR0cHM6XC9cL29hdXRoLnRlbGVncmFtLm9yZyIsIm5hbWUiOiJrYXJhbSBuc3NyIiwiZ2l2ZW5fbmFtZSI6ImthcmFtIiwiZmFtaWx5X25hbWUiOiJuc3NyIiwicGljdHVyZSI6Imh0dHBzOlwvXC90Lm1lXC9pXC91c2VycGljXC8zMjBcLzBGLThvdTZTQURVenNRVHRxX3VNeEZ3OTVjVmMxOTRVb3hrOXJUVnkwQnMuanBnIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiS2FyYW1Oc3NyIiwiaWQiOiI3Mjg3Mzc3NTAifQ.tD2Zg3_xP9bmdShsUJ8hBhnb_IGt6Xkka_dTUKVXCtZFzf6K6CqNltyXXCjwEkz_EN-2kNGSNVu-TaCkzQz9LfMIhxFn4QYznfh5Hxu9LT-qMsXgJDAdjwEBiAHq87dPxjBETmjK6A3Nro9lZ7CzbR3ZC-T1HWjJoKx0cYyG65tn83WxB4BuJaYtPb48jq5gf6KStYp0L8mM7DENmFxJRI2W98mEteIpno9JWaUsTk7Si-niZ2kqFaz8Pj8P6pllZQ2_vngTG9ALSCbgXqK3YCKbRbr1u9pfT69iuXhrBuzIFZGhW9Fnw3qHpFUFGZxlDFE1vz_-mKcti_MTH7toZQ"
+      "idToken": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Im9pZGMtMSJ9.eyJzdWIiOiI0NTgyODQ0MzA4MzY2NDEwOTcxIiwiYXVkIjoiODY0MTA5OTk1MyIsImV4cCI6MTc4NDIwNDIyMiwiaWF0IjoxNzg0MjA0MTkyLCJpc3MiOiJodHRwczpcL1wvb2F1dGgudGVsZWdyYW0ub3JnIiwibmFtZSI6IkFiZGFsbGFoIEFsc2hhbW1hYSIsImdpdmVuX25hbWUiOiJBYmRhbGxhaCIsImZhbWlseV9uYW1lIjoiQWxzaGFtbWFhIiwicGljdHVyZSI6Imh0dHBzOlwvXC90Lm1lXC9pXC91c2VycGljXC8zMjBcL2hmUGUxcHlrYlZMRm9kc2YxaHM2VzBPSWhFcGVONDU2QmdLUnllSkFBMjAuanBnIiwicHJlZmVycmVkX3VzZXJuYW1lIjoiTm90M2JvZGVoIiwiaWQiOiI5NDU2MjQ0OTQifQ.1tFsLL2rKmc-4Nt49CmUOb27UvaJ9HCG_3cRbxXDvVE67-vrSf-739kiIJ2MPX3iEmXJzkrNrXhePmyKxTHaN-Rz2CxjtkDzxr1EsD4WhIZwfTzr3XQ6qEf_GydEFPKQTHWSCWSmjYN5GnG42sgG9Ko2gWANDxL2aLvA4EN_3flBHlwA82FIJe8Hz2x7K3rKu9NJeQyLy1cZVeXv1FHzRzidfIqlrHbkqcScuyKHFDsQOkD8htYLj04HvZ_FamQp7CwWLydabDiQyeB_MT2K4zSIxHAy7dkgKZsP5lezgJwAslZqCoHhaBHsPsIC0VLXUDZvIlWeJLtw_YqeNk0n-w"
     }
 bodyType: application/json
 description: ''
@@ -28,18 +28,3 @@ name: login
 sortPriority: 0.0
 url: https://lms.koyeb.app/auth/login
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

@@ -56,3 +56,14 @@ export const updateQuestions = defineApiRoute({
       }
     ),
 })
+
+export const deleteQuiz = defineApiRoute({
+  delete: (courseId: number, practiceQuizId: number, options?: BackendFetchOptions) =>
+    backend<void>(
+      `/dashboard/courses/${courseId}/practice-quizzes/${practiceQuizId}`,
+      {
+        method: "DELETE",
+        ...options,
+      }
+    ),
+})

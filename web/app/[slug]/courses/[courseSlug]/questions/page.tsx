@@ -21,10 +21,9 @@ export default async function QuestionsPage({
 
   return (
     <QuestionsPageClient
-      courseId={course.id}
+      course={course}
       orgSlug={slug}
       courseSlug={courseSlug}
-      courseTitle={course.title}
       initialQuestions={questions}
     />
   )

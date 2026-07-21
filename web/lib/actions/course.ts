@@ -2,13 +2,17 @@
 
 import { api } from "@/lib/api"
 import type {
+  BlockResponse,
   ChapterResponse,
   LessonResponse,
   QuestionResponse,
 } from "@/lib/api/types"
 import {
+  createBlockSchema,
   createCourseSchema,
   createQuestionSchema,
+  generateQuestionFromBlockContentSchema,
+  updateBlockSchema,
   updateCourseSchema,
   updateQuestionSchema,
 } from "@/lib/validation"
@@ -100,7 +104,10 @@ export async function publishCourse(
     .post(courseId)
     .catch(() => null)
 
-  if (published === null) return { error: "حدث خطأ أثناء نشر الدورة." }
+  if (published === null)
+    return {
+      error: "يجب أن يحوي الاختبار النهائي 10 أسئلة على الأقل لنشر الكورس.",
+    }
 
   revalidatePath(`/${orgSlug}/courses`)
   return { success: true }
@@ -261,7 +268,34 @@ export async function createQuestionAction(
   if (!question) return { error: "حدث خطأ أثناء إنشاء السؤال" }
 
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
   return { question }
+}
+
+export async function generateQuestionFromBlockContentAction(
+  courseId: number,
+  blockContent: string,
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; question?: QuestionResponse }> {
+  const parsed = generateQuestionFromBlockContentSchema.safeParse({
+    blockContent,
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const generated = await api.dashboard.ai.generateQuestionFromBlock
+    .post(parsed.data)
+    .catch(() => null)
+
+  if (!generated)
+    return { error: "حدث خطأ أثناء توليد السؤال بالذكاء الاصطناعي" }
+
+  if (!generated.content.trim() || generated.options.length < 2)
+    return { error: "السؤال المُولد غير صالح. حاول مرة أخرى." }
+
+  return createQuestionAction(courseId, generated, orgSlug, courseSlug)
 }
 
 export async function updateQuestionAction(
@@ -287,7 +321,89 @@ export async function updateQuestionAction(
   if (!question) return { error: "حدث خطأ أثناء تحديث السؤال" }
 
   revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
   return { question }
+}
+
+export async function createBlockAction(
+  lessonId: number,
+  title: string,
+  content: string,
+  questionId: number,
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string; block?: BlockResponse }> {
+  const parsed = createBlockSchema.safeParse({
+    title,
+    content,
+    questionId,
+  })
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const block = await api.dashboard.blocks.create
+    .post(lessonId, parsed.data)
+    .catch(() => null)
+
+  if (!block) return { error: "حدث خطأ أثناء إنشاء البلوك" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return { block }
+}
+
+export async function updateBlockAction(
+  blockId: number,
+  data: { title?: string; content?: string; questionId?: number },
+  orgSlug: string,
+  courseSlug: string,
+  lessonId: number
+): Promise<{ error?: string; block?: BlockResponse }> {
+  const parsed = updateBlockSchema.safeParse(data)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
+  }
+
+  const block = await api.dashboard.blocks.byId
+    .patch(blockId, parsed.data)
+    .catch(() => null)
+
+  if (!block) return { error: "حدث خطأ أثناء تحديث البلوك" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return { block }
+}
+
+export async function deleteBlockAction(
+  blockId: number,
+  orgSlug: string,
+  courseSlug: string,
+  lessonId: number
+): Promise<{ error?: string }> {
+  const deleted = await api.dashboard.blocks.byId
+    .delete(blockId)
+    .catch(() => null)
+
+  if (deleted === null) return { error: "حدث خطأ أثناء حذف البلوك" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return {}
+}
+
+export async function reorderBlocksAction(
+  lessonId: number,
+  blockIds: number[],
+  orgSlug: string,
+  courseSlug: string
+): Promise<{ error?: string }> {
+  const result = await api.dashboard.blocks.reorder
+    .patch(lessonId, { blockIds })
+    .catch(() => null)
+
+  if (result === null) return { error: "حدث خطأ أثناء ترتيب البلوكات" }
+
+  revalidatePath(`/${orgSlug}/courses/${courseSlug}/lessons/${lessonId}`)
+  return {}
 }
 
 export async function deleteQuestionAction(
@@ -298,6 +414,7 @@ export async function deleteQuestionAction(
   try {
     await api.dashboard.questions.byId.delete(questionId)
     revalidatePath(`/${orgSlug}/courses/${courseSlug}/questions`)
+    revalidatePath(`/${orgSlug}/courses/${courseSlug}`)
     return {}
   } catch (error) {
     if (error instanceof Error && error.message.includes("(409)")) {

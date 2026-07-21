@@ -1,0 +1,18 @@
+.tiptap-math-input {
+  font-size: 0.875rem;
+  border: none;
+  min-width: 10rem;
+  padding: 0.25rem 0.625rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: ltr;
+
+  &:placeholder-shown {
+    direction: rtl;
+  }
+
+  &:focus {
+    text-overflow: clip;
+    overflow: visible;
+  }
+}

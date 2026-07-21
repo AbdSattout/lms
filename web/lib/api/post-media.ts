@@ -19,7 +19,7 @@ function toQueryString(pageable: PageableInput) {
 export const byOrg = defineApiRoute({
   get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<Page<PostMediaResponse>>(
-      `/postMedia/organizations/${slug}/media${toQueryString(pageable)}`,
+      `/dashboard/organizations/${slug}/post-media${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
   post: (slug: string, file: File, options?: BackendFetchOptions) => {
@@ -27,7 +27,7 @@ export const byOrg = defineApiRoute({
 
     body.set("file", file)
 
-    return backend<PostMediaResponse>(`/postMedia/organizations/${slug}/media`, {
+    return backend<PostMediaResponse>(`/dashboard/organizations/${slug}/post-media`, {
       method: "POST",
       body,
       ...options,
@@ -36,25 +36,25 @@ export const byOrg = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
-  get: (mediaId: number, options?: BackendFetchOptions) =>
-    backend<PostMediaResponse>(`/postMedia/media/${mediaId}`, {
+  get: (slug: string, mediaId: number, options?: BackendFetchOptions) =>
+    backend<PostMediaResponse>(`/dashboard/organizations/${slug}/post-media/${mediaId}`, {
       method: "GET",
       ...options,
     }),
-  patch: (mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
+  patch: (slug: string, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     if (file) body.set("file", file)
     if (name) body.set("name", name)
 
-    return backend<PostMediaResponse>(`/postMedia/media/${mediaId}`, {
+    return backend<PostMediaResponse>(`/dashboard/organizations/${slug}/post-media/${mediaId}`, {
       method: "PATCH",
       body,
       ...options,
     })
   },
-  delete: (mediaId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/postMedia/media/${mediaId}`, {
+  delete: (slug: string, mediaId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/dashboard/organizations/${slug}/post-media/${mediaId}`, {
       method: "DELETE",
       ...options,
     }),
