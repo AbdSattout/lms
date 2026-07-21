@@ -2,6 +2,7 @@ package app.lms.plan.aspect;
 
 import app.lms.plan.annotation.ConsumesPlanUsage;
 import app.lms.plan.service.PlanLimitService;
+import app.lms.security.UserPrincipal;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -9,9 +10,10 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
 
 @Aspect
 @Component
@@ -28,9 +30,7 @@ public class PlanUsageAspect {
     ) throws Throwable {
 
         User user =
-                extractUser(
-                        joinPoint
-                );
+                currentUser();
 
         boolean reserved =
                 planLimitService.reserve(
@@ -52,20 +52,34 @@ public class PlanUsageAspect {
         }
     }
 
-    private User extractUser(
-            ProceedingJoinPoint joinPoint
-    ) {
+    private User currentUser() {
 
-        return Arrays.stream(
-                        joinPoint.getArgs()
-                )
-                .filter(User.class::isInstance)
-                .map(User.class::cast)
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "@ConsumesPlanUsage requires a User method argument"
-                        )
-                );
+        Authentication authentication =
+                SecurityContextHolder.getContext()
+                        .getAuthentication();
+
+        if (
+                authentication == null ||
+                        !authentication.isAuthenticated()
+        ) {
+            throw new AuthenticationCredentialsNotFoundException(
+                    "@ConsumesPlanUsage requires an authenticated user"
+            );
+        }
+
+        Object principal =
+                authentication.getPrincipal();
+
+        if (principal instanceof UserPrincipal userPrincipal) {
+            return userPrincipal.user();
+        }
+
+        if (principal instanceof User user) {
+            return user;
+        }
+
+        throw new AuthenticationCredentialsNotFoundException(
+                "@ConsumesPlanUsage requires an authenticated user"
+        );
     }
 }
