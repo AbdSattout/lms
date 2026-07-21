@@ -23,17 +23,13 @@ public class PlanLimitService {
 
         consumeWeekly(
                 user,
-                PlanUsageType.COURSE_ENROLLMENT,
-                plan.getWeeklyCourseEnrollmentLimit(),
-                "Weekly course enrollment limit reached"
+                plan.getWeeklyCourseEnrollmentLimit()
         );
     }
 
     private void consumeWeekly(
             User user,
-            PlanUsageType type,
-            Integer limit,
-            String message
+            Integer limit
     ) {
 
         if (userPlanService.isUnlimited(limit)) {
@@ -43,12 +39,12 @@ public class PlanLimitService {
         boolean consumed =
                 usageCounterService.tryIncrementWeekly(
                         user.getId(),
-                        type,
+                        PlanUsageType.COURSE_ENROLLMENT,
                         limit
                 );
 
         if (!consumed) {
-            throw new PlanLimitExceededException(message);
+            throw new PlanLimitExceededException("Weekly course enrollment limit reached");
         }
     }
 }
