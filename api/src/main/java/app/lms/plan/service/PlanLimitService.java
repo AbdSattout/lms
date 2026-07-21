@@ -20,7 +20,7 @@ public class PlanLimitService {
     ) {
 
         Plan plan =
-                userPlanService.currentPlan(user);
+                userPlanService.getOrCreateCurrentPlan(user);
 
         return reserveWeekly(
                 user,
@@ -49,7 +49,7 @@ public class PlanLimitService {
             Integer limit
     ) {
 
-        if (userPlanService.isUnlimited(limit)) {
+        if (isUnlimited(limit)) {
             return false;
         }
 
@@ -96,5 +96,12 @@ public class PlanLimitService {
             case AI_TOOL -> "Weekly AI tools limit reached";
             case RANDOM_QUIZ -> "Random quiz limit reached";
         };
+    }
+
+    private boolean isUnlimited(
+            Integer limit
+    ) {
+
+        return limit == null;
     }
 }
