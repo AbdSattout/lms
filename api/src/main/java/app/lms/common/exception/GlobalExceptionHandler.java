@@ -4,6 +4,7 @@ import app.lms.ai.common.exception.AiServiceException;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.exception.ImageUploadException;
 import app.lms.plan.exception.PlanLimitExceededException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 @SuppressWarnings("unused")
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
@@ -198,6 +200,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleRedisConnectionFailureException(
             RedisConnectionFailureException ex
     ) {
+
+        log.error(
+                "Redis connection failed",
+                ex
+        );
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(
