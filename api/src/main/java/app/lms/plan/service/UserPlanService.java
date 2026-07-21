@@ -1,9 +1,7 @@
 package app.lms.plan.service;
 
 import app.lms.common.exception.NotFoundException;
-import app.lms.plan.dto.UserPlanResponse;
 import app.lms.plan.enums.PlanCode;
-import app.lms.plan.mapper.UserPlanMapper;
 import app.lms.plan.model.Plan;
 import app.lms.plan.model.UserPlan;
 import app.lms.plan.repository.PlanRepository;
@@ -21,55 +19,17 @@ public class UserPlanService {
 
     private final PlanRepository planRepository;
     private final UserPlanRepository userPlanRepository;
-    private final UserPlanMapper userPlanMapper;
 
     @Transactional
-    public Plan currentPlan(
+    public Plan getOrCreateCurrentPlan(
             User user
     ) {
 
-        return currentUserPlan(user)
+        return getOrCreateCurrentUserPlan(user)
                 .getPlan();
     }
 
-    @Transactional
-    public UserPlanResponse current(
-            User user
-    ) {
-
-        UserPlan userPlan =
-                currentUserPlan(user);
-
-        return userPlanMapper.toResponse(
-                userPlan.getPlan(),
-                userPlan,
-                isPremiumPlan(userPlan)
-        );
-    }
-
-    @Transactional
-    public boolean isPremium(
-            User user
-    ) {
-
-        return currentPlan(user).getCode() == PlanCode.PREMIUM;
-    }
-
-    public boolean isUnlimited(
-            Integer limit
-    ) {
-
-        return limit == null;
-    }
-
-    public boolean isUnlimited(
-            Long limit
-    ) {
-
-        return limit == null;
-    }
-
-    private UserPlan currentUserPlan(
+    private UserPlan getOrCreateCurrentUserPlan(
             User user
     ) {
 
