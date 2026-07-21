@@ -11,6 +11,8 @@ import app.lms.faq.dto.CourseFaqResponse;
 import app.lms.faq.model.CourseFaq;
 import app.lms.faq.repository.CourseFaqRepository;
 import app.lms.lesson.model.Lesson;
+import app.lms.plan.annotation.ConsumesPlanUsage;
+import app.lms.plan.enums.PlanUsageType;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class DashboardAiFaqService {
     private final CourseFaqRepository courseFaqRepository;
     private final DashboardAiFaqAccessService  dashboardAiFaqAccessService;
     @Transactional
+    @ConsumesPlanUsage(PlanUsageType.AI_TOOL)
     public List<CourseFaqResponse> generate(
             Long courseId,
             GenerateCourseFaqRequest request,
