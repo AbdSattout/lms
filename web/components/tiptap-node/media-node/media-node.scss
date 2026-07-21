@@ -16,3 +16,10 @@
     background: var(--color-accent);
   }
 }
+
+.tiptap-renderer-content
+  .tiptap.ProseMirror
+  .ProseMirror-selectednode
+  [data-type="media"] {
+  box-shadow: none;
+}
