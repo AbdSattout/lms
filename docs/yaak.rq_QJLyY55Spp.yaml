@@ -1,26 +1,21 @@
 type: http_request
 model: http_request
-id: rq_zXLffKtHHm
-createdAt: 2026-06-13T17:01:24.124859300
-updatedAt: 2026-07-21T09:53:45.597966400
+id: rq_QJLyY55Spp
+createdAt: 2026-07-19T17:28:20.549436900
+updatedAt: 2026-07-21T09:54:23.650546300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
 authenticationType: bearer
-body:
-  text: ''
-bodyType: application/json
+body: {}
+bodyType: null
 description: ''
-headers:
-- enabled: true
-  name: Content-Type
-  value: application/json
-  id: xgkBJ52siE
+headers: []
 method: GET
-name: Get course by id
+name: Get Placement Test
 sortPriority: 1000.001
-url: https://lms.koyeb.app/courses/6
+url: https://lms.koyeb.app/mobile/courses/6/placement-test
 urlParameters: []
 settingSendCookies:
   enabled: false

@@ -2,10 +2,11 @@ type: http_request
 model: http_request
 id: rq_questionPackage002
 createdAt: 2026-07-16T00:00:00
-updatedAt: 2026-07-16T00:00:00
+updatedAt: 2026-07-16T21:08:36.376540800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GkMNXFRG5u
-authentication: {}
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjMzNTk0LCJleHAiOjE3ODQ4MzgzOTR9.FCyoPLj8DGJ3b6wsR0Oir_2EiSViEY8CsTea7UULIDQ
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -14,7 +15,7 @@ headers: []
 method: GET
 name: List Course Questions
 sortPriority: 2000.0
-url: http://localhost:8080/dashboard/courses/{courseId}/questions
+url: https://lms.koyeb.app/dashboard/courses/1/questions
 urlParameters: []
 settingSendCookies:
   enabled: false
