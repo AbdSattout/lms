@@ -14,37 +14,87 @@ public class PlanLimitService {
     private final UserPlanService userPlanService;
     private final PlanUsageCounterService usageCounterService;
 
-    public void consumeWeeklyCourseEnrollment(
-            User user
+    public boolean reserve(
+            User user,
+            PlanUsageType type
     ) {
 
         Plan plan =
                 userPlanService.currentPlan(user);
 
-        consumeWeekly(
+        return reserveWeekly(
                 user,
-                plan.getWeeklyCourseEnrollmentLimit()
+                type,
+                weeklyLimit(
+                        plan,
+                        type
+                )
         );
     }
 
-    private void consumeWeekly(
+    public void release(
             User user,
+            PlanUsageType type
+    ) {
+
+        usageCounterService.releaseWeekly(
+                user.getId(),
+                type
+        );
+    }
+
+    private boolean reserveWeekly(
+            User user,
+            PlanUsageType type,
             Integer limit
     ) {
 
         if (userPlanService.isUnlimited(limit)) {
-            return;
+            return false;
         }
 
-        boolean consumed =
+        boolean reserved =
                 usageCounterService.tryIncrementWeekly(
                         user.getId(),
-                        PlanUsageType.COURSE_ENROLLMENT,
+                        type,
                         limit
                 );
 
-        if (!consumed) {
-            throw new PlanLimitExceededException("Weekly course enrollment limit reached");
+        if (!reserved) {
+            throw new PlanLimitExceededException(
+                    limitExceededMessage(
+                            type
+                    )
+            );
         }
+
+        return true;
+    }
+
+    private Integer weeklyLimit(
+            Plan plan,
+            PlanUsageType type
+    ) {
+
+        return switch (type) {
+            case AI_QUIZ -> plan.getWeeklyAiQuizLimit();
+            case COURSE_ENROLLMENT -> plan.getWeeklyCourseEnrollmentLimit();
+            case AI_TOOL -> plan.getWeeklyAiToolLimit();
+            case RANDOM_QUIZ -> throw new IllegalArgumentException(
+                    "Random quiz usage requires a course-scoped limit"
+            );
+        };
+    }
+
+    private String limitExceededMessage(
+            PlanUsageType type
+    ) {
+
+        return switch (type) {
+            case AI_QUIZ -> "Weekly AI quiz limit reached";
+            case COURSE_ENROLLMENT -> "Weekly course enrollment limit reached";
+            case AI_TOOL -> "Weekly AI tools limit reached";
+            case RANDOM_QUIZ -> "Random quiz limit reached";
+        };
     }
 }
