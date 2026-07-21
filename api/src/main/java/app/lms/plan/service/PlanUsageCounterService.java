@@ -20,8 +20,8 @@ public class PlanUsageCounterService {
     private static final String WEEKLY_KEY_FORMAT =
             "plan:user:%d:%s:week:%d-W%02d";
 
-    private static final String COURSE_KEY_FORMAT =
-            "plan:user:%d:course:%d:%s";
+    private static final String COURSE_WEEKLY_KEY_FORMAT =
+            "plan:user:%d:course:%d:%s:week:%d-W%02d";
 
     private static final ZoneId ZONE =
             ZoneId.systemDefault();
@@ -66,35 +66,41 @@ public class PlanUsageCounterService {
         );
     }
 
-    public long incrementCourseUsage(
+    public long incrementCourseWeekly(
             Long userId,
             Long courseId,
             PlanUsageType type
     ) {
 
+        String key =
+                courseWeeklyKey(
+                        userId,
+                        courseId,
+                        type
+                );
+
         Long usage =
                 redisTemplate.opsForValue()
-                        .increment(
-                                courseKey(
-                                        userId,
-                                        courseId,
-                                        type
-                                )
-                        );
+                        .increment(key);
+
+        redisTemplate.expire(
+                key,
+                ttlUntilNextWeek()
+        );
 
         return usage != null
                 ? usage
                 : 0;
     }
 
-    public long getCourseUsage(
+    public long getCourseWeeklyUsage(
             Long userId,
             Long courseId,
             PlanUsageType type
     ) {
 
         return getUsage(
-                courseKey(
+                courseWeeklyKey(
                         userId,
                         courseId,
                         type
@@ -136,16 +142,24 @@ public class PlanUsageCounterService {
         );
     }
 
-    private String courseKey(
+    private String courseWeeklyKey(
             Long userId,
             Long courseId,
             PlanUsageType type
     ) {
 
-        return COURSE_KEY_FORMAT.formatted(
+        LocalDate today =
+                LocalDate.now(ZONE);
+
+        WeekFields weekFields =
+                WeekFields.ISO;
+
+        return COURSE_WEEKLY_KEY_FORMAT.formatted(
                 userId,
                 courseId,
-                type.getKeySegment()
+                type.getKeySegment(),
+                today.get(weekFields.weekBasedYear()),
+                today.get(weekFields.weekOfWeekBasedYear())
         );
     }
 
