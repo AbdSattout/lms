@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/dashboard/organizations/{slug}/post-media")
+@RequestMapping("/dashboard/organizations/{organizationId}/post-media")
 @RequiredArgsConstructor
 public class DashboardPostMediaController {
 
@@ -30,7 +30,7 @@ public class DashboardPostMediaController {
             consumes = "multipart/form-data"
     )
     public ResponseEntity<PostMediaResponse> create(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
@@ -39,7 +39,7 @@ public class DashboardPostMediaController {
                 .status(HttpStatus.CREATED)
                 .body(
                         postMediaService.create(
-                                slug,
+                                organizationId,
                                 file,
                                 principal.user()
                         )
@@ -51,7 +51,7 @@ public class DashboardPostMediaController {
             consumes = "multipart/form-data"
     )
     public ResponseEntity<PostMediaResponse> update(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             @PathVariable Long mediaId,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart(value = "name", required = false) String name,
@@ -60,7 +60,7 @@ public class DashboardPostMediaController {
 
         return ResponseEntity.ok(
                 postMediaService.update(
-                        slug,
+                        organizationId,
                         mediaId,
                         file,
                         name,
@@ -71,13 +71,13 @@ public class DashboardPostMediaController {
 
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<Void> delete(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             @PathVariable Long mediaId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         postMediaService.delete(
-                slug,
+                organizationId,
                 mediaId,
                 principal.user()
         );
@@ -89,14 +89,14 @@ public class DashboardPostMediaController {
 
     @GetMapping("/{mediaId}")
     public ResponseEntity<PostMediaResponse> getById(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             @PathVariable Long mediaId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 postMediaService.getById(
-                        slug,
+                        organizationId,
                         mediaId,
                         principal.user()
                 )
@@ -105,14 +105,14 @@ public class DashboardPostMediaController {
 
     @GetMapping
     public ResponseEntity<Page<PostMediaResponse>> list(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             Pageable pageable,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 postMediaService.list(
-                        slug,
+                        organizationId,
                         pageable,
                         principal.user()
                 )
