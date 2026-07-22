@@ -1,5 +1,6 @@
 package app.lms.roadmap.repository;
 
+import app.lms.roadmap.enums.RoadmapFollowStatus;
 import app.lms.roadmap.model.RoadmapFollower;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,5 +41,10 @@ public interface RoadmapFollowerRepository
     )
     long countActiveByUserId(
             @Param("userId") Long userId
+    );
+
+    long countByUserIdAndStatus(
+            Long userId,
+            RoadmapFollowStatus status
     );
 }

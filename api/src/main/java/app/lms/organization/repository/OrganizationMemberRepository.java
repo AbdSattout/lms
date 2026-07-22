@@ -51,4 +51,11 @@ where m.organization.id = :organizationId
 
     long countByOrganizationId(Long organizationId);
 
+    long countByOrganizationIdAndRole(
+            Long organizationId,
+            Role role
+    );
+
+    long countByUserId(Long userId);
+
 }
