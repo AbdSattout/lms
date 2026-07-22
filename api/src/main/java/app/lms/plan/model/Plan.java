@@ -61,5 +61,5 @@ public class Plan extends BaseEntity {
 
     private Integer organizationLimit;
 
-    private Integer weeklyAiToolLimit;
+    private Integer dailyAiToolLimit;
 }
