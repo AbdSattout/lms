@@ -3,10 +3,10 @@ package app.lms.plan.config;
 import app.lms.plan.enums.PlanCode;
 import app.lms.plan.model.Plan;
 import app.lms.plan.repository.PlanRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +19,7 @@ public class DefaultPlanSeeder implements ApplicationRunner {
     private static final BigDecimal FREE_XP_MULTIPLIER =
             BigDecimal.ONE;
 
-    private static final int FREE_WEEKLY_AI_QUIZ_LIMIT = 1;
+    private static final int FREE_WEEKLY_AI_QUIZ_LIMIT = 2;
 
     private static final int FREE_WEEKLY_COURSE_ENROLLMENT_LIMIT = 2;
 
@@ -35,7 +35,7 @@ public class DefaultPlanSeeder implements ApplicationRunner {
     private static final int FREE_DAILY_AI_TOOL_LIMIT = 10;
 
     private static final BigDecimal PREMIUM_XP_MULTIPLIER =
-            new BigDecimal("1.50");
+            new BigDecimal("1.20");
 
     private final PlanRepository planRepository;
 
@@ -76,7 +76,7 @@ public class DefaultPlanSeeder implements ApplicationRunner {
                                 FREE_ORGANIZATION_STORAGE_LIMIT_BYTES
                         )
                         .organizationLimit(FREE_ORGANIZATION_LIMIT)
-                        .weeklyAiToolLimit(FREE_DAILY_AI_TOOL_LIMIT)
+                        .dailyAiToolLimit(FREE_DAILY_AI_TOOL_LIMIT)
                         .build();
 
         planRepository.save(plan);
@@ -101,7 +101,7 @@ public class DefaultPlanSeeder implements ApplicationRunner {
                         .randomQuizPerCourseLimit(null)
                         .organizationStorageLimitBytes(null)
                         .organizationLimit(null)
-                        .weeklyAiToolLimit(null)
+                        .dailyAiToolLimit(null)
                         .build();
 
         planRepository.save(plan);

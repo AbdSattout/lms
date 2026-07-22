@@ -148,7 +148,7 @@ public class PlanLimitService {
         return switch (type) {
             case AI_QUIZ -> plan.getWeeklyAiQuizLimit();
             case COURSE_ENROLLMENT -> plan.getWeeklyCourseEnrollmentLimit();
-            case AI_TOOL -> plan.getWeeklyAiToolLimit();
+            case AI_TOOL -> plan.getDailyAiToolLimit();
             case RANDOM_QUIZ -> plan.getRandomQuizPerCourseLimit();
         };
     }
