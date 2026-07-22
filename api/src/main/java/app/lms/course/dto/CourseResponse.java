@@ -3,6 +3,7 @@ package app.lms.course.dto;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.courceEnrollment.dto.CourseEnrollmentResponse;
 import app.lms.course.enums.CourseStatus;
+import app.lms.organization.dto.OrganizationSummaryResponse;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
@@ -14,8 +15,7 @@ public record CourseResponse(
         String slug,
         String description,
         String coverUrl,
-        Long organizationId,
-        String organizationName,
+        OrganizationSummaryResponse organization,
         CourseStatus status,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         CourseEnrollmentResponse enrollment,
