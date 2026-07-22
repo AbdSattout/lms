@@ -46,6 +46,9 @@ public class CourseMapper {
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .coverUrl(course.getCoverUrl())
+                .organizationId(
+                        course.getOrganization().getId()
+                )
                 .organizationName(
                         course.getOrganization().getName()
                 )
