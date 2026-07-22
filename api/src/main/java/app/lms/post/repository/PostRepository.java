@@ -13,7 +13,7 @@ public interface PostRepository
             Pageable pageable
     );
 
-    Page<Post> findByOrganizationId(
+    Page<Post> findByOrganizationIdAndCourseIsNull(
             Long organizationId,
             Pageable pageable
     );
@@ -21,4 +21,6 @@ public interface PostRepository
     void deleteByOrganizationId(
             Long organizationId
     );
+
+    long countByOrganizationId(Long organizationId);
 }

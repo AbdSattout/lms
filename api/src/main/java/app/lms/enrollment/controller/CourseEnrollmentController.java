@@ -1,8 +1,8 @@
-package app.lms.courceEnrollment.controller;
+package app.lms.enrollment.controller;
 
-import app.lms.courceEnrollment.dto.EnrollmentResponse;
-import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
-import app.lms.courceEnrollment.service.CourseEnrollmentService;
+import app.lms.enrollment.dto.EnrollmentResponse;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
+import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.course.dto.CourseResponse;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;

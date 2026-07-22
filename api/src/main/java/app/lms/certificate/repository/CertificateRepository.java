@@ -21,4 +21,6 @@ public interface CertificateRepository extends JpaRepository<Certificate,Long> {
             Long userId,
             Pageable pageable
     );
+
+    long countByUserId(Long userId);
 }

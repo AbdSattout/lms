@@ -1,9 +1,9 @@
 package app.lms.course.service;
 
-import app.lms.courceEnrollment.model.CourseEnrollment;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
-import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.enrollment.model.CourseEnrollment;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.dto.CourseDetailsResponse;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.enums.CourseStatus;

@@ -2,9 +2,9 @@ package app.lms.roadmap.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.model.CourseEnrollment;
-import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.model.CourseEnrollment;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationMemberRepository;
