@@ -1,7 +1,7 @@
-package app.lms.dashboard.user.controller;
+package app.lms.analytics.user.controller;
 
-import app.lms.dashboard.user.dto.UserDashboardResponse;
-import app.lms.dashboard.user.service.UserDashboardService;
+import app.lms.analytics.user.dto.UserDashboardResponse;
+import app.lms.analytics.user.service.UserDashboardService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

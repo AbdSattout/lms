@@ -1,4 +1,4 @@
-package app.lms.dashboard.organization.dto;
+package app.lms.analytics.organization.dto;
 
 import app.lms.media.dto.StorageResponse;
 import app.lms.user.dto.UserResponse;

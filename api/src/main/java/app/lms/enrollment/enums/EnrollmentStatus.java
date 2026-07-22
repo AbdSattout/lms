@@ -1,4 +1,4 @@
-package app.lms.courceEnrollment.enums;
+package app.lms.enrollment.enums;
 
 public enum EnrollmentStatus {
 
