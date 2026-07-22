@@ -1,8 +1,8 @@
-package app.lms.dashboard.organization.service;
+package app.lms.analytics.organization.service;
 
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.repository.CourseRepository;
-import app.lms.dashboard.organization.dto.OrganizationDashboardResponse;
+import app.lms.analytics.organization.dto.OrganizationDashboardResponse;
 import app.lms.media.dto.StorageResponse;
 import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.organization.enums.Role;

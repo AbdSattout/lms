@@ -1,4 +1,4 @@
-package app.lms.courceEnrollment.dto;
+package app.lms.enrollment.dto;
 
 import app.lms.gamification.dto.GamificationAwardResponse;
 import lombok.Builder;

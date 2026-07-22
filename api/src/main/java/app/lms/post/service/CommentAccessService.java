@@ -33,8 +33,8 @@ public class CommentAccessService {
         Comment comment =
                 getById(commentId);
 
-        postAccessService.getEditablePost(
-                comment.getPost().getId(),
+        postAccessService.validateEditable(
+                comment.getPost(),
                 user
         );
 

@@ -2,11 +2,13 @@ package app.lms.post.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.course.service.CourseAccessService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.post.dto.CreatePostRequest;
 import app.lms.post.dto.PostResponse;
 import app.lms.post.dto.UpdatePostRequest;
@@ -30,6 +32,8 @@ public class PostService {
     private final PostAccessService postAccessService;
     private final OrganizationAccessService organizationAccessService;
     private final CourseRepository courseRepository;
+    private final OrganizationMemberAccessService organizationMemberAccessService;
+    private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
     @Transactional
     public PostResponse create(
@@ -90,28 +94,22 @@ public class PostService {
             User user
     ) {
 
-        Post post =
-                postAccessService
-                        .getEditablePost(
-                                postId,
-                                user
-                        );
+        Post post = findPostById(postId);
+
+        postAccessService.validateEditable(
+                post,
+                user
+        );
 
         if (request.title() != null) {
-            post.setTitle(
-                    request.title()
-            );
+            post.setTitle(request.title());
         }
 
         if (request.content() != null) {
-            post.setContent(
-                    request.content()
-            );
+            post.setContent(request.content());
         }
 
-        return postMapper.toResponse(
-                post
-        );
+        return postMapper.toResponse(post);
     }
 
     @Transactional
@@ -120,51 +118,96 @@ public class PostService {
             User user
     ) {
 
-        Post post =
-                postAccessService
-                        .getEditablePost(
-                                postId,
-                                user
-                        );
+        Post post = findPostById(postId);
+
+        postAccessService.validateEditable(
+                post,
+                user
+        );
 
         postRepository.delete(post);
     }
 
-    public Page<PostResponse> getOrganizationPosts(String slug, Pageable pageable) {
+    public Post findPostById(Long postId){
+        return postRepository.findById(postId)
+                .orElseThrow( () -> new NotFoundException( "Post not found" ) );
+    }
+
+    public Page<PostResponse> getOrganizationPosts(
+            String slug,
+            User user,
+            Pageable pageable
+    ) {
+
         Organization organization =
                 organizationAccessService.getBySlug(slug);
 
+        postAccessService.validateMember(
+                organization,
+                user
+        );
+
         return postRepository
-                .findByOrganizationId(
+                .findByOrganizationIdAndCourseIsNull(
                         organization.getId(),
                         pageable
                 )
                 .map(postMapper::toResponse);
     }
 
-    public PostResponse getById(Long postId) {
-        Post post = postAccessService.getById(postId);
+    public PostResponse getById(
+            String slug,
+            Long postId,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
+
+        postAccessService.validateMember(
+                organization,
+                user
+        );
+
+        Post post = findPostById(postId);
+
+        postAccessService.validateCourseAccess(
+                post,
+                user
+        );
+
         return postMapper.toResponse(post);
     }
 
     public Page<PostResponse> getCoursePosts(
             Long courseId,
+            User user,
             Pageable pageable
     ) {
-        courseRepository.findById(courseId)
-                .orElseThrow(() -> new NotFoundException("Course not found"));
-
-
-
-        Page<Post> posts = postRepository
-                .findByCourseId(
-                        courseId,
-                        pageable
+        Course course = courseRepository
+                .findById(courseId)
+                .orElseThrow(
+                        () -> new NotFoundException("Course not found")
                 );
-        if (posts.isEmpty())
-            throw new NotFoundException("No posts found for this course");
+
+        if (!organizationMemberAccessService.isManager(
+                course.getOrganization().getId(),
+                user.getId()
+        )) {
+
+            courseEnrollmentAccessService.validateEnrolled(
+                    courseId,
+                    user
+            );
+        }
+
+        Page<Post> posts = postRepository.findByCourseId(
+                courseId,
+                pageable
+        );
 
         return posts.map(postMapper::toResponse);
+
     }
 
 }

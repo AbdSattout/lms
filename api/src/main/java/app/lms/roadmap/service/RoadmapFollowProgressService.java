@@ -1,7 +1,7 @@
 package app.lms.roadmap.service;
 
 import app.lms.course.enums.CourseStatus;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.roadmap.enums.RoadmapFollowStatus;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.roadmap.model.RoadmapFollower;

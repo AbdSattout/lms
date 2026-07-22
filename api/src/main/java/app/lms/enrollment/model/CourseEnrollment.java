@@ -1,7 +1,7 @@
-package app.lms.courceEnrollment.model;
+package app.lms.enrollment.model;
 
 import app.lms.block.model.Block;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.course.model.Course;
 import app.lms.lesson.model.Lesson;
 import app.lms.user.model.User;

@@ -1,10 +1,10 @@
-package app.lms.dashboard.user.service;
+package app.lms.analytics.user.service;
 
 import app.lms.certificate.repository.CertificateRepository;
 import app.lms.common.exception.NotFoundException;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
-import app.lms.dashboard.user.dto.UserDashboardResponse;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
+import app.lms.analytics.user.dto.UserDashboardResponse;
 import app.lms.gamification.dto.UserStreakResponse;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.UserProgressRepository;
