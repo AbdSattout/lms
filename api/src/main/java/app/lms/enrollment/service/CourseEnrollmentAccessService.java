@@ -1,9 +1,9 @@
-package app.lms.courceEnrollment.service;
+package app.lms.enrollment.service;
 
 import app.lms.common.exception.ForbiddenException;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.model.CourseEnrollment;
-import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.model.CourseEnrollment;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.user.model.User;

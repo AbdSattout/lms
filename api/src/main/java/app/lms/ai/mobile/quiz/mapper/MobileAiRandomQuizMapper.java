@@ -8,7 +8,7 @@ import app.lms.ai.mobile.quiz.model.RandomQuizAttempt;
 import app.lms.ai.mobile.quiz.model.RandomQuizAttemptQuestion;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
-import app.lms.courceEnrollment.model.CourseEnrollment;
+import app.lms.enrollment.model.CourseEnrollment;
 import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.model.Question;
 import lombok.RequiredArgsConstructor;

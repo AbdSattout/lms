@@ -2,7 +2,7 @@ package app.lms.course.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;

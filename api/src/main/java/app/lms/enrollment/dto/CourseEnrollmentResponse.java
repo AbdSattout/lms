@@ -1,6 +1,6 @@
-package app.lms.courceEnrollment.dto;
+package app.lms.enrollment.dto;
 
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.enums.EnrollmentStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 

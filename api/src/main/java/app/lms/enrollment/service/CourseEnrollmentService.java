@@ -1,14 +1,14 @@
-package app.lms.courceEnrollment.service;
+package app.lms.enrollment.service;
 
 import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.courceEnrollment.dto.EnrollmentResponse;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.model.CourseEnrollment;
-import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
+import app.lms.enrollment.dto.EnrollmentResponse;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.model.CourseEnrollment;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;

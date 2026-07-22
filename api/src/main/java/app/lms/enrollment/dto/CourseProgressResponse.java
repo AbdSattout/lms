@@ -1,4 +1,4 @@
-package app.lms.courceEnrollment.dto;
+package app.lms.enrollment.dto;
 
 import java.time.LocalDateTime;
 

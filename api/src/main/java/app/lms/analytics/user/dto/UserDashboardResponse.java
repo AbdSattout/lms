@@ -1,4 +1,4 @@
-package app.lms.dashboard.user.dto;
+package app.lms.analytics.user.dto;
 
 import lombok.Builder;
 

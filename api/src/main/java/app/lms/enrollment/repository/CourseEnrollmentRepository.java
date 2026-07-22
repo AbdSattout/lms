@@ -1,7 +1,7 @@
-package app.lms.courceEnrollment.repository;
+package app.lms.enrollment.repository;
 
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.model.CourseEnrollment;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.model.CourseEnrollment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
