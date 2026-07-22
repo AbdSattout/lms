@@ -1,7 +1,7 @@
-package app.lms.dashboard.organization.controller;
+package app.lms.analytics.organization.controller;
 
-import app.lms.dashboard.organization.dto.OrganizationDashboardResponse;
-import app.lms.dashboard.organization.service.OrganizationDashboardService;
+import app.lms.analytics.organization.dto.OrganizationDashboardResponse;
+import app.lms.analytics.organization.service.OrganizationDashboardService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

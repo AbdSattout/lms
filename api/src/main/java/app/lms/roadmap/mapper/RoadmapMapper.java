@@ -1,7 +1,7 @@
 package app.lms.roadmap.mapper;
 
 import app.lms.common.dto.BaseEntityResponse;
-import app.lms.courceEnrollment.model.CourseEnrollment;
+import app.lms.enrollment.model.CourseEnrollment;
 import app.lms.course.model.Course;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.enums.CourseStatus;

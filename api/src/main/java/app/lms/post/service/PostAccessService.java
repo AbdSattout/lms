@@ -1,13 +1,10 @@
 package app.lms.post.service;
 
-import app.lms.common.exception.NotFoundException;
-import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
-import app.lms.course.service.CourseAccessService;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.post.model.Post;
-import app.lms.post.repository.PostRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
