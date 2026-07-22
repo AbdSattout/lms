@@ -1,8 +1,6 @@
 package app.lms.organization.service;
 
-import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
-import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
@@ -14,25 +12,19 @@ import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.media.repository.PostMediaRepository;
 import app.lms.media.service.MediaService;
 import app.lms.organization.dto.*;
-import app.lms.organization.organizationInvite.enums.InviteStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
-import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.organization.model.OrganizationMember;
-import app.lms.organization.organizationInvite.dto.CreateInviteRequest;
-import app.lms.organization.organizationInvite.dto.CreatePublicInviteRequest;
-import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
-import app.lms.organization.organizationInvite.dto.UpdateInviteCapacityRequest;
 import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
+import app.lms.plan.service.PlanQuotaService;
 import app.lms.post.repository.PostRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
 import app.lms.user.model.User;
-import app.lms.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -42,10 +34,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -58,13 +48,13 @@ public class DashboardOrganizationService {
     private final OrganizationAccessService organizationAccessService;
     private final CourseRepository courseRepository;
     private final OrganizationInviteRepository organizationInviteRepository;
-    private final UserRepository userRepository;
     private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
     private final OrganizationMediaRepository organizationMediaRepository;
     private final PostMediaRepository postMediaRepository;
     private final CourseMediaRepository courseMediaRepository;
     private final PostRepository postRepository;
     private final RoadmapRepository roadmapRepository;
+    private final PlanQuotaService planQuotaService;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -95,6 +85,13 @@ public class DashboardOrganizationService {
                     "Slug already exists"
             );
         }
+
+        planQuotaService.validateOrganizationCreationAllowed(
+                user,
+                () -> organizationRepository.countByOwnerId(
+                        user.getId()
+                )
+        );
 
         UploadedFile uploaded =
                 image != null && !image.isEmpty()
