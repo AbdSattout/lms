@@ -34,6 +34,14 @@ import 'package:lms/features/courses/domain/repositories/course_repository.dart'
 import 'package:lms/features/courses/domain/usecases/get_my_enrollments_usecase.dart';
 import 'package:lms/features/courses/presentation/bloc/my_courses_bloc.dart';
 import 'package:lms/features/courses/presentation/bloc/course_details_bloc.dart';
+import 'package:lms/features/courses/presentation/bloc/course_contents_bloc.dart';
+import 'package:lms/features/courses/data/datasources/placement_test_remote_datasource.dart';
+import 'package:lms/features/courses/data/repositories/placement_test_repository_impl.dart';
+import 'package:lms/features/courses/domain/repositories/placement_test_repository.dart';
+import 'package:lms/features/courses/domain/usecases/get_placement_test_usecase.dart';
+import 'package:lms/features/courses/domain/usecases/submit_placement_answer_usecase.dart';
+import 'package:lms/features/courses/domain/usecases/skip_placement_test_usecase.dart';
+import 'package:lms/features/courses/presentation/bloc/placement_test_bloc.dart';
 //Organization Feature
 import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
 import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
@@ -147,6 +155,30 @@ Future<void> init() async {
       getCourseByIdUseCase: sl(),
       getCourseBySlugUseCase: sl(),
       enrollInCourseUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+        () => CourseContentsBloc(
+      getCourseByIdUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton<PlacementTestRemoteDataSource>(
+        () => PlacementTestRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<PlacementTestRepository>(
+        () => PlacementTestRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => GetPlacementTestUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPlacementAnswerUseCase(sl()));
+  sl.registerLazySingleton(() => SkipPlacementTestUseCase(sl()));
+
+  sl.registerFactory(
+        () => PlacementTestBloc(
+      getPlacementTestUseCase: sl(),
+      submitPlacementAnswerUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
     ),
   );
   //Organizations

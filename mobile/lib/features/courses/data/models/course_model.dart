@@ -28,6 +28,93 @@ class RewardModel extends RewardEntity {
   }
 }
 
+class BlockModel extends BlockEntity {
+  const BlockModel({
+    required super.id,
+    required super.title,
+    required super.position,
+    required super.status,
+  });
+
+  factory BlockModel.fromJson(Map<String, dynamic> json) {
+    return BlockModel(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      position: json['position'] ?? 0,
+      status: ContentStatus.fromApi(json['status']),
+    );
+  }
+}
+
+class LessonModel extends LessonEntity {
+  const LessonModel({
+    required super.id,
+    required super.title,
+    required super.position,
+    required super.status,
+    super.blocks,
+  });
+
+  factory LessonModel.fromJson(Map<String, dynamic> json) {
+    return LessonModel(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      position: json['position'] ?? 0,
+      status: ContentStatus.fromApi(json['status']),
+      blocks: (json['blocks'] as List? ?? [])
+          .map((b) => BlockModel.fromJson(b as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class ChapterModel extends ChapterEntity {
+  const ChapterModel({
+    required super.id,
+    required super.title,
+    required super.position,
+    required super.status,
+    super.lessons,
+  });
+
+  factory ChapterModel.fromJson(Map<String, dynamic> json) {
+    return ChapterModel(
+      id: json['id'] ?? 0,
+      title: json['title'] ?? '',
+      position: json['position'] ?? 0,
+      status: ContentStatus.fromApi(json['status']),
+      lessons: (json['lessons'] as List? ?? [])
+          .map((l) => LessonModel.fromJson(l as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class CourseProgressSnapshotModel extends CourseProgressSnapshotEntity {
+  const CourseProgressSnapshotModel({
+    super.currentChapterId,
+    super.currentLessonId,
+    super.currentBlockId,
+    required super.progressPercentage,
+    required super.completed,
+    super.completedAt,
+  });
+
+  factory CourseProgressSnapshotModel.fromJson(Map<String, dynamic> json) {
+    return CourseProgressSnapshotModel(
+      currentChapterId: json['currentChapterId'],
+      currentLessonId: json['currentLessonId'],
+      currentBlockId: json['currentBlockId'],
+      progressPercentage:
+      (json['progressPercentage'] as num?)?.toDouble() ?? 0,
+      completed: json['completed'] ?? false,
+      completedAt: json['completedAt'] != null
+          ? DateTime.tryParse(json['completedAt'])
+          : null,
+    );
+  }
+}
+
 class CourseEnrollmentDetailsModel extends CourseEnrollmentDetailsEntity {
   const CourseEnrollmentDetailsModel({
     required super.id,
@@ -71,6 +158,8 @@ class CourseModel extends CourseEntity {
     super.organizationName,
     super.status,
     super.enrollment,
+    super.chapters,
+    super.progressSnapshot,
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
@@ -85,6 +174,14 @@ class CourseModel extends CourseEntity {
       enrollment: json['enrollment'] != null
           ? CourseEnrollmentDetailsModel.fromJson(
         json['enrollment'] as Map<String, dynamic>,
+      )
+          : null,
+      chapters: (json['chapters'] as List? ?? [])
+          .map((c) => ChapterModel.fromJson(c as Map<String, dynamic>))
+          .toList(),
+      progressSnapshot: json['progress'] != null
+          ? CourseProgressSnapshotModel.fromJson(
+        json['progress'] as Map<String, dynamic>,
       )
           : null,
     );
