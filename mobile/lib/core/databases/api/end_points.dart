@@ -35,6 +35,11 @@ class EndPoints {
 
   static const String myEnrollments = 'courses/me/enrollments';
 
+  static String placementTest(int courseId) =>
+      'mobile/courses/$courseId/placement-test';
+
+  static String skipPlacementTest(int courseId) =>
+      'mobile/courses/$courseId/placement-test/skip';
   // Organizations
   static const String organizations = 'organizations';
 

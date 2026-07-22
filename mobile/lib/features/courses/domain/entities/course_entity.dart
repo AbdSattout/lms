@@ -22,12 +22,96 @@ class RewardEntity {
   });
 }
 
+enum ContentStatus {
+  locked,
+  current,
+  completed,
+  unknown;
+
+  static ContentStatus fromApi(String? value) {
+    switch (value) {
+      case 'LOCKED':
+        return ContentStatus.locked;
+      case 'CURRENT':
+        return ContentStatus.current;
+      case 'COMPLETED':
+        return ContentStatus.completed;
+      default:
+        return ContentStatus.unknown;
+    }
+  }
+}
+class BlockEntity {
+  final int id;
+  final String title;
+  final int position;
+  final ContentStatus status;
+
+  const BlockEntity({
+    required this.id,
+    required this.title,
+    required this.position,
+    required this.status,
+  });
+}
+
+class LessonEntity {
+  final int id;
+  final String title;
+  final int position;
+  final ContentStatus status;
+  final List<BlockEntity> blocks;
+
+  const LessonEntity({
+    required this.id,
+    required this.title,
+    required this.position,
+    required this.status,
+    this.blocks = const [],
+  });
+}
+
+
+class ChapterEntity {
+  final int id;
+  final String title;
+  final int position;
+  final ContentStatus status;
+  final List<LessonEntity> lessons;
+
+  const ChapterEntity({
+    required this.id,
+    required this.title,
+    required this.position,
+    required this.status,
+    this.lessons = const [],
+  });
+}
+
+class CourseProgressSnapshotEntity {
+  final int? currentChapterId;
+  final int? currentLessonId;
+  final int? currentBlockId;
+  final double progressPercentage;
+  final bool completed;
+  final DateTime? completedAt;
+
+  const CourseProgressSnapshotEntity({
+    this.currentChapterId,
+    this.currentLessonId,
+    this.currentBlockId,
+    required this.progressPercentage,
+    required this.completed,
+    this.completedAt,
+  });
+}
+
 class CourseEnrollmentDetailsEntity {
   final int id;
   final int courseId;
   final String courseTitle;
   final DateTime? enrolledAt;
-  final String status; // e.g. "ACTIVE"
+  final String status;
   final bool placementTestCompleted;
   final double progressPercentage;
   final int? currentChapterId;
@@ -59,6 +143,8 @@ class CourseEntity {
   final String? organizationName;
   final String? status;
   final CourseEnrollmentDetailsEntity? enrollment;
+  final List<ChapterEntity> chapters;
+  final CourseProgressSnapshotEntity? progressSnapshot;
 
   const CourseEntity({
     required this.id,
@@ -69,6 +155,8 @@ class CourseEntity {
     this.organizationName,
     this.status,
     this.enrollment,
+    this.chapters = const [],
+    this.progressSnapshot,
   });
 }
 

@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/course_entity.dart';
+import '../bloc/course_contents_bloc.dart';
+import '../bloc/course_contents_event.dart';
+import '../bloc/course_contents_state.dart';
+import '../bloc/placement_test_bloc.dart';
+import 'placement_test_page.dart';
 
 class CourseContentsPage extends StatelessWidget {
   final CourseEntity course;
@@ -188,7 +195,7 @@ class CourseContentsPage extends StatelessWidget {
                             child: Text(
                               progress == 100
                                   ? "مكتملة بالكامل 🎉"
-                                  : "%تابع التعلم للوصول إلى 100",
+                                  : "تابع التعلم للوصول إلى 100%",
                               style: TextStyle(
                                 color:
                                 colors.onSurfaceVariant,
@@ -227,7 +234,35 @@ class CourseContentsPage extends StatelessWidget {
 
                     const SizedBox(height: 18),
 
-                    _comingSoonCard(colors),
+                    enrollment?.placementTestCompleted == true
+                        ? BlocProvider(
+                      create: (_) => sl<CourseContentsBloc>()
+                        ..add(GetCourseContentsEvent(course.id)),
+                      child: BlocBuilder<CourseContentsBloc, CourseContentsState>(
+                        builder: (context, state) {
+                          if (state is CourseContentsLoading) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          if (state is CourseContentsError) {
+                            return _errorCard(context, colors, state.message);
+                          }
+
+                          if (state is CourseContentsLoaded) {
+                            if (state.course.chapters.isEmpty) {
+                              return _comingSoonCard(colors);
+                            }
+                            return _chaptersList(context, colors, state.course.chapters);
+                          }
+
+                          return const SizedBox();
+                        },
+                      ),
+                    )
+                        : _placementTestPrompt(context, colors),
 
                     const SizedBox(height: 40),
                   ],
@@ -237,6 +272,126 @@ class CourseContentsPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _placementTestPrompt(BuildContext context, ColorScheme colors) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+      decoration: BoxDecoration(
+        color: AppColors.lavender.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: AppColors.lavender.withOpacity(0.4)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 70,
+            height: 70,
+            decoration: BoxDecoration(
+              color: AppColors.lavender.withOpacity(0.25),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.psychology_alt_rounded,
+              size: 36,
+              color: AppColors.lavender,
+            ),
+          ),
+
+          const SizedBox(height: 18),
+
+          Text(
+            'حدد نقطة بدايتك أولاً',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+              color: colors.onSurface,
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          Text(
+            'اختبار قصير يحدد أنسب نقطة للبدء بها في هذه الدورة',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: colors.onSurfaceVariant),
+          ),
+
+          const SizedBox(height: 20),
+
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () {
+                // pushReplacement, not push — otherwise this
+                // (placementTestCompleted: false) copy of Contents stays
+                // on the stack underneath the post-test one, and hitting
+                // back reveals the stale version instead of returning to
+                // My Courses.
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider(
+                      create: (_) => sl<PlacementTestBloc>(),
+                      child: PlacementTestPage(course: course),
+                    ),
+                  ),
+                );
+              },
+              child: const Text(
+                'ابدأ اختبار تحديد المستوى',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _errorCard(BuildContext context, ColorScheme colors, String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        children: [
+          Text(message, textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: () {
+              context.read<CourseContentsBloc>().add(
+                GetCourseContentsEvent(course.id),
+              );
+            },
+            child: const Text('إعادة المحاولة'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _chaptersList(
+      BuildContext context, ColorScheme colors, List<ChapterEntity> chapters) {
+    return Column(
+      children: chapters
+          .map((chapter) => _ChapterCard(chapter: chapter))
+          .toList(),
     );
   }
 
@@ -295,5 +450,211 @@ class CourseContentsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _ChapterCard extends StatefulWidget {
+  final ChapterEntity chapter;
+
+  const _ChapterCard({required this.chapter});
+
+  @override
+  State<_ChapterCard> createState() => _ChapterCardState();
+}
+
+class _ChapterCardState extends State<_ChapterCard> {
+  bool _expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-expand the chapter the student is currently on.
+    _expanded = widget.chapter.status == ContentStatus.current;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final chapter = widget.chapter;
+    final isLocked = chapter.status == ContentStatus.locked;
+    final completedLessons =
+        chapter.lessons.where((l) => l.status == ContentStatus.completed).length;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: isLocked
+                ? () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('أكمل الفصل السابق أولاً')),
+              );
+            }
+                : () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  _StatusIcon(status: chapter.status),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          chapter.title,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                            color: isLocked
+                                ? colors.onSurfaceVariant
+                                : colors.onSurface,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '$completedLessons / ${chapter.lessons.length} دروس',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (!isLocked)
+                    Icon(
+                      _expanded
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                      color: colors.onSurfaceVariant,
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+          if (_expanded && !isLocked)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, right: 8, left: 8),
+              child: Column(
+                children: chapter.lessons
+                    .map((lesson) => _LessonRow(lesson: lesson))
+                    .toList(),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LessonRow extends StatelessWidget {
+  final LessonEntity lesson;
+
+  const _LessonRow({required this.lesson});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isLocked = lesson.status == ContentStatus.locked;
+    final isCurrent = lesson.status == ContentStatus.current;
+    final completedBlocks =
+        lesson.blocks.where((b) => b.status == ContentStatus.completed).length;
+
+    return Material(
+      color: isCurrent ? AppColors.primaryLight.withOpacity(0.3) : Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: isLocked
+            ? () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('أكمل الدرس السابق أولاً')),
+          );
+        }
+            : () {
+          // TODO: navigate to the lesson/block content viewer once
+          // that page is built — this is the confirmed next step.
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('عارض محتوى الدرس قريباً')),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              _StatusIcon(status: lesson.status, small: true),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  lesson.title,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
+                    color: isLocked ? colors.onSurfaceVariant : colors.onSurface,
+                  ),
+                ),
+              ),
+              if (isCurrent)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'متابعة',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              else if (!isLocked)
+                Text(
+                  '$completedBlocks/${lesson.blocks.length}',
+                  style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusIcon extends StatelessWidget {
+  final ContentStatus status;
+  final bool small;
+
+  const _StatusIcon({required this.status, this.small = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final size = small ? 16.0 : 22.0;
+
+    switch (status) {
+      case ContentStatus.completed:
+        return Icon(Icons.check_circle_rounded,
+            color: const Color(0xff2E7D53), size: size);
+      case ContentStatus.current:
+        return Icon(Icons.play_circle_fill_rounded,
+            color: AppColors.primary, size: size);
+      case ContentStatus.locked:
+        return Icon(Icons.lock_rounded,
+            color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
+      case ContentStatus.unknown:
+        return Icon(Icons.circle_outlined,
+            color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
+    }
   }
 }
