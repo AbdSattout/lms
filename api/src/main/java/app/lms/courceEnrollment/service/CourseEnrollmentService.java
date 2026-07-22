@@ -23,6 +23,8 @@ import app.lms.organization.organizationJoinRequest.model.OrganizationJoinReques
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
+import app.lms.plan.annotation.ConsumesPlanUsage;
+import app.lms.plan.enums.PlanUsageType;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.roadmap.service.RoadmapFollowProgressService;
@@ -60,6 +62,7 @@ public class CourseEnrollmentService {
     private final RoadmapFollowProgressService roadmapFollowProgressService;
 
     @Transactional
+    @ConsumesPlanUsage(PlanUsageType.COURSE_ENROLLMENT)
     public EnrollmentResponse enroll(
             Long courseId,
             User user
@@ -97,22 +100,24 @@ public class CourseEnrollmentService {
         boolean member =
                 existingMember.isPresent();
 
-        if (organization.getVisibility() == Visibility.PUBLIC) {
+        CourseEnrollment existingEnrollment =
+                enrollmentRepository
+                        .findByUserIdAndCourseId(
+                                user.getId(),
+                                courseId
+                        )
+                        .orElse(null);
 
-            if (!member) {
-                OrganizationMember organizationMember =
-                        OrganizationMember.builder()
-                                .organization(organization)
-                                .user(user)
-                                .role(Role.STUDENT)
-                                .build();
+        if (
+                existingEnrollment != null &&
+                        existingEnrollment.getStatus() == EnrollmentStatus.ACTIVE
+        ) {
+            throw new ConflictException(
+                    "Already enrolled"
+            );
+        }
 
-                memberRepository.save(
-                        organizationMember
-                );
-            }
-
-        } else {
+        if (organization.getVisibility() != Visibility.PUBLIC) {
 
             if (!member) {
                 boolean pending =
@@ -146,21 +151,20 @@ public class CourseEnrollmentService {
             }
         }
 
-        CourseEnrollment existingEnrollment =
-                enrollmentRepository
-                        .findByUserIdAndCourseId(
-                                user.getId(),
-                                courseId
-                        )
-                        .orElse(null);
+        if (!member) {
+            OrganizationMember organizationMember =
+                    OrganizationMember.builder()
+                            .organization(organization)
+                            .user(user)
+                            .role(Role.STUDENT)
+                            .build();
+
+            memberRepository.save(
+                    organizationMember
+            );
+        }
 
         if (existingEnrollment != null) {
-
-            if (existingEnrollment.getStatus() == EnrollmentStatus.ACTIVE) {
-                throw new ConflictException(
-                        "Already enrolled"
-                );
-            }
 
             existingEnrollment.setStatus(
                     EnrollmentStatus.ACTIVE

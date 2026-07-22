@@ -5,10 +5,10 @@ import app.lms.gamification.model.Level;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
 import app.lms.gamification.repository.UserProgressRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 

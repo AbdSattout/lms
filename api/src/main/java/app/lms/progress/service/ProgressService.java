@@ -18,6 +18,7 @@ import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.mapper.ProgressMapper;
 import app.lms.progress.model.BlockProgress;
 import app.lms.progress.repository.BlockProgressRepository;
+import app.lms.question.enums.QuestionDifficulty;
 import app.lms.question.model.Question;
 import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
@@ -32,10 +33,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProgressService {
 
-    private static final int BLOCK_COMPLETE_XP = 10;
+    private static final int EASY_BLOCK_COMPLETE_XP = 10;
+    private static final int MEDIUM_BLOCK_COMPLETE_XP = 15;
+    private static final int HARD_BLOCK_COMPLETE_XP = 20;
     private static final int LESSON_COMPLETE_XP = 30;
     private static final int CHAPTER_COMPLETE_XP = 75;
-    private static final int COURSE_COMPLETE_XP = 200;
 
     private final ProgressMapper progressMapper;
     private final BlockAccessService blockAccessService;
@@ -145,7 +147,9 @@ public class ProgressService {
                         user,
                         XPEventType.BLOCK_COMPLETE,
                         block.getId(),
-                        BLOCK_COMPLETE_XP
+                        blockCompleteXpFor(
+                                block.getQuestion()
+                        )
                 )
         );
 
@@ -175,22 +179,23 @@ public class ProgressService {
             );
         }
 
-        if (nextStep.nextType() == app.lms.progress.enums.NextStepType.COURSE_COMPLETED) {
-            addAwardedReward(
-                    rewards,
-                    gamificationService.awardXp(
-                            user,
-                            XPEventType.COURSE_COMPLETE,
-                            block.getLesson()
-                                    .getChapter()
-                                    .getCourse()
-                                    .getId(),
-                            COURSE_COMPLETE_XP
-                    )
-            );
-        }
-
         return rewards;
+    }
+
+    private int blockCompleteXpFor(
+            Question question
+    ) {
+
+        QuestionDifficulty difficulty =
+                question.getDifficulty() != null
+                        ? question.getDifficulty()
+                        : QuestionDifficulty.MEDIUM;
+
+        return switch (difficulty) {
+            case EASY -> EASY_BLOCK_COMPLETE_XP;
+            case MEDIUM -> MEDIUM_BLOCK_COMPLETE_XP;
+            case HARD -> HARD_BLOCK_COMPLETE_XP;
+        };
     }
 
     private void addAwardedReward(
