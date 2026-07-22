@@ -11,6 +11,8 @@ import app.lms.common.quiz.service.QuizAttemptValidationService;
 import app.lms.common.quiz.service.QuizGradingService;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.plan.annotation.ConsumesPlanUsage;
+import app.lms.plan.enums.PlanUsageType;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.question.model.Question;
 import app.lms.user.model.User;
@@ -40,6 +42,11 @@ public class MobileAiRandomQuizService {
     private final MobileAiRandomQuizMapper mobileAiRandomQuizMapper;
     private final MobileAiRandomQuizAccessService mobileAiRandomQuizAccessService;
     private final MobileAiRandomQuizValidationService mobileAiRandomQuizValidationService;
+
+    @ConsumesPlanUsage(
+            value = PlanUsageType.AI_QUIZ,
+            courseIdArgumentIndex = 0
+    )
     @Transactional
     public RandomQuizResponse generate(
             Long courseId,

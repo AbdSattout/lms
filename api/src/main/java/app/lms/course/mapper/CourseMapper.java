@@ -14,6 +14,7 @@ import app.lms.course.dto.CourseResponse;
 import app.lms.course.enums.CourseNodeStatus;
 import app.lms.course.model.Course;
 import app.lms.lesson.model.Lesson;
+import app.lms.organization.mapper.OrganizationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,8 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 public class CourseMapper {
+
+    private final OrganizationMapper organizationMapper;
 
     public CourseResponse toResponse(
             Course course
@@ -46,8 +49,10 @@ public class CourseMapper {
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .coverUrl(course.getCoverUrl())
-                .organizationName(
-                        course.getOrganization().getName()
+                .organization(
+                        organizationMapper.toSummaryResponse(
+                                course.getOrganization()
+                        )
                 )
                 .slug(course.getSlug())
                 .status(course.getStatus())

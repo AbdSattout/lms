@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_hT9gjAyUWB
 createdAt: 2026-07-10T16:11:25.369083500
-updatedAt: 2026-07-15T22:22:46.181932300
+updatedAt: 2026-07-21T23:02:17.647597200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GkMNXFRG5u
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzOTM4Mzc0LCJleHAiOjE3ODQ1NDMxNzR9.3ywI_CGxZfbrrOD6XWAtgnOBztW91LUfxqYk8tUv8CQ
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MzE2MTE4LCJleHAiOjE3ODQ5MjA5MTh9.2BR4Q5V45I9OjjbUcKgB8HUhCXVxBwe2O2kYWR53-P4
 authenticationType: bearer
 body:
   text: |
@@ -23,5 +23,5 @@ headers:
 method: POST
 name: generate question
 sortPriority: 0.0
-url: https://lms.koyeb.app/ai/questions/from-block-content
+url: http://localhost:8080/dashboard/ai/questions/from-block-content
 urlParameters: []
