@@ -14,6 +14,7 @@ public record CourseResponse(
         String slug,
         String description,
         String coverUrl,
+        Long organizationId,
         String organizationName,
         CourseStatus status,
         @JsonInclude(JsonInclude.Include.NON_NULL)
