@@ -72,4 +72,6 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     void deleteByOrganizationId(
             Long organizationId
     );
+
+    long countByOrganizationId(Long organizationId);
 }
