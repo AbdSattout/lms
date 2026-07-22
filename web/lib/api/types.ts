@@ -139,8 +139,8 @@ export interface PostResponse {
   author: AuthorResponse
   organizationId: number
   courseId?: number | null
-  likesCount: number
-  commentsCount: number
+  likeCount: number
+  commentCount: number
   baseEntity?: BaseEntityResponse
 }
 

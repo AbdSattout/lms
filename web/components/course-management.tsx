@@ -850,11 +850,15 @@ export function CourseManagement({
         <DragOverlay>
           {activeItem && (
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 shadow-lg">
-              <GripVertical className="size-4 text-muted-foreground" />
-              <span className="truncate text-sm font-medium">
+              <button className="touch-none text-muted-foreground">
+                <GripVertical className="size-4" />
+              </button>
+              <div className="flex-1 truncate overflow-hidden rounded-3xl text-sm font-medium">
                 {activeItem.title}
-              </span>
-              <Button variant="ghost" size="icon-xs" />
+              </div>
+              <Button variant="ghost" size="icon-xs">
+                <EllipsisVertical />
+              </Button>
             </div>
           )}
         </DragOverlay>

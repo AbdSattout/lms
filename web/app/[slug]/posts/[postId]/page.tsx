@@ -37,7 +37,6 @@ export default async function PostDetailPage({
 }) {
   const { slug, postId } = await params
 
-  // هذا الشرط يمنع الصفحة من التقاط مسار 'create' ويعالجه بشكل صحيح
   if (isNaN(Number(postId))) {
     notFound()
   }

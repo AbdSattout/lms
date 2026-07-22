@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_xEs8VcTQ45
 createdAt: 2026-07-11T15:13:37.707808400
-updatedAt: 2026-07-17T19:03:52.738589300
+updatedAt: 2026-07-18T10:53:33.486241700
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
@@ -15,7 +15,7 @@ headers: []
 method: GET
 name: GetOrganizationMember
 sortPriority: 0.0
-url: http://localhost:8080/dashboard/organizations/rami/members?page=0&size=20
+url: http://localhost:8080/dashboard/organizations/khaled/members?page=0&size=10
 urlParameters: []
 settingSendCookies:
   enabled: false

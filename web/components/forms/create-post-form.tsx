@@ -30,6 +30,7 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [courseId, setCourseId] = useState<number | null>(null) // State لتخزين الـ Course ID
+  const selectedCourse = courses.find((course) => course.id === courseId)
   const [isSubmitting, startSubmit] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -105,15 +106,18 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
               مرتبط بدورة (اختياري)
             </label>
             <Select
-              onValueChange={(value) =>
+              value={courseId?.toString() ?? "none"}
+              onValueChange={(value) => {
                 setCourseId(value === "none" ? null : Number(value))
-              }
+              }}
             >
               <SelectTrigger
                 className="h-11 w-full bg-background/50 text-right"
                 dir="rtl"
               >
-                <SelectValue placeholder="اختر دورة لربط المنشور بها..." />
+                <SelectValue>
+                  {selectedCourse?.title ?? "اختر دورة لربط المنشور بها..."}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent dir="rtl" className="max-h-60">
                 <SelectItem value="none">بدون دورة (غير مرتبط)</SelectItem>

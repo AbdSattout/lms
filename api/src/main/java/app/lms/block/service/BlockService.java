@@ -6,8 +6,7 @@ import app.lms.block.model.Block;
 import app.lms.common.exception.ConflictException;
 import app.lms.courceEnrollment.model.CourseEnrollment;
 import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
-import app.lms.placementTest.model.CoursePlacementTestAttempt;
-import app.lms.placementTest.repository.CoursePlacementTestAttemptRepository;
+import app.lms.placementTest.service.CoursePlacementTestAccessService;
 import app.lms.progress.model.BlockProgress;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
@@ -25,7 +24,7 @@ public class BlockService {
     private final BlockMapper blockMapper;
     private final BlockAccessService blockAccessService;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
-    private final CoursePlacementTestAttemptRepository placementTestAttemptRepository;
+    private final CoursePlacementTestAccessService placementTestAccessService;
     private final BlockProgressRepository blockProgressRepository;
 
     @Transactional
@@ -52,12 +51,16 @@ public class BlockService {
                         user
                 );
 
+        placementTestAccessService
+                .validateCompletedOrSkipped(
+                        courseId,
+                        user
+                );
+
         if (enrollment.getCurrentBlock() == null) {
-            validatePlacementChoiceMade(
-                    courseId,
-                    user
+            throw new ConflictException(
+                    "You cannot open this block yet"
             );
-            return;
         }
 
         if (
@@ -90,31 +93,5 @@ public class BlockService {
         throw new ConflictException(
                 "You cannot open this block yet"
         );
-    }
-
-    private void validatePlacementChoiceMade(
-            Long courseId,
-            User user
-    ) {
-
-        CoursePlacementTestAttempt attempt =
-                placementTestAttemptRepository
-                        .findByCourseIdAndUserId(
-                                courseId,
-                                user.getId()
-                        )
-                        .orElse(null);
-
-        if (attempt == null) {
-            throw new ConflictException(
-                    "Choose placement test or skip it before opening course blocks"
-            );
-        }
-
-        if (!Boolean.TRUE.equals(attempt.getCompleted())) {
-            throw new ConflictException(
-                    "Finish or skip the placement test before opening course blocks"
-            );
-        }
     }
 }

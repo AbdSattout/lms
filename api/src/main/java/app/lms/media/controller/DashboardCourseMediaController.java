@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(
-        "/dashboard/organizations/{organizationSlug}/courses/{courseSlug}/media"
+        "/dashboard/organizations/{organizationId}/courses/{courseId}/media"
 )
 @RequiredArgsConstructor
 public class DashboardCourseMediaController {
@@ -32,8 +32,8 @@ public class DashboardCourseMediaController {
             consumes = "multipart/form-data"
     )
     public ResponseEntity<CourseMediaResponse> create(
-            @PathVariable String organizationSlug,
-            @PathVariable String courseSlug,
+            @PathVariable Long organizationId,
+            @PathVariable Long courseId,
             @RequestPart("file") MultipartFile file,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
@@ -42,8 +42,8 @@ public class DashboardCourseMediaController {
                 .status(HttpStatus.CREATED)
                 .body(
                         courseMediaService.create(
-                                organizationSlug,
-                                courseSlug,
+                                organizationId,
+                                courseId,
                                 file,
                                 principal.user()
                         )
@@ -55,8 +55,8 @@ public class DashboardCourseMediaController {
             consumes = "multipart/form-data"
     )
     public ResponseEntity<CourseMediaResponse> update(
-            @PathVariable String organizationSlug,
-            @PathVariable String courseSlug,
+            @PathVariable Long organizationId,
+            @PathVariable Long courseId,
             @PathVariable Long mediaId,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart(value = "name", required = false) String name,
@@ -65,8 +65,8 @@ public class DashboardCourseMediaController {
 
         return ResponseEntity.ok(
                 courseMediaService.update(
-                        organizationSlug,
-                        courseSlug,
+                        organizationId,
+                        courseId,
                         mediaId,
                         file,
                         name,
@@ -77,15 +77,15 @@ public class DashboardCourseMediaController {
 
     @DeleteMapping("/{mediaId}")
     public ResponseEntity<Void> delete(
-            @PathVariable String organizationSlug,
-            @PathVariable String courseSlug,
+            @PathVariable Long organizationId,
+            @PathVariable Long courseId,
             @PathVariable Long mediaId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         courseMediaService.delete(
-                organizationSlug,
-                courseSlug,
+                organizationId,
+                courseId,
                 mediaId,
                 principal.user()
         );
@@ -97,16 +97,16 @@ public class DashboardCourseMediaController {
 
     @GetMapping("/{mediaId}")
     public ResponseEntity<CourseMediaResponse> getById(
-            @PathVariable String organizationSlug,
-            @PathVariable String courseSlug,
+            @PathVariable Long organizationId,
+            @PathVariable Long courseId,
             @PathVariable Long mediaId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 courseMediaService.getById(
-                        organizationSlug,
-                        courseSlug,
+                        organizationId,
+                        courseId,
                         mediaId,
                         principal.user()
                 )
@@ -115,16 +115,16 @@ public class DashboardCourseMediaController {
 
     @GetMapping
     public ResponseEntity<Page<CourseMediaResponse>> list(
-            @PathVariable String organizationSlug,
-            @PathVariable String courseSlug,
+            @PathVariable Long organizationId,
+            @PathVariable Long courseId,
             Pageable pageable,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 courseMediaService.list(
-                        organizationSlug,
-                        courseSlug,
+                        organizationId,
+                        courseId,
                         pageable,
                         principal.user()
                 )

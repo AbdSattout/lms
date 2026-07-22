@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_qFjXKeyY3a
 createdAt: 2026-06-08T09:17:19.897415200
-updatedAt: 2026-07-16T17:47:52.453331
+updatedAt: 2026-07-18T11:41:22.259105500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GaHPXdypH6
 authentication:
@@ -24,7 +24,7 @@ headers:
 method: PATCH
 name: Update post
 sortPriority: 0.0
-url: http://localhost:8080/posts/0
+url: http://localhost:8080/posts/23
 urlParameters: []
 settingSendCookies:
   enabled: false

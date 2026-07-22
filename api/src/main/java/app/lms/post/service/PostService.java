@@ -135,7 +135,7 @@ public class PostService {
                 organizationAccessService.getBySlug(slug);
 
         return postRepository
-                .findByOrganizationIdAndCourseIsNull(
+                .findByOrganizationId(
                         organization.getId(),
                         pageable
                 )

@@ -2,7 +2,7 @@ type: http_request
 model: http_request
 id: rq_qdeXviBWvH
 createdAt: 2026-06-08T09:10:35.874670300
-updatedAt: 2026-07-17T04:53:35.032179200
+updatedAt: 2026-07-18T11:28:02.325808100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GaHPXdypH6
 authentication:
@@ -13,7 +13,7 @@ body:
     {
         "title": "My Sec Post",
         "content": "This is the content of my first post",
-        "courseId": null
+        "courseId": 100
     }
 bodyType: application/json
 description: ''

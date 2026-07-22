@@ -164,7 +164,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
         <div className="relative z-10 mt-auto flex items-center gap-5 border-t border-border/40 px-4 py-3 md:px-5">
           <button className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-red-500">
             <Heart className="h-5 w-5" />
-            <span className="text-sm font-medium">{post.likesCount || 0}</span>
+            <span className="text-sm font-medium">{post.likeCount || 0}</span>
           </button>
 
           <Link
@@ -173,7 +173,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
           >
             <MessageCircle className="h-5 w-5" />
             <span className="text-sm font-medium">
-              {post.commentsCount || 0} تعليق
+              {post.commentCount || 0} تعليق
             </span>
           </Link>
         </div>

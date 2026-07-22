@@ -179,14 +179,12 @@ export function PostDetail({
         <div className="mt-5 flex items-center gap-6 px-1">
           <button className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-red-500">
             <Heart className="h-6 w-6" />
-            <span className="text-[15px] font-bold">
-              {post.likesCount || 0}
-            </span>
+            <span className="text-[15px] font-bold">{post.likeCount || 0}</span>
           </button>
           <div className="flex cursor-pointer items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary">
             <MessageCircle className="h-6 w-6" />
             <span className="text-[15px] font-bold">
-              {comments.length} تعليق
+              {post.commentCount} تعليق
             </span>
           </div>
         </div>
