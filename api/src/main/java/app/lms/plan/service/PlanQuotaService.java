@@ -38,8 +38,66 @@ public class PlanQuotaService {
         }
     }
 
+    @Transactional
+    public void validateOrganizationCreationAllowed(
+            User user,
+            LongSupplier ownedOrganizationCount
+    ) {
+
+        Plan plan =
+                userPlanService.getOrCreateCurrentPlanForUpdate(user);
+
+        Integer limit =
+                plan.getOrganizationLimit();
+
+        if (isUnlimited(limit)) {
+            return;
+        }
+
+        if (ownedOrganizationCount.getAsLong() >= limit) {
+            throw new PlanLimitExceededException(
+                    "Organization limit reached"
+            );
+        }
+    }
+
+    @Transactional
+    public void validateOrganizationStorageAllowed(
+            User planOwner,
+            LongSupplier currentStorageBytes,
+            long storageDeltaBytes
+    ) {
+
+        if (storageDeltaBytes <= 0) {
+            return;
+        }
+
+        Plan plan =
+                userPlanService.getOrCreateCurrentPlanForUpdate(planOwner);
+
+        Long limit =
+                plan.getOrganizationStorageLimitBytes();
+
+        if (isUnlimited(limit)) {
+            return;
+        }
+
+        if (currentStorageBytes.getAsLong() + storageDeltaBytes > limit) {
+            throw new PlanLimitExceededException(
+                    "Organization storage limit reached"
+            );
+        }
+    }
+
     private boolean isUnlimited(
             Integer limit
+    ) {
+
+        return limit == null;
+    }
+
+    private boolean isUnlimited(
+            Long limit
     ) {
 
         return limit == null;
