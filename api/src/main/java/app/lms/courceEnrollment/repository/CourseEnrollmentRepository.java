@@ -48,4 +48,9 @@ public interface CourseEnrollmentRepository
             Long userId
     );
 
+    long countByUserIdAndStatus(
+            Long userId,
+            EnrollmentStatus status
+    );
+
 }

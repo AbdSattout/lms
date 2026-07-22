@@ -41,4 +41,10 @@ public interface CourseRepository
             CourseStatus status,
             Pageable pageable
     );
+    long countByOrganizationId(Long organizationId);
+
+    long countByOrganizationIdAndStatus(
+            Long organizationId,
+            CourseStatus status
+    );
 }
