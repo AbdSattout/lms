@@ -10,10 +10,15 @@ import app.lms.gamification.model.XPEvent;
 import app.lms.gamification.repository.LevelRepository;
 import app.lms.gamification.repository.UserProgressRepository;
 import app.lms.gamification.repository.XPEventRepository;
+import app.lms.plan.model.Plan;
+import app.lms.plan.service.UserPlanService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ public class GamificationService {
     private final UserProgressRepository userProgressRepository;
     private final LevelRepository levelRepository;
     private final UserActivityService userActivityService;
+    private final UserPlanService userPlanService;
 
     @Transactional
     public GamificationAwardResponse awardXp(
@@ -55,6 +61,12 @@ public class GamificationService {
         UserProgress progress =
                 getOrCreateProgress(user);
 
+        int awardedAmount =
+                applyXpMultiplier(
+                        user,
+                        amount
+                );
+
         Level previousLevel =
                 progress.getCurrentLevel() != null
                         ? progress.getCurrentLevel()
@@ -67,13 +79,13 @@ public class GamificationService {
                         .user(user)
                         .type(type)
                         .referenceId(referenceId)
-                        .amount(amount)
+                        .amount(awardedAmount)
                         .build();
 
         xpEventRepository.save(xpEvent);
 
         int totalXp =
-                progress.getTotalXp() + amount;
+                progress.getTotalXp() + awardedAmount;
 
         Level currentLevel =
                 resolveLevel(totalXp);
@@ -88,14 +100,14 @@ public class GamificationService {
         userActivityService.recordAward(
                 user,
                 type,
-                amount
+                awardedAmount
         );
 
         return GamificationAwardResponse.builder()
                 .eventType(type)
                 .referenceId(referenceId)
                 .awarded(true)
-                .xpAwarded(amount)
+                .xpAwarded(awardedAmount)
                 .totalXp(totalXp)
                 .previousLevelNumber(
                         previousLevel != null
@@ -247,6 +259,28 @@ public class GamificationService {
 
         return currentLevel.getLevelNumber()
                 > previousLevel.getLevelNumber();
+    }
+
+    private int applyXpMultiplier(
+            User user,
+            Integer amount
+    ) {
+
+        Plan plan =
+                userPlanService.getOrCreateCurrentPlan(user);
+
+        BigDecimal multiplier =
+                plan.getXpMultiplier() != null
+                        ? plan.getXpMultiplier()
+                        : BigDecimal.ONE;
+
+        return BigDecimal.valueOf(amount)
+                .multiply(multiplier)
+                .setScale(
+                        0,
+                        RoundingMode.HALF_UP
+                )
+                .intValue();
     }
 
     private GamificationProgressResponse buildProgressResponse(
