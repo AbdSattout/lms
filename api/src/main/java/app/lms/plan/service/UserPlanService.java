@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -19,52 +20,65 @@ public class UserPlanService {
 
     private final PlanRepository planRepository;
     private final UserPlanRepository userPlanRepository;
+    private final UserPlanExpirationService userPlanExpirationService;
 
     @Transactional
     public Plan getOrCreateCurrentPlan(
             User user
     ) {
 
-        return getOrCreateCurrentUserPlan(user)
+        return getOrCreateCurrentUserPlan(
+                user,
+                false
+        )
+                .getPlan();
+    }
+
+    @Transactional
+    public Plan getOrCreateCurrentPlanForUpdate(
+            User user
+    ) {
+
+        return getOrCreateCurrentUserPlan(
+                user,
+                true
+        )
                 .getPlan();
     }
 
     private UserPlan getOrCreateCurrentUserPlan(
-            User user
+            User user,
+            boolean lock
     ) {
 
         UserPlan userPlan =
-                userPlanRepository
-                        .findByUserId(
-                                user.getId()
-                        )
+                currentUserPlan(
+                        user,
+                        lock
+                )
                         .orElseGet(() ->
                                 createFreeUserPlan(user)
                         );
 
-        if (isPremiumExpired(userPlan)) {
-            downgradeToFree(userPlan);
-        }
+        userPlanExpirationService.expireIfNeeded(userPlan);
 
         return userPlan;
     }
 
-    private boolean isPremiumExpired(
-            UserPlan userPlan
+    private Optional<UserPlan> currentUserPlan(
+            User user,
+            boolean lock
     ) {
 
-        return isPremiumPlan(userPlan) &&
-                userPlan.getExpiresAt() != null &&
-                userPlan.getExpiresAt()
-                        .isBefore(LocalDateTime.now());
-    }
+        if (lock) {
+            return userPlanRepository.findByUserIdForUpdate(
+                    user.getId()
+            );
+        }
 
-    private boolean isPremiumPlan(
-            UserPlan userPlan
-    ) {
-
-        return userPlan.getPlan()
-                .getCode() == PlanCode.PREMIUM;
+        return userPlanRepository.findByUserId(
+                user.getId()
+        );
     }
 
     private UserPlan createFreeUserPlan(
@@ -78,20 +92,6 @@ public class UserPlanService {
                         .startedAt(LocalDateTime.now())
                         .build()
         );
-    }
-
-    private void downgradeToFree(
-            UserPlan userPlan
-    ) {
-
-        userPlan.setPlan(
-                freePlan()
-        );
-        userPlan.setStartedAt(
-                LocalDateTime.now()
-        );
-        userPlan.setExpiresAt(null);
-        userPlan.setCanceledAt(null);
     }
 
     private Plan freePlan() {
