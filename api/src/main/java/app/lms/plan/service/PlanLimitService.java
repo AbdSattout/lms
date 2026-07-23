@@ -4,6 +4,8 @@ import app.lms.plan.enums.PlanUsageType;
 import app.lms.plan.enums.PlanUsageWindow;
 import app.lms.plan.exception.PlanLimitExceededException;
 import app.lms.plan.model.Plan;
+import app.lms.plan.model.UserPlan;
+import app.lms.plan.service.PlanLimitCacheService.CachedPlanLimit;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ public class PlanLimitService {
 
     private final UserPlanService userPlanService;
     private final PlanUsageCounterService usageCounterService;
+    private final PlanLimitCacheService planLimitCacheService;
 
     public boolean reserve(
             User user,
@@ -21,15 +24,12 @@ public class PlanLimitService {
             Long courseId
     ) {
 
-        Plan plan =
-                userPlanService.getOrCreateCurrentPlan(user);
-
         return reserve(
                 user,
                 type,
                 courseId,
                 limit(
-                        plan,
+                        user,
                         type
                 ),
                 usageWindow(
@@ -138,6 +138,32 @@ public class PlanLimitService {
                     type
             );
         }
+    }
+
+    private Integer limit(
+            User user,
+            PlanUsageType type
+    ) {
+
+        CachedPlanLimit cachedPlanLimit =
+                planLimitCacheService.getCachedPlanLimit(
+                        user.getId(),
+                        type
+                );
+
+        if (cachedPlanLimit.hit()) {
+            return cachedPlanLimit.limit();
+        }
+
+        UserPlan userPlan =
+                userPlanService.getOrCreateCurrentUserPlan(user);
+
+        planLimitCacheService.cache(userPlan);
+
+        return limit(
+                userPlan.getPlan(),
+                type
+        );
     }
 
     private Integer limit(

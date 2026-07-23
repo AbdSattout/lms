@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_drngtdbdpY
+createdAt: 2026-07-23T01:21:46.559298400
+updatedAt: 2026-07-23T03:17:45.109974900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_HpnSGPH8ck
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MzE2MTE4LCJleHAiOjE3ODQ5MjA5MTh9.2BR4Q5V45I9OjjbUcKgB8HUhCXVxBwe2O2kYWR53-P4
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: checkout
+sortPriority: 333.3333333333333
+url: http://localhost:8080/billing/checkout
+urlParameters: []
