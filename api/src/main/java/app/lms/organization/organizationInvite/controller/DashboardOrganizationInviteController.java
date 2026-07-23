@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/dashboard/organizations/{slug}/invites")
+@RequestMapping("/dashboard/organizations")
 @RequiredArgsConstructor
 public class DashboardOrganizationInviteController {
 
     private final OrganizationInviteService organizationInviteService;
 
-    @PostMapping
+    @PostMapping("/{slug}/invites")
     public ResponseEntity<OrganizationInviteResponse> createInvite(
             @PathVariable String slug,
             @Valid @RequestBody CreateInviteRequest request,
@@ -34,7 +34,7 @@ public class DashboardOrganizationInviteController {
                 .body(organizationInviteService.invite(slug, request, principal.user()));
     }
 
-    @PostMapping("/public")
+    @PostMapping("/{slug}/invites/public")
     public ResponseEntity<OrganizationInviteResponse> createPublicInvite(
             @PathVariable String slug,
             @Valid @RequestBody CreatePublicInviteRequest request,
@@ -44,14 +44,14 @@ public class DashboardOrganizationInviteController {
                 .body(organizationInviteService.createPublicInvite(slug, request, principal.user()));
     }
 
-    @GetMapping
+    @GetMapping("/{slug}/invites")
     public ResponseEntity<List<OrganizationInviteResponse>> getPendingInvites(
             @PathVariable String slug,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
         return ResponseEntity.ok(organizationInviteService.getPendingInvites(slug, principal.user()));
     }
-    @GetMapping("/my-invites")
+    @GetMapping("/invites/my-invites")
     public ResponseEntity<List<OrganizationInviteResponse>> getMyAdminInvites(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
@@ -60,7 +60,7 @@ public class DashboardOrganizationInviteController {
         );
     }
 
-    @PostMapping("/{inviteId}/resend")
+    @PostMapping("/{slug}/invites/{inviteId}/resend")
     public ResponseEntity<OrganizationInviteResponse> resendInvite(
             @PathVariable String slug,
             @PathVariable Long inviteId,
@@ -69,7 +69,7 @@ public class DashboardOrganizationInviteController {
         return ResponseEntity.ok(organizationInviteService.resendInvite(slug, inviteId, principal.user()));
     }
 
-    @PostMapping("/{inviteId}/cancel")
+    @PostMapping("/{slug}/invites/{inviteId}/cancel")
     public ResponseEntity<Void> cancelInvite(
             @PathVariable String slug,
             @PathVariable Long inviteId,
@@ -79,7 +79,7 @@ public class DashboardOrganizationInviteController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{inviteId}/capacity")
+    @PatchMapping("/{slug}/invites/{inviteId}/capacity")
     public ResponseEntity<OrganizationInviteResponse> updatePublicInviteCapacity(
             @PathVariable String slug,
             @PathVariable Long inviteId,

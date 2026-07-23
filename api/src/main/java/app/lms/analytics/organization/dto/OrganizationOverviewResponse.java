@@ -5,7 +5,7 @@ import app.lms.user.dto.UserResponse;
 import lombok.Builder;
 
 @Builder
-public record OrganizationDashboardResponse(
+public record OrganizationOverviewResponse(
 
         UserResponse owner,
 

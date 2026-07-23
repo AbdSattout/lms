@@ -23,4 +23,6 @@ public interface CertificateRepository extends JpaRepository<Certificate,Long> {
     );
 
     long countByUserId(Long userId);
+
+    long countByCourseId(Long courseId);
 }
