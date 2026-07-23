@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +36,9 @@ public class PolarWebhookVerifier {
         try {
             Webhook webhook =
                     new Webhook(
-                            secretForStandardWebhooks()
+                            polarProperties.getWebhookSecret()
+                                    .trim()
+                                    .getBytes(StandardCharsets.UTF_8)
                     );
 
             webhook.verify(
@@ -51,25 +52,6 @@ public class PolarWebhookVerifier {
                     "Invalid Polar webhook signature"
             );
         }
-    }
-
-    private String secretForStandardWebhooks() {
-
-        String secret =
-                polarProperties.getWebhookSecret()
-                        .trim();
-
-        if (secret.startsWith("whsec_")) {
-            return secret;
-        }
-
-        return Base64
-                .getEncoder()
-                .encodeToString(
-                        secret.getBytes(
-                                StandardCharsets.UTF_8
-                        )
-                );
     }
 
     private Map<String, List<String>> headersMap(
