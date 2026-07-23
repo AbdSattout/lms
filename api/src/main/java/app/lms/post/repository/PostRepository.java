@@ -21,4 +21,6 @@ public interface PostRepository
     void deleteByOrganizationId(
             Long organizationId
     );
+
+    long countByOrganizationId(Long organizationId);
 }

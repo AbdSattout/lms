@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_2BUyxZoRbX
+createdAt: 2026-07-22T07:19:58.910844400
+updatedAt: 2026-07-22T07:27:59.320012900
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_hMJXQvNoCq
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: org dashborad
+sortPriority: 0.0
+url: http://localhost:8080/dashboard/details/organizations/tech
+urlParameters: []

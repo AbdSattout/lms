@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_bWAR5f44nm
 createdAt: 2026-05-06T14:57:32.465785900
-updatedAt: 2026-07-15T22:22:39.892872200
+updatedAt: 2026-07-22T07:19:40.363882500
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzc5MTEyMjYyLCJleHAiOjE3Nzk3MTcwNjJ9.YQ6k1r6u1hkKQ3WxbrGXfBjeHPeLQYnuj5MXq-tR5z0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
 authenticationType: bearer
 body: {}
 bodyType: null

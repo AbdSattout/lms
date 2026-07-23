@@ -2,17 +2,17 @@ type: http_request
 model: http_request
 id: rq_3VFGKWNKhG
 createdAt: 2026-07-10T13:47:32.263017100
-updatedAt: 2026-07-14T11:57:46.568679
+updatedAt: 2026-07-23T02:34:18.287326
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_vLaX4qvMiu
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNjkxNTI2LCJleHAiOjE3ODQyOTYzMjZ9.4HKnUXr3f7EKGmNdLcDEQc1nfed1y73sKdnFQapInv4
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MzE2MTE4LCJleHAiOjE3ODQ5MjA5MTh9.2BR4Q5V45I9OjjbUcKgB8HUhCXVxBwe2O2kYWR53-P4
 authenticationType: bearer
 body:
   text: |-
     {
-      "text": "Write a short beginner-friendly paragraph about Object-Oriented Programming.",
-      "action": "WRITE"
+      "text": "sum of x =",
+      "action": "FORMAT_EQUATION"
     }
 bodyType: application/json
 description: ''

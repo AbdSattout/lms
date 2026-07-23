@@ -2,7 +2,7 @@ package app.lms.roadmap.repository;
 
 import app.lms.roadmap.model.Roadmap;
 import app.lms.course.enums.CourseStatus;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.enums.EnrollmentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -72,4 +72,6 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     void deleteByOrganizationId(
             Long organizationId
     );
+
+    long countByOrganizationId(Long organizationId);
 }

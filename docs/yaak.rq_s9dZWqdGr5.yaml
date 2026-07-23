@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_s9dZWqdGr5
+createdAt: 2026-07-23T03:25:58.887058700
+updatedAt: 2026-07-23T03:26:23.523354200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_HpnSGPH8ck
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MzE2MTE4LCJleHAiOjE3ODQ5MjA5MTh9.2BR4Q5V45I9OjjbUcKgB8HUhCXVxBwe2O2kYWR53-P4
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: revoke
+sortPriority: 0.0
+url: http://localhost:8080/billing/revoke
+urlParameters: []

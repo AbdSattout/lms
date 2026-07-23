@@ -4,6 +4,7 @@ import app.lms.common.dto.BaseEntityResponse;
 import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
+import app.lms.organization.dto.OrganizationSummaryResponse;
 import app.lms.organization.model.Organization;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
@@ -37,6 +38,20 @@ public class OrganizationMapper {
                         organization.getId()
                 ))
                 .baseEntity(BaseEntityResponse.from(organization))
+                .build();
+    }
+
+    public OrganizationSummaryResponse toSummaryResponse(
+            Organization organization
+    ) {
+
+        return OrganizationSummaryResponse.builder()
+                .id(organization.getId())
+                .name(organization.getName())
+                .slug(organization.getSlug())
+                .description(organization.getDescription())
+                .image(organization.getImageUrl())
+                .visibility(organization.getVisibility())
                 .build();
     }
 

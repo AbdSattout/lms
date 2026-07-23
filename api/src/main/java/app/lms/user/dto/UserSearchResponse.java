@@ -11,6 +11,8 @@ public class UserSearchResponse {
 
     private String name;
 
+    private String username;
+
     private String picture;
 
     private String email;

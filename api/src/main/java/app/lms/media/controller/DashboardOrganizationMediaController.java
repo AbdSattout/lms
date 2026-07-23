@@ -16,21 +16,21 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dashboard/organizations/{slug}/media-library")
+@RequestMapping("/dashboard/organizations/{organizationId}/media-library")
 public class DashboardOrganizationMediaController {
 
     private final DashboardOrganizationMediaService organizationMediaService;
 
     @GetMapping
     public ResponseEntity<Page<OrganizationMediaResponse>> list(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             Pageable pageable,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 organizationMediaService.list(
-                        slug,
+                        organizationId,
                         pageable,
                         principal.user()
                 )
@@ -39,13 +39,13 @@ public class DashboardOrganizationMediaController {
 
     @GetMapping("/summary")
     public ResponseEntity<OrganizationMediaSummaryResponse> summary(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 organizationMediaService.summary(
-                        slug,
+                        organizationId,
                         principal.user()
                 )
         );

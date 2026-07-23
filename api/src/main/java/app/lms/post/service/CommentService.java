@@ -23,6 +23,7 @@ public class CommentService {
     private final CommentMapper commentMapper;
     private final PostAccessService postAccessService;
     private final CommentAccessService commentAccessService;
+    private final PostService postService;
 
     @Transactional
     public CommentResponse create(
@@ -32,7 +33,7 @@ public class CommentService {
     ) {
 
         Post post =
-                postAccessService.getById(
+                postService.findPostById(
                         postId
                 );
         if (post.getCommentsCount() == null) {
@@ -117,13 +118,27 @@ public class CommentService {
         return count;
     }
 
-    public List<CommentResponse> getPostComments(Long postId) {
-        Post post = postAccessService.getById(postId);
+    public List<CommentResponse> getPostComments(
+            Long postId,
+            User user
+    ) {
 
-        List<Comment> comments = commentRepository.findByPostIdOrderByCreatedAtAsc(postId);
+        Post post = postService.findPostById(postId);
 
-        return comments.stream()
+        postAccessService.validateMember(
+                post.getOrganization(),
+                user
+        );
+
+        postAccessService.validateCourseAccess(
+                post,
+                user
+        );
+
+        return commentRepository
+                .findByPostIdOrderByCreatedAtAsc(postId)
+                .stream()
                 .map(commentMapper::toResponse)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

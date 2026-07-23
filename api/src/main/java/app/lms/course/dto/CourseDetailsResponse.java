@@ -1,7 +1,7 @@
 package app.lms.course.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
-import app.lms.courceEnrollment.dto.CourseProgressResponse;
+import app.lms.enrollment.dto.CourseProgressResponse;
 import lombok.*;
 
 import java.util.List;

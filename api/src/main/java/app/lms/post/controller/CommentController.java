@@ -48,12 +48,15 @@ public class CommentController {
     public ResponseEntity<List<CommentResponse>> getPostComments(
 
             @PathVariable
-            Long postId
+            Long postId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 commentService.getPostComments(
-                        postId
+                        postId,principal.user()
                 )
         );
     }

@@ -21,7 +21,7 @@ public class DashboardOrganizationMediaService {
     private final OrganizationMediaMapper organizationMediaMapper;
 
     public Page<OrganizationMediaResponse> list(
-            String slug,
+            Long organizationId,
             Pageable pageable,
             User user
     ) {
@@ -29,7 +29,7 @@ public class DashboardOrganizationMediaService {
         Organization organization =
                 organizationAccessService
                         .getManageableOrganization(
-                                slug,
+                                organizationId,
                                 user
                         );
 
@@ -42,14 +42,14 @@ public class DashboardOrganizationMediaService {
     }
 
     public OrganizationMediaSummaryResponse summary(
-            String slug,
+            Long organizationId,
             User user
     ) {
 
         Organization organization =
                 organizationAccessService
                         .getManageableOrganization(
-                                slug,
+                                organizationId,
                                 user
                         );
 

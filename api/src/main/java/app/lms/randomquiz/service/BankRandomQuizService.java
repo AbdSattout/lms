@@ -4,8 +4,10 @@ import app.lms.common.exception.BadRequestException;
 import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizAttemptValidationService;
 import app.lms.common.quiz.service.QuizGradingService;
-import app.lms.courceEnrollment.model.CourseEnrollment;
-import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.enrollment.model.CourseEnrollment;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
+import app.lms.plan.annotation.ConsumesPlanUsage;
+import app.lms.plan.enums.PlanUsageType;
 import app.lms.question.enums.QuestionDifficulty;
 import app.lms.question.model.Question;
 import app.lms.question.repository.QuestionRepository;
@@ -35,6 +37,10 @@ public class BankRandomQuizService {
     private final QuizAttemptValidationService quizAttemptValidationService;
     private final BankRandomQuizMapper bankRandomQuizMapper;
 
+    @ConsumesPlanUsage(
+            value = PlanUsageType.RANDOM_QUIZ,
+            courseIdArgumentIndex = 0
+    )
     @Transactional
     public BankRandomQuizResponse generate(
             Long courseId,

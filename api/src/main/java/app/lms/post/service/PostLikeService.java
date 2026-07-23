@@ -15,6 +15,7 @@ public class PostLikeService {
 
     private final PostAccessService postAccessService;
     private final PostLikeRepository postLikeRepository;
+    private final PostService postService;
 
     @Transactional
     public void like(
@@ -23,8 +24,8 @@ public class PostLikeService {
     ) {
 
         Post post =
-                postAccessService
-                        .getById(postId);
+                postService
+                        .findPostById(postId);
 
         if (post.getLikesCount() == null) {
             post.setLikesCount(0L);

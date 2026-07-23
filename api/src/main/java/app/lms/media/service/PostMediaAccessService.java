@@ -3,7 +3,6 @@ package app.lms.media.service;
 import app.lms.common.exception.NotFoundException;
 import app.lms.media.model.PostMedia;
 import app.lms.media.repository.PostMediaRepository;
-import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
@@ -39,45 +38,43 @@ public class PostMediaAccessService {
     }
 
     public PostMedia getEditableMedia(
-            String slug,
+            Long organizationId,
             Long mediaId,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
+        organizationAccessService
                 .getManageableOrganization(
-                        slug,
+                        organizationId,
                         user
                 );
 
         return getByIdAndOrganizationId(
                 mediaId,
-                organization.getId()
+                organizationId
         );
     }
 
     public PostMedia getAccessibleMedia(
-            String slug,
+            Long organizationId,
             Long mediaId,
             User user
     ) {
 
-        Organization organization =
-                organizationAccessService
-                        .getBySlug(
-                                slug
-                        );
+        organizationAccessService
+                .getById(
+                        organizationId
+                );
 
         organizationMemberAccessService
                 .getMember(
-                        organization.getId(),
+                        organizationId,
                         user.getId()
                 );
 
         return getByIdAndOrganizationId(
                 mediaId,
-                organization.getId()
+                organizationId
         );
     }
 
