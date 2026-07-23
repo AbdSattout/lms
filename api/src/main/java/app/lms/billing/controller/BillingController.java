@@ -1,6 +1,7 @@
 package app.lms.billing.controller;
 
 import app.lms.billing.dto.CheckoutSessionResponse;
+import app.lms.billing.dto.CustomerPortalSessionResponse;
 import app.lms.billing.service.PolarBillingService;
 import app.lms.billing.service.PolarWebhookService;
 import app.lms.security.UserPrincipal;
@@ -30,6 +31,18 @@ public class BillingController {
 
         return ResponseEntity.ok(
                 polarBillingService.createPremiumCheckout(
+                        userPrincipal.user()
+                )
+        );
+    }
+
+    @PostMapping("/portal")
+    public ResponseEntity<CustomerPortalSessionResponse> createCustomerPortalSession(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+
+        return ResponseEntity.ok(
+                polarBillingService.createCustomerPortalSession(
                         userPrincipal.user()
                 )
         );

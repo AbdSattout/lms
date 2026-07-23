@@ -23,4 +23,6 @@ public class PolarProperties {
     private String checkoutSuccessUrl;
 
     private String checkoutReturnUrl;
+
+    private String customerPortalReturnUrl;
 }
