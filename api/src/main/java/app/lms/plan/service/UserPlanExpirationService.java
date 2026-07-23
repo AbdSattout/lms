@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class UserPlanExpirationService {
 
     private final PlanRepository planRepository;
+    private final PlanLimitCacheService planLimitCacheService;
 
     @Transactional
     public void expireIfNeeded(
@@ -64,5 +65,7 @@ public class UserPlanExpirationService {
         );
         userPlan.setExpiresAt(null);
         userPlan.setCanceledAt(null);
+
+        planLimitCacheService.cache(userPlan);
     }
 }
