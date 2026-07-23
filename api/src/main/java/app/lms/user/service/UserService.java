@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import app.lms.media.dto.UploadedFile;
 
@@ -129,6 +130,9 @@ public class UserService {
         String name =
                 telegramJwt.getClaim("name");
 
+        String username =
+                telegramJwt.getClaim("preferred_username");
+
         String picture =
                 telegramJwt.getClaim("picture");
 
@@ -143,14 +147,17 @@ public class UserService {
                             telegramId
                     );
 
-                    newUser.setName(name);
-
-                    newUser.setPicture(picture);
-
-                    return userRepository.save(
-                            newUser
-                    );
+                    return newUser;
                 });
+
+        user.setName(name);
+        user.setUsername(username);
+
+        if (!StringUtils.hasText(user.getPictureFileId())) {
+            user.setPicture(picture);
+        }
+
+        user = userRepository.save(user);
 
         ensureProgressExists(user);
 
@@ -181,7 +188,19 @@ public class UserService {
     }
     public List<UserSearchResponse> search(String q){
 
-        return profileRepository.search(q)
+        String usernameQ =
+                q;
+
+        if (StringUtils.hasText(usernameQ) &&
+                usernameQ.startsWith("@")) {
+            usernameQ =
+                    usernameQ.substring(1);
+        }
+
+        return profileRepository.search(
+                        q,
+                        usernameQ
+                )
                 .stream()
                 .map(mapper::toSearchResponse)
                 .toList();
