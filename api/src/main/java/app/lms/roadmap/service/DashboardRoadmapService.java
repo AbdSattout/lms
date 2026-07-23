@@ -10,6 +10,7 @@ import app.lms.roadmap.dto.RoadmapResponse;
 import app.lms.roadmap.dto.UpsertRoadmapRequest;
 import app.lms.roadmap.mapper.RoadmapMapper;
 import app.lms.roadmap.model.Roadmap;
+import app.lms.roadmap.repository.RoadmapFollowerRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
@@ -30,6 +31,7 @@ public class DashboardRoadmapService {
     private final OrganizationAccessService organizationAccessService;
     private final CourseRepository courseRepository;
     private final RoadmapRepository roadmapRepository;
+    private final RoadmapFollowerRepository roadmapFollowerRepository;
     private final RoadmapMapper roadmapMapper;
 
     @Transactional
@@ -134,6 +136,33 @@ public class DashboardRoadmapService {
                         pageable
                 )
                 .map(roadmapMapper::toResponse);
+    }
+
+    @Transactional
+    public void delete(
+            String organizationSlug,
+            Long roadmapId,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
+                        );
+
+        Roadmap roadmap =
+                getByIdAndOrganizationId(
+                        roadmapId,
+                        organization.getId()
+                );
+
+        roadmapFollowerRepository.deleteAllByRoadmapId(
+                roadmap.getId()
+        );
+
+        roadmapRepository.delete(roadmap);
     }
 
     private Roadmap getByIdAndOrganizationId(

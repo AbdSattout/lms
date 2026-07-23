@@ -23,6 +23,10 @@ public interface RoadmapFollowerRepository
             Long userId
     );
 
+    void deleteAllByRoadmapId(
+            Long roadmapId
+    );
+
     Page<RoadmapFollower> findAllByUserIdOrderByCreatedAtDesc(
             Long userId,
             Pageable pageable
