@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_sigqrKyqXq
 createdAt: 2026-07-15T23:50:54.150746300
-updatedAt: 2026-07-16T00:38:38.618755400
+updatedAt: 2026-07-21T11:03:19.522914800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MTU3Nzg4LCJleHAiOjE3ODQ3NjI1ODh9.dGlsS3joiYAPxsTVYzi7I6S-FdmSWf-rvKq1MBt6pzU
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
 authenticationType: bearer
 body:
   text: |-
@@ -23,7 +23,7 @@ headers:
 method: POST
 name: submit answer to placement
 sortPriority: 0.001
-url: https://beaulah-fabulous-delectably.ngrok-free.dev/mobile/courses/1/placement-test
+url: https://lms.koyeb.app/mobile/courses/6/placement-test
 urlParameters: []
 settingSendCookies:
   enabled: false

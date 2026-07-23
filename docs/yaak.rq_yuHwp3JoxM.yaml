@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_yuHwp3JoxM
 createdAt: 2026-06-11T19:37:16.440133900
-updatedAt: 2026-07-21T09:53:56.697092700
+updatedAt: 2026-07-22T00:14:11.190267300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NRRWNohAxw
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0Njc5MDA1LCJleHAiOjE3ODUyODM4MDV9.BL0xLTomiHz3_-pHsWsEhWyoSzgwEI8Gtm8yK5_Hw-s
 authenticationType: bearer
 body:
   text: ''
@@ -34,7 +34,7 @@ headers:
 method: POST
 name: enrol
 sortPriority: 0.0
-url: https://lms.koyeb.app/courses/6/enroll
+url: https://lms.koyeb.app/courses/4/enroll
 urlParameters: []
 settingSendCookies:
   enabled: false
