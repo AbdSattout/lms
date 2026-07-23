@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_Vi44gSY3zx
 createdAt: 2026-05-31T19:52:13.312508800
-updatedAt: 2026-07-16T12:21:31.813128
+updatedAt: 2026-07-21T23:46:26.777282200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bPEMGkkY8L
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0Njc3Mjk2LCJleHAiOjE3ODUyODIwOTZ9.OqJNg9Oa3We8szDbIxAxqGjlDVbInSeLnver1zmj1F4
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,5 +15,20 @@ headers: []
 method: GET
 name: Get Course By id
 sortPriority: 3000.0
-url: https://lms.koyeb.app/dashboard/courses/3
+url: https://lms.koyeb.app/dashboard/courses/6
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

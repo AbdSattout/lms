@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_VnRP2dzsVP
 createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-07-16T12:59:11.991701300
+updatedAt: 2026-07-21T10:35:33.705002900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bcxgeqLASJ
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
 authenticationType: bearer
 body: {}
 bodyType: null
