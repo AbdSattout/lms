@@ -43,19 +43,30 @@ export const list = defineApiRoute({
 
 export const byId = defineApiRoute({
   get: (slug: string, roadmapId: number, options?: BackendFetchOptions) =>
-    backend<RoadmapResponse>(`/dashboard/organizations/${slug}/roadmaps/${roadmapId}`, {
-      method: "GET",
-      ...options,
-    }),
+    backend<RoadmapResponse>(
+      `/dashboard/organizations/${slug}/roadmaps/${roadmapId}`,
+      {
+        method: "GET",
+        ...options,
+      }
+    ),
   patch: (
     slug: string,
     roadmapId: number,
     request: UpsertRoadmapRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<RoadmapResponse>(`/dashboard/organizations/${slug}/roadmaps/${roadmapId}`, {
-      method: "PATCH",
-      body: request,
+    backend<RoadmapResponse>(
+      `/dashboard/organizations/${slug}/roadmaps/${roadmapId}`,
+      {
+        method: "PATCH",
+        body: request,
+        ...options,
+      }
+    ),
+  delete: (slug: string, roadmapId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/dashboard/organizations/${slug}/roadmaps/${roadmapId}`, {
+      method: "DELETE",
       ...options,
     }),
 })
