@@ -40,4 +40,11 @@ public interface LessonRepository
     findFirstByChapterIdOrderByPositionAsc(
             Long chapterId
     );
+
+    @Query("""
+select count(l)
+from Lesson l
+where l.chapter.course.id = :courseId
+""")
+    long countByCourseId(Long courseId);
 }

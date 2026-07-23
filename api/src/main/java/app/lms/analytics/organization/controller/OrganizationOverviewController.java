@@ -1,7 +1,7 @@
 package app.lms.analytics.organization.controller;
 
-import app.lms.analytics.organization.dto.OrganizationDashboardResponse;
-import app.lms.analytics.organization.service.OrganizationDashboardService;
+import app.lms.analytics.organization.dto.OrganizationOverviewResponse;
+import app.lms.analytics.organization.service.OrganizationOverviewService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +13,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dashboard/details/organizations")
-public class OrganizationDashboardController {
+@RequestMapping("/overview/organizations")
+public class OrganizationOverviewController {
 
-    private final OrganizationDashboardService dashboardService;
+    private final OrganizationOverviewService organizationOverviewService;
 
     @GetMapping("/{slug}")
-    public ResponseEntity<OrganizationDashboardResponse> getDashboard(
+    public ResponseEntity<OrganizationOverviewResponse> getOverview(
 
             @PathVariable String slug,
 
@@ -27,7 +27,7 @@ public class OrganizationDashboardController {
     ) {
 
         return ResponseEntity.ok(
-                dashboardService.getDashboard(
+                organizationOverviewService.getOverview(
                         slug,
                         principal.user()
                 )
