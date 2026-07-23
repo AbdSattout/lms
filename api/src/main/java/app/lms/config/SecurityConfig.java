@@ -26,7 +26,11 @@ public class SecurityConfig {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**" , "/error")
+                        .requestMatchers(
+                                "/auth/**",
+                                "/billing/polar/webhook",
+                                "/error"
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated()
