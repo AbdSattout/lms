@@ -14,12 +14,15 @@ import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class PolarBillingService {
 
     private final PolarClient polarClient;
     private final UserPlanService userPlanService;
+    private final UserPlanBillingService userPlanBillingService;
     private final PolarSubscriptionRepository polarSubscriptionRepository;
 
     public CheckoutSessionResponse createPremiumCheckout(
@@ -50,19 +53,57 @@ public class PolarBillingService {
         }
 
         PolarSubscription polarSubscription =
-                polarSubscriptionRepository
-                        .findFirstByUserIdOrderByCreatedAtDesc(
-                                user.getId()
-                        )
-                        .orElseThrow(() ->
-                                new BadRequestException(
-                                        "Polar subscription was not found for user"
-                                )
-                        );
+                currentPremiumSubscription(user);
 
         return polarClient.createCustomerPortalSession(
                 polarSubscription.getPolarCustomerId()
         );
+    }
+
+    public void revokeSubscription(
+            User user
+    ) {
+
+        if (!isPremiumPlan(
+                userPlanService.getOrCreateCurrentPlan(user)
+        )) {
+            throw new BadRequestException(
+                    "User does not have an active premium plan"
+            );
+        }
+
+        PolarSubscription polarSubscription =
+                currentPremiumSubscription(user);
+
+        polarClient.revokeSubscription(
+                polarSubscription.getPolarSubscriptionId()
+        );
+
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        polarSubscription.setStatus("canceled");
+        polarSubscription.setCancelAtPeriodEnd(false);
+        polarSubscription.setCanceledAt(now);
+        polarSubscription.setRevokedAt(now);
+
+        polarSubscriptionRepository.save(polarSubscription);
+        userPlanBillingService.downgradeToFree(user);
+    }
+
+    private PolarSubscription currentPremiumSubscription(
+            User user
+    ) {
+
+        return polarSubscriptionRepository
+                .findFirstByUserIdOrderByCreatedAtDesc(
+                        user.getId()
+                )
+                .orElseThrow(() ->
+                        new BadRequestException(
+                                "Polar subscription was not found for user"
+                        )
+                );
     }
 
     private boolean isPremiumPlan(
