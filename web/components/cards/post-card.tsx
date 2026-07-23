@@ -57,7 +57,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
     })
   }
 
-  // تم استرجاع دالتك الأصلية والممتازة لأنها تستخرج أول حرف من كل كلمة (Iyad Karima -> IK)
   const authorInitials =
     post.author?.name
       ?.split(" ")
@@ -85,58 +84,71 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
   return (
     <>
       <div className="group/card relative flex flex-col rounded-xl border border-border/40 bg-card text-start text-card-foreground shadow-sm transition-colors hover:bg-muted/40">
-        <div className="p-4 md:px-5 md:py-4">
-          {/* جزء المستخدم والتوقيت والإعدادات */}
-          <div className="relative z-10 mb-4 flex items-start justify-between gap-2">
+        <div className="p-4 md:p-5">
+          {/* قسم معلومات الناشر مطابق تماماً لـ PostDetail */}
+          <div className="relative z-10 mb-5 flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <Avatar className="h-9 w-9 shrink-0 ring-1 ring-border/30">
+              <Avatar className="h-10 w-10 shrink-0 ring-1 ring-border/40">
                 <AvatarImage src={post.author?.picture} />
                 <AvatarFallback>{authorInitials}</AvatarFallback>
               </Avatar>
-              <div className="flex flex-col text-start">
-                <span className="truncate text-sm font-semibold">
+              <div className="flex flex-col gap-0.5 text-start">
+                <span className="truncate text-[15px] font-bold text-foreground">
                   {post.author?.name ?? "مستخدم"}
                 </span>
-                <span className="text-[13px] text-muted-foreground">
-                  {timeAgo}
-                </span>
+
+                {/* تم وضع الوقت والدورة داخل flex row ليظهرا بجانب بعضهما */}
+                <div className="flex flex-wrap items-center gap-2 text-[13px] font-medium text-muted-foreground">
+                  <span>{timeAgo}</span>
+                  {post.courseId && (
+                    <>
+                      <span className="text-[10px]">●</span>
+                      <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary/90">
+                        دورة #{post.title}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
             {isAuthor && (
               <DropdownMenu>
-                {/* استبدلنا الـ Button هنا فقط لمنع الأخطاء الحمراء (Hydration error) وتم إعطاء هذا الزر تنسيقات أزرار Tailwind لتظهر بشكل أنيق */}
-                <DropdownMenuTrigger className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors outline-none hover:bg-black/10 hover:text-foreground focus:bg-accent focus:text-foreground">
+                <DropdownMenuTrigger className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-black/10 hover:text-foreground">
                   <MoreHorizontal className="h-5 w-5" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" dir="rtl">
-                  <DropdownMenuItem>
-                    {/* تم التأكد من بقاء مسارات الـ Routes سليمة الخاصة بك */}
+                <DropdownMenuContent
+                  align="end"
+                  dir="rtl"
+                  className="w-auto min-w-0"
+                >
+                  {/* تطبيق الحل الخاص بحجم الأزرار ليكون متناسقاً بالكامل */}
+                  <DropdownMenuItem className="cursor-pointer p-0">
                     <Link
                       href={`/${orgSlug}/posts/${post.id}/edit` as Route}
-                      className="cursor-pointer"
+                      className="flex w-full items-center justify-center gap-2 px-4 py-2"
                     >
-                      <Pencil className="ml-2 h-4 w-4" /> تعديل
+                      <Pencil className="h-4 w-4" />
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem
-                    className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                    className="flex w-full cursor-pointer items-center justify-center gap-2 px-4 py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                     onClick={() => setDeleteOpen(true)}
                   >
-                    <Trash2 className="ml-2 h-4 w-4" /> حذف
+                    <Trash2 className="h-4 w-4" />
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
           </div>
 
-          {/* محتوى المنشور والـ Reddit Layout Clickable  */}
-          {/* خصائص ال before هي المسؤولة عن جعل كل مساحة المنشور قابلة للضغط بسهولة ونعومة دون إعاقة الأزرار الاخرى */}
+          {/* محتوى المنشور */}
           <Link
             href={`/${orgSlug}/posts/${post.id}` as Route}
             className="group block cursor-pointer outline-none before:absolute before:inset-0 before:z-0"
           >
-            <h3 className="mb-2 text-lg leading-tight font-bold transition-colors group-hover:text-primary">
+            {/* تم تغيير حجم الخط ليطابق الـ PostDetail */}
+            <h3 className="mb-3 text-xl leading-relaxed font-extrabold transition-colors group-hover:text-primary">
               {post.title}
             </h3>
 
@@ -153,18 +165,18 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
             )}
 
             {previewText && (
-              <p className="mb-3 line-clamp-3 text-[15px] leading-relaxed text-muted-foreground">
+              <p className="mb-3 line-clamp-3 text-[15.5px] leading-relaxed text-muted-foreground">
                 {previewText}
               </p>
             )}
           </Link>
         </div>
 
-        {/* الشريط السفلي (التفاعل) z-10 مهم جدا هنا عشان تضل قابلة للضغط منفردة ولا يفتح رابط المنشور ككل! */}
-        <div className="relative z-10 mt-auto flex items-center gap-5 border-t border-border/40 px-4 py-3 md:px-5">
+        {/* الشريط السفلي */}
+        <div className="relative z-10 mt-auto flex items-center gap-6 border-t border-border/40 px-4 py-3 md:px-5">
           <button className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-red-500">
             <Heart className="h-5 w-5" />
-            <span className="text-sm font-medium">{post.likeCount || 0}</span>
+            <span className="text-[15px] font-bold">{post.likeCount || 0}</span>
           </button>
 
           <Link
@@ -172,14 +184,14 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
             className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary"
           >
             <MessageCircle className="h-5 w-5" />
-            <span className="text-sm font-medium">
+            <span className="text-[15px] font-bold">
               {post.commentCount || 0} تعليق
             </span>
           </Link>
         </div>
       </div>
 
-      {/* النافذة المنبثقة للتأكيد من حذفك - كما كتبتها أنت 100% */}
+      {/* نافذة التأكيد */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent dir="rtl">
           <DialogHeader>

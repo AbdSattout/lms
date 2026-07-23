@@ -17,6 +17,7 @@ public class UserMapper {
         return new UserResponse(
                 user.getId(),
                 user.getName(),
+                user.getUsername(),
                 user.getPicture()
         );
     }
@@ -37,6 +38,7 @@ public class UserMapper {
         return new UserSearchResponse(
                 profile.getUser().getId(),
                 profile.getUser().getName(),
+                profile.getUser().getUsername(),
                 profile.getUser().getPicture(),
                 profile.getEmail()
         );

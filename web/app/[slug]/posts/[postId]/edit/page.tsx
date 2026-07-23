@@ -19,12 +19,7 @@ async function EditPostData({
   if (!post) {
     notFound()
   }
-
-  const courses = await api.dashboard.organizations.courses
-    .get(slug)
-    .catch(() => [])
-
-  return <EditPostForm orgSlug={slug} post={post} courses={courses} />
+  return <EditPostForm orgSlug={slug} post={post} />
 }
 
 export default async function EditPostPage({

@@ -10,31 +10,18 @@ import { Editor } from "@/components/editor"
 import { Input } from "@/components/ui/input"
 import { updatePost } from "@/lib/actions/post"
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-
-import type { CourseResponse, PostResponse } from "@/lib/api/types"
+import type { PostResponse } from "@/lib/api/types"
 
 interface Props {
   orgSlug: string
   post: PostResponse
-  courses: CourseResponse[]
 }
 
-export function EditPostForm({ orgSlug, post, courses }: Props) {
+export function EditPostForm({ orgSlug, post }: Props) {
   const router = useRouter()
 
   const [title, setTitle] = useState(post.title || "")
   const [content, setContent] = useState(post.content || "")
-
-  const [courseId, setCourseId] = useState<number | null>(post.courseId ?? null)
-
-  const selectedCourse = courses.find((c) => c.id === courseId)
 
   const [error, setError] = useState<string | null>(null)
 
@@ -60,7 +47,6 @@ export function EditPostForm({ orgSlug, post, courses }: Props) {
         await updatePost(orgSlug, post.id, {
           title: title.trim(),
           content: content.trim(),
-          courseId: courseId === null ? undefined : courseId,
         })
 
         toast.success("تم تعديل المنشور")
@@ -108,36 +94,9 @@ export function EditPostForm({ orgSlug, post, courses }: Props) {
           />
         </div>
 
-        {courses.length > 0 && (
-          <div className="flex flex-col gap-3 text-start">
-            <label className="text-sm font-bold">مرتبط بدورة (اختياري)</label>
-            <Select
-              value={courseId?.toString() ?? "none"}
-              onValueChange={(v) =>
-                setCourseId(v === "none" ? null : Number(v))
-              }
-            >
-              <SelectTrigger dir="rtl" className="h-11 bg-background/50">
-                <SelectValue>
-                  {selectedCourse?.title ?? "اختر دورة لربط المنشور بها"}
-                </SelectValue>
-              </SelectTrigger>
-
-              <SelectContent dir="rtl">
-                <SelectItem value="none">بدون دورة</SelectItem>
-                {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id.toString()}>
-                    {course.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
         <div className="flex flex-col gap-3 text-start">
           <label className="text-sm font-bold">المحتوى</label>
-          <div className="min-h-[300px] overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+          <div className="min-h-75 overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
             <Editor content={content} onChange={setContent} />
           </div>
         </div>

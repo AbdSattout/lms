@@ -90,7 +90,6 @@ export function PostDetail({
   function handleReply(commentId: number, authorName: string) {
     setReplyingTo({ id: commentId, authorName })
     setNewComment("")
-    // وضع الفوكس بسلاسة بعد الضغط على "رد"
     setTimeout(() => document.getElementById("comment-textarea")?.focus(), 50)
   }
 
@@ -100,18 +99,15 @@ export function PostDetail({
         await deletePost(post.id, orgSlug)
         toast.success("تم حذف المنشور")
         router.push(`/${orgSlug}/posts` as Route)
-      } catch (err) {
+      } catch {
         toast.error("حدث خطأ أثناء الحذف")
       }
     }
   }
 
   return (
-    // مركزنا محتوى التفاصيل في عرض مريح مع هوامش جذابة Text-start لمعالجة RTL بشكل مثالي
-    <div className="mx-auto flex w-full max-w-[720px] flex-col gap-7 pt-2 pb-20 text-start">
-      {/* 1. قسم تفاصيل المنشور بالاستايل المتوافق 100% مع PostCard */}
+    <div className="mx-auto flex w-full max-w-180 flex-col gap-7 pt-2 pb-20 text-start">
       <div className="rounded-xl border border-border/50 bg-card p-5 text-card-foreground shadow-sm md:p-7">
-        {/* هيدر الكارد: معلومات المستخدم والقائمة المنسدلة */}
         <div className="mb-5 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10 shrink-0 ring-1 ring-border/40">
@@ -128,7 +124,7 @@ export function PostDetail({
                   <>
                     <span className="text-[10px]">●</span>
                     <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary/90">
-                      دورة #{post.courseId}
+                      دورة #{post.title}
                     </span>
                   </>
                 )}
@@ -139,20 +135,24 @@ export function PostDetail({
           {/* القائمة الجانبية للتعديل والحذف (مثل ما في بوست كارد تماما) */}
           {isAuthor && (
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-black/10 hover:text-foreground">
+              <DropdownMenuTrigger className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-black/10 hover:text-foreground">
                 <MoreHorizontal className="h-5 w-5" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" dir="rtl" className="w-36">
+              <DropdownMenuContent
+                align="end"
+                dir="rtl"
+                className="w-auto min-w-0"
+              >
                 <DropdownMenuItem className="cursor-pointer gap-2 py-2">
                   <Link href={`/${orgSlug}/posts/${post.id}/edit` as Route}>
-                    <Pencil className="h-4 w-4" /> تعديل المنشور
+                    <Pencil className="h-4 w-4" />
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer gap-2 py-2 text-red-500 focus:bg-red-500/10 focus:text-red-500"
                   onClick={handleDeletePost}
                 >
-                  <Trash2 className="h-4 w-4" /> حذف المنشور
+                  <Trash2 className="h-4 w-4" />
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

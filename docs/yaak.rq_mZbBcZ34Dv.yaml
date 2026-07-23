@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_mZbBcZ34Dv
 createdAt: 2026-07-11T14:49:38.266150900
-updatedAt: 2026-07-11T15:27:32.639394
+updatedAt: 2026-07-23T06:44:04.744625900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NzMyOTAxLCJleHAiOjE3ODUzMzc3MDF9.GIEKOoszpU144QBSJQlPOYfDyViJYr8M_zqhsfPFhLo
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -25,3 +25,18 @@ urlParameters:
   name: ''
   value: ''
   id: aQsXHyM2Uy
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0
