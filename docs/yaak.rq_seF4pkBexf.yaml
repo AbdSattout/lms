@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_seF4pkBexf
 createdAt: 2026-05-31T17:51:51.795939700
-updatedAt: 2026-07-16T12:17:59.693137600
+updatedAt: 2026-07-23T01:19:34.298002700
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MzE2MTE4LCJleHAiOjE3ODQ5MjA5MTh9.2BR4Q5V45I9OjjbUcKgB8HUhCXVxBwe2O2kYWR53-P4
 authenticationType: bearer
 body:
   form:
@@ -14,13 +14,13 @@ body:
     enabled: true
     id: 9Kh339MNzt
     name: request
-    value: '{  "name": "Tech Company",  "slug": "tech-company",  "description": "My organization",  "visibility": "PUBLIC"}'
+    value: '{  "name": "Tech Cosmpany",  "slug": "tech-csompany",  "description": "My organization",  "visibility": "PUBLIC"}'
   - enabled: false
     file: C:\Users\ASUS\Desktop\abdbd.jpg
     id: VDFyZ3H4Ux
     name: image
   - enabled: true
-    id: eqpSNW2rYA
+    id: zMSYek7ivQ
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -33,5 +33,5 @@ headers:
 method: POST
 name: create organization
 sortPriority: 333.3333333333333
-url: https://lms.koyeb.app/dashboard/organizations
+url: http://localhost:8080/dashboard/organizations
 urlParameters: []
