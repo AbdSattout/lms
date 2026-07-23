@@ -11,4 +11,8 @@ public interface PolarSubscriptionRepository
     Optional<PolarSubscription> findByPolarSubscriptionId(
             String polarSubscriptionId
     );
+
+    Optional<PolarSubscription> findFirstByUserIdOrderByCreatedAtDesc(
+            Long userId
+    );
 }
