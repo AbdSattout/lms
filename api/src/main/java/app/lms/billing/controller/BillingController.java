@@ -48,6 +48,20 @@ public class BillingController {
         );
     }
 
+    @PostMapping("/revoke")
+    public ResponseEntity<Void> revokeSubscription(
+            @AuthenticationPrincipal UserPrincipal userPrincipal
+    ) {
+
+        polarBillingService.revokeSubscription(
+                userPrincipal.user()
+        );
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
     @PostMapping("/polar/webhook")
     public ResponseEntity<Void> handlePolarWebhook(
             @RequestBody String payload,

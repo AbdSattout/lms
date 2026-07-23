@@ -194,6 +194,41 @@ public class PolarClient {
         }
     }
 
+    public void revokeSubscription(
+            String polarSubscriptionId
+    ) {
+
+        validateAccessToken();
+
+        if (!StringUtils.hasText(polarSubscriptionId)) {
+            throw new BadRequestException(
+                    "Polar subscription ID is missing"
+            );
+        }
+
+        try {
+            restClient()
+                    .delete()
+                    .uri(
+                            "/subscriptions/{subscriptionId}",
+                            polarSubscriptionId
+                    )
+                    .retrieve()
+                    .toBodilessEntity();
+
+        } catch (RestClientResponseException ex) {
+            throw new BadRequestException(
+                    "Failed to revoke Polar subscription: " +
+                            polarErrorMessage(ex)
+            );
+        } catch (RestClientException ex) {
+            throw new BadRequestException(
+                    "Failed to revoke Polar subscription: " +
+                            ex.getMessage()
+            );
+        }
+    }
+
     private RestClient restClient() {
 
         return RestClient

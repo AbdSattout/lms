@@ -6,6 +6,7 @@ import app.lms.plan.model.Plan;
 import app.lms.plan.model.UserPlan;
 import app.lms.plan.repository.PlanRepository;
 import app.lms.plan.repository.UserPlanRepository;
+import app.lms.plan.service.PlanLimitCacheService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class UserPlanBillingService {
 
     private final PlanRepository planRepository;
     private final UserPlanRepository userPlanRepository;
+    private final PlanLimitCacheService planLimitCacheService;
 
     @Transactional
     public void activatePremium(
@@ -47,7 +49,9 @@ public class UserPlanBillingService {
         userPlan.setExpiresAt(expiresAt);
         userPlan.setCanceledAt(null);
 
-        userPlanRepository.save(userPlan);
+        planLimitCacheService.cache(
+                userPlanRepository.save(userPlan)
+        );
     }
 
     @Transactional
@@ -73,7 +77,9 @@ public class UserPlanBillingService {
         userPlan.setExpiresAt(null);
         userPlan.setCanceledAt(null);
 
-        userPlanRepository.save(userPlan);
+        planLimitCacheService.cache(
+                userPlanRepository.save(userPlan)
+        );
     }
 
     private Plan plan(

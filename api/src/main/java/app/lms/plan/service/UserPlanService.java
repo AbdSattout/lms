@@ -46,6 +46,17 @@ public class UserPlanService {
                 .getPlan();
     }
 
+    @Transactional
+    public UserPlan getOrCreateCurrentUserPlan(
+            User user
+    ) {
+
+        return getOrCreateCurrentUserPlan(
+                user,
+                false
+        );
+    }
+
     private UserPlan getOrCreateCurrentUserPlan(
             User user,
             boolean lock
