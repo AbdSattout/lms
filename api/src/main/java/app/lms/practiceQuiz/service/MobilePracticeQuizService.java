@@ -3,7 +3,7 @@ package app.lms.practiceQuiz.service;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizGradingService;
-import app.lms.courceEnrollment.service.CourseEnrollmentAccessService;
+import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.practiceQuiz.dto.*;
 import app.lms.practiceQuiz.mapper.PracticeQuizMapper;
 import app.lms.practiceQuiz.model.PracticeQuiz;

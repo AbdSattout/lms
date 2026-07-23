@@ -3,6 +3,8 @@ package app.lms.ai.dashboard.question.service;
 import app.lms.ai.dashboard.question.dto.GenerateQuestionFromBlockContentRequest;
 import app.lms.ai.dashboard.question.dto.GeneratedQuestionResponse;
 import app.lms.ai.common.exception.AiServiceException;
+import app.lms.plan.annotation.ConsumesPlanUsage;
+import app.lms.plan.enums.PlanUsageType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -19,6 +21,7 @@ public class DashboardAiQuestionService {
     private final ChatClient.Builder chatClientBuilder;
     private final DashboardAiQuestionPromptService dashboardAiQuestionPromptService;
 
+    @ConsumesPlanUsage(PlanUsageType.AI_TOOL)
     public GeneratedQuestionResponse generateFromBlock(
             GenerateQuestionFromBlockContentRequest request
     ) {

@@ -3,6 +3,9 @@ package app.lms.common.exception;
 import app.lms.ai.common.exception.AiServiceException;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.exception.ImageUploadException;
+import app.lms.plan.exception.PlanLimitExceededException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,6 +25,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 @SuppressWarnings("unused")
+@Slf4j
 public class GlobalExceptionHandler {
 
     @ExceptionHandler
@@ -174,6 +178,39 @@ public class GlobalExceptionHandler {
                         Map.of(
                                 "status", 409,
                                 "error", ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(PlanLimitExceededException.class)
+    public ResponseEntity<?> handlePlanLimitExceededException(
+            PlanLimitExceededException ex
+    ) {
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(
+                        Map.of(
+                                "status", 429,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    public ResponseEntity<?> handleRedisConnectionFailureException(
+            RedisConnectionFailureException ex
+    ) {
+
+        log.error(
+                "Redis connection failed",
+                ex
+        );
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(
+                        Map.of(
+                                "status", 503,
+                                "error", "Redis is currently unavailable"
                         )
                 );
     }

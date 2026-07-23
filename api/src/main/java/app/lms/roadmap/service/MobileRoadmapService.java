@@ -2,13 +2,14 @@ package app.lms.roadmap.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.courceEnrollment.enums.EnrollmentStatus;
-import app.lms.courceEnrollment.model.CourseEnrollment;
-import app.lms.courceEnrollment.repository.CourseEnrollmentRepository;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.model.CourseEnrollment;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.plan.service.PlanQuotaService;
 import app.lms.roadmap.dto.RoadmapResponse;
 import app.lms.roadmap.enums.RoadmapFollowStatus;
 import app.lms.roadmap.mapper.RoadmapMapper;
@@ -39,6 +40,7 @@ public class MobileRoadmapService {
     private final OrganizationMemberRepository organizationMemberRepository;
     private final RoadmapMapper roadmapMapper;
     private final RoadmapFollowProgressService roadmapFollowProgressService;
+    private final PlanQuotaService planQuotaService;
 
     @Transactional
     public Page<RoadmapResponse> listAll(
@@ -143,6 +145,13 @@ public class MobileRoadmapService {
                     "Already following roadmap"
             );
         }
+
+        planQuotaService.validateActiveRoadmapFollowAllowed(
+                user,
+                () -> roadmapFollowerRepository.countActiveByUserId(
+                        user.getId()
+                )
+        );
 
         roadmapFollowerRepository.save(
                 RoadmapFollower.builder()

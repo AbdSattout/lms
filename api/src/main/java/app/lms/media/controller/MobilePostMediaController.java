@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/mobile/organizations/{slug}/post-media")
+@RequestMapping("/mobile/organizations/{organizationId}/post-media")
 @RequiredArgsConstructor
 public class MobilePostMediaController {
 
@@ -20,14 +20,14 @@ public class MobilePostMediaController {
 
     @GetMapping("/{mediaId}")
     public ResponseEntity<PostMediaResponse> getById(
-            @PathVariable String slug,
+            @PathVariable Long organizationId,
             @PathVariable Long mediaId,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 postMediaService.getById(
-                        slug,
+                        organizationId,
                         mediaId,
                         principal.user()
                 )
