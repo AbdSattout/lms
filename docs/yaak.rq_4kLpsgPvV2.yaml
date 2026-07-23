@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_drngtdbdpY
-createdAt: 2026-07-23T01:21:46.559298400
-updatedAt: 2026-07-23T03:17:45.109974900
+id: rq_4kLpsgPvV2
+createdAt: 2026-07-23T03:17:34.145557500
+updatedAt: 2026-07-23T03:26:42.044458400
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_HpnSGPH8ck
 authentication:
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: POST
-name: checkout
+name: portal
 sortPriority: 333.3333333333333
-url: http://localhost:8080/billing/checkout
+url: http://localhost:8080/billing/portal
 urlParameters: []
