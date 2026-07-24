@@ -1,7 +1,7 @@
 package app.lms.analytics.user.controller;
 
-import app.lms.analytics.user.dto.UserDashboardResponse;
-import app.lms.analytics.user.service.UserDashboardService;
+import app.lms.analytics.user.dto.UserOverviewResponse;
+import app.lms.analytics.user.service.UserOverviewService;
 import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,19 +12,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/dashboard/details/me")
-public class UserDashboardController {
+@RequestMapping("/overview/me")
+public class UserOverviewController {
 
-    private final UserDashboardService dashboardService;
+    private final UserOverviewService userOverviewService;
 
     @GetMapping
-    public ResponseEntity<UserDashboardResponse> getDashboard(
+    public ResponseEntity<UserOverviewResponse> getOverview(
 
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
-                dashboardService.getDashboard(
+                userOverviewService.getOverview(
                         principal.user()
                 )
         );

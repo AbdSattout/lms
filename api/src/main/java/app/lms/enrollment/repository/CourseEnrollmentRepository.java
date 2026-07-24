@@ -53,4 +53,11 @@ public interface CourseEnrollmentRepository
             EnrollmentStatus status
     );
 
+    long countByCourseId(Long courseId);
+
+    long countByCourseIdAndStatus(
+            Long courseId,
+            EnrollmentStatus status
+    );
+
 }

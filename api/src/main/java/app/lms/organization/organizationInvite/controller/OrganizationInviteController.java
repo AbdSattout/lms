@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/organizations/{slug}/invites")
+@RequestMapping("/organizations/invites")
 @RequiredArgsConstructor
 public class OrganizationInviteController {
 
