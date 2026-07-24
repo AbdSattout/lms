@@ -2,7 +2,7 @@ package app.lms.analytics.organization.service;
 
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.repository.CourseRepository;
-import app.lms.analytics.organization.dto.OrganizationDashboardResponse;
+import app.lms.analytics.organization.dto.OrganizationOverviewResponse;
 import app.lms.media.dto.StorageResponse;
 import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.organization.enums.Role;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class OrganizationDashboardService {
+public class OrganizationOverviewService {
 
     private final OrganizationAccessService organizationAccessService;
 
@@ -38,7 +38,7 @@ public class OrganizationDashboardService {
 
     private final RoadmapRepository roadmapRepository;
 
-    public OrganizationDashboardResponse getDashboard(
+    public OrganizationOverviewResponse getOverview(
 
             String slug,
             User user
@@ -52,7 +52,7 @@ public class OrganizationDashboardService {
                         );
 
 
-        return OrganizationDashboardResponse
+        return OrganizationOverviewResponse
                 .builder()
 
                 .owner(

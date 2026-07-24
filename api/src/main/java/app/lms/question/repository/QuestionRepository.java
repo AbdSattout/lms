@@ -30,4 +30,6 @@ public interface QuestionRepository extends JpaRepository<Question, Long> {
             Long courseId,
             QuestionDifficulty difficulty
     );
+
+    long countByCourseId(Long courseId);
 }

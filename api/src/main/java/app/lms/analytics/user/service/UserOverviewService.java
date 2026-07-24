@@ -4,7 +4,7 @@ import app.lms.certificate.repository.CertificateRepository;
 import app.lms.common.exception.NotFoundException;
 import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.enrollment.repository.CourseEnrollmentRepository;
-import app.lms.analytics.user.dto.UserDashboardResponse;
+import app.lms.analytics.user.dto.UserOverviewResponse;
 import app.lms.gamification.dto.UserStreakResponse;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.UserProgressRepository;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserDashboardService {
+public class UserOverviewService {
 
     private final OrganizationMemberRepository organizationMemberRepository;
 
@@ -32,7 +32,7 @@ public class UserDashboardService {
 
     private final RoadmapFollowerRepository roadmapFollowerRepository;
 
-    public UserDashboardResponse getDashboard(
+    public UserOverviewResponse getOverview(
             User user
     ) {
 
@@ -46,7 +46,7 @@ public class UserDashboardService {
         UserStreakResponse streak =
                 userActivityService.getStreak(user);
 
-        return UserDashboardResponse.builder()
+        return UserOverviewResponse.builder()
 
                 .organizationsCount(
                         organizationMemberRepository
