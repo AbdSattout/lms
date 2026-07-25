@@ -85,7 +85,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
     <>
       <div className="group/card relative flex flex-col rounded-xl border border-border/40 bg-card text-start text-card-foreground shadow-sm transition-colors hover:bg-muted/40">
         <div className="p-4 md:p-5">
-          {/* قسم معلومات الناشر مطابق تماماً لـ PostDetail */}
           <div className="relative z-10 mb-5 flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
               <Avatar className="h-10 w-10 shrink-0 ring-1 ring-border/40">
@@ -97,7 +96,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
                   {post.author?.name ?? "مستخدم"}
                 </span>
 
-                {/* تم وضع الوقت والدورة داخل flex row ليظهرا بجانب بعضهما */}
                 <div className="flex flex-wrap items-center gap-2 text-[13px] font-medium text-muted-foreground">
                   <span>{timeAgo}</span>
                   {post.courseId && (
@@ -122,7 +120,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
                   dir="rtl"
                   className="w-auto min-w-0"
                 >
-                  {/* تطبيق الحل الخاص بحجم الأزرار ليكون متناسقاً بالكامل */}
                   <DropdownMenuItem className="cursor-pointer p-0">
                     <Link
                       href={`/${orgSlug}/posts/${post.id}/edit` as Route}
@@ -142,12 +139,10 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
             )}
           </div>
 
-          {/* محتوى المنشور */}
           <Link
             href={`/${orgSlug}/posts/${post.id}` as Route}
             className="group block cursor-pointer outline-none before:absolute before:inset-0 before:z-0"
           >
-            {/* تم تغيير حجم الخط ليطابق الـ PostDetail */}
             <h3 className="mb-3 text-xl leading-relaxed font-extrabold transition-colors group-hover:text-primary">
               {post.title}
             </h3>
@@ -172,7 +167,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
           </Link>
         </div>
 
-        {/* الشريط السفلي */}
         <div className="relative z-10 mt-auto flex items-center gap-6 border-t border-border/40 px-4 py-3 md:px-5">
           <button className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-red-500">
             <Heart className="h-5 w-5" />
@@ -191,7 +185,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
         </div>
       </div>
 
-      {/* نافذة التأكيد */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent dir="rtl">
           <DialogHeader>

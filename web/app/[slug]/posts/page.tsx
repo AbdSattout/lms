@@ -6,10 +6,8 @@ import { PostsContent } from "@/components/posts/post-content"
 
 async function PostsSection({ slug }: { slug: string }) {
   const posts = await api.dashboard.posts
-    // تم تغيير baseEntity.createdAt إلى createdAt لتجنب أخطاء السيرفر
     .byOrg(slug, { page: 0, size: 20, sort: ["createdAt,desc"] })
     .catch((error) => {
-      // إظهار الخطأ في الكونسول لمعرفة المشكلة الحقيقية 🚨
       console.error("Failed to fetch posts in Server Component:", error)
       return null
     })

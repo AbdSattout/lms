@@ -245,6 +245,39 @@ export const members = {
         { method: "GET", ...options }
       ),
   }),
+  getOwners: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationMemberResponse>(
+        `/dashboard/organizations/${slug}/members/owners${toQueryString(pageable)}`,
+        { method: "GET", ...options }
+      ),
+  }),
+  getAdmins: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationMemberResponse>(
+        `/dashboard/organizations/${slug}/members/admins${toQueryString(pageable)}`,
+        { method: "GET", ...options }
+      ),
+  }),
+  getStudents: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationMemberResponse>(
+        `/dashboard/organizations/${slug}/members/students${toQueryString(pageable)}`,
+        { method: "GET", ...options }
+      ),
+  }),
 }
 
 export const joinRequests = {

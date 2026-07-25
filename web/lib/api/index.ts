@@ -117,7 +117,12 @@ export const api = {
       getCourseBySlug,
       checkCourseSlugAvailability,
       invites,
-      members,
+      members: {
+        list: members.list,
+        getOwners: members.getOwners,
+        getAdmins: members.getAdmins,
+        getStudents: members.getStudents,
+      },
       joinRequests: joinRequests.dashboard,
     },
     courses: {
