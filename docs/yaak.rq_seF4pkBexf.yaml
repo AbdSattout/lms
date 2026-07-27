@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_seF4pkBexf
 createdAt: 2026-05-31T17:51:51.795939700
-updatedAt: 2026-07-23T01:19:34.298002700
+updatedAt: 2026-07-27T05:43:22.644445200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MzE2MTE4LCJleHAiOjE3ODQ5MjA5MTh9.2BR4Q5V45I9OjjbUcKgB8HUhCXVxBwe2O2kYWR53-P4
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg1MTMwODgyLCJleHAiOjE3ODU3MzU2ODJ9.QV1ye79ZvFEXSZvyEjNyX3MnfG5A5MX5xa6mNKeqeOs
 authenticationType: bearer
 body:
   form:
@@ -14,13 +14,13 @@ body:
     enabled: true
     id: 9Kh339MNzt
     name: request
-    value: '{  "name": "Tech Cosmpany",  "slug": "tech-csompany",  "description": "My organization",  "visibility": "PUBLIC"}'
-  - enabled: false
-    file: C:\Users\ASUS\Desktop\abdbd.jpg
+    value: '{  "name": "Tech Company",  "slug": "tech-company",  "description": "My organization",  "visibility": "PUBLIC"}'
+  - enabled: true
+    file: C:\Users\ASUS\Desktop\Screenshot 2026-07-25 072343.png
     id: VDFyZ3H4Ux
     name: image
   - enabled: true
-    id: zMSYek7ivQ
+    id: K97R07nXpg
     name: ''
     value: ''
 bodyType: multipart/form-data
