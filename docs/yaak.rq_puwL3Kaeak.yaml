@@ -1,8 +1,8 @@
 type: http_request
 model: http_request
-id: rq_FC66yZquRP
-createdAt: 2026-07-22T13:29:59.258259500
-updatedAt: 2026-07-27T05:40:24.068929600
+id: rq_puwL3Kaeak
+createdAt: 2026-07-27T05:38:18.833318
+updatedAt: 2026-07-27T05:38:50.214079600
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_pMa5FnxhU9
 authentication:
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: user overview
-sortPriority: 333.3333333333333
-url: http://localhost:8080/overview/me
+name: org overview Copy
+sortPriority: 0.001
+url: http://localhost:8080/overview/organizations/{slug}/courses/{courseId}
 urlParameters: []

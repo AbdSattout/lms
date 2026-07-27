@@ -6,7 +6,6 @@ import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
-import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.organizationJoinRequest.mapper.OrganizationJoinRequestMapper;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
