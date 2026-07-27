@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_2BUyxZoRbX
 createdAt: 2026-07-22T07:19:58.910844400
-updatedAt: 2026-07-22T07:27:59.320012900
+updatedAt: 2026-07-27T05:39:24.835142100
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_hMJXQvNoCq
+folderId: fl_pMa5FnxhU9
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
 authenticationType: bearer
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: org dashborad
+name: org overview
 sortPriority: 0.0
-url: http://localhost:8080/dashboard/details/organizations/tech
+url: http://localhost:8080/overview/organizations/{slug}
 urlParameters: []
