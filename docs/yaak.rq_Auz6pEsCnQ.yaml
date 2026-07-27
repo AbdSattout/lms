@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_Auz6pEsCnQ
 createdAt: 2026-07-11T15:32:26.280032300
-updatedAt: 2026-07-11T16:11:51.966891100
+updatedAt: 2026-07-27T05:12:20.508591400
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_x2sJUXGYsL
+folderId: fl_V9bdAHVywn
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
 authenticationType: bearer
@@ -14,7 +14,7 @@ description: ''
 headers: []
 method: POST
 name: Decline Invite
-sortPriority: 0.001
+sortPriority: 333.3333333333333
 url: http://localhost:8080/organizations/{slug}/invites/decline
 urlParameters:
 - enabled: true
