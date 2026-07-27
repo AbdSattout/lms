@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_ap3JZY6rhs
 createdAt: 2026-05-31T19:53:07.299563300
-updatedAt: 2026-06-13T16:48:12.968410
+updatedAt: 2026-07-27T05:59:35.844271600
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bPEMGkkY8L
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg1MTMwODgyLCJleHAiOjE3ODU3MzU2ODJ9.QV1ye79ZvFEXSZvyEjNyX3MnfG5A5MX5xa6mNKeqeOs
 authenticationType: bearer
 body:
   form:
@@ -16,11 +16,11 @@ body:
     name: request
     value: '{  "title": "Spring Boot Advanced",  "slug": "Spring Boot Advanced", "description": "Updated description"}'
   - enabled: false
-    file: C:\Users\ASUS\Desktop\photo_2026-05-18_19-38-54.jpg
+    file: C:\Users\ASUS\Desktop\aww-hell.gif
     id: 6PhQebUVZn
     name: cover
   - enabled: true
-    id: dV8HMXIeFk
+    id: SbxKMMf3X7
     name: ''
     value: ''
 bodyType: multipart/form-data
@@ -33,5 +33,5 @@ headers:
 method: PATCH
 name: Update Course
 sortPriority: 2000.0
-url: http://localhost:8080/dashboard/courses/11
+url: http://localhost:8080/dashboard/courses/1
 urlParameters: []
