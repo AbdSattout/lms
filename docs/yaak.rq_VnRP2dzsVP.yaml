@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_VnRP2dzsVP
 createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-07-14T16:53:07.974803
+updatedAt: 2026-07-27T06:15:41.001566900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bcxgeqLASJ
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MDQ3ODAyLCJleHAiOjE3ODQ2NTI2MDJ9.Vx0fokiYiS1VKE3KZfmxVNvk5ZlP0RlR-Q5tjeArnEU
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg1MTMwODgyLCJleHAiOjE3ODU3MzU2ODJ9.QV1ye79ZvFEXSZvyEjNyX3MnfG5A5MX5xa6mNKeqeOs
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -16,4 +16,12 @@ method: GET
 name: get all organizations
 sortPriority: 1000.0
 url: http://localhost:8080/organizations
-urlParameters: []
+urlParameters:
+- enabled: true
+  name: q
+  value: teaawcch compagny
+  id: M7VnuVzqZM
+- enabled: true
+  name: ''
+  value: ''
+  id: 95wVuXFmSu

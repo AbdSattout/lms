@@ -9,6 +9,7 @@ import io.imagekit.models.files.FileDeleteParams;
 import io.imagekit.models.files.FileUploadParams;
 import io.imagekit.models.files.FileUploadResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MediaService {
 
     private final ImageKitClient imageKitClient;
@@ -60,8 +62,19 @@ public class MediaService {
 
         } catch (Exception e) {
 
+            log.error(
+                    "ImageKit upload failed. folder={}, fileType={}, originalFilename={}, contentType={}, size={}",
+                    folder,
+                    fileType,
+                    file.getOriginalFilename(),
+                    file.getContentType(),
+                    file.getSize(),
+                    e
+            );
+
             throw new ImageUploadException(
-                    "File upload failed"
+                    "File upload failed",
+                    e
             );
         }
     }
@@ -80,8 +93,15 @@ public class MediaService {
 
         } catch (Exception e) {
 
+            log.error(
+                    "ImageKit delete failed. fileId={}",
+                    fileId,
+                    e
+            );
+
             throw new ImageDeleteException(
-                    "File delete failed"
+                    "File delete failed",
+                    e
             );
         }
     }
