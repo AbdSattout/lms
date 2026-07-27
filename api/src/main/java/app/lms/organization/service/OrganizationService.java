@@ -8,7 +8,9 @@ import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import java.util.List;
 
 @Service
@@ -21,6 +23,9 @@ public class OrganizationService {
     private final OrganizationAccessService organizationAccessService;
     private final OrganizationMemberRepository memberRepository;
 
+    @Value("${app.search.organization-similarity-threshold:0.2}")
+    private double organizationSearchSimilarityThreshold;
+
 
     public OrganizationResponse getBySlug(String slug) {
 
@@ -32,9 +37,19 @@ public class OrganizationService {
         );
     }
 
-    public List<OrganizationResponse> getAll() {
+    public List<OrganizationResponse> getAll(
+            String q
+    ) {
 
-        return organizationRepository.findAll()
+        List<Organization> organizations =
+                StringUtils.hasText(q)
+                        ? organizationRepository.search(
+                                q.trim(),
+                                organizationSearchSimilarityThreshold
+                        )
+                        : organizationRepository.findAll();
+
+        return organizations
                 .stream()
                 .map(organizationMapper::ToResponse)
                 .toList();

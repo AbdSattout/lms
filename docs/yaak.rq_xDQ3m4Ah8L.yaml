@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_xDQ3m4Ah8L
 createdAt: 2026-07-12T15:07:41.924453100
-updatedAt: 2026-07-13T10:26:40.735935900
+updatedAt: 2026-07-27T05:55:24.469201200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzOTM4Mzc0LCJleHAiOjE3ODQ1NDMxNzR9.3ywI_CGxZfbrrOD6XWAtgnOBztW91LUfxqYk8tUv8CQ
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg1MTMwODgyLCJleHAiOjE3ODU3MzU2ODJ9.QV1ye79ZvFEXSZvyEjNyX3MnfG5A5MX5xa6mNKeqeOs
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,20 +15,5 @@ headers: []
 method: GET
 name: Get my courses
 sortPriority: 0.001
-url: https://lms.koyeb.app/courses/me/enrollments
+url: http://localhost:8080/courses/me/enrollments
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0
