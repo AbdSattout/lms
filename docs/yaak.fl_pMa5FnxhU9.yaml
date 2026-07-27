@@ -2,12 +2,12 @@ type: folder
 model: folder
 id: fl_pMa5FnxhU9
 createdAt: 2026-07-22T07:19:36.461185500
-updatedAt: 2026-07-22T07:19:40.813911700
+updatedAt: 2026-07-27T05:40:02.706998400
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication: {}
 authenticationType: null
 description: ''
 headers: []
-name: dashboard
-sortPriority: 17000.0
+name: overview
+sortPriority: 18000.0

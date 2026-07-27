@@ -2,7 +2,7 @@ type: folder
 model: folder
 id: fl_NT7ErFBiF4
 createdAt: 2026-05-31T19:44:23.683465800
-updatedAt: 2026-07-22T07:19:40.490495800
+updatedAt: 2026-07-27T05:40:02.461826600
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication: {}
@@ -10,4 +10,4 @@ authenticationType: null
 description: ''
 headers: []
 name: Profile
-sortPriority: 5000.0
+sortPriority: 6000.0
