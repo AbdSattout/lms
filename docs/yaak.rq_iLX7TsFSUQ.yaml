@@ -1,10 +1,10 @@
 type: http_request
 model: http_request
-id: rq_FC66yZquRP
-createdAt: 2026-07-22T13:29:59.258259500
-updatedAt: 2026-07-27T05:40:24.068929600
+id: rq_iLX7TsFSUQ
+createdAt: 2026-07-22T15:41:27.696061500
+updatedAt: 2026-07-22T15:42:59.531291200
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_pMa5FnxhU9
+folderId: fl_Q4vPANan6j
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
 authenticationType: bearer
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: user overview
-sortPriority: 333.3333333333333
-url: http://localhost:8080/overview/me
+name: get organization owner
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/tech-company/members/owners?page=0&size=20
 urlParameters: []

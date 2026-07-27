@@ -26,10 +26,13 @@ public class OrganizationController {
 
 
     @GetMapping
-    public ResponseEntity<List<OrganizationResponse>> getAll() {
+    public ResponseEntity<List<OrganizationResponse>> getAll(
+            @RequestParam(required = false)
+            String q
+    ) {
 
         return ResponseEntity.ok(
-                organizationService.getAll()
+                organizationService.getAll(q)
         );
     }
 

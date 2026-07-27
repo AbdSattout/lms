@@ -7,8 +7,6 @@ import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "organizations")
 @Getter
@@ -43,10 +41,4 @@ public class Organization extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
-
-    private LocalDateTime createdAt;
-
-    private LocalDateTime updatedAt;
-
-
 }

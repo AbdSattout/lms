@@ -52,9 +52,4 @@ public class OrganizationInvite extends BaseEntity {
     private LocalDateTime expiresAt;
 
     private LocalDateTime acceptedAt;
-
-    private LocalDateTime createdAt;
-
-
-
 }
