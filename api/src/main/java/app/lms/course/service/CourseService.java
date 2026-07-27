@@ -16,9 +16,11 @@ import app.lms.placementTest.service.CoursePlacementTestAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +43,9 @@ public class CourseService {
     private final BlockProgressRepository blockProgressRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final CoursePlacementTestAccessService placementTestAccessService;
+
+    @Value("${app.search.course-similarity-threshold:0.2}")
+    private double courseSearchSimilarityThreshold;
 
     public CourseResponse getBySlug(
             String organizationSlug,
@@ -122,16 +127,36 @@ public class CourseService {
     }
 
     public Page<CourseResponse> getAll(
+            String q,
             Pageable pageable,
             User user
     ) {
 
         Page<Course> courses =
-                courseRepository
-                .findAllByStatus(
-                        CourseStatus.PUBLISHED,
-                        pageable
-                );
+                StringUtils.hasText(q)
+                        ? courseRepository
+                                .searchAllByStatus(
+                                        CourseStatus.PUBLISHED.name(),
+                                        q.trim(),
+                                        courseSearchSimilarityThreshold,
+                                        pageable
+                                )
+                        : courseRepository
+                                .findAllByStatus(
+                                        CourseStatus.PUBLISHED,
+                                        pageable
+                                );
+
+        return toCourseResponses(
+                courses,
+                user
+        );
+    }
+
+    private Page<CourseResponse> toCourseResponses(
+            Page<Course> courses,
+            User user
+    ) {
 
         List<Long> courseIds =
                 courses.getContent()

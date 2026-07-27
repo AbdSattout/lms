@@ -2,7 +2,7 @@ type: folder
 model: folder
 id: fl_Qf63cswemc
 createdAt: 2026-05-31T19:45:01.427390400
-updatedAt: 2026-07-22T07:19:40.473759
+updatedAt: 2026-07-27T05:40:02.417829200
 workspaceId: wk_LvqrSfWmRY
 folderId: null
 authentication: {}
@@ -10,4 +10,4 @@ authenticationType: null
 description: ''
 headers: []
 name: Auth
-sortPriority: 4000.0
+sortPriority: 5000.0

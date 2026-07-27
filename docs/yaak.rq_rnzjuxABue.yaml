@@ -1,10 +1,10 @@
 type: http_request
 model: http_request
-id: rq_FC66yZquRP
-createdAt: 2026-07-22T13:29:59.258259500
-updatedAt: 2026-07-27T05:40:24.068929600
+id: rq_rnzjuxABue
+createdAt: 2026-07-23T20:40:50.071379700
+updatedAt: 2026-07-27T05:44:50.050140100
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_pMa5FnxhU9
+folderId: fl_ozae3tjfoG
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
 authenticationType: bearer
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: user overview
-sortPriority: 333.3333333333333
-url: http://localhost:8080/overview/me
+name: get my invite(admin)
+sortPriority: 0.002
+url: http://localhost:8080/dashboard/organizations/invites/my-invites
 urlParameters: []

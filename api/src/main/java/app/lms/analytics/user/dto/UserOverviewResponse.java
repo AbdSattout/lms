@@ -3,7 +3,7 @@ package app.lms.analytics.user.dto;
 import lombok.Builder;
 
 @Builder
-public record UserDashboardResponse(
+public record UserOverviewResponse(
 
         long organizationsCount,
 

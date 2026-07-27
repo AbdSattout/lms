@@ -2,10 +2,11 @@ package app.lms.course.repository;
 
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
-import app.lms.organization.model.Organization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +42,48 @@ public interface CourseRepository
             CourseStatus status,
             Pageable pageable
     );
+
+    @Query(
+            value = """
+                    select c.*
+                    from courses c
+                    where c.status = :status
+                    and (
+                        lower(c.title) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
+                        or c.title % :q
+                        or coalesce(c.description, '') % :q
+                        or similarity(c.title, :q) >= :threshold
+                        or similarity(coalesce(c.description, ''), :q) >= :threshold
+                    )
+                    order by greatest(
+                        similarity(c.title, :q),
+                        similarity(coalesce(c.description, ''), :q),
+                        similarity(c.slug, :q)
+                    ) desc, c.created_at desc
+                    """,
+            countQuery = """
+                    select count(*)
+                    from courses c
+                    where c.status = :status
+                    and (
+                        lower(c.title) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
+                        or c.title % :q
+                        or coalesce(c.description, '') % :q
+                        or similarity(c.title, :q) >= :threshold
+                        or similarity(coalesce(c.description, ''), :q) >= :threshold
+                    )
+                    """,
+            nativeQuery = true
+    )
+    Page<Course> searchAllByStatus(
+            @Param("status") String status,
+            @Param("q") String q,
+            @Param("threshold") double threshold,
+            Pageable pageable
+    );
+
     long countByOrganizationId(Long organizationId);
 
     long countByOrganizationIdAndStatus(
