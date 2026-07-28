@@ -722,12 +722,25 @@ CREATE INDEX idx_courses_status ON courses(status);
 CREATE INDEX idx_courses_organization_status ON courses(organization_id, status);
 CREATE INDEX courses_title_trgm_idx ON courses USING gin (title gin_trgm_ops);
 CREATE INDEX courses_description_trgm_idx ON courses USING gin (description gin_trgm_ops);
+CREATE INDEX courses_slug_trgm_idx ON courses USING gin (slug gin_trgm_ops);
 
 CREATE INDEX organizations_name_trgm_idx
     ON organizations USING gin (name gin_trgm_ops);
 
 CREATE INDEX organizations_description_trgm_idx
     ON organizations USING gin (description gin_trgm_ops);
+
+CREATE INDEX organizations_slug_trgm_idx
+    ON organizations USING gin (slug gin_trgm_ops);
+
+CREATE INDEX users_name_trgm_idx
+    ON users USING gin (lower(name) gin_trgm_ops);
+
+CREATE INDEX users_username_trgm_idx
+    ON users USING gin (lower(username) gin_trgm_ops);
+
+CREATE INDEX profiles_email_trgm_idx
+    ON profiles USING gin (lower(email) gin_trgm_ops);
 
 
 

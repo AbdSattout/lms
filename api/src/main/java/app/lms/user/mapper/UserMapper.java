@@ -24,9 +24,9 @@ public class UserMapper {
 
         return ProfileResponse.builder()
                 .name(user.getName())
-                .email(profile.getEmail())
-                .phone(profile.getPhone())
-                .university(profile.getUniversity())
+                .email(profile != null ? profile.getEmail() : null)
+                .phone(profile != null ? profile.getPhone() : null)
+                .university(profile != null ? profile.getUniversity() : null)
                 .user(toResponse(user))
                 .build();
     }

@@ -51,10 +51,13 @@ public interface CourseRepository
                     and (
                         lower(c.title) like lower(concat('%', :q, '%'))
                         or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
+                        or lower(c.slug) like lower(concat('%', :q, '%'))
                         or c.title % :q
                         or coalesce(c.description, '') % :q
+                        or c.slug % :q
                         or similarity(c.title, :q) >= :threshold
                         or similarity(coalesce(c.description, ''), :q) >= :threshold
+                        or similarity(c.slug, :q) >= :threshold
                     )
                     order by greatest(
                         similarity(c.title, :q),
@@ -69,10 +72,13 @@ public interface CourseRepository
                     and (
                         lower(c.title) like lower(concat('%', :q, '%'))
                         or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
+                        or lower(c.slug) like lower(concat('%', :q, '%'))
                         or c.title % :q
                         or coalesce(c.description, '') % :q
+                        or c.slug % :q
                         or similarity(c.title, :q) >= :threshold
                         or similarity(coalesce(c.description, ''), :q) >= :threshold
+                        or similarity(c.slug, :q) >= :threshold
                     )
                     """,
             nativeQuery = true
