@@ -4,10 +4,10 @@ import app.lms.gamification.model.Level;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
 import app.lms.gamification.repository.UserProgressRepository;
+import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.media.enums.FileType;
-import app.lms.user.dto.UserSearchResponse;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.ProfileRepository;
@@ -186,7 +186,7 @@ public class UserService {
 
         userProgressRepository.save(progress);
     }
-    public List<UserSearchResponse> search(String q){
+    public List<ProfileResponse> search(String q){
 
         String usernameQ =
                 q;
@@ -202,7 +202,12 @@ public class UserService {
                         usernameQ
                 )
                 .stream()
-                .map(mapper::toSearchResponse)
+                .map(profile ->
+                        mapper.toProfileResponse(
+                                profile.getUser(),
+                                profile
+                        )
+                )
                 .toList();
 
     }
