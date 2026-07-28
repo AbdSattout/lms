@@ -568,14 +568,6 @@ export interface UserDashboardResponse {
   longestStreak: number
 }
 
-export interface StorageResponse {
-  usedBytes: number
-  availableBytes: number
-  totalBytes: number
-  usagePercentage: number
-  unlimited: boolean
-}
-
 export interface OrganizationDashboardResponse {
   owner: UserResponse
   membersCount: number
