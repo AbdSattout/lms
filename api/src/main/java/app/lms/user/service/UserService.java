@@ -10,7 +10,6 @@ import app.lms.user.dto.UserResponse;
 import app.lms.media.enums.FileType;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
-import app.lms.user.repository.ProfileRepository;
 import app.lms.user.repository.UserRepository;
 import app.lms.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final MediaService mediaService;
     private final UserMapper userMapper;
-    private final ProfileRepository profileRepository;
     private final UserMapper mapper;
     private final LevelRepository levelRepository;
     private final UserProgressRepository userProgressRepository;
@@ -188,8 +186,11 @@ public class UserService {
     }
     public List<ProfileResponse> search(String q){
 
+        String searchQuery =
+                q == null ? "" : q.trim();
+
         String usernameQ =
-                q;
+                searchQuery;
 
         if (StringUtils.hasText(usernameQ) &&
                 usernameQ.startsWith("@")) {
@@ -197,15 +198,15 @@ public class UserService {
                     usernameQ.substring(1);
         }
 
-        return profileRepository.search(
-                        q,
+        return userRepository.searchWithProfile(
+                        searchQuery,
                         usernameQ
                 )
                 .stream()
-                .map(profile ->
+                .map(row ->
                         mapper.toProfileResponse(
-                                profile.getUser(),
-                                profile
+                                row.getUser(),
+                                row.getProfile()
                         )
                 )
                 .toList();
