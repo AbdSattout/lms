@@ -195,6 +195,16 @@ export const invites = {
         }
       ),
   }),
+  getMyInvites: defineApiRoute({
+    get: (options?: BackendFetchOptions) =>
+      backend<OrganizationInviteResponse[]>(
+        `/dashboard/organizations/invites/my-invites`,
+        {
+          method: "GET",
+          ...options,
+        }
+      ),
+  }),
   resend: defineApiRoute({
     post: (slug: string, inviteId: number, options?: BackendFetchOptions) =>
       backend<OrganizationInviteResponse>(

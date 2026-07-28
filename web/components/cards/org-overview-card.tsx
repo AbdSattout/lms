@@ -1,4 +1,3 @@
-// components/cards/org-overview-card.tsx
 "use client"
 
 import { useState } from "react"
@@ -22,31 +21,39 @@ export function OrgOverviewCard({
   >(null)
 
   return (
-    <>
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="w-full space-y-6">
+      {/* 
+         الـ `xl:grid-cols-4` سيجعلها تتسع لـ 4 بطاقات بمجرد إضافتها في المستقبل، 
+         وتم إلغاء تقييد العرض (max-w) ليملأ سطر العمل كاملًا بمرونة واحترافية!
+      */}
+      <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <Card
-          className="cursor-pointer transition-shadow hover:shadow-lg"
+          className="cursor-pointer transition-shadow hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("admins")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">المشرفين</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-foreground">
+              المشرفين
+            </CardTitle>
+            <Users className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{adminCount}</div>
+            <div className="text-3xl font-bold">{adminCount}</div>
           </CardContent>
         </Card>
 
         <Card
-          className="cursor-pointer transition-shadow hover:shadow-lg"
+          className="cursor-pointer transition-shadow hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("students")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">الطلاب</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-semibold text-foreground">
+              الطلاب
+            </CardTitle>
+            <Users className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{studentCount}</div>
+            <div className="text-3xl font-bold">{studentCount}</div>
           </CardContent>
         </Card>
       </div>
@@ -59,6 +66,6 @@ export function OrgOverviewCard({
         type={selectedType}
         slug={slug}
       />
-    </>
+    </div>
   )
 }
