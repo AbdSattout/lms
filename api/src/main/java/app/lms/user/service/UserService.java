@@ -4,13 +4,12 @@ import app.lms.gamification.model.Level;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
 import app.lms.gamification.repository.UserProgressRepository;
+import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.media.enums.FileType;
-import app.lms.user.dto.UserSearchResponse;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
-import app.lms.user.repository.ProfileRepository;
 import app.lms.user.repository.UserRepository;
 import app.lms.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +36,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final MediaService mediaService;
     private final UserMapper userMapper;
-    private final ProfileRepository profileRepository;
     private final UserMapper mapper;
     private final LevelRepository levelRepository;
     private final UserProgressRepository userProgressRepository;
@@ -186,10 +184,13 @@ public class UserService {
 
         userProgressRepository.save(progress);
     }
-    public List<UserSearchResponse> search(String q){
+    public List<ProfileResponse> search(String q){
+
+        String searchQuery =
+                q == null ? "" : q.trim();
 
         String usernameQ =
-                q;
+                searchQuery;
 
         if (StringUtils.hasText(usernameQ) &&
                 usernameQ.startsWith("@")) {
@@ -197,12 +198,17 @@ public class UserService {
                     usernameQ.substring(1);
         }
 
-        return profileRepository.search(
-                        q,
+        return userRepository.searchWithProfile(
+                        searchQuery,
                         usernameQ
                 )
                 .stream()
-                .map(mapper::toSearchResponse)
+                .map(row ->
+                        mapper.toProfileResponse(
+                                row.getUser(),
+                                row.getProfile()
+                        )
+                )
                 .toList();
 
     }
