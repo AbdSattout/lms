@@ -27,20 +27,20 @@ function formatSize(bytes?: number): string {
 }
 
 export function MediaNodeComponent({ node, editor }: NodeViewProps) {
-  const { orgSlug, courseSlug, mediaId } = node.attrs as {
-    orgSlug: string | null
-    courseSlug: string | null
+  const { organizationId, courseId, mediaId } = node.attrs as {
+    organizationId: number | null
+    courseId: number | null
     mediaId: number | null
   }
   const [media, setMedia] = useState<MediaItemShape | null>(null)
-  const [loading, setLoading] = useState(!!mediaId && !!orgSlug)
-  const [error, setError] = useState(!mediaId || !orgSlug)
+  const [loading, setLoading] = useState(!!mediaId && !!organizationId)
+  const [error, setError] = useState(!mediaId || !organizationId)
 
   useEffect(() => {
-    if (mediaId && orgSlug) {
-      const promise = courseSlug
-        ? getCourseMediaByIdAction(orgSlug, courseSlug, mediaId)
-        : getPostMediaByIdAction(orgSlug, mediaId)
+    if (mediaId && organizationId) {
+      const promise = courseId
+        ? getCourseMediaByIdAction(organizationId, courseId, mediaId)
+        : getPostMediaByIdAction(organizationId, mediaId)
 
       promise.then((result) => {
         if (result) {
@@ -51,7 +51,7 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
         setLoading(false)
       })
     }
-  }, [orgSlug, courseSlug, mediaId])
+  }, [organizationId, courseId, mediaId])
 
   return (
     <NodeViewWrapper

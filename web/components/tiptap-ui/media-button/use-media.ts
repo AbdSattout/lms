@@ -15,7 +15,7 @@ export function canInsertMedia(editor: Editor | null): boolean {
 export function insertMedia(
   editor: Editor | null,
   mediaId: number,
-  attrs?: { orgSlug?: string | null; courseSlug?: string | null }
+  attrs?: { organizationId?: number | null; courseId?: number | null }
 ): boolean {
   if (!editor || !editor.isEditable) return false
   if (!canInsertMedia(editor)) return false
@@ -40,6 +40,8 @@ export function useMedia(config?: {
   onInserted?: () => void
   orgSlug?: string | null
   courseSlug?: string | null
+  organizationId?: number | null
+  courseId?: number | null
 }) {
   const {
     editor: providedEditor,
@@ -47,6 +49,8 @@ export function useMedia(config?: {
     onInserted,
     orgSlug,
     courseSlug,
+    organizationId,
+    courseId,
   } = config || {}
 
   const { editor } = useTiptapEditor(providedEditor)
@@ -85,11 +89,11 @@ export function useMedia(config?: {
   const handleMediaInsert = useCallback(
     (mediaId: number) => {
       if (!editor) return false
-      const success = insertMedia(editor, mediaId, { orgSlug, courseSlug })
+      const success = insertMedia(editor, mediaId, { organizationId, courseId })
       if (success) onInserted?.()
       return success
     },
-    [editor, onInserted, orgSlug, courseSlug]
+    [editor, onInserted, organizationId, courseId]
   )
 
   return {
