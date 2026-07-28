@@ -243,6 +243,10 @@ export const invites = {
   }),
 }
 
+function withPageable(path: string, pageable: PageableInput) {
+  return `${path}${toQueryString(pageable)}`
+}
+
 export const members = {
   list: defineApiRoute({
     get: (
@@ -251,7 +255,40 @@ export const members = {
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        `/dashboard/organizations/${slug}/members${toQueryString(pageable)}`,
+        withPageable(`/dashboard/organizations/${slug}/members`, pageable),
+        { method: "GET", ...options }
+      ),
+  }),
+  owners: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationMemberResponse>(
+        withPageable(`/dashboard/organizations/${slug}/members/owners`, pageable),
+        { method: "GET", ...options }
+      ),
+  }),
+  admins: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationMemberResponse>(
+        withPageable(`/dashboard/organizations/${slug}/members/admins`, pageable),
+        { method: "GET", ...options }
+      ),
+  }),
+  students: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationMemberResponse>(
+        withPageable(`/dashboard/organizations/${slug}/members/students`, pageable),
         { method: "GET", ...options }
       ),
   }),

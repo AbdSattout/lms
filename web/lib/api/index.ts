@@ -67,6 +67,15 @@ import {
   list as listRoadmaps,
 } from "@/lib/api/roadmap"
 import {
+  userDashboard,
+  organizationDashboard,
+} from "@/lib/api/analytics"
+import {
+  checkout,
+  portal,
+  revoke,
+} from "@/lib/api/billing"
+import {
   byCourse as questionsByCourse,
   byId as questionById,
   create as createQuestion,
@@ -194,5 +203,14 @@ export const api = {
       generateQuestionFromBlock,
       transformText,
     },
+    analytics: {
+      user: userDashboard,
+      organization: organizationDashboard,
+    },
+  },
+  billing: {
+    checkout,
+    portal,
+    revoke,
   },
 } satisfies ApiTree

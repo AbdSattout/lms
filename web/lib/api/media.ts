@@ -20,17 +20,17 @@ function toQueryString(pageable: PageableInput) {
 }
 
 export const byCourse = defineApiRoute({
-  get: (organizationSlug: string, courseSlug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
+  get: (organizationId: number, courseId: number, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<PageCourseMediaResponse>(
-      `/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media${toQueryString(pageable)}`,
+      `/dashboard/organizations/${organizationId}/courses/${courseId}/media${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
-  post: (organizationSlug: string, courseSlug: string, file: File, options?: BackendFetchOptions) => {
+  post: (organizationId: number, courseId: number, file: File, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     body.set("file", file)
 
-    return backend<CourseMediaResponse>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media`, {
+    return backend<CourseMediaResponse>(`/dashboard/organizations/${organizationId}/courses/${courseId}/media`, {
       method: "POST",
       body,
       ...options,
@@ -39,25 +39,25 @@ export const byCourse = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
-  get: (organizationSlug: string, courseSlug: string, mediaId: number, options?: BackendFetchOptions) =>
-    backend<CourseMediaResponse>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media/${mediaId}`, {
+  get: (organizationId: number, courseId: number, mediaId: number, options?: BackendFetchOptions) =>
+    backend<CourseMediaResponse>(`/dashboard/organizations/${organizationId}/courses/${courseId}/media/${mediaId}`, {
       method: "GET",
       ...options,
     }),
-  patch: (organizationSlug: string, courseSlug: string, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
+  patch: (organizationId: number, courseId: number, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     if (file) body.set("file", file)
     if (name) body.set("name", name)
 
-    return backend<CourseMediaResponse>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media/${mediaId}`, {
+    return backend<CourseMediaResponse>(`/dashboard/organizations/${organizationId}/courses/${courseId}/media/${mediaId}`, {
       method: "PATCH",
       body,
       ...options,
     })
   },
-  delete: (organizationSlug: string, courseSlug: string, mediaId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/dashboard/organizations/${organizationSlug}/courses/${courseSlug}/media/${mediaId}`, {
+  delete: (organizationId: number, courseId: number, mediaId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/dashboard/organizations/${organizationId}/courses/${courseId}/media/${mediaId}`, {
       method: "DELETE",
       ...options,
     }),

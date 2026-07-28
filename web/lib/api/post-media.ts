@@ -17,17 +17,17 @@ function toQueryString(pageable: PageableInput) {
 }
 
 export const byOrg = defineApiRoute({
-  get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
+  get: (organizationId: number, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<Page<PostMediaResponse>>(
-      `/dashboard/organizations/${slug}/post-media${toQueryString(pageable)}`,
+      `/dashboard/organizations/${organizationId}/post-media${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
-  post: (slug: string, file: File, options?: BackendFetchOptions) => {
+  post: (organizationId: number, file: File, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     body.set("file", file)
 
-    return backend<PostMediaResponse>(`/dashboard/organizations/${slug}/post-media`, {
+    return backend<PostMediaResponse>(`/dashboard/organizations/${organizationId}/post-media`, {
       method: "POST",
       body,
       ...options,
@@ -36,25 +36,25 @@ export const byOrg = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
-  get: (slug: string, mediaId: number, options?: BackendFetchOptions) =>
-    backend<PostMediaResponse>(`/dashboard/organizations/${slug}/post-media/${mediaId}`, {
+  get: (organizationId: number, mediaId: number, options?: BackendFetchOptions) =>
+    backend<PostMediaResponse>(`/dashboard/organizations/${organizationId}/post-media/${mediaId}`, {
       method: "GET",
       ...options,
     }),
-  patch: (slug: string, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
+  patch: (organizationId: number, mediaId: number, file?: File, name?: string, options?: BackendFetchOptions) => {
     const body = new FormData()
 
     if (file) body.set("file", file)
     if (name) body.set("name", name)
 
-    return backend<PostMediaResponse>(`/dashboard/organizations/${slug}/post-media/${mediaId}`, {
+    return backend<PostMediaResponse>(`/dashboard/organizations/${organizationId}/post-media/${mediaId}`, {
       method: "PATCH",
       body,
       ...options,
     })
   },
-  delete: (slug: string, mediaId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/dashboard/organizations/${slug}/post-media/${mediaId}`, {
+  delete: (organizationId: number, mediaId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/dashboard/organizations/${organizationId}/post-media/${mediaId}`, {
       method: "DELETE",
       ...options,
     }),
