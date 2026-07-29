@@ -1,0 +1,26 @@
+{
+  "properties": [
+    {
+      "name": "app.tests.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables test-only HTTP endpoints such as isolated email preview routes.",
+      "defaultValue": false
+    },
+    {
+      "name": "app.admin.seed.email",
+      "type": "java.lang.String",
+      "description": "Email used to seed the first platform super admin when no admin with this email exists."
+    },
+    {
+      "name": "app.admin.seed.password",
+      "type": "java.lang.String",
+      "description": "Password used to seed the first platform super admin. It is stored as a Bcrypt hash."
+    },
+    {
+      "name": "app.admin.seed.name",
+      "type": "java.lang.String",
+      "description": "Display name used to seed the first platform super admin.",
+      "defaultValue": "Super Admin"
+    }
+  ]
+}
