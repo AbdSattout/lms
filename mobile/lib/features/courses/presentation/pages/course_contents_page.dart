@@ -4,10 +4,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/course_entity.dart';
+import '../bloc/block_content_bloc.dart';
 import '../bloc/course_contents_bloc.dart';
 import '../bloc/course_contents_event.dart';
 import '../bloc/course_contents_state.dart';
 import '../bloc/placement_test_bloc.dart';
+import 'lesson_content_page.dart';
 import 'placement_test_page.dart';
 
 class CourseContentsPage extends StatelessWidget {
@@ -255,7 +257,12 @@ class CourseContentsPage extends StatelessWidget {
                             if (state.course.chapters.isEmpty) {
                               return _comingSoonCard(colors);
                             }
-                            return _chaptersList(context, colors, state.course.chapters);
+                            // FIX: pass course.id down so _LessonRow can
+                            // use it (it's a separate widget from
+                            // CourseContentsPage and has no other way to
+                            // see `course`).
+                            return _chaptersList(
+                                context, colors, state.course.chapters, course.id);
                           }
 
                           return const SizedBox();
@@ -386,11 +393,11 @@ class CourseContentsPage extends StatelessWidget {
     );
   }
 
-  Widget _chaptersList(
-      BuildContext context, ColorScheme colors, List<ChapterEntity> chapters) {
+  Widget _chaptersList(BuildContext context, ColorScheme colors,
+      List<ChapterEntity> chapters, int courseId) {
     return Column(
       children: chapters
-          .map((chapter) => _ChapterCard(chapter: chapter))
+          .map((chapter) => _ChapterCard(chapter: chapter, courseId: courseId))
           .toList(),
     );
   }
@@ -455,8 +462,9 @@ class CourseContentsPage extends StatelessWidget {
 
 class _ChapterCard extends StatefulWidget {
   final ChapterEntity chapter;
+  final int courseId;
 
-  const _ChapterCard({required this.chapter});
+  const _ChapterCard({required this.chapter, required this.courseId});
 
   @override
   State<_ChapterCard> createState() => _ChapterCardState();
@@ -546,7 +554,8 @@ class _ChapterCardState extends State<_ChapterCard> {
               padding: const EdgeInsets.only(bottom: 8, right: 8, left: 8),
               child: Column(
                 children: chapter.lessons
-                    .map((lesson) => _LessonRow(lesson: lesson))
+                    .map((lesson) => _LessonRow(
+                    lesson: lesson, courseId: widget.courseId))
                     .toList(),
               ),
             ),
@@ -558,8 +567,9 @@ class _ChapterCardState extends State<_ChapterCard> {
 
 class _LessonRow extends StatelessWidget {
   final LessonEntity lesson;
+  final int courseId;
 
-  const _LessonRow({required this.lesson});
+  const _LessonRow({required this.lesson, required this.courseId});
 
   @override
   Widget build(BuildContext context) {
@@ -580,12 +590,39 @@ class _LessonRow extends StatelessWidget {
             const SnackBar(content: Text('أكمل الدرس السابق أولاً')),
           );
         }
-            : () {
-          // TODO: navigate to the lesson/block content viewer once
-          // that page is built — this is the confirmed next step.
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('عارض محتوى الدرس قريباً')),
+            : () async {
+          // NOTE: was lesson.blocks.firstWhere(test, orElse: () => ...) —
+          // that throws at runtime ("type '() => BlockEntity' is not a
+          // subtype of '(() => BlockModel)?'"). lesson.blocks is declared
+          // as List<BlockEntity> but the actual object underneath is a
+          // List<BlockModel> (from JSON parsing); Dart resolves
+          // firstWhere's orElse callback type against the list's
+          // *reified* runtime type parameter (BlockModel), not its
+          // declared static type (BlockEntity), so a callback returning
+          // BlockEntity gets rejected even though it compiles fine.
+          // .where(...) + manual fallback sidesteps this entirely since
+          // there's no typed callback parameter involved.
+          final currentBlocks =
+          lesson.blocks.where((b) => b.status == ContentStatus.current);
+          final startBlockId = currentBlocks.isNotEmpty
+              ? currentBlocks.first.id
+              : lesson.blocks.first.id;
+
+          final refreshed = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider(
+                create: (_) => sl<BlockContentBloc>(),
+                child: LessonContentPage(initialBlockId: startBlockId),
+              ),
+            ),
           );
+
+          // FIX: was `course.id` — undefined here, this widget only has
+          // `courseId` passed down from CourseContentsPage.
+          if (refreshed == true && context.mounted) {
+            context.read<CourseContentsBloc>().add(GetCourseContentsEvent(courseId));
+          }
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

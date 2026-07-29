@@ -5,9 +5,15 @@ import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/courses/data/datasources/block_remote_datasource.dart';
+import '../../features/courses/data/repositories/block_repository_impl.dart';
+import '../../features/courses/domain/repositories/block_repository.dart';
 import '../../features/courses/domain/usecases/enroll_in_course_usecase.dart';
+import '../../features/courses/domain/usecases/get_block_content_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
+import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
+import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
@@ -48,7 +54,6 @@ import 'package:lms/features/organizations/data/repositories/organization_reposi
 import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
 import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
 import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
-import 'package:lms/features/organizations/presentation/bloc/organization_bloc.dart';
 
 import '../theme/theme_cubit.dart';
 
@@ -198,6 +203,15 @@ Future<void> init() async {
       getAllOrganizationsUseCase: sl(),
     ),
   );
+  //Blocks
+  sl.registerLazySingleton<BlockRemoteDataSource>(() => BlockRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<BlockRepository>(() => BlockRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetBlockContentUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitBlockAnswerUseCase(sl()));
+  sl.registerFactory(() => BlockContentBloc(
+    getBlockContentUseCase: sl(),
+    submitBlockAnswerUseCase: sl(),
+  ));
 
   //! External
   
