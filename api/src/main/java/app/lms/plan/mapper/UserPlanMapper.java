@@ -26,6 +26,7 @@ public class UserPlanMapper {
                 plan.getRandomQuizPerCourseLimit(),
                 plan.getOrganizationStorageLimitBytes(),
                 plan.getOrganizationLimit(),
+                plan.getOrganizationCourseLimit(),
                 plan.getDailyAiToolLimit(),
                 userPlan != null
                         ? userPlan.getStartedAt()
