@@ -53,4 +53,7 @@ class EndPoints {
     required String courseSlug,
   }) =>
       'organizations/$orgSlug/courses/$courseSlug';
+  // Blocks
+  static String blockContent(int blockId) => 'blocks/$blockId';
+  static String submitBlockAnswer(int blockId) => 'blocks/$blockId/submit';
 }
