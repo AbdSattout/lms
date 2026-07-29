@@ -1,6 +1,7 @@
 package app.lms.config;
 
 import app.lms.security.JwtAuthenticationFilter;
+import app.lms.common.exception.CustomAccessDeniedHandler;
 import app.lms.common.exception.CustomAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,8 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity){
         return httpSecurity
@@ -40,11 +43,12 @@ public class SecurityConfig {
                         )
                         .hasRole("ADMIN")
                         .anyRequest()
-                        .authenticated()
+                        .hasRole("USER")
                 )
 
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
+                        .accessDeniedHandler(accessDeniedHandler)
                 )
 
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class  )

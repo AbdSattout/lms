@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Locale;
 
 @Component
@@ -47,25 +48,47 @@ public class AdminSeeder implements ApplicationRunner {
                 email.trim()
                         .toLowerCase(Locale.ROOT);
 
-        if (
-                adminRepository.existsByEmailIgnoreCase(
-                        normalizedEmail
-                )
-        ) {
-            return;
-        }
-
-        adminRepository.save(
-                Admin.builder()
-                        .name(seedName())
-                        .email(normalizedEmail)
-                        .passwordHash(
-                                passwordEncoder.encode(password)
-                        )
-                        .role(AdminRole.SUPER_ADMIN)
-                        .enabled(true)
-                        .build()
+        deleteOldSeededAdmins(
+                normalizedEmail
         );
+
+        Admin seededAdmin =
+                adminRepository
+                        .findByEmailIgnoreCase(
+                                normalizedEmail
+                        )
+                        .orElseGet(() ->
+                                Admin.builder()
+                                        .email(normalizedEmail)
+                                        .build()
+                        );
+
+        seededAdmin.setName(seedName());
+        seededAdmin.setPasswordHash(
+                passwordEncoder.encode(password)
+        );
+        seededAdmin.setRole(AdminRole.SUPER_ADMIN);
+        seededAdmin.setEnabled(true);
+        seededAdmin.setSeeded(true);
+
+        adminRepository.save(seededAdmin);
+    }
+
+    private void deleteOldSeededAdmins(
+            String currentSeedEmail
+    ) {
+
+        List<Admin> oldSeededAdmins =
+                adminRepository.findAllBySeededTrue();
+
+        oldSeededAdmins.stream()
+                .filter(admin ->
+                        !admin.getEmail()
+                                .equalsIgnoreCase(
+                                        currentSeedEmail
+                                )
+                )
+                .forEach(adminRepository::delete);
     }
 
     private String seedName() {

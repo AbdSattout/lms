@@ -48,5 +48,9 @@ public class Admin extends BaseEntity {
     @Builder.Default
     private Boolean enabled = true;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean seeded = false;
+
     private LocalDateTime lastLoginAt;
 }
