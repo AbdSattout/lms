@@ -1,0 +1,10 @@
+{
+  "properties": [
+    {
+      "name": "app.tests.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables test-only HTTP endpoints such as isolated email preview routes.",
+      "defaultValue": false
+    }
+  ]
+}
