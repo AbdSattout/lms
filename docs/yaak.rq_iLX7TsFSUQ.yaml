@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_iLX7TsFSUQ
+createdAt: 2026-07-22T15:41:27.696061500
+updatedAt: 2026-07-22T15:42:59.531291200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get organization owner
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/tech-company/members/owners?page=0&size=20
+urlParameters: []

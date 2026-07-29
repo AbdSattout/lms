@@ -283,7 +283,26 @@ export interface GamificationAwardResponse {
   leveledUp: boolean
   baseEntity?: BaseEntityResponse
 }
+export interface StorageResponse {
+  usedBytes: number
+  availableBytes?: number
+  totalBytes?: number
+  usagePercentage?: number
+  unlimited: boolean
+}
 
+export interface OrganizationOverviewResponse {
+  owner: UserResponse & { username?: string }
+  membersCount: number
+  adminsCount: number
+  studentsCount: number
+  coursesCount: number
+  publishedCoursesCount: number
+  draftCoursesCount: number
+  postsCount: number
+  roadmapsCount: number
+  storage: StorageResponse
+}
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>
 

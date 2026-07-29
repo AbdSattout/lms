@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_TxqxdWHevz
+createdAt: 2026-07-22T15:43:16.408734700
+updatedAt: 2026-07-22T15:43:36.839389700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get organization admin
+sortPriority: 0.002
+url: http://localhost:8080/dashboard/organizations/tech-company/members/admins?page=0&size=20
+urlParameters: []

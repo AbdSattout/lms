@@ -2,6 +2,7 @@ package app.lms.organization.organizationJoinRequest.controller;
 
 import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.organizationJoinRequest.service.OrganizationJoinRequestService;
+import app.lms.security.UserPrincipal;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,18 +21,18 @@ public class OrganizationJoinRequestController {
     @PostMapping("/organizations/{slug}/join-request")
     public ResponseEntity<JoinRequestResponse> createJoinRequest(
             @PathVariable String slug,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(joinRequestService.createRequest(slug, user));
+        return ResponseEntity.ok(joinRequestService.createRequest(slug, principal.user() ));
     }
 
 
     @DeleteMapping("/organizations/{slug}/join-request")
     public ResponseEntity<Void> cancelJoinRequest(
             @PathVariable String slug,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        joinRequestService.cancelRequest(slug, user);
+        joinRequestService.cancelRequest(slug, principal.user());
         return ResponseEntity.noContent().build();
     }
 
@@ -39,9 +40,9 @@ public class OrganizationJoinRequestController {
     @GetMapping("/dashboard/organizations/{slug}/join-requests")
     public ResponseEntity<List<JoinRequestResponse>> getPendingRequests(
             @PathVariable String slug,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        return ResponseEntity.ok(joinRequestService.getPendingRequests(slug, user));
+        return ResponseEntity.ok(joinRequestService.getPendingRequests(slug, principal.user()));
     }
 
 
@@ -49,9 +50,9 @@ public class OrganizationJoinRequestController {
     public ResponseEntity<Void> acceptRequest(
             @PathVariable String slug,
             @PathVariable Long id,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        joinRequestService.acceptRequest(slug, id, user);
+        joinRequestService.acceptRequest(slug, id, principal.user());
         return ResponseEntity.ok().build();
     }
 
@@ -60,9 +61,9 @@ public class OrganizationJoinRequestController {
     public ResponseEntity<Void> rejectRequest(
             @PathVariable String slug,
             @PathVariable Long id,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal UserPrincipal principal
     ) {
-        joinRequestService.rejectRequest(slug, id, user);
+        joinRequestService.rejectRequest(slug, id, principal.user());
         return ResponseEntity.ok().build();
     }
 }

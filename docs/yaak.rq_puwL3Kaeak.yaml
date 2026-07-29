@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_puwL3Kaeak
+createdAt: 2026-07-27T05:38:18.833318
+updatedAt: 2026-07-27T05:38:50.214079600
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_pMa5FnxhU9
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: org overview Copy
+sortPriority: 0.001
+url: http://localhost:8080/overview/organizations/{slug}/courses/{courseId}
+urlParameters: []

@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_rnzjuxABue
+createdAt: 2026-07-23T20:40:50.071379700
+updatedAt: 2026-07-27T05:44:50.050140100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_ozae3tjfoG
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get my invite(admin)
+sortPriority: 0.002
+url: http://localhost:8080/dashboard/organizations/invites/my-invites
+urlParameters: []

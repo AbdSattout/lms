@@ -2,29 +2,29 @@ type: http_request
 model: http_request
 id: rq_ywZ6V28DU9
 createdAt: 2026-07-11T15:21:12.096848200
-updatedAt: 2026-07-23T19:32:54.470672100
+updatedAt: 2026-07-27T05:12:17.934382500
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_x2sJUXGYsL
+folderId: fl_V9bdAHVywn
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0ODMwMzA4LCJleHAiOjE3ODU0MzUxMDh9.HY7C3skcyWq0Cx5OpvTUun88BFAN-bxUVzmZOQT5jFE
 authenticationType: bearer
 body: {}
 bodyType: null
-description: ''
+description: ""
 headers: []
 method: POST
 name: Accept Invite
 sortPriority: 0.0
 url: http://localhost:8080/organizations/khaled/invites/accept
 urlParameters:
-- enabled: true
-  name: token
-  value: 5c15b9a7-bea9-4763-a8d5-f2ac6ee5a9d9
-  id: hQ6VIskeEE
-- enabled: true
-  name: ''
-  value: ''
-  id: pKMvpPK02C
+  - enabled: true
+    name: token
+    value: 5c15b9a7-bea9-4763-a8d5-f2ac6ee5a9d9
+    id: hQ6VIskeEE
+  - enabled: true
+    name: ""
+    value: ""
+    id: pKMvpPK02C
 settingSendCookies:
   enabled: false
   value: true

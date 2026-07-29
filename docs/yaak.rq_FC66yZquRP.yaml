@@ -2,9 +2,9 @@ type: http_request
 model: http_request
 id: rq_FC66yZquRP
 createdAt: 2026-07-22T13:29:59.258259500
-updatedAt: 2026-07-22T13:30:24.641028100
+updatedAt: 2026-07-27T05:40:24.068929600
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_QfvmSYRokm
+folderId: fl_pMa5FnxhU9
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0NTY4MTA3LCJleHAiOjE3ODUxNzI5MDd9.ajr3qB_wzP1CVncAxaEDCUqTYnH2rw3Rc1bakUuNjlM
 authenticationType: bearer
@@ -13,7 +13,7 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: user dashborad
-sortPriority: 0.0
-url: http://localhost:8080/dashboard/details/organizations/me
+name: user overview
+sortPriority: 333.3333333333333
+url: http://localhost:8080/overview/me
 urlParameters: []

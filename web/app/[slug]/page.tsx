@@ -10,11 +10,12 @@ export default async function OverviewPage({
 }) {
   const { slug } = await params
 
-  const [adminsData, studentsData] = await Promise.all([
+  const [overviewData, adminsData, studentsData] = await Promise.all([
+    api.dashboard.organizations.overview.get(slug),
     api.dashboard.organizations.members.getAdmins(slug, { page: 0, size: 1 }),
     api.dashboard.organizations.members.getStudents(slug, { page: 0, size: 1 }),
   ])
-
+  console.log("Overview Data:", overviewData)
   return (
     <div className="flex flex-col gap-6" dir="rtl">
       <BreadcrumbTrail items={[{ label: "نظرة عامة" }]} />
@@ -22,6 +23,7 @@ export default async function OverviewPage({
 
       <OrgOverviewCard
         slug={slug}
+        overviewData={overviewData}
         adminCount={adminsData?.totalElements ?? 0}
         studentCount={studentsData?.totalElements ?? 0}
       />

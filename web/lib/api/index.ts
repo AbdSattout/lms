@@ -12,6 +12,7 @@ import {
   byId as chaptersById,
   getLessons as chapterLessons,
 } from "@/lib/api/chapters"
+import { overview } from "@/lib/api/org-overview"
 import {
   chapters,
   byId as coursesById,
@@ -124,6 +125,7 @@ export const api = {
         getStudents: members.getStudents,
       },
       joinRequests: joinRequests.dashboard,
+      overview: overview,
     },
     courses: {
       byId: coursesById,

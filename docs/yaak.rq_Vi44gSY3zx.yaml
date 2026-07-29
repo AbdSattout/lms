@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_Vi44gSY3zx
 createdAt: 2026-05-31T19:52:13.312508800
-updatedAt: 2026-07-16T12:21:31.813128
+updatedAt: 2026-07-27T05:56:09.427058200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_bPEMGkkY8L
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzg0MjA0MjM2LCJleHAiOjE3ODQ4MDkwMzZ9.4D6DuAc3Vuhmke-YlLMV15TgOJd83BAtKBDMZqXx35k
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg1MTMwODgyLCJleHAiOjE3ODU3MzU2ODJ9.QV1ye79ZvFEXSZvyEjNyX3MnfG5A5MX5xa6mNKeqeOs
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,5 +15,5 @@ headers: []
 method: GET
 name: Get Course By id
 sortPriority: 3000.0
-url: https://lms.koyeb.app/dashboard/courses/3
+url: http://localhost:8080/dashboard/courses/1
 urlParameters: []
