@@ -1,14 +1,12 @@
 package app.lms.auth.service;
 
 import app.lms.common.exception.BadRequestException;
+import app.lms.email.service.EmailDeliveryService;
 import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.MailException;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -33,7 +31,7 @@ public class EmailOtpService {
             "auth:email-otp:cooldown:";
 
     private final StringRedisTemplate redisTemplate;
-    private final JavaMailSender mailSender;
+    private final EmailDeliveryService emailDeliveryService;
     private final SecureRandom secureRandom =
             new SecureRandom();
 
@@ -49,14 +47,8 @@ public class EmailOtpService {
     @Value("${app.email-otp.max-attempts}")
     private long maxAttempts;
 
-    @Value("${app.email-otp.from:}")
-    private String fromEmail;
-
     @Value("${app.email-otp.app-name}")
     private String appName;
-
-    @Value("${spring.mail.host:}")
-    private String mailHost;
 
     public void requestOtp(
             String email
@@ -170,30 +162,12 @@ public class EmailOtpService {
             String otp
     ) throws MessagingException {
 
-        MimeMessage message =
-                mailSender.createMimeMessage();
-
-        MimeMessageHelper helper =
-                new MimeMessageHelper(
-                        message,
-                        true,
-                        StandardCharsets.UTF_8.name()
-                );
-
-        if (StringUtils.hasText(fromEmail)) {
-            helper.setFrom(fromEmail);
-        }
-
-        helper.setTo(email);
-        helper.setSubject(
-                "Your " + appName + " login code"
-        );
-        helper.setText(
+        emailDeliveryService.sendHtml(
+                email,
+                "Your " + appName + " login code",
                 plainTextEmail(otp),
                 htmlEmail(otp)
         );
-
-        mailSender.send(message);
     }
 
     private String plainTextEmail(
@@ -279,7 +253,7 @@ public class EmailOtpService {
 
     private void ensureMailConfigured() {
 
-        if (!StringUtils.hasText(mailHost)) {
+        if (!emailDeliveryService.isConfigured()) {
             throw new BadRequestException(
                     "Email OTP is not configured"
             );

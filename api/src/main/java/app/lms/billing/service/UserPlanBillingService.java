@@ -55,6 +55,42 @@ public class UserPlanBillingService {
     }
 
     @Transactional
+    public void grantPremiumAward(
+            User user,
+            LocalDateTime startedAt,
+            LocalDateTime expiresAt
+    ) {
+
+        UserPlan userPlan =
+                userPlanRepository
+                        .findByUserIdForUpdate(user.getId())
+                        .orElseGet(() ->
+                                UserPlan.builder()
+                                        .user(user)
+                                        .build()
+                        );
+
+        if (hasPremiumUntilAtLeast(userPlan, expiresAt)) {
+            return;
+        }
+
+        userPlan.setPlan(
+                plan(PlanCode.PREMIUM)
+        );
+        userPlan.setStartedAt(
+                startedAt != null
+                        ? startedAt
+                        : LocalDateTime.now()
+        );
+        userPlan.setExpiresAt(expiresAt);
+        userPlan.setCanceledAt(null);
+
+        planLimitCacheService.cache(
+                userPlanRepository.save(userPlan)
+        );
+    }
+
+    @Transactional
     public void downgradeToFree(
             User user
     ) {
@@ -93,5 +129,27 @@ public class UserPlanBillingService {
                                 code + " plan not found"
                         )
                 );
+    }
+
+    private boolean hasPremiumUntilAtLeast(
+            UserPlan userPlan,
+            LocalDateTime expiresAt
+    ) {
+
+        if (
+                userPlan.getPlan() == null ||
+                        userPlan.getPlan()
+                                .getCode() != PlanCode.PREMIUM
+        ) {
+            return false;
+        }
+
+        if (userPlan.getExpiresAt() == null) {
+            return true;
+        }
+
+        return expiresAt != null &&
+                !userPlan.getExpiresAt()
+                        .isBefore(expiresAt);
     }
 }
