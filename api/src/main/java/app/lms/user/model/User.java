@@ -20,8 +20,11 @@ public class User {
     private String username;
     private String picture;
     private String pictureFileId;
-    @Column(unique = true, nullable = false)
+    private String email;
+    @Column(unique = true)
     private String telegramId;
+    @Column(unique = true)
+    private String googleId;
 
 
 }

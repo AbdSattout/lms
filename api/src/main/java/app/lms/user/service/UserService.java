@@ -1,5 +1,8 @@
 package app.lms.user.service;
 
+import app.lms.auth.enums.AuthProvider;
+import app.lms.common.exception.BadRequestException;
+import app.lms.common.exception.ConflictException;
 import app.lms.gamification.model.Level;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
@@ -15,6 +18,7 @@ import app.lms.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 import app.lms.media.dto.UploadedFile;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -93,6 +99,13 @@ public class UserService {
             user.setName(request.getName());
         }
 
+        if (request.getUsername() != null) {
+            updateUsername(
+                    user,
+                    request.getUsername()
+            );
+        }
+
         User updatedUser = userRepository.save(user);
 
         return userMapper.toResponse(updatedUser);
@@ -119,20 +132,64 @@ public class UserService {
     }
     @Transactional
     public User getOrCreateUser(
+            AuthProvider provider,
+            Jwt externalJwt
+    ) {
+
+        return switch (provider) {
+            case TELEGRAM -> getOrCreateTelegramUser(externalJwt);
+            case GOOGLE -> getOrCreateGoogleUser(externalJwt);
+        };
+    }
+
+    @Transactional
+    public User getOrCreateEmailUser(
+            String email
+    ) {
+
+        String normalizedEmail =
+                normalizeEmail(email);
+
+        User user =
+                userRepository
+                        .findByEmailIgnoreCase(normalizedEmail)
+                        .orElseGet(() -> {
+
+                            User newUser = new User();
+
+                            newUser.setEmail(normalizedEmail);
+                            newUser.setName(
+                                    defaultNameFromEmail(
+                                            normalizedEmail
+                                    )
+                            );
+
+                            return newUser;
+                        });
+
+        user = userRepository.save(user);
+
+        ensureProgressExists(user);
+
+        return user;
+    }
+
+    private User getOrCreateTelegramUser(
             Jwt telegramJwt
     ) {
 
         String telegramId =
-                telegramJwt.getClaim("id");
+                requiredClaim(
+                        telegramJwt,
+                        "id",
+                        AuthProvider.TELEGRAM
+                );
 
         String name =
-                telegramJwt.getClaim("name");
-
-        String username =
-                telegramJwt.getClaim("preferred_username");
+                telegramJwt.getClaimAsString("name");
 
         String picture =
-                telegramJwt.getClaim("picture");
+                telegramJwt.getClaimAsString("picture");
 
         User user =
                 userRepository
@@ -144,12 +201,10 @@ public class UserService {
                     newUser.setTelegramId(
                             telegramId
                     );
+                    newUser.setName(name);
 
                     return newUser;
                 });
-
-        user.setName(name);
-        user.setUsername(username);
 
         if (!StringUtils.hasText(user.getPictureFileId())) {
             user.setPicture(picture);
@@ -160,6 +215,234 @@ public class UserService {
         ensureProgressExists(user);
 
         return user;
+    }
+
+    private User getOrCreateGoogleUser(
+            Jwt googleJwt
+    ) {
+
+        String googleId =
+                requiredClaim(
+                        googleJwt,
+                        "sub",
+                        AuthProvider.GOOGLE
+                );
+
+        String name =
+                googleJwt.getClaimAsString("name");
+
+        String picture =
+                googleJwt.getClaimAsString("picture");
+
+        String email =
+                googleJwt.getClaimAsString("email");
+
+        boolean emailVerified =
+                isTrue(
+                        googleJwt.getClaim("email_verified")
+                );
+
+        User user =
+                findOrCreateGoogleUser(
+                        googleId,
+                        name,
+                        email,
+                        emailVerified
+                );
+
+        attachVerifiedEmailIfAvailable(
+                user,
+                email,
+                emailVerified
+        );
+
+        if (!StringUtils.hasText(user.getPictureFileId())) {
+            user.setPicture(picture);
+        }
+
+        user = userRepository.save(user);
+
+        ensureProgressExists(user);
+
+        return user;
+    }
+
+    private String requiredClaim(
+            Jwt jwt,
+            String claim,
+            AuthProvider provider
+    ) {
+
+        Object value =
+                jwt.getClaim(claim);
+
+        if (value == null ||
+                !StringUtils.hasText(value.toString())) {
+            throw new BadCredentialsException(
+                    "Missing " + provider.name().toLowerCase() +
+                            " " + claim + " claim"
+            );
+        }
+
+        return value.toString();
+    }
+
+    private User findOrCreateGoogleUser(
+            String googleId,
+            String name,
+            String email,
+            boolean emailVerified
+    ) {
+
+        return userRepository
+                .findByGoogleId(googleId)
+                .orElseGet(() ->
+                        findEmailUserForGoogle(
+                                googleId,
+                                email,
+                                emailVerified
+                        )
+                                .orElseGet(() -> {
+
+                                    User newUser = new User();
+
+                                    newUser.setGoogleId(googleId);
+                                    newUser.setName(name);
+
+                                    if (emailVerified &&
+                                            StringUtils.hasText(email)) {
+                                        newUser.setEmail(
+                                                normalizeEmail(email)
+                                        );
+                                    }
+
+                                    return newUser;
+                                })
+                );
+    }
+
+    private Optional<User> findEmailUserForGoogle(
+            String googleId,
+            String email,
+            boolean emailVerified
+    ) {
+
+        if (!emailVerified ||
+                !StringUtils.hasText(email)) {
+            return Optional.empty();
+        }
+
+        return userRepository
+                .findByEmailIgnoreCase(
+                        normalizeEmail(email)
+                )
+                .map(user -> {
+
+                    if (StringUtils.hasText(user.getGoogleId()) &&
+                            !user.getGoogleId().equals(googleId)) {
+                        throw new ConflictException(
+                                "Email is already linked to another Google account"
+                        );
+                    }
+
+                    if (!StringUtils.hasText(user.getGoogleId())) {
+                        user.setGoogleId(
+                                googleId
+                        );
+                    }
+
+                    return user;
+                });
+    }
+
+    private void attachVerifiedEmailIfAvailable(
+            User user,
+            String email,
+            boolean emailVerified
+    ) {
+
+        if (!emailVerified ||
+                !StringUtils.hasText(email) ||
+                StringUtils.hasText(user.getEmail())) {
+            return;
+        }
+
+        String normalizedEmail =
+                normalizeEmail(email);
+
+        if (user.getId() != null &&
+                userRepository.existsByEmailIgnoreCaseAndIdNot(
+                        normalizedEmail,
+                        user.getId()
+                )) {
+            return;
+        }
+
+        user.setEmail(normalizedEmail);
+    }
+
+    private boolean isTrue(
+            Object value
+    ) {
+
+        if (value instanceof Boolean booleanValue) {
+            return booleanValue;
+        }
+
+        if (value instanceof String stringValue) {
+            return Boolean.parseBoolean(stringValue);
+        }
+
+        return false;
+    }
+
+    private String normalizeEmail(
+            String email
+    ) {
+
+        return email
+                .trim()
+                .toLowerCase(Locale.ROOT);
+    }
+
+    private String defaultNameFromEmail(
+            String email
+    ) {
+
+        int atIndex =
+                email.indexOf('@');
+
+        if (atIndex <= 0) {
+            return email;
+        }
+
+        return email.substring(0, atIndex);
+    }
+
+    private void updateUsername(
+            User user,
+            String username
+    ) {
+
+        String normalizedUsername =
+                username.trim();
+
+        if (!normalizedUsername.matches("^[a-z0-9_]{3,30}$")) {
+            throw new BadRequestException(
+                    "Username must be 3-30 characters and contain only lowercase letters, numbers, and underscores"
+            );
+        }
+
+        if (userRepository.existsByUsernameIgnoreCaseAndIdNot(
+                normalizedUsername,
+                user.getId()
+        )) {
+            throw new ConflictException(
+                    "Username is already taken"
+            );
+        }
+
+        user.setUsername(normalizedUsername);
     }
 
     private void ensureProgressExists(
