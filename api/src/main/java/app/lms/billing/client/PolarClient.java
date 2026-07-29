@@ -49,14 +49,25 @@ public class PolarClient {
                 "customer_name",
                 user.getName()
         );
+        Map<String, Object> customerMetadata =
+                new LinkedHashMap<>();
+        customerMetadata.put(
+                "user_id",
+                user.getId().toString()
+        );
+        putIfPresent(
+                customerMetadata,
+                "telegram_id",
+                user.getTelegramId()
+        );
+        putIfPresent(
+                customerMetadata,
+                "google_id",
+                user.getGoogleId()
+        );
         requestBody.put(
                 "customer_metadata",
-                Map.of(
-                        "user_id",
-                        user.getId().toString(),
-                        "telegram_id",
-                        user.getTelegramId()
-                )
+                customerMetadata
         );
         requestBody.put(
                 "metadata",
