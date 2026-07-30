@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../core/databases/cache/cache_helper.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/pages/telegram_login_page.dart';
 import '../../domain/entities/profile_entity.dart';
@@ -25,8 +26,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF8F9FA),
-
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listenWhen: (previous, current) =>
         current is ProfileUpdated ||
@@ -117,8 +117,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 child: Container(
                                     padding: const EdgeInsets.all(4),
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
+                                      color: Theme.of(context).cardColor,                                      shape: BoxShape.circle,
                                       border: Border.all(
                                         color: AppColors.primary,
                                         width: 2,
@@ -220,7 +219,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       ProfileOptionTile(
                         title: "المظهر",
                         icon: Icons.palette_outlined,
-                        onTap: () {},
+                        onTap: () {
+                          _showThemeSheet(context);
+                        },
                       ),
 
                       ProfileOptionTile(
@@ -516,4 +517,65 @@ Future<void> _pickImage(
       );
     }
   }
+}
+void _showThemeSheet(BuildContext context) {
+  showModalBottomSheet(
+    context: context,
+    builder: (_) {
+      final cubit = sl<ThemeCubit>();
+
+      return BlocBuilder<ThemeCubit, ThemeMode>(
+        bloc: cubit,
+        builder: (context, mode) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              ListTile(
+                leading: const Icon(Icons.light_mode),
+                title: const Text("فاتح"),
+                trailing: Radio(
+                  value: ThemeMode.light,
+                  groupValue: mode,
+                  onChanged: (value) async {
+                    cubit.setTheme(value!);
+                    await sl<CacheHelper>().saveTheme(value);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.dark_mode),
+                title: const Text("داكن"),
+                trailing: Radio(
+                  value: ThemeMode.dark,
+                  groupValue: mode,
+                  onChanged: (value) async {
+                    cubit.setTheme(value!);
+                    await sl<CacheHelper>().saveTheme(value);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+
+              ListTile(
+                leading: const Icon(Icons.phone_android),
+                title: const Text("حسب النظام"),
+                trailing: Radio(
+                  value: ThemeMode.system,
+                  groupValue: mode,
+                  onChanged: (value) async {
+                    cubit.setTheme(value!);
+                    await sl<CacheHelper>().saveTheme(value);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 }

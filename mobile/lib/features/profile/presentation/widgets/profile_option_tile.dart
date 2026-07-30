@@ -29,8 +29,7 @@ class ProfileOptionTile
 
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-
+          color: Theme.of(context).cardColor,
           borderRadius:
           BorderRadius.circular(16),
 

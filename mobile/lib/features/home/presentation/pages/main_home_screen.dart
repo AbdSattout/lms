@@ -29,7 +29,8 @@ class MainHomeScreen extends StatelessWidget {
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor: const Color(0xffF8F9FA),
+          backgroundColor:
+          Theme.of(context).scaffoldBackgroundColor,
           extendBody: true,
           body: BlocBuilder<NavbarCubit, int>(
             builder: (context, state) {
@@ -44,7 +45,7 @@ class MainHomeScreen extends StatelessWidget {
                   ),
                   BlocProvider(
                     create: (_) => sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
-                    child: const OrganizationsPage(),
+                    child: OrganizationsPage(currentUserName: user.name),
                   ),
                   BlocProvider(
                     create: (_) => sl<ProfileBloc>()
@@ -91,7 +92,7 @@ class MainHomeScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(11),
 
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.7),
+                      color: Theme.of(context).cardColor,
                       shape: BoxShape.circle,
                     ),
 
@@ -524,7 +525,8 @@ class MainHomeScreen extends StatelessWidget {
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
-            backgroundColor: Colors.white,
+            backgroundColor:
+            Theme.of(context).scaffoldBackgroundColor,
             snakeViewColor: AppColors.primary.withOpacity(0.10),
             height: 70,
             elevation: 10,

@@ -2,28 +2,24 @@ type: http_request
 model: http_request
 id: rq_rwha8hmXBo
 createdAt: 2026-06-01T13:42:58.706906200
-updatedAt: 2026-07-12T12:32:59.084158600
+updatedAt: 2026-07-21T10:39:20.485926500
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODU3NTgwLCJleHAiOjE3ODQ0NjIzODB9.JVIybucy2ZuliOABecBNru9_A032W0Ygwi39bjUvHHU
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
 authenticationType: bearer
 body:
   text: |-
     {
-      "slug" : "flutter"
+      "slug" : "oop"
     }
-bodyType: application/json
+bodyType: null
 description: ''
-headers:
-- enabled: true
-  name: Content-Type
-  value: application/json
-  id: xgkBJ52siE
+headers: []
 method: GET
 name: Get Course By slug
 sortPriority: 1000.0
-url: https://lms.koyeb.app/organizations/bug-company/courses
+url: https://lms.koyeb.app/organizations/main-org/courses/oop
 urlParameters: []
 settingSendCookies:
   enabled: false
