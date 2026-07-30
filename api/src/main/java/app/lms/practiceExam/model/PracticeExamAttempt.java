@@ -6,6 +6,7 @@ import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,16 @@ public class PracticeExamAttempt extends BaseEntity {
 
     @Column(nullable = false)
     private Integer total;
+
+    @Column(nullable = false)
+    private Boolean completed;
+
+    @Column(nullable = false)
+    private LocalDateTime startedAt;
+
+    private LocalDateTime expiresAt;
+
+    private LocalDateTime submittedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "practice_exam_id", nullable = false)
