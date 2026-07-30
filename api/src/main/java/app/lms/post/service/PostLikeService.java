@@ -27,6 +27,11 @@ public class PostLikeService {
                 postService
                         .findPostById(postId);
 
+        postAccessService.validateInteractionAccess(
+                post,
+                user
+        );
+
         if (post.getLikesCount() == null) {
             post.setLikesCount(0L);
         }
