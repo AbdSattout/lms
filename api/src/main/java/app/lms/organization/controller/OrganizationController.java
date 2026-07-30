@@ -3,7 +3,6 @@ package app.lms.organization.controller;
 
 import app.lms.organization.dto.OrganizationResponse;
 
-import app.lms.organization.dto.OrganizationDetailsResponse;
 import app.lms.organization.service.OrganizationService;
 
 import app.lms.security.UserPrincipal;
@@ -44,7 +43,7 @@ public class OrganizationController {
     }
 
     @GetMapping("/{slug}")
-    public ResponseEntity<OrganizationDetailsResponse> getBySlug(
+    public ResponseEntity<OrganizationResponse> getBySlug(
             @PathVariable String slug,
 
             @AuthenticationPrincipal

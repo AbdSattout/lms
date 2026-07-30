@@ -12,7 +12,6 @@ import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.post.dto.CreatePostRequest;
 import app.lms.post.dto.PostResponse;
 import app.lms.post.dto.UpdatePostRequest;
-import app.lms.post.mapper.PostMapper;
 import app.lms.post.model.Post;
 import app.lms.post.repository.PostRepository;
 import app.lms.user.model.User;
@@ -28,7 +27,7 @@ public class PostService {
 
     private final CourseAccessService courseAccessService;
     private final PostRepository postRepository;
-    private final PostMapper postMapper;
+    private final PostResponseService postResponseService;
     private final PostAccessService postAccessService;
     private final OrganizationAccessService organizationAccessService;
     private final CourseRepository courseRepository;
@@ -82,8 +81,9 @@ public class PostService {
 
         postRepository.save(post);
 
-        return postMapper.toResponse(
-                post
+        return postResponseService.build(
+                post,
+                user
         );
     }
 
@@ -109,7 +109,10 @@ public class PostService {
             post.setContent(request.content());
         }
 
-        return postMapper.toResponse(post);
+        return postResponseService.build(
+                post,
+                user
+        );
     }
 
     @Transactional
@@ -135,18 +138,23 @@ public class PostService {
 
     public Page<PostResponse> getOrganizationPosts(
             String slug,
+            User user,
             Pageable pageable
     ) {
 
         Organization organization =
                 organizationAccessService.getBySlug(slug);
 
-        return postRepository
+        Page<Post> posts = postRepository
                 .findByOrganizationIdAndCourseIsNull(
                         organization.getId(),
                         pageable
-                )
-                .map(postMapper::toResponse);
+                );
+
+        return postResponseService.buildPage(
+                posts,
+                user
+        );
     }
 
     public PostResponse getById(
@@ -168,7 +176,10 @@ public class PostService {
                 user
         );
 
-        return postMapper.toResponse(post);
+        return postResponseService.build(
+                post,
+                user
+        );
     }
 
     public Page<PostResponse> getCoursePosts(
@@ -198,7 +209,10 @@ public class PostService {
                 pageable
         );
 
-        return posts.map(postMapper::toResponse);
+        return postResponseService.buildPage(
+                posts,
+                user
+        );
 
     }
 
