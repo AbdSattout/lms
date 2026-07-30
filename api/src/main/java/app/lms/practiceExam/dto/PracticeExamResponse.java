@@ -10,6 +10,7 @@ public record PracticeExamResponse(
         Long id,
         String title,
         String description,
+        Integer timeLimitMinutes,
         Long courseId,
         QuestionDifficulty difficulty,
         List<QuestionResponse> questions,
