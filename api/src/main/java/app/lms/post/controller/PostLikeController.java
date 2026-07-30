@@ -1,10 +1,14 @@
 package app.lms.post.controller;
 
+import app.lms.post.dto.PostReactionRequest;
+import app.lms.post.enums.PostReactionType;
 import app.lms.post.service.PostLikeService;
 import app.lms.security.UserPrincipal;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,12 +26,19 @@ public class PostLikeController {
             @PathVariable
             Long postId,
 
+            @RequestBody(required = false)
+            @Valid
+            PostReactionRequest request,
+
             @AuthenticationPrincipal
             UserPrincipal principal
     ) {
 
         postLikeService.like(
                 postId,
+                request != null
+                        ? request.reactionType()
+                        : PostReactionType.LIKE,
                 principal.user()
         );
 

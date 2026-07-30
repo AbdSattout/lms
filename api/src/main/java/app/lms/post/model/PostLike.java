@@ -1,5 +1,6 @@
 package app.lms.post.model;
 
+import app.lms.post.enums.PostReactionType;
 import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,11 +37,20 @@ public class PostLike {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private PostReactionType reactionType = PostReactionType.LIKE;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     @PrePersist
     void prePersist() {
         createdAt = LocalDateTime.now();
+
+        if (reactionType == null) {
+            reactionType = PostReactionType.LIKE;
+        }
     }
 }
