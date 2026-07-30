@@ -9,6 +9,8 @@ import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.util.List;
@@ -51,33 +53,34 @@ public class OrganizationService {
         );
     }
 
-    public List<OrganizationResponse> getAll(
+    public Page<OrganizationResponse> getAll(
             String q,
-            User user
+            User user,
+            Pageable pageable
     ) {
 
-        List<Organization> organizations =
+        Page<Organization> organizations =
                 StringUtils.hasText(q)
                         ? organizationRepository.search(
                                 q.trim(),
-                                organizationSearchSimilarityThreshold
+                                organizationSearchSimilarityThreshold,
+                                pageable
                         )
-                        : organizationRepository.findAll();
+                        : organizationRepository.findAll(
+                                pageable
+                        );
 
         Map<Long, OrganizationMember> membersByOrganizationId =
                 membersByOrganizationId(user);
 
-        return organizations
-                .stream()
-                .map(organization ->
+        return organizations.map(organization ->
                         organizationMapper.ToResponse(
                                 organization,
                                 membersByOrganizationId.get(
                                         organization.getId()
                                 )
                         )
-                )
-                .toList();
+                );
     }
 
     public List<OrganizationResponse> getMyOrganizations(

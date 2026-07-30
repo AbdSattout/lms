@@ -9,6 +9,8 @@ import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +28,11 @@ public class OrganizationController {
 
 
     @GetMapping
-    public ResponseEntity<List<OrganizationResponse>> getAll(
+    public ResponseEntity<Page<OrganizationResponse>> getAll(
             @RequestParam(required = false)
             String q,
+
+            Pageable pageable,
 
             @AuthenticationPrincipal
             UserPrincipal principal
@@ -37,7 +41,8 @@ public class OrganizationController {
         return ResponseEntity.ok(
                 organizationService.getAll(
                         q,
-                        principal.user()
+                        principal.user(),
+                        pageable
                 )
         );
     }
