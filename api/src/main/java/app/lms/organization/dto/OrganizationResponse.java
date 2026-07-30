@@ -2,6 +2,7 @@ package app.lms.organization.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.organization.enums.Visibility;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
 @Builder
@@ -15,6 +16,8 @@ public record OrganizationResponse(
         Visibility visibility,
         String ownerName,
         Long membersCount,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        OrganizationViewerResponse viewer,
         BaseEntityResponse baseEntity
 
 ) {}

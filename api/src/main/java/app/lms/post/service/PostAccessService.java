@@ -59,4 +59,20 @@ public class PostAccessService {
                 user
         );
     }
+
+    public void validateInteractionAccess(
+            Post post,
+            User user
+    ) {
+
+        validateMember(
+                post.getOrganization(),
+                user
+        );
+
+        validateCourseAccess(
+                post,
+                user
+        );
+    }
 }

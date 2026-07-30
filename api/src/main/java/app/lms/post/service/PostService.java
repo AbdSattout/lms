@@ -135,17 +135,11 @@ public class PostService {
 
     public Page<PostResponse> getOrganizationPosts(
             String slug,
-            User user,
             Pageable pageable
     ) {
 
         Organization organization =
                 organizationAccessService.getBySlug(slug);
-
-        postAccessService.validateMember(
-                organization,
-                user
-        );
 
         return postRepository
                 .findByOrganizationIdAndCourseIsNull(
@@ -164,12 +158,10 @@ public class PostService {
         Organization organization =
                 organizationAccessService.getBySlug(slug);
 
-        postAccessService.validateMember(
-                organization,
-                user
+        Post post = findPostByIdAndOrganizationId(
+                postId,
+                organization.getId()
         );
-
-        Post post = findPostById(postId);
 
         postAccessService.validateCourseAccess(
                 post,
@@ -210,4 +202,17 @@ public class PostService {
 
     }
 
+    private Post findPostByIdAndOrganizationId(
+            Long postId,
+            Long organizationId
+    ) {
+        return postRepository
+                .findByIdAndOrganizationId(
+                        postId,
+                        organizationId
+                )
+                .orElseThrow(
+                        () -> new NotFoundException("Post not found")
+                );
+    }
 }

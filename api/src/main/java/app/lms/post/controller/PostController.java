@@ -51,16 +51,12 @@ public class PostController {
             @PathVariable
             String slug,
 
-            @AuthenticationPrincipal
-            UserPrincipal principal,
-
             Pageable pageable
     ) {
 
         return ResponseEntity.ok(
                 postService.getOrganizationPosts(
                         slug,
-                        principal.user(),
                         pageable
                 )
         );
