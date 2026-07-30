@@ -23,6 +23,12 @@ public interface CourseRepository
     List<Course> findAllByOrganizationId(
             Long organizationId
     );
+
+    List<Course> findAllByOrganizationIdAndStatus(
+            Long organizationId,
+            CourseStatus status
+    );
+
     Page<Course> findAllByOrganizationIdAndStatus(
             Long organizationId,
             CourseStatus status,

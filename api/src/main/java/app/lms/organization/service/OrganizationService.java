@@ -9,9 +9,15 @@ import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,32 +33,54 @@ public class OrganizationService {
     private double organizationSearchSimilarityThreshold;
 
 
-    public OrganizationResponse getBySlug(String slug) {
+    public OrganizationResponse getBySlug(
+            String slug,
+            User user
+    ) {
 
         Organization organization =
                 organizationAccessService.getBySlug(slug);
 
+        Optional<OrganizationMember> member =
+                memberRepository.findByOrganizationIdAndUserId(
+                        organization.getId(),
+                        user.getId()
+                );
+
         return organizationMapper.ToResponse(
-                organization
+                organization,
+                member.orElse(null)
         );
     }
 
-    public List<OrganizationResponse> getAll(
-            String q
+    public Page<OrganizationResponse> getAll(
+            String q,
+            User user,
+            Pageable pageable
     ) {
 
-        List<Organization> organizations =
+        Page<Organization> organizations =
                 StringUtils.hasText(q)
                         ? organizationRepository.search(
                                 q.trim(),
-                                organizationSearchSimilarityThreshold
+                                organizationSearchSimilarityThreshold,
+                                pageable
                         )
-                        : organizationRepository.findAll();
+                        : organizationRepository.findAll(
+                                pageable
+                        );
 
-        return organizations
-                .stream()
-                .map(organizationMapper::ToResponse)
-                .toList();
+        Map<Long, OrganizationMember> membersByOrganizationId =
+                membersByOrganizationId(user);
+
+        return organizations.map(organization ->
+                        organizationMapper.ToResponse(
+                                organization,
+                                membersByOrganizationId.get(
+                                        organization.getId()
+                                )
+                        )
+                );
     }
 
     public List<OrganizationResponse> getMyOrganizations(
@@ -62,9 +90,29 @@ public class OrganizationService {
         return memberRepository
                 .findAllByUserId(user.getId())
                 .stream()
-                .map(OrganizationMember::getOrganization)
-                .map(organizationMapper::ToResponse)
+                .map(member ->
+                        organizationMapper.ToResponse(
+                                member.getOrganization(),
+                                member
+                        )
+                )
                 .toList();
+    }
+
+    private Map<Long, OrganizationMember> membersByOrganizationId(
+            User user
+    ) {
+
+        return memberRepository
+                .findAllByUserId(user.getId())
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                member -> member.getOrganization()
+                                        .getId(),
+                                Function.identity()
+                        )
+                );
     }
 
 }
