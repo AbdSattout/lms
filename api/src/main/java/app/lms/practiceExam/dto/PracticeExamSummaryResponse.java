@@ -7,6 +7,7 @@ public record PracticeExamSummaryResponse(
         Long id,
         String title,
         String description,
+        Integer timeLimitMinutes,
         Long courseId,
         QuestionDifficulty difficulty,
         Integer questionCount,
