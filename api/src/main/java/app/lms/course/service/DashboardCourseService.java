@@ -14,6 +14,7 @@ import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.plan.service.PlanQuotaService;
 import app.lms.quiz.model.Quiz;
 import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
@@ -46,6 +47,9 @@ public class DashboardCourseService {
     private final QuizRepository
             quizRepository;
 
+    private final PlanQuotaService
+            planQuotaService;
+
     @Transactional
     public CourseResponse create(
 
@@ -58,8 +62,12 @@ public class DashboardCourseService {
         Organization organization =
                 organizationAccessService.getManageableOrganization(slug, user);
 
-
-
+        planQuotaService.validateOrganizationCourseCreationAllowed(
+                organization.getOwner(),
+                () -> courseRepository.countByOrganizationId(
+                        organization.getId()
+                )
+        );
 
         UploadedFile uploaded =
                 hasCover(cover)

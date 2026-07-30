@@ -38,6 +38,8 @@ public class ProgressService {
     private static final int HARD_BLOCK_COMPLETE_XP = 20;
     private static final int LESSON_COMPLETE_XP = 30;
     private static final int CHAPTER_COMPLETE_XP = 75;
+    private static final double BLOCK_ATTEMPT_PENALTY_RATE = 0.20;
+    private static final double MIN_BLOCK_XP_MULTIPLIER = 0.30;
 
     private final ProgressMapper progressMapper;
     private final BlockAccessService blockAccessService;
@@ -122,8 +124,8 @@ public class ProgressService {
         List<GamificationAwardResponse> rewards =
                 awardLearningXp(
                         block,
-                        nextStep,
-                        user
+                        user,
+                        progress
                 );
 
         return progressMapper.withRewards(
@@ -134,8 +136,8 @@ public class ProgressService {
 
     private List<GamificationAwardResponse> awardLearningXp(
             Block block,
-            SubmitBlockAnswerResponse nextStep,
-            User user
+            User user,
+            BlockProgress progress
     ) {
 
         List<GamificationAwardResponse> rewards =
@@ -148,7 +150,8 @@ public class ProgressService {
                         XPEventType.BLOCK_COMPLETE,
                         block.getId(),
                         blockCompleteXpFor(
-                                block.getQuestion()
+                                block.getQuestion(),
+                                progress
                         )
                 )
         );
@@ -183,7 +186,8 @@ public class ProgressService {
     }
 
     private int blockCompleteXpFor(
-            Question question
+            Question question,
+            BlockProgress progress
     ) {
 
         QuestionDifficulty difficulty =
@@ -191,11 +195,43 @@ public class ProgressService {
                         ? question.getDifficulty()
                         : QuestionDifficulty.MEDIUM;
 
-        return switch (difficulty) {
+        int baseXp =
+                switch (difficulty) {
             case EASY -> EASY_BLOCK_COMPLETE_XP;
             case MEDIUM -> MEDIUM_BLOCK_COMPLETE_XP;
             case HARD -> HARD_BLOCK_COMPLETE_XP;
         };
+
+        return applyAttemptPenalty(
+                baseXp,
+                progress
+        );
+    }
+
+    private int applyAttemptPenalty(
+            int baseXp,
+            BlockProgress progress
+    ) {
+
+        int attempts =
+                progress.getAttempts() != null &&
+                        progress.getAttempts() > 0
+                        ? progress.getAttempts()
+                        : 1;
+
+        int extraAttempts =
+                attempts - 1;
+
+        double multiplier =
+                Math.max(
+                        MIN_BLOCK_XP_MULTIPLIER,
+                        1.0 - extraAttempts * BLOCK_ATTEMPT_PENALTY_RATE
+                );
+
+        return Math.max(
+                1,
+                (int) Math.round(baseXp * multiplier)
+        );
     }
 
     private void addAwardedReward(

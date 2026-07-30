@@ -4,8 +4,9 @@ package app.lms.user.controller;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.security.UserPrincipal;
-import app.lms.user.dto.UserSearchResponse;
+import app.lms.user.dto.ProfileResponse;
 import app.lms.user.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UserResponse> updateUser(
             @AuthenticationPrincipal UserPrincipal userPrincipal,
-            @RequestBody UpdateUserRequest request
+            @RequestBody @Valid UpdateUserRequest request
     ) {
 
         UserResponse updatedUser = userService.updateUser(
@@ -70,7 +71,7 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public List<UserSearchResponse> search(
+    public List<ProfileResponse> search(
 
             @RequestParam String q
 

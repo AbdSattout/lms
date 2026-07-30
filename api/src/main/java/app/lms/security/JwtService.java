@@ -18,11 +18,30 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
+    public static final String TOKEN_TYPE_CLAIM =
+            "token_type";
+
     @Value("${jwt.secret}")
     private String secretKey;
 
     public String extractUsername(String token) {
         return extractClaim(token , Claims::getSubject) ;
+    }
+
+    public AuthPrincipalType extractPrincipalType(
+            String token
+    ) {
+
+        String value =
+                extractClaim(
+                        token,
+                        claims -> claims.get(
+                                TOKEN_TYPE_CLAIM,
+                                String.class
+                        )
+                );
+
+        return AuthPrincipalType.from(value);
     }
 
     public <T> T extractClaim(String token , Function<Claims ,T > claimsResolver){
@@ -45,9 +64,17 @@ public class JwtService {
     }
 
     public String generateToken(Map<String , Object> extraClaims , UserDetails userDetails){
+        Map<String, Object> claims =
+                new HashMap<>(extraClaims);
+
+        claims.putIfAbsent(
+                TOKEN_TYPE_CLAIM,
+                AuthPrincipalType.USER.name()
+        );
+
         return Jwts
                 .builder()
-                .setClaims(extraClaims)
+                .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * 7))
@@ -61,7 +88,14 @@ public class JwtService {
 
     public boolean isTokenValid(String token , UserDetails userDetails){
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return (
+                username.equals(userDetails.getUsername()) &&
+                        !isTokenExpired(token) &&
+                        userDetails.isEnabled() &&
+                        userDetails.isAccountNonExpired() &&
+                        userDetails.isAccountNonLocked() &&
+                        userDetails.isCredentialsNonExpired()
+        );
     }
 
     private boolean isTokenExpired(String token) {
