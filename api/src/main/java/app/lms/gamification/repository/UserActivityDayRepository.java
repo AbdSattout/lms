@@ -1,7 +1,9 @@
 package app.lms.gamification.repository;
 
 import app.lms.gamification.model.UserActivityDay;
+import app.lms.gamification.repository.projection.MonthlyScoreboardWinnerRow;
 import app.lms.gamification.repository.projection.ScoreboardRow;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -53,5 +55,31 @@ public interface UserActivityDayRepository extends JpaRepository<UserActivityDay
     List<ScoreboardRow> findScoreboardRows(
             @Param("from") LocalDate from,
             @Param("to") LocalDate to
+    );
+
+    @Query("""
+            SELECT
+                user.id AS userId,
+                user.name AS name,
+                COALESCE(user.email, profile.email) AS email,
+                SUM(activityDay.xpEarned) AS periodXp
+            FROM UserActivityDay activityDay
+            JOIN activityDay.user user
+            LEFT JOIN Profile profile ON profile.user = user
+            WHERE activityDay.activityDate BETWEEN :from AND :to
+            GROUP BY
+                user.id,
+                user.name,
+                user.email,
+                profile.email
+            HAVING SUM(activityDay.xpEarned) > 0
+            ORDER BY
+                SUM(activityDay.xpEarned) DESC,
+                user.id ASC
+            """)
+    List<MonthlyScoreboardWinnerRow> findMonthlyScoreboardWinners(
+            @Param("from") LocalDate from,
+            @Param("to") LocalDate to,
+            Pageable pageable
     );
 }

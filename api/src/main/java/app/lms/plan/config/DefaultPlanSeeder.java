@@ -32,6 +32,8 @@ public class DefaultPlanSeeder implements ApplicationRunner {
 
     private static final int FREE_ORGANIZATION_LIMIT = 1;
 
+    private static final int FREE_ORGANIZATION_COURSE_LIMIT = 3;
+
     private static final int FREE_DAILY_AI_TOOL_LIMIT = 10;
 
     private static final BigDecimal PREMIUM_XP_MULTIPLIER =
@@ -76,6 +78,9 @@ public class DefaultPlanSeeder implements ApplicationRunner {
                                 FREE_ORGANIZATION_STORAGE_LIMIT_BYTES
                         )
                         .organizationLimit(FREE_ORGANIZATION_LIMIT)
+                        .organizationCourseLimit(
+                                FREE_ORGANIZATION_COURSE_LIMIT
+                        )
                         .dailyAiToolLimit(FREE_DAILY_AI_TOOL_LIMIT)
                         .build();
 
@@ -101,6 +106,7 @@ public class DefaultPlanSeeder implements ApplicationRunner {
                         .randomQuizPerCourseLimit(null)
                         .organizationStorageLimitBytes(null)
                         .organizationLimit(null)
+                        .organizationCourseLimit(null)
                         .dailyAiToolLimit(null)
                         .build();
 

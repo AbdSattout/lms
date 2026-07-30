@@ -89,6 +89,29 @@ public class PlanQuotaService {
         }
     }
 
+    @Transactional
+    public void validateOrganizationCourseCreationAllowed(
+            User planOwner,
+            LongSupplier organizationCourseCount
+    ) {
+
+        Plan plan =
+                userPlanService.getOrCreateCurrentPlanForUpdate(planOwner);
+
+        Integer limit =
+                plan.getOrganizationCourseLimit();
+
+        if (isUnlimited(limit)) {
+            return;
+        }
+
+        if (organizationCourseCount.getAsLong() >= limit) {
+            throw new PlanLimitExceededException(
+                    "Organization course limit reached"
+            );
+        }
+    }
+
     private boolean isUnlimited(
             Integer limit
     ) {
