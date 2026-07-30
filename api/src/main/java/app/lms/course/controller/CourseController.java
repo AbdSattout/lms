@@ -60,13 +60,17 @@ public class CourseController {
 
             @PathVariable String slug,
 
-            Pageable pageable
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 courseService.list(
                         slug,
-                        pageable
+                        pageable,
+                        principal.user()
                 )
         );
     }
@@ -82,13 +86,17 @@ public class CourseController {
 
             @PathVariable String organizationSlug,
 
-            @PathVariable String courseSlug
+            @PathVariable String courseSlug,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
 
         return ResponseEntity.ok(
                 courseService.getBySlug(
                         organizationSlug,
-                        courseSlug
+                        courseSlug,
+                        principal.user()
                 )
         );
     }

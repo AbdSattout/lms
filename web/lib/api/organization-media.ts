@@ -21,17 +21,17 @@ function toQueryString(pageable: PageableInput) {
 }
 
 export const list = defineApiRoute({
-  get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
+  get: (organizationId: number, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<Page<OrganizationMediaResponse>>(
-      `/dashboard/organizations/${slug}/media-library${toQueryString(pageable)}`,
+      `/dashboard/organizations/${organizationId}/media-library${toQueryString(pageable)}`,
       { method: "GET", ...options }
     ),
 })
 
 export const summary = defineApiRoute({
-  get: (slug: string, options?: BackendFetchOptions) =>
+  get: (organizationId: number, options?: BackendFetchOptions) =>
     backend<OrganizationMediaSummaryResponse>(
-      `/dashboard/organizations/${slug}/media-library/summary`,
+      `/dashboard/organizations/${organizationId}/media-library/summary`,
       { method: "GET", ...options }
     ),
 })

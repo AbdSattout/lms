@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_qFjXKeyY3a
 createdAt: 2026-06-08T09:17:19.897415200
-updatedAt: 2026-07-18T11:41:22.259105500
+updatedAt: 2026-06-13T16:51:50.753453800
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GaHPXdypH6
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MjIzNTczLCJleHAiOjE3ODQ4MjgzNzN9.xmmZ9RtapbwYjT1Zkf7_aXAXqgYFd8fyNeNQHZoYEXs
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
 body:
   text: |-
@@ -24,20 +24,5 @@ headers:
 method: PATCH
 name: Update post
 sortPriority: 0.0
-url: http://localhost:8080/posts/23
+url: http://localhost:8080/posts/1
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

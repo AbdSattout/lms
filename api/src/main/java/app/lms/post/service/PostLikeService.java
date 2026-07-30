@@ -1,6 +1,7 @@
 package app.lms.post.service;
 
 import app.lms.common.exception.NotFoundException;
+import app.lms.post.enums.PostReactionType;
 import app.lms.post.model.Post;
 import app.lms.post.model.PostLike;
 import app.lms.post.repository.PostLikeRepository;
@@ -20,6 +21,7 @@ public class PostLikeService {
     @Transactional
     public void like(
             Long postId,
+            PostReactionType reactionType,
             User user
     ) {
 
@@ -27,18 +29,32 @@ public class PostLikeService {
                 postService
                         .findPostById(postId);
 
+        postAccessService.validateInteractionAccess(
+                post,
+                user
+        );
+
         if (post.getLikesCount() == null) {
             post.setLikesCount(0L);
         }
 
-        boolean exists =
+        PostReactionType resolvedReactionType =
+                reactionType != null
+                        ? reactionType
+                        : PostReactionType.LIKE;
+
+        PostLike existingLike =
                 postLikeRepository
-                        .existsByPostIdAndUserId(
+                        .findByPostIdAndUserId(
                                 postId,
                                 user.getId()
-                        );
+                        )
+                        .orElse(null);
 
-        if (exists) {
+        if (existingLike != null) {
+            existingLike.setReactionType(
+                    resolvedReactionType
+            );
             return;
         }
 
@@ -46,6 +62,9 @@ public class PostLikeService {
                 PostLike.builder()
                         .post(post)
                         .user(user)
+                        .reactionType(
+                                resolvedReactionType
+                        )
                         .build();
 
         postLikeRepository.save(

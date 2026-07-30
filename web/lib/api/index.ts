@@ -12,6 +12,15 @@ import {
   byId as chaptersById,
   getLessons as chapterLessons,
 } from "@/lib/api/chapters"
+import {
+  checkout,
+  portal,
+  revoke,
+} from "@/lib/api/billing"
+import {
+  userDashboard,
+  organizationDashboard,
+} from "@/lib/api/analytics"
 import { overview } from "@/lib/api/org-overview"
 import {
   chapters,
@@ -199,5 +208,14 @@ export const api = {
       generateQuestionFromBlock,
       transformText,
     },
+        analytics: {
+      user: userDashboard,
+      organization: organizationDashboard,
+    },
+  },
+    billing: {
+    checkout,
+    portal,
+    revoke,
   },
 } satisfies ApiTree

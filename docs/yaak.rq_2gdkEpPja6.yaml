@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_2gdkEpPja6
 createdAt: 2026-06-11T19:38:20.542312400
-updatedAt: 2026-06-11T19:38:44.253820900
+updatedAt: 2026-07-21T11:06:18.709394600
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NRRWNohAxw
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
 authenticationType: bearer
 body:
   text: ''
@@ -20,5 +20,20 @@ headers:
 method: DELETE
 name: unenrol
 sortPriority: 0.001
-url: http://localhost:8080/courses/2/enroll
+url: https://lms.koyeb.app/courses/6/enroll
 urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

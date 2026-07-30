@@ -9,6 +9,7 @@ class OrganizationModel extends OrganizationEntity {
     super.image,
     super.visibility,
     super.ownerName,
+    super.membersCount,
   });
 
   factory OrganizationModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +21,7 @@ class OrganizationModel extends OrganizationEntity {
       image: json['image'],
       visibility: OrganizationVisibility.fromApi(json['visibility']),
       ownerName: json['ownerName'],
+      membersCount: json['membersCount'] ?? 0,
     );
   }
 }

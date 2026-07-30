@@ -5,23 +5,26 @@ import '../../domain/entities/organization_entity.dart';
 
 class OrganizationCard extends StatelessWidget {
   final OrganizationEntity organization;
+  final bool isOwnedByMe;
   final VoidCallback onTap;
 
   const OrganizationCard({
     super.key,
     required this.organization,
     required this.onTap,
+    this.isOwnedByMe = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     final isInviteOnly =
         organization.visibility == OrganizationVisibility.inviteOnly;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
       child: Material(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(24),
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
@@ -32,10 +35,20 @@ class OrganizationCard extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.border, width: 1),
+              // Owned-by-me orgs get a distinct lavender border instead
+              // of the normal divider color, plus a faint tint.
+              color: isOwnedByMe
+                  ? AppColors.lavender.withOpacity(0.08)
+                  : colors.surface,
+              border: Border.all(
+                color: isOwnedByMe
+                    ? AppColors.lavender
+                    : Theme.of(context).dividerColor,
+                width: isOwnedByMe ? 1.4 : 1,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.dark.withOpacity(0.04),
+                  color: Colors.black.withOpacity(0.04),
                   blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
@@ -55,21 +68,43 @@ class OrganizationCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            organization.name,
-                            style: const TextStyle(
-                              fontSize: 16.5,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.dark,
-                              height: 1.2,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  organization.name,
+                                  style: TextStyle(
+                                    fontSize: 16.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: colors.onSurface,
+                                    height: 1.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (isOwnedByMe)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 6),
+                                  child: Icon(
+                                    Icons.workspace_premium_rounded,
+                                    size: 18,
+                                    color: AppColors.lavender,
+                                  ),
+                                ),
+                            ],
                           ),
 
                           const SizedBox(height: 6),
 
-                          _VisibilityBadge(isInviteOnly: isInviteOnly),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              _VisibilityBadge(isInviteOnly: isInviteOnly),
+                              if (isOwnedByMe) const _OwnerBadge(),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -94,9 +129,9 @@ class OrganizationCard extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text(
                     organization.description!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13.5,
-                      color: AppColors.darkSoft,
+                      color: colors.onSurfaceVariant,
                       height: 1.4,
                     ),
                     maxLines: 2,
@@ -104,38 +139,66 @@ class OrganizationCard extends StatelessWidget {
                   ),
                 ],
 
-                if (organization.ownerName != null) ...[
+                if (organization.ownerName != null ||
+                    organization.membersCount > 0) ...[
                   const SizedBox(height: 14),
-                  Container(height: 1, color: AppColors.border),
+                  Container(height: 1, color: Theme.of(context).dividerColor),
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Container(
-                        width: 22,
-                        height: 22,
-                        decoration: const BoxDecoration(
-                          color: AppColors.greyLight,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person_outline_rounded,
-                          size: 13,
-                          color: AppColors.darkSoft,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          organization.ownerName!,
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.darkSoft,
+                      if (organization.ownerName != null) ...[
+                        Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            color: colors.surfaceContainerHighest,
+                            shape: BoxShape.circle,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          child: Icon(
+                            Icons.person_outline_rounded,
+                            size: 13,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isOwnedByMe ? 'أنت (المالك)' : organization.ownerName!,
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: isOwnedByMe
+                                  ? AppColors.lavender
+                                  : colors.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ] else
+                        const Spacer(),
+
+                      if (organization.membersCount > 0)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.people_alt_rounded,
+                              size: 14,
+                              color: colors.onSurfaceVariant,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              organization.membersCount == 1
+                                  ? 'عضو واحد'
+                                  : '${organization.membersCount} أعضاء',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
                     ],
                   ),
                 ],
@@ -225,9 +288,11 @@ class _VisibilityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor =
-    isInviteOnly ? AppColors.peach.withOpacity(0.5) : AppColors.mint.withOpacity(0.5);
-    final iconColor = isInviteOnly ? const Color(0xffB4780F) : const Color(0xff2E7D53);
+    final backgroundColor = isInviteOnly
+        ? AppColors.peach.withOpacity(0.5)
+        : AppColors.mint.withOpacity(0.5);
+    final iconColor =
+    isInviteOnly ? const Color(0xffB4780F) : const Color(0xff2E7D53);
     final label = isInviteOnly ? 'دعوة فقط' : 'عامة';
     final icon = isInviteOnly ? Icons.mail_outline_rounded : Icons.public_rounded;
 
@@ -248,6 +313,37 @@ class _VisibilityBadge extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: iconColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OwnerBadge extends StatelessWidget {
+  const _OwnerBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.lavender.withOpacity(0.35),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.workspace_premium_rounded,
+              size: 12, color: AppColors.lavender),
+          SizedBox(width: 4),
+          Text(
+            'منظمتي',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.lavender,
             ),
           ),
         ],

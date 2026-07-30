@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_J6ZRnq3bss
 createdAt: 2026-06-08T09:14:14.008868400
-updatedAt: 2026-07-17T07:47:51.501160400
+updatedAt: 2026-06-13T17:14:42.109678200
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Tqpp3398L9
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MjYxNjY5LCJleHAiOjE3ODQ4NjY0Njl9.pGZbELPFudyF6UHqwjnQk8xTAc3DYCt1cm22hFrPeN4
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,7 +15,7 @@ headers: []
 method: GET
 name: Get all post of Organization
 sortPriority: 7000.0
-url: http://localhost:8080/organizations/khaled/posts
+url: http://localhost:8080/organizations/my-org/posts
 urlParameters:
 - enabled: true
   name: page
@@ -29,18 +29,3 @@ urlParameters:
   name: sort
   value: createdAt,desc
   id: k2y2dgxPBC
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

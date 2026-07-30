@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_xEs8VcTQ45
 createdAt: 2026-07-11T15:13:37.707808400
-updatedAt: 2026-07-18T10:53:33.486241700
+updatedAt: 2026-07-11T15:17:03.727635300
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_Q4vPANan6j
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MzE0MzA3LCJleHAiOjE3ODQ5MTkxMDd9.DxJJTjytN9_HxXLxZn9bDRdzdK0p2iwL_70jggPz4nw
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,20 +15,5 @@ headers: []
 method: GET
 name: GetOrganizationMember
 sortPriority: 0.0
-url: http://localhost:8080/dashboard/organizations/khaled/members?page=0&size=10
+url: http://localhost:8080/dashboard/organizations/tech-company/members?page=0&size=20
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

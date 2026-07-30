@@ -2,18 +2,18 @@ type: http_request
 model: http_request
 id: rq_qdeXviBWvH
 createdAt: 2026-06-08T09:10:35.874670300
-updatedAt: 2026-07-18T11:28:02.325808100
+updatedAt: 2026-06-13T17:11:13.742835100
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_GaHPXdypH6
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0MTEzMTYxLCJleHAiOjE3ODQ3MTc5NjF9.R2BVEQcp7vkTm9clI0pf3CxdGrsT4iO6XbZnoWuoDSY
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgwOTA5Mzk1LCJleHAiOjE3ODE1MTQxOTV9.lbePVf-TaL71cprzhH-miXgpykOTc8VjFqNzkNjnbRo
 authenticationType: bearer
 body:
   text: |-
     {
         "title": "My Sec Post",
         "content": "This is the content of my first post",
-        "courseId": 100
+        "courseId": null
     }
 bodyType: application/json
 description: ''
@@ -25,20 +25,5 @@ headers:
 method: POST
 name: Create post
 sortPriority: 1000.0
-url: http://localhost:8080/organizations/khaled/posts
+url: http://localhost:8080/organizations/my-org/posts
 urlParameters: []
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0

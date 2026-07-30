@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_mZbBcZ34Dv
 createdAt: 2026-07-11T14:49:38.266150900
-updatedAt: 2026-07-23T20:02:13.855761600
+updatedAt: 2026-07-11T15:27:32.639394
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0ODM2NzM1LCJleHAiOjE3ODU0NDE1MzV9.NQZktokefalFKI8IxvEItUiECvQmlXkSL2d9WDXIlk0
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzgzNzgxMzQwLCJleHAiOjE3ODQzODYxNDB9.XonSwRhtrIxp57okdbC2IJvwVT0dUHS6gs7N_22AshY
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -19,24 +19,9 @@ url: http://localhost:8080/users/search
 urlParameters:
 - enabled: true
   name: q
-  value: ''
+  value: me
   id: iKQNajekiX
 - enabled: true
   name: ''
   value: ''
-  id: C6BC2KAum2
-settingSendCookies:
-  enabled: false
-  value: true
-settingStoreCookies:
-  enabled: false
-  value: true
-settingValidateCertificates:
-  enabled: false
-  value: true
-settingFollowRedirects:
-  enabled: false
-  value: true
-settingRequestTimeout:
-  enabled: false
-  value: 0
+  id: aQsXHyM2Uy

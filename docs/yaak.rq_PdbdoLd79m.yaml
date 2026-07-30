@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_PdbdoLd79m
 createdAt: 2026-05-20T15:53:24.625308400
-updatedAt: 2026-07-23T18:04:36.792517300
+updatedAt: 2026-07-16T11:34:47.047354
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_NT7ErFBiF4
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg0ODI3NTQ3LCJleHAiOjE3ODU0MzIzNDd9.7LCPZ5HLIo6LeBf_BA2BXA804EAjbWK1iDZ9M6uOPUo
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
 authenticationType: bearer
 body: {}
 bodyType: null
@@ -15,7 +15,7 @@ headers: []
 method: GET
 name: get profile
 sortPriority: 1000.0
-url: http://localhost:8080/profile/me
+url: https://lms.koyeb.app/profile/me
 urlParameters: []
 settingSendCookies:
   enabled: false

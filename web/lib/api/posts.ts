@@ -38,8 +38,8 @@ export const byCourse = defineApiRoute({
 })
 
 export const byId = defineApiRoute({
-  get: (postId: number, options?: BackendFetchOptions) =>
-    backend<PostResponse>(`/posts/${postId}`, {
+  get: (slug: string, postId: number, options?: BackendFetchOptions) =>
+    backend<PostResponse>(`/organizations/${slug}/posts/${postId}`, {
       method: "GET",
       ...options,
     }),

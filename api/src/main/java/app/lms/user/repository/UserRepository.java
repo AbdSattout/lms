@@ -16,6 +16,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
             String telegramId
     );
 
+    Optional<User> findByGoogleId(
+            String googleId
+    );
+
+    Optional<User> findByEmailIgnoreCase(
+            String email
+    );
+
+    boolean existsByUsernameIgnoreCaseAndIdNot(
+            String username,
+            Long id
+    );
+
+    boolean existsByEmailIgnoreCaseAndIdNot(
+            String email,
+            Long id
+    );
+
     @Query("""
             select u as user, p as profile
             from User u
