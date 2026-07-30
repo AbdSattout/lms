@@ -3,6 +3,7 @@ package app.lms.organization.organizationInvite.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.enums.Role;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
@@ -38,6 +39,7 @@ public class OrganizationInviteService {
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationMemberAccessService organizationMemberAccessService;
     private final OrganizationInviteMapper organizationInviteMapper;
+    private final OrganizationBanRepository organizationBanRepository;
 
     public OrganizationInviteResponse invite(
             String slug,
@@ -193,6 +195,15 @@ public class OrganizationInviteService {
     @Transactional
     public void acceptInvite(String token, User currentUser) {
         OrganizationInvite invite = findInvite(token);
+
+        if (organizationBanRepository.existsByOrganizationIdAndUserId(
+                invite.getOrganization().getId(),
+                currentUser.getId())) {
+
+            throw new ForbiddenException(
+                    "You are banned from this organization."
+            );
+        }
 
         if (invite.getStatus() == InviteStatus.CANCELLED || invite.getStatus() == InviteStatus.DECLINED) {
             throw new BadRequestException("Invite is no longer valid");

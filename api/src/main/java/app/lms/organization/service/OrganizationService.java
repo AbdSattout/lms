@@ -1,12 +1,17 @@
 package app.lms.organization.service;
 
+import app.lms.common.exception.ConflictException;
+import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.organization.dto.OrganizationResponse;
+import app.lms.organization.enums.Role;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -28,6 +33,8 @@ public class OrganizationService {
     private final OrganizationMapper organizationMapper;
     private final OrganizationAccessService organizationAccessService;
     private final OrganizationMemberRepository memberRepository;
+    private final OrganizationMemberAccessService organizationMemberAccessService;
+    private final CourseEnrollmentRepository courseEnrollmentRepository;
 
     @Value("${app.search.organization-similarity-threshold:0.2}")
     private double organizationSearchSimilarityThreshold;
@@ -113,6 +120,46 @@ public class OrganizationService {
                                 Function.identity()
                         )
                 );
+    }
+
+    @Transactional
+    public void leaveOrganization(
+            String organizationSlug,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService.getBySlug(
+                        organizationSlug
+                );
+
+        OrganizationMember member =
+                organizationMemberAccessService.getMember(
+                        organization.getId(),
+                        user.getId()
+                );
+
+        if (member.getRole() == Role.OWNER) {
+            throw new ConflictException(
+                    "Organization owner cannot leave the organization."
+            );
+        }
+
+        boolean hasActiveEnrollments =
+                courseEnrollmentRepository
+                        .existsByUserIdAndCourseOrganizationIdAndStatus(
+                                user.getId(),
+                                organization.getId(),
+                                EnrollmentStatus.ACTIVE
+                        );
+
+        if (hasActiveEnrollments) {
+            throw new ConflictException(
+                    "You must unenroll from all active courses before leaving the organization."
+            );
+        }
+
+        memberRepository.delete(member);
     }
 
 }

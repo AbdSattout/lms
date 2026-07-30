@@ -1,6 +1,7 @@
 package app.lms.course.service;
 
 import app.lms.common.exception.ConflictException;
+import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.enums.CourseStatus;
@@ -291,5 +292,21 @@ public class CourseAccessService {
                     "Published course cannot be modified"
             );
         }
+    }
+    public void validateNotBanned(
+            Course course
+    ) {
+
+        if (
+                course.getStatus() ==
+                        CourseStatus.BANNED
+        ) {
+
+            throw new ForbiddenException(
+                    "This course has been banned."
+            );
+
+        }
+
     }
 }

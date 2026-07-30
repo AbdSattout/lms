@@ -60,4 +60,16 @@ public interface CourseEnrollmentRepository
             EnrollmentStatus status
     );
 
+    boolean existsByUserIdAndCourseOrganizationIdAndStatus(
+            Long userId,
+            Long organizationId,
+            EnrollmentStatus status
+    );
+
+    List<CourseEnrollment> findByUserIdAndCourseOrganizationIdAndStatus(
+            Long userId,
+            Long organizationId,
+            EnrollmentStatus status
+    );
+
 }
