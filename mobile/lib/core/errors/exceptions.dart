@@ -79,7 +79,12 @@ handleDioException(DioException e) {
       break;
 
     case DioExceptionType.cancel:
-      throw CancelException(_extractError(e));
+      throw CancelException(
+        ErrorModel(
+          status: 0,
+          errorMessage: 'تم إلغاء تسجيل الدخول',
+        ),
+      );
 
     case DioExceptionType.unknown:
       throw UnknownException(_extractError(e));
@@ -111,7 +116,6 @@ void _handleBadResponse(DioException e) {
       throw UnknownException(ErrorModel.fromJson(response.data));
   }
 }
-
 ErrorModel _extractError(DioException e) {
   if(e.response != null && e.response!.data != null) {
     try {

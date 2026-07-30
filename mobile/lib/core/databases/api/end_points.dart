@@ -18,7 +18,7 @@ class EndPoints {
 
   // Paths
   static const String login =
-      'auth/login';
+      'auth/login/telegram';
 
   static const String profile =
       'profile/me';
