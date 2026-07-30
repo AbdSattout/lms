@@ -1,5 +1,6 @@
 package app.lms.practiceExam.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
 import app.lms.common.quiz.service.QuizGradingService;
@@ -20,6 +21,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,8 +57,20 @@ public class MobilePracticeExamService {
                         practiceExamId
                 );
 
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        PracticeExamAttempt attempt =
+                getOrCreateActiveAttempt(
+                        practiceExam,
+                        user,
+                        now
+                );
+
         return practiceExamMapper.toPublicResponse(
-                practiceExam
+                practiceExam,
+                attempt,
+                now
         );
     }
 
@@ -100,6 +114,139 @@ public class MobilePracticeExamService {
                 );
 
         PracticeExamAttempt attempt =
+                practiceExamAttemptRepository
+                        .findLockedByIdAndPracticeExamIdAndCourseIdAndUserId(
+                                request.attemptId(),
+                                practiceExam.getId(),
+                                courseId,
+                                user.getId()
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Practice exam attempt not found"
+                                )
+                        );
+
+        if (Boolean.TRUE.equals(attempt.getCompleted())) {
+            throw new ConflictException(
+                    "Practice exam attempt already submitted"
+            );
+        }
+
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        if (isExpired(attempt, now)) {
+            expireAttempt(
+                    attempt
+            );
+
+            throw new ConflictException(
+                    "Practice exam time limit expired"
+            );
+        }
+
+        QuizGradingResult gradingResult =
+                quizGradingService.grade(
+                        attempt.getAnswers(),
+                        request.answers()
+                );
+
+        attempt.setScore(
+                gradingResult.score()
+        );
+
+        attempt.setCompleted(
+                true
+        );
+
+        attempt.setSubmittedAt(
+                now
+        );
+
+        practiceExamAttemptRepository.save(
+                attempt
+        );
+
+        int earnedXp =
+                isFirstAttempt(attempt)
+                        ? calculateEarnedXp(
+                                gradingResult
+                        )
+                        : 0;
+
+        GamificationAwardResponse reward =
+                earnedXp > 0
+                        ? gamificationService.awardXp(
+                                user,
+                                XPEventType.PRACTICE_EXAM_COMPLETE,
+                                practiceExam.getId(),
+                                earnedXp
+                        )
+                        : null;
+
+        if (reward != null && reward.awarded()) {
+            userActivityService.recordCorrectQuestions(
+                    user,
+                    gradingResult.score()
+            );
+        }
+
+        return practiceExamMapper.toSubmitResponse(
+                attempt,
+                reward != null && reward.awarded()
+                        ? List.of(reward)
+                        : List.of()
+        );
+    }
+
+    private PracticeExamAttempt getOrCreateActiveAttempt(
+            PracticeExam practiceExam,
+            User user,
+            LocalDateTime now
+    ) {
+
+        return practiceExamAttemptRepository
+                .findFirstByPracticeExamIdAndCourseIdAndUserIdAndCompletedFalseOrderByStartedAtDesc(
+                        practiceExam.getId(),
+                        practiceExam.getCourse().getId(),
+                        user.getId()
+                )
+                .map(attempt -> {
+
+                    if (isExpired(
+                            attempt,
+                            now
+                    )) {
+                        expireAttempt(
+                                attempt
+                        );
+
+                        return createAttempt(
+                                practiceExam,
+                                user,
+                                now
+                        );
+                    }
+
+                    return attempt;
+                })
+                .orElseGet(() ->
+                        createAttempt(
+                                practiceExam,
+                                user,
+                                now
+                        )
+                );
+    }
+
+    private PracticeExamAttempt createAttempt(
+            PracticeExam practiceExam,
+            User user,
+            LocalDateTime now
+    ) {
+
+        PracticeExamAttempt attempt =
                 PracticeExamAttempt.builder()
                         .practiceExam(
                                 practiceExam
@@ -113,6 +260,14 @@ public class MobilePracticeExamService {
                         .score(0)
                         .total(
                                 practiceExam.getQuestions().size()
+                        )
+                        .completed(false)
+                        .startedAt(now)
+                        .expiresAt(
+                                expiresAt(
+                                        practiceExam,
+                                        now
+                                )
                         )
                         .build();
 
@@ -146,47 +301,46 @@ public class MobilePracticeExamService {
                             );
                 });
 
-        QuizGradingResult gradingResult =
-                quizGradingService.grade(
-                        attempt.getAnswers(),
-                        request.answers()
-                );
-
-        attempt.setScore(
-                gradingResult.score()
-        );
-
-        practiceExamAttemptRepository.save(
+        return practiceExamAttemptRepository.save(
                 attempt
         );
+    }
 
-        int earnedXp =
-                calculateEarnedXp(
-                        gradingResult
-                );
+    private LocalDateTime expiresAt(
+            PracticeExam practiceExam,
+            LocalDateTime startedAt
+    ) {
 
-        GamificationAwardResponse reward =
-                earnedXp > 0
-                        ? gamificationService.awardXp(
-                                user,
-                                XPEventType.PRACTICE_EXAM_COMPLETE,
-                                practiceExam.getId(),
-                                earnedXp
-                        )
-                        : null;
-
-        if (reward != null && reward.awarded()) {
-            userActivityService.recordCorrectQuestions(
-                    user,
-                    gradingResult.score()
-            );
+        if (practiceExam.getTimeLimitMinutes() == null) {
+            return null;
         }
 
-        return practiceExamMapper.toSubmitResponse(
-                attempt,
-                reward != null && reward.awarded()
-                        ? List.of(reward)
-                        : List.of()
+        return startedAt.plusMinutes(
+                practiceExam.getTimeLimitMinutes()
+        );
+    }
+
+    private boolean isExpired(
+            PracticeExamAttempt attempt,
+            LocalDateTime now
+    ) {
+
+        return attempt.getExpiresAt() != null
+                && now.isAfter(
+                        attempt.getExpiresAt()
+                );
+    }
+
+    private void expireAttempt(
+            PracticeExamAttempt attempt
+    ) {
+
+        attempt.setCompleted(
+                true
+        );
+
+        attempt.setSubmittedAt(
+                attempt.getExpiresAt()
         );
     }
 
@@ -216,5 +370,17 @@ public class MobilePracticeExamService {
         }
 
         return MobilePracticeExamService.PRACTICE_EXAM_COMPLETE_XP * gradingResult.score() / gradingResult.total();
+    }
+
+    private boolean isFirstAttempt(
+            PracticeExamAttempt attempt
+    ) {
+
+        return !practiceExamAttemptRepository
+                .existsByPracticeExamIdAndUserIdAndIdLessThan(
+                        attempt.getPracticeExam().getId(),
+                        attempt.getUser().getId(),
+                        attempt.getId()
+                );
     }
 }

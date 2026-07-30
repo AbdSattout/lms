@@ -7,11 +7,14 @@ import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.practiceExam.dto.*;
 import app.lms.practiceExam.model.PracticeExam;
 import app.lms.practiceExam.model.PracticeExamAttempt;
+import app.lms.practiceExam.model.PracticeExamAttemptAnswer;
+import app.lms.question.dto.QuestionPublicResponse;
 import app.lms.question.mapper.QuestionMapper;
 import app.lms.question.model.Question;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -36,6 +39,9 @@ public class PracticeExamMapper {
                                 ? request.description().trim()
                                 : null
                 )
+                .timeLimitMinutes(
+                        request.timeLimitMinutes()
+                )
                 .course(course)
                 .questions(questions)
                 .build();
@@ -49,6 +55,7 @@ public class PracticeExamMapper {
                 practiceExam.getId(),
                 practiceExam.getTitle(),
                 practiceExam.getDescription(),
+                practiceExam.getTimeLimitMinutes(),
                 practiceExam.getCourse().getId(),
                 quizDifficultyService.calculate(
                         practiceExam.getQuestions()
@@ -62,20 +69,27 @@ public class PracticeExamMapper {
     }
 
     public PracticeExamPublicResponse toPublicResponse(
-            PracticeExam practiceExam
+            PracticeExam practiceExam,
+            PracticeExamAttempt attempt,
+            LocalDateTime serverTime
     ) {
 
         return new PracticeExamPublicResponse(
                 practiceExam.getId(),
                 practiceExam.getTitle(),
                 practiceExam.getDescription(),
+                practiceExam.getTimeLimitMinutes(),
+                attempt.getId(),
+                attempt.getStartedAt(),
+                attempt.getExpiresAt(),
+                serverTime,
                 practiceExam.getCourse().getId(),
                 quizDifficultyService.calculate(
                         practiceExam.getQuestions()
                 ),
-                practiceExam.getQuestions()
+                attempt.getAnswers()
                         .stream()
-                        .map(questionMapper::toPublicResponse)
+                        .map(this::toPublicQuestionResponse)
                         .toList(),
                 BaseEntityResponse.from(practiceExam)
         );
@@ -89,6 +103,7 @@ public class PracticeExamMapper {
                 practiceExam.getId(),
                 practiceExam.getTitle(),
                 practiceExam.getDescription(),
+                practiceExam.getTimeLimitMinutes(),
                 practiceExam.getCourse().getId(),
                 quizDifficultyService.calculate(
                         practiceExam.getQuestions()
@@ -107,6 +122,9 @@ public class PracticeExamMapper {
                 attempt.getId(),
                 attempt.getScore(),
                 attempt.getTotal(),
+                attempt.getStartedAt(),
+                attempt.getExpiresAt(),
+                attempt.getSubmittedAt(),
                 attempt.getAnswers()
                         .stream()
                         .map(answer ->
@@ -123,6 +141,20 @@ public class PracticeExamMapper {
                         .toList(),
                 rewards,
                 BaseEntityResponse.from(attempt)
+        );
+    }
+
+    private QuestionPublicResponse toPublicQuestionResponse(
+            PracticeExamAttemptAnswer answer
+    ) {
+
+        return new QuestionPublicResponse(
+                answer.getSourceQuestion().getId(),
+                answer.getContent(),
+                answer.getOptions(),
+                BaseEntityResponse.from(
+                        answer.getSourceQuestion()
+                )
         );
     }
 }
