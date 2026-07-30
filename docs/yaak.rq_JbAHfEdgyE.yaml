@@ -1,0 +1,42 @@
+type: http_request
+model: http_request
+id: rq_JbAHfEdgyE
+createdAt: 2026-07-15T22:45:22.292442800
+updatedAt: 2026-07-16T11:40:03.277287200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_2Xc9mEr4pS
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0MjAwMjY1LCJleHAiOjE3ODQ4MDUwNjV9.41qFbaBgb6nD9-k2GoFglaL6iNODGKxAEgkkM9cShxM
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "questionIds": [1, 2, 3,4,5,6,7,8,9,10]
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: ThfeqZvBMi
+method: PATCH
+name: create quiz
+sortPriority: 1000.0
+url: https://lms.koyeb.app/dashboard/courses/1/final-quiz/questions
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

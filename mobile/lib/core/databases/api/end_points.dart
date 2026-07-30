@@ -18,7 +18,7 @@ class EndPoints {
 
   // Paths
   static const String login =
-      'auth/login';
+      'auth/login/telegram';
 
   static const String profile =
       'profile/me';
@@ -35,6 +35,11 @@ class EndPoints {
 
   static const String myEnrollments = 'courses/me/enrollments';
 
+  static String placementTest(int courseId) =>
+      'mobile/courses/$courseId/placement-test';
+
+  static String skipPlacementTest(int courseId) =>
+      'mobile/courses/$courseId/placement-test/skip';
   // Organizations
   static const String organizations = 'organizations';
 
@@ -48,4 +53,7 @@ class EndPoints {
     required String courseSlug,
   }) =>
       'organizations/$orgSlug/courses/$courseSlug';
+  // Blocks
+  static String blockContent(int blockId) => 'blocks/$blockId';
+  static String submitBlockAnswer(int blockId) => 'blocks/$blockId/submit';
 }

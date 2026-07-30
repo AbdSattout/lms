@@ -16,5 +16,5 @@ abstract class CourseRepository {
 
   Future<List<CourseEntity>> getMyEnrollments();
 
-  Future<CourseEnrollmentEntity> enrollInCourse(int courseId);
+  Future<EnrollActionResultEntity> enrollInCourse(int courseId);
 }

@@ -1,0 +1,34 @@
+type: http_request
+model: http_request
+id: rq_QJLyY55Spp
+createdAt: 2026-07-19T17:28:20.549436900
+updatedAt: 2026-07-21T23:37:36.986934200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_wecLYqvPA8
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: Get Placement Test
+sortPriority: 1000.001
+url: https://lms.koyeb.app/mobile/courses/6/placement-test
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

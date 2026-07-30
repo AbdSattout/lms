@@ -6,7 +6,7 @@ class EnrollInCourseUseCase {
 
   EnrollInCourseUseCase(this.repository);
 
-  Future<CourseEnrollmentEntity> call(int courseId) {
+  Future<EnrollActionResultEntity> call(int courseId) {
     return repository.enrollInCourse(courseId);
   }
 }
