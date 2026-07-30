@@ -244,7 +244,7 @@ public class AdminModerationService {
             );
 
         course.setStatus(
-                CourseStatus.BANNED
+                CourseStatus.DRAFT
         );
     }
 
