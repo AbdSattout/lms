@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +35,12 @@ public class CommentService {
                 postService.findPostById(
                         postId
                 );
+
+        postAccessService.validateInteractionAccess(
+                post,
+                user
+        );
+
         if (post.getCommentsCount() == null) {
             post.setCommentsCount(0L);
         }

@@ -15,14 +15,15 @@ class CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isCompleted = course.progress?.completed == true;
-    final progressPercentage = course.progress?.progressPercentage ?? 0;
+    final colors = Theme.of(context).colorScheme;
+    final isCompleted = course.enrollment?.isCompleted == true;
+    final progressPercentage = course.enrollment?.progressPercentage ?? 0;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       child: Material(
-        color: AppColors.surface,
+        color: colors.surface,
         borderRadius: BorderRadius.circular(24),
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
@@ -32,10 +33,10 @@ class CourseCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.border, width: 1),
+              border: Border.all(color: Theme.of(context).dividerColor),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.dark.withOpacity(0.05),
+                  color: Colors.black.withOpacity(0.05),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -104,10 +105,10 @@ class CourseCard extends StatelessWidget {
                     children: [
                       Text(
                         course.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: AppColors.dark,
+                          color: colors.onSurface,
                           height: 1.25,
                         ),
                         maxLines: 2,
@@ -118,19 +119,19 @@ class CourseCard extends StatelessWidget {
                         const SizedBox(height: 6),
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.apartment_rounded,
                               size: 13,
-                              color: AppColors.darkSoft,
+                              color: colors.onSurfaceVariant,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
                                 course.organizationName!,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.w600,
-                                  color: AppColors.darkSoft,
+                                  color: colors.onSurfaceVariant,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -147,7 +148,7 @@ class CourseCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: (progressPercentage / 100).clamp(0, 1),
                           minHeight: 6,
-                          backgroundColor: AppColors.greyLight,
+                          backgroundColor: colors.surfaceContainerHighest,
                           valueColor: AlwaysStoppedAnimation(
                             isCompleted
                                 ? const Color(0xff2E7D53)
@@ -167,7 +168,7 @@ class CourseCard extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                           color: isCompleted
                               ? const Color(0xff2E7D53)
-                              : AppColors.darkSoft,
+                              : colors.onSurfaceVariant,
                         ),
                       ),
                     ],

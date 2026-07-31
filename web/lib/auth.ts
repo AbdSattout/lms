@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth"
 import { genericOAuth } from "better-auth/plugins/generic-oauth"
+import { google } from "better-auth/social-providers" // ⬅️ ADD THIS
 import { decodeJwt } from "jose"
 
 export const auth = betterAuth({
@@ -14,12 +15,8 @@ export const auth = betterAuth({
             "https://oauth.telegram.org/.well-known/openid-configuration",
           scopes: ["openid", "profile"],
           getUserInfo: async (tokens) => {
-            if (!tokens.idToken) {
-              return null
-            }
-
+            if (!tokens.idToken) return null
             const claims = decodeJwt(tokens.idToken)
-
             return {
               id: claims.id as string,
               name: claims.name as string,
@@ -30,6 +27,11 @@ export const auth = betterAuth({
           },
         },
       ],
+    }),
+
+    google({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
 })

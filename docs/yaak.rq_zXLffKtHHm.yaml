@@ -2,11 +2,11 @@ type: http_request
 model: http_request
 id: rq_zXLffKtHHm
 createdAt: 2026-06-13T17:01:24.124859300
-updatedAt: 2026-07-13T11:20:38.239005100
+updatedAt: 2026-07-21T23:58:21.970347900
 workspaceId: wk_LvqrSfWmRY
 folderId: fl_wecLYqvPA8
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzOTM4Mzc0LCJleHAiOjE3ODQ1NDMxNzR9.3ywI_CGxZfbrrOD6XWAtgnOBztW91LUfxqYk8tUv8CQ
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwiaWF0IjoxNzg0NDgxNjIwLCJleHAiOjE3ODUwODY0MjB9.JWeulHmfliFt_9zfq8lZS3nF3SLsu6Tmo809a5k5iN8
 authenticationType: bearer
 body:
   text: ''
@@ -20,7 +20,7 @@ headers:
 method: GET
 name: Get course by id
 sortPriority: 1000.001
-url: https://lms.koyeb.app/courses/4
+url: https://lms.koyeb.app/courses/6
 urlParameters: []
 settingSendCookies:
   enabled: false

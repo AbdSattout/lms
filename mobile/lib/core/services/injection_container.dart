@@ -5,9 +5,15 @@ import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/courses/data/datasources/block_remote_datasource.dart';
+import '../../features/courses/data/repositories/block_repository_impl.dart';
+import '../../features/courses/domain/repositories/block_repository.dart';
 import '../../features/courses/domain/usecases/enroll_in_course_usecase.dart';
+import '../../features/courses/domain/usecases/get_block_content_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
+import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
+import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
@@ -34,13 +40,22 @@ import 'package:lms/features/courses/domain/repositories/course_repository.dart'
 import 'package:lms/features/courses/domain/usecases/get_my_enrollments_usecase.dart';
 import 'package:lms/features/courses/presentation/bloc/my_courses_bloc.dart';
 import 'package:lms/features/courses/presentation/bloc/course_details_bloc.dart';
+import 'package:lms/features/courses/presentation/bloc/course_contents_bloc.dart';
+import 'package:lms/features/courses/data/datasources/placement_test_remote_datasource.dart';
+import 'package:lms/features/courses/data/repositories/placement_test_repository_impl.dart';
+import 'package:lms/features/courses/domain/repositories/placement_test_repository.dart';
+import 'package:lms/features/courses/domain/usecases/get_placement_test_usecase.dart';
+import 'package:lms/features/courses/domain/usecases/submit_placement_answer_usecase.dart';
+import 'package:lms/features/courses/domain/usecases/skip_placement_test_usecase.dart';
+import 'package:lms/features/courses/presentation/bloc/placement_test_bloc.dart';
 //Organization Feature
 import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
 import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
 import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
 import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
 import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
-import 'package:lms/features/organizations/presentation/bloc/organization_bloc.dart';
+
+import '../theme/theme_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -88,7 +103,7 @@ Future<void> init() async {
       receiveDataWhenStatusError: true,
     ),
   ));
-  
+
 
 
   sl.registerLazySingleton<ProfileRemoteDataSource>(
@@ -147,6 +162,30 @@ Future<void> init() async {
       enrollInCourseUseCase: sl(),
     ),
   );
+  sl.registerFactory(
+        () => CourseContentsBloc(
+      getCourseByIdUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton<PlacementTestRemoteDataSource>(
+        () => PlacementTestRemoteDataSourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<PlacementTestRepository>(
+        () => PlacementTestRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => GetPlacementTestUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPlacementAnswerUseCase(sl()));
+  sl.registerLazySingleton(() => SkipPlacementTestUseCase(sl()));
+
+  sl.registerFactory(
+        () => PlacementTestBloc(
+      getPlacementTestUseCase: sl(),
+      submitPlacementAnswerUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
+    ),
+  );
   //Organizations
   sl.registerLazySingleton<OrganizationRemoteDataSource>(
         () => OrganizationRemoteDataSourceImpl(sl()),
@@ -164,6 +203,15 @@ Future<void> init() async {
       getAllOrganizationsUseCase: sl(),
     ),
   );
+  //Blocks
+  sl.registerLazySingleton<BlockRemoteDataSource>(() => BlockRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<BlockRepository>(() => BlockRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetBlockContentUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitBlockAnswerUseCase(sl()));
+  sl.registerFactory(() => BlockContentBloc(
+    getBlockContentUseCase: sl(),
+    submitBlockAnswerUseCase: sl(),
+  ));
 
   //! External
   
@@ -177,7 +225,13 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => sharedPreferences);
 
-  
+  sl.registerSingleton(
+    ThemeCubit()..setTheme(
+      sl<CacheHelper>().getTheme(),
+    ),
+  );
+
+
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton(() => DataConnectionChecker());
 }

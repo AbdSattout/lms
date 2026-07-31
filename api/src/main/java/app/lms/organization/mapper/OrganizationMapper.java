@@ -5,6 +5,7 @@ import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.OrganizationSummaryResponse;
+import app.lms.organization.dto.OrganizationViewerResponse;
 import app.lms.organization.model.Organization;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
@@ -24,6 +25,28 @@ public class OrganizationMapper {
             Organization organization
     ) {
 
+        return toResponse(
+                organization,
+                null
+        );
+    }
+
+    public OrganizationResponse ToResponse(
+            Organization organization,
+            OrganizationMember member
+    ) {
+
+        return toResponse(
+                organization,
+                toViewerResponse(member)
+        );
+    }
+
+    private OrganizationResponse toResponse(
+            Organization organization,
+            OrganizationViewerResponse viewer
+    ) {
+
         return OrganizationResponse.builder()
                 .id(organization.getId())
                 .name(organization.getName())
@@ -37,7 +60,22 @@ public class OrganizationMapper {
                 .membersCount(memberRepository.countByOrganizationId(
                         organization.getId()
                 ))
+                .viewer(viewer)
                 .baseEntity(BaseEntityResponse.from(organization))
+                .build();
+    }
+
+    public OrganizationViewerResponse toViewerResponse(
+            OrganizationMember member
+    ) {
+
+        return OrganizationViewerResponse.builder()
+                .joined(member != null)
+                .role(
+                        member != null
+                                ? member.getRole()
+                                : null
+                )
                 .build();
     }
 

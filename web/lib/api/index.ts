@@ -1,6 +1,11 @@
 import "server-only"
 
-import { login } from "@/lib/api/auth"
+import {
+  loginWithTelegram,
+  loginWithGoogle,
+  requestEmailOtp,
+  verifyEmailOtp,
+} from "@/lib/api/auth"
 import {
   byId as blocksById,
   byLesson as blocksByLesson,
@@ -66,6 +71,8 @@ import {
   create as createRoadmap,
   list as listRoadmaps,
 } from "@/lib/api/roadmap"
+import { userDashboard, organizationDashboard } from "@/lib/api/analytics"
+import { checkout, portal, revoke } from "@/lib/api/billing"
 import {
   byCourse as questionsByCourse,
   byId as questionById,
@@ -85,7 +92,10 @@ import {
 
 export const api = {
   auth: {
-    login,
+    loginWithTelegram,
+    loginWithGoogle,
+    requestEmailOtp,
+    verifyEmailOtp,
   },
   organizations: {
     list,
@@ -194,5 +204,14 @@ export const api = {
       generateQuestionFromBlock,
       transformText,
     },
+    analytics: {
+      user: userDashboard,
+      organization: organizationDashboard,
+    },
+  },
+  billing: {
+    checkout,
+    portal,
+    revoke,
   },
 } satisfies ApiTree

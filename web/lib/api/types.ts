@@ -32,6 +32,7 @@ export interface OrganizationResponse {
   image?: string
   visibility: OrganizationVisibility
   ownerName: string
+  membersCount: number
   baseEntity?: BaseEntityResponse
 }
 
@@ -52,6 +53,15 @@ export interface CourseEnrollmentResponse {
   completedAt?: string
 }
 
+export interface OrganizationSummaryResponse {
+  id: number
+  name: string
+  slug: string
+  description?: string
+  image?: string
+  visibility: OrganizationVisibility
+}
+
 export interface CourseResponse {
   id: number
   title: string
@@ -59,7 +69,7 @@ export interface CourseResponse {
   description?: string
   coverUrl?: string
   status: CourseStatus
-  organizationName: string
+  organization: OrganizationSummaryResponse
   enrollment?: CourseEnrollmentResponse
   baseEntity?: BaseEntityResponse
 }
@@ -139,8 +149,8 @@ export interface PostResponse {
   author: AuthorResponse
   organizationId: number
   courseId: number
-  likesCount: number
-  commentsCount: number
+  likeCount: number
+  commentCount: number
   baseEntity?: BaseEntityResponse
 }
 
@@ -504,10 +514,13 @@ export interface CourseProgressResponse {
   completedAt?: string
 }
 
+export type RoadmapFollowStatus = "NOT_FOLLOWING" | "ACTIVE" | "COMPLETED"
+
 export interface RoadmapResponse {
   id: number
   organization: OrganizationResponse
   items: RoadmapItemResponse[]
+  followStatus?: RoadmapFollowStatus
   baseEntity?: BaseEntityResponse
 }
 
@@ -538,6 +551,54 @@ export interface CreatePracticeExamRequest {
   questionIds: number[]
 }
 
+export interface LoginRequest {
+  idToken: string
+}
+
+export interface EmailOtpRequest {
+  email: string
+}
+
+export interface VerifyEmailOtpRequest {
+  email: string
+  otp: string
+}
+
 export interface UpdatePracticeExamQuestionsRequest {
   questionIds: number[]
+}
+
+export interface UserDashboardResponse {
+  organizationsCount: number
+  enrolledCoursesCount: number
+  completedCoursesCount: number
+  followingRoadmapsCount: number
+  completedRoadmapsCount: number
+  certificatesCount: number
+  totalXp: number
+  currentLevel: number
+  currentStreak: number
+  longestStreak: number
+}
+
+export interface OrganizationDashboardResponse {
+  owner: UserResponse
+  membersCount: number
+  adminsCount: number
+  studentsCount: number
+  coursesCount: number
+  publishedCoursesCount: number
+  draftCoursesCount: number
+  postsCount: number
+  roadmapsCount: number
+  storage: StorageResponse
+}
+
+export interface CheckoutSessionResponse {
+  checkoutId: string
+  checkoutUrl: string
+}
+
+export interface CustomerPortalSessionResponse {
+  customerPortalUrl: string
 }

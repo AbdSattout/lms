@@ -35,10 +35,8 @@ public class PracticeExamAttemptAnswer extends BaseEntity implements GradableQui
     @Column(nullable = false)
     private Integer correctAnswerIndex;
 
-    @Column(nullable = false)
     private Integer selectedAnswerIndex;
 
-    @Column(nullable = false)
     private Boolean correct;
 
     @ManyToOne(fetch = FetchType.LAZY)
