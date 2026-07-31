@@ -56,7 +56,7 @@ export function OrganizationDialog({ children }: { children?: ReactNode }) {
 
   function handleSlugChange(value: string) {
     userEditedSlug.current = true
-    const filtered = value.replace(/[^a-z-]/g, "")
+    const filtered = value.replace(/[^a-z0-9-]/g, "")
     setSlug(filtered)
     if (!filtered) {
       userEditedSlug.current = false

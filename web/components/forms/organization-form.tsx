@@ -31,9 +31,7 @@ interface OrganizationFormProps {
   }
 }
 
-export function OrganizationForm({
-  initialData,
-}: OrganizationFormProps = {}) {
+export function OrganizationForm({ initialData }: OrganizationFormProps = {}) {
   const [state, formAction, isPending] = useActionState(
     initialData
       ? (updateOrganization as typeof createOrganization)
@@ -63,7 +61,7 @@ export function OrganizationForm({
 
   function handleSlugChange(value: string) {
     userEditedSlug.current = true
-    const filtered = value.replace(/[^a-z-]/g, "")
+    const filtered = value.replace(/[^a-z0-9-]/g, "")
     setSlug(filtered)
     if (!filtered) {
       userEditedSlug.current = false
