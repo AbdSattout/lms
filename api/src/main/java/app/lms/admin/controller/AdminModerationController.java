@@ -124,7 +124,7 @@ public class AdminModerationController {
                 .build();
     }
 
-    @PostMapping("/courses/{courseId}//ban")
+    @PostMapping("/courses/{courseId}/ban")
     public ResponseEntity<Void> banCourse(
 
             @PathVariable
@@ -149,7 +149,7 @@ public class AdminModerationController {
                 .build();
     }
 
-    @PostMapping("/courses/{courseId}//ban")
+    @DeleteMapping("/courses/{courseId}/ban")
     public ResponseEntity<Void> unbanCourse(
 
             @PathVariable
@@ -169,7 +169,7 @@ public class AdminModerationController {
                 .build();
     }
 
-    @PostMapping("/organizations/{organizationId}//ban")
+    @PostMapping("/organizations/{organizationId}/ban")
     public ResponseEntity<Void> banOrganization(
 
             @PathVariable
@@ -194,7 +194,7 @@ public class AdminModerationController {
                 .build();
     }
 
-    @PostMapping("/organizations/{organizationId}//ban")
+    @DeleteMapping("/organizations/{organizationId}/ban")
     public ResponseEntity<Void> unbanOrganization(
 
             @PathVariable
