@@ -107,40 +107,6 @@ public class EmailOtpService {
             String otp
     ) {
 
-        return verifyOtp(
-                email,
-                otp,
-                true
-        );
-    }
-
-    public String verifyOtpWithoutConsuming(
-            String email,
-            String otp
-    ) {
-
-        return verifyOtp(
-                email,
-                otp,
-                false
-        );
-    }
-
-    public void consumeOtp(
-            String email
-    ) {
-
-        clearOtp(
-                normalizeEmail(email)
-        );
-    }
-
-    private String verifyOtp(
-            String email,
-            String otp,
-            boolean consumeOnSuccess
-    ) {
-
         String normalizedEmail =
                 normalizeEmail(email);
 
@@ -186,9 +152,7 @@ public class EmailOtpService {
             throw invalidOtp();
         }
 
-        if (consumeOnSuccess) {
-            clearOtp(normalizedEmail);
-        }
+        clearOtp(normalizedEmail);
 
         return normalizedEmail;
     }
