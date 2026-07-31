@@ -147,19 +147,20 @@ export type ReorderBlocksInput = z.infer<typeof reorderBlocksSchema>
 export const createPostSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب"),
   content: z.string().min(1, "المحتوى مطلوب"),
-  courseId: z.number().int(),
+  courseId: z.number().int().nullish(),
 })
 export type CreatePostInput = z.infer<typeof createPostSchema>
 
 export const updatePostSchema = z.object({
   title: z.string().min(1, "العنوان مطلوب").optional(),
   content: z.string().min(1, "المحتوى مطلوب").optional(),
+  courseId: z.number().optional().nullable(),
 })
 export type UpdatePostInput = z.infer<typeof updatePostSchema>
 
 export const createCommentSchema = z.object({
   content: z.string().min(1, "محتوى التعليق مطلوب"),
-  parentCommentId: z.number().int().optional(),
+  parentCommentId: z.number().int().optional().nullish(),
 })
 export type CreateCommentInput = z.infer<typeof createCommentSchema>
 
