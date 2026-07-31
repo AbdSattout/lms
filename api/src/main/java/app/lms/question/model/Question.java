@@ -29,7 +29,7 @@ public class Question extends BaseEntity {
             name = "question_options",
             joinColumns = @JoinColumn(name = "question_id")
     )
-    @Column(name = "option_value", nullable = false)
+    @Column(name = "option_value", nullable = false, columnDefinition = "TEXT")
     private List<String> options;
 
     @Column(nullable = false)
