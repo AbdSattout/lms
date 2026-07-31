@@ -1,8 +1,13 @@
 package app.lms.organization.service;
 
+import app.lms.admin.dto.BanRequest;
+import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
+import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
+import app.lms.enrollment.repository.CourseEnrollmentRepository;
+import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
@@ -11,6 +16,8 @@ import app.lms.media.repository.CourseMediaRepository;
 import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.media.repository.PostMediaRepository;
 import app.lms.media.service.MediaService;
+import app.lms.organization.OrganizationBan.model.OrganizationBan;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.dto.*;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
@@ -55,6 +62,9 @@ public class DashboardOrganizationService {
     private final PostRepository postRepository;
     private final RoadmapRepository roadmapRepository;
     private final PlanQuotaService planQuotaService;
+    private final OrganizationMemberAccessService organizationMemberAccessService;
+    private final CourseEnrollmentService courseEnrollmentService;
+    private final OrganizationBanRepository organizationBanRepository;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -480,6 +490,58 @@ public class DashboardOrganizationService {
                         pageable
                 )
                 .map(organizationMapper::toMemberResponse);
+    }
+
+    @Transactional
+    public void removeMember(
+            String slug,
+            Long memberId,
+            BanRequest request,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(slug);
+
+        OrganizationMember actor =
+                organizationMemberAccessService.getMember(
+                        organization.getId(),
+                        currentUser.getId()
+                );
+
+        OrganizationMember target =
+                organizationMemberRepository
+                        .findById(memberId)
+                        .orElseThrow(() ->
+                                new NotFoundException("Member not found"));
+
+        if (!target.getOrganization().getId().equals(organization.getId())) {
+            throw new BadRequestException(
+                    "Member does not belong to this organization"
+            );
+        }
+
+        organizationMemberAccessService.validateCanRemoveMember(
+                actor,
+                target
+        );
+
+        courseEnrollmentService.unenrollFromOrganization(
+                organization.getId(),
+                target.getUser()
+        );
+
+        organizationMemberRepository.delete(target);
+
+        organizationBanRepository.save(
+                OrganizationBan.builder()
+                        .organization(organization)
+                        .user(target.getUser())
+                        .bannedByOrgAdmins(actor.getUser())
+                        .reason(request.reason())
+                        .build()
+        );
     }
 
 }

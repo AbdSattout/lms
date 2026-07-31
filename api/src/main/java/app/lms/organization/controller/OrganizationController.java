@@ -77,6 +77,20 @@ public class OrganizationController {
         );
     }
 
+    @DeleteMapping("/{slug}/leave")
+    public ResponseEntity<Void> leaveOrganization(
+            @PathVariable String slug,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        organizationService.leaveOrganization(
+                slug,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 

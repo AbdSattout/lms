@@ -17,6 +17,7 @@ public class OrganizationInviteMapper {
                 .role(invite.getRole())
                 .status(invite.getStatus())
                 .token(invite.getToken())
+                .organization(invite.getOrganization())
                 .invitedByName(invite.getInvitedBy().getName())
                 .expiresAt(invite.getExpiresAt())
                 .maxUses(invite.getMaxUses())
