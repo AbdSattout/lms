@@ -5,6 +5,7 @@ import { defineApiRoute } from "@/lib/api/route"
 import type {
   CommentResponse,
   PagePostResponse,
+  PostReactionType,
   PostResponse,
 } from "@/lib/api/types"
 import type {
@@ -61,9 +62,14 @@ export const byId = defineApiRoute({
 })
 
 export const likes = defineApiRoute({
-  post: (postId: number, options?: BackendFetchOptions) =>
+  post: (
+    postId: number,
+    reactionType?: PostReactionType,
+    options?: BackendFetchOptions
+  ) =>
     backend<void>(`/posts/${postId}/likes`, {
       method: "POST",
+      body: reactionType ? { reactionType } : undefined,
       ...options,
     }),
   delete: (postId: number, options?: BackendFetchOptions) =>
@@ -100,11 +106,7 @@ export const deleteComment = defineApiRoute({
 })
 
 export const byOrg = defineApiRoute({
-  get: (
-    slug: string,
-    pageable: PageableInput,
-    options?: BackendFetchOptions
-  ) =>
+  get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
     backend<PagePostResponse>(
       `/organizations/${slug}/posts${toQueryString(pageable)}`,
       { method: "GET", ...options }
