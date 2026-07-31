@@ -52,24 +52,33 @@ interface AddMemberFormProps {
   role: Role
   onBack: () => void
 }
-
 export function AddMemberForm({ slug, role, onBack }: AddMemberFormProps) {
   return (
     <Tabs
       defaultValue="specific"
       className="flex h-full w-full flex-col overflow-hidden"
     >
-      <TabsList className="grid h-auto w-full shrink-0 grid-cols-3 bg-muted p-1">
+      {/* 1. Make grid columns dynamic based on role */}
+      <TabsList
+        className={`grid h-auto w-full shrink-0 bg-muted p-1 ${
+          role === "ADMIN" ? "grid-cols-2" : "grid-cols-3"
+        }`}
+      >
         <TabsTrigger value="specific" className="gap-2 py-2">
           <UserPlus className="h-4 w-4" />
           <span className="hidden sm:inline">دعوة محددة</span>
           <span className="sm:hidden">محددة</span>
         </TabsTrigger>
-        <TabsTrigger value="public" className="gap-2 py-2">
-          <Users className="h-4 w-4" />
-          <span className="hidden sm:inline">دعوة عامة</span>
-          <span className="sm:hidden">عامة</span>
-        </TabsTrigger>
+
+        {/* 2. Hide the Public Invite trigger if role is ADMIN */}
+        {role !== "ADMIN" && (
+          <TabsTrigger value="public" className="gap-2 py-2">
+            <Users className="h-4 w-4" />
+            <span className="hidden sm:inline">دعوة عامة</span>
+            <span className="sm:hidden">عامة</span>
+          </TabsTrigger>
+        )}
+
         <TabsTrigger value="pending" className="gap-2 py-2">
           <Clock className="h-4 w-4" />
           <span className="hidden sm:inline">دعوات معلقة</span>
@@ -85,12 +94,15 @@ export function AddMemberForm({ slug, role, onBack }: AddMemberFormProps) {
           <SpecificInviteForm slug={slug} role={role} onBack={onBack} />
         </TabsContent>
 
-        <TabsContent
-          value="public"
-          className="m-0 flex flex-1 flex-col overflow-hidden focus-visible:outline-none"
-        >
-          <PublicInviteForm slug={slug} role={role} onBack={onBack} />
-        </TabsContent>
+        {/* 3. Hide the Public Invite content if role is ADMIN */}
+        {role !== "ADMIN" && (
+          <TabsContent
+            value="public"
+            className="m-0 flex flex-1 flex-col overflow-hidden focus-visible:outline-none"
+          >
+            <PublicInviteForm slug={slug} role={role} onBack={onBack} />
+          </TabsContent>
+        )}
 
         <TabsContent
           value="pending"
@@ -102,7 +114,6 @@ export function AddMemberForm({ slug, role, onBack }: AddMemberFormProps) {
     </Tabs>
   )
 }
-
 function SpecificInviteForm({ slug, role, onBack }: AddMemberFormProps) {
   const [query, setQuery] = useState("")
   const [results, setResults] = useState<ProfileResponse[]>([])
