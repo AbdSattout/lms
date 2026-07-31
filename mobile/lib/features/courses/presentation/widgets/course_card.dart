@@ -16,7 +16,8 @@ class CourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isCompleted = course.enrollment?.isCompleted == true;
+    final isEnrolled = course.enrollment != null;
+    final isCompleted = course.isCompleted;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
@@ -45,8 +46,6 @@ class CourseCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Full-width cover — this is the main thing that visually
-                // separates this from the organization row card.
                 Stack(
                   children: [
                     ClipRRect(
@@ -64,7 +63,7 @@ class CourseCard extends StatelessWidget {
                           : _coverPlaceholder(),
                     ),
 
-                    if (isCompleted)
+                    if (isEnrolled && isCompleted)
                       Positioned(
                         top: 12,
                         left: 12,
@@ -141,36 +140,39 @@ class CourseCard extends StatelessWidget {
                         ),
                       ],
 
-                      const SizedBox(height: 12),
-
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: LinearProgressIndicator(
-                          value: (progressPercentage / 100).clamp(0, 1),
-                          minHeight: 6,
-                          backgroundColor: colors.surfaceContainerHighest,
-                          valueColor: AlwaysStoppedAnimation(
-                            isCompleted
-                                ? const Color(0xff2E7D53)
-                                : AppColors.primary,
+                      // FIX: only show progress for courses you're
+                      // actually enrolled in — this widget is now also
+                      // used for browsing unenrolled courses (Home),
+                      // where a "0% مكتمل" bar makes no sense.
+                      if (isEnrolled) ...[
+                        const SizedBox(height: 12),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: LinearProgressIndicator(
+                            value: (progressPercentage / 100).clamp(0, 1),
+                            minHeight: 6,
+                            backgroundColor: colors.surfaceContainerHighest,
+                            valueColor: AlwaysStoppedAnimation(
+                              isCompleted
+                                  ? const Color(0xff2E7D53)
+                                  : AppColors.primary,
+                            ),
                           ),
                         ),
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      Text(
-                        isCompleted
-                            ? 'مكتملة بالكامل'
-                            : '${progressPercentage.toStringAsFixed(0)}٪ مكتمل',
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w600,
-                          color: isCompleted
-                              ? const Color(0xff2E7D53)
-                              : colors.onSurfaceVariant,
+                        const SizedBox(height: 6),
+                        Text(
+                          isCompleted
+                              ? 'مكتملة بالكامل'
+                              : '${progressPercentage.toStringAsFixed(0)}٪ مكتمل',
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: isCompleted
+                                ? const Color(0xff2E7D53)
+                                : colors.onSurfaceVariant,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

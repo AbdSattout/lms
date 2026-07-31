@@ -1,27 +1,5 @@
-class RewardEntity {
-  final String eventType;
-  final int? referenceId;
-  final bool awarded;
-  final int xpAwarded;
-  final int totalXp;
-  final int previousLevelNumber;
-  final int currentLevelNumber;
-  final String currentLevelTitle;
-  final bool leveledUp;
-
-  const RewardEntity({
-    required this.eventType,
-    this.referenceId,
-    required this.awarded,
-    required this.xpAwarded,
-    required this.totalXp,
-    required this.previousLevelNumber,
-    required this.currentLevelNumber,
-    required this.currentLevelTitle,
-    required this.leveledUp,
-  });
-}
-
+/// Lock/progress state shared by chapters, lessons, and blocks. Confirmed
+/// values so far: LOCKED, CURRENT, COMPLETED.
 enum ContentStatus {
   locked,
   current,
@@ -41,6 +19,7 @@ enum ContentStatus {
     }
   }
 }
+
 class BlockEntity {
   final int id;
   final String title;
@@ -71,7 +50,6 @@ class LessonEntity {
   });
 }
 
-
 class ChapterEntity {
   final int id;
   final String title;
@@ -88,6 +66,9 @@ class ChapterEntity {
   });
 }
 
+/// The "progress" object embedded directly in GET /courses/{id}. Has a
+/// REAL "completed" boolean — this is the authoritative source for
+/// "is this course finished," not CourseEnrollmentDetailsEntity's guess.
 class CourseProgressSnapshotEntity {
   final int? currentChapterId;
   final int? currentLessonId;
@@ -106,12 +87,16 @@ class CourseProgressSnapshotEntity {
   });
 }
 
+/// The ongoing enrollment record from GET /courses/me/enrollments.
+/// Authoritative for placementTestCompleted / enrolledAt / status — NOT
+/// for "is this course completed" (see isCompleted below and
+/// CourseEntity.isCompleted, which is the one to actually use).
 class CourseEnrollmentDetailsEntity {
   final int id;
   final int courseId;
   final String courseTitle;
   final DateTime? enrolledAt;
-  final String status;
+  final String status; // e.g. "ACTIVE"
   final bool placementTestCompleted;
   final double progressPercentage;
   final int? currentChapterId;
@@ -131,6 +116,9 @@ class CourseEnrollmentDetailsEntity {
     this.currentBlockId,
   });
 
+  // GUESS, kept only as CourseEntity.isCompleted's fallback for contexts
+  // where progressSnapshot isn't available (e.g. My Courses list, which
+  // never fetches /courses/{id}). Don't use this directly anymore.
   bool get isCompleted => progressPercentage >= 100;
 }
 
@@ -157,6 +145,37 @@ class CourseEntity {
     this.enrollment,
     this.chapters = const [],
     this.progressSnapshot,
+  });
+
+  /// FIX: this is now the single place to check "is this course done."
+  /// Prefers the real completed boolean from /courses/{id}'s progress
+  /// snapshot; falls back to the enrollment-based guess only when that
+  /// snapshot isn't available (i.e. we only have list-level data).
+  bool get isCompleted =>
+      progressSnapshot?.completed ?? (enrollment?.isCompleted ?? false);
+}
+
+class RewardEntity {
+  final String eventType;
+  final int? referenceId;
+  final bool awarded;
+  final int xpAwarded;
+  final int totalXp;
+  final int previousLevelNumber;
+  final int currentLevelNumber;
+  final String currentLevelTitle;
+  final bool leveledUp;
+
+  const RewardEntity({
+    required this.eventType,
+    this.referenceId,
+    required this.awarded,
+    required this.xpAwarded,
+    required this.totalXp,
+    required this.previousLevelNumber,
+    required this.currentLevelNumber,
+    required this.currentLevelTitle,
+    required this.leveledUp,
   });
 }
 

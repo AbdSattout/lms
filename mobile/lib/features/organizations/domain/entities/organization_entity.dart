@@ -26,6 +26,9 @@ class OrganizationEntity {
   final String? ownerName;
   final int membersCount;
 
+  final bool viewerJoined;
+  final String? viewerRole;
+
   const OrganizationEntity({
     required this.id,
     required this.name,
@@ -35,5 +38,7 @@ class OrganizationEntity {
     this.visibility = OrganizationVisibility.unknown,
     this.ownerName,
     this.membersCount = 0,
+    this.viewerJoined = false,
+    this.viewerRole,
   });
 }
