@@ -28,6 +28,9 @@ public class PracticeExam extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "time_limit_minutes")
+    private Integer timeLimitMinutes;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;

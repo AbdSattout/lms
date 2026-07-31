@@ -3,8 +3,8 @@ package app.lms.organization.organizationInvite.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.enums.Role;
-import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationInvite.dto.CreateInviteRequest;
@@ -17,7 +17,6 @@ import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.service.OrganizationAccessService;
-import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -36,8 +35,8 @@ public class OrganizationInviteService {
     private final OrganizationInviteRepository organizationInviteRepository;
     private final UserRepository userRepository;
     private final OrganizationMemberRepository memberRepository;
-    private final OrganizationMemberAccessService organizationMemberAccessService;
     private final OrganizationInviteMapper organizationInviteMapper;
+    private final OrganizationBanRepository organizationBanRepository;
 
     public OrganizationInviteResponse invite(
             String slug,
@@ -64,10 +63,20 @@ public class OrganizationInviteService {
         User targetUser = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        if (request.getRole() == Role.OWNER)
+        if (targetUser.getId().equals(currentUser.getId())) {
             throw new BadRequestException(
-                    "you can not use Role OWNER in invite"
+                    "You cannot invite yourself"
             );
+        }
+
+        validateUserCanBeInvited(
+                organization,
+                targetUser
+        );
+
+        validateInviteRole(
+                request.getRole()
+        );
 
         OrganizationInvite invite =
                 OrganizationInvite.builder()
@@ -105,6 +114,13 @@ public class OrganizationInviteService {
             throw new BadRequestException("User has already accepted the invitation");
         }
 
+        if (invite.getUser() != null) {
+            validateUserCanBeInvited(
+                    organization,
+                    invite.getUser()
+            );
+        }
+
         invite.setToken(UUID.randomUUID().toString());
         invite.setExpiresAt(LocalDateTime.now().plusDays(7));
         invite.setStatus(InviteStatus.PENDING);
@@ -139,6 +155,14 @@ public class OrganizationInviteService {
     ) {
         Organization organization =
                 organizationAccessService.getManageableOrganization(slug, currentUser);
+
+        validatePublicInviteRole(
+                request.getRole()
+        );
+
+        validateMaxUses(
+                request.getMaxUses()
+        );
 
         OrganizationInvite invite = OrganizationInvite.builder()
                 .organization(organization)
@@ -176,6 +200,10 @@ public class OrganizationInviteService {
             throw new BadRequestException("Cannot change capacity for a personal invite");
         }
 
+        validateMaxUses(
+                request.getMaxUses()
+        );
+
         if (request.getMaxUses() != null && request.getMaxUses() < invite.getUsedCount()) {
             throw new BadRequestException("Max uses cannot be less than the current used count (" + invite.getUsedCount() + ")");
         }
@@ -194,7 +222,20 @@ public class OrganizationInviteService {
     public void acceptInvite(String token, User currentUser) {
         OrganizationInvite invite = findInvite(token);
 
-        if (invite.getStatus() == InviteStatus.CANCELLED || invite.getStatus() == InviteStatus.DECLINED) {
+        if (organizationBanRepository.existsByOrganizationIdAndUserId(
+                invite.getOrganization().getId(),
+                currentUser.getId())) {
+
+            throw new ForbiddenException(
+                    "You are banned from this organization."
+            );
+        }
+
+        if (invite.getStatus() == InviteStatus.ACCEPTED) {
+            throw new BadRequestException("Invite already processed");
+        }
+
+        if (invite.getStatus() != InviteStatus.PENDING) {
             throw new BadRequestException("Invite is no longer valid");
         }
 
@@ -207,11 +248,11 @@ public class OrganizationInviteService {
             if (!invite.getUser().getId().equals(currentUser.getId())) {
                 throw new ForbiddenException("This invite belongs to another user");
             }
-
-            if (invite.getStatus() == InviteStatus.ACCEPTED) {
-                throw new BadRequestException("Invite already processed");
-            }
         } else {
+            validatePublicInviteRole(
+                    invite.getRole()
+            );
+
             if (invite.getMaxUses() != null && invite.getUsedCount() >= invite.getMaxUses()) {
                 invite.setStatus(InviteStatus.EXPIRED);
                 throw new BadRequestException("This invite link has reached its maximum capacity");
@@ -223,21 +264,29 @@ public class OrganizationInviteService {
                 currentUser.getId()
         );
 
-        if (!alreadyMember) {
-            OrganizationMember member = OrganizationMember.builder()
-                    .organization(invite.getOrganization())
-                    .user(currentUser)
-                    .role(invite.getRole())
-                    .build();
+        if (alreadyMember) {
+            throw new BadRequestException(
+                    "User is already a member"
+            );
+        }
 
-            memberRepository.save(member);
+        validateInviteRole(
+                invite.getRole()
+        );
 
-            if (invite.getUser() == null) {
-                invite.setUsedCount(invite.getUsedCount() + 1);
+        OrganizationMember member = OrganizationMember.builder()
+                .organization(invite.getOrganization())
+                .user(currentUser)
+                .role(invite.getRole())
+                .build();
 
-                if (invite.getMaxUses() != null && invite.getUsedCount() >= invite.getMaxUses()) {
-                    invite.setStatus(InviteStatus.EXPIRED);
-                }
+        memberRepository.save(member);
+
+        if (invite.getUser() == null) {
+            invite.setUsedCount(invite.getUsedCount() + 1);
+
+            if (invite.getMaxUses() != null && invite.getUsedCount() >= invite.getMaxUses()) {
+                invite.setStatus(InviteStatus.EXPIRED);
             }
         }
 
@@ -256,7 +305,19 @@ public class OrganizationInviteService {
         OrganizationInvite invite =
                 findInvite(token);
 
+        if (invite.getUser() == null) {
+            throw new BadRequestException(
+                    "Public invite cannot be declined"
+            );
+        }
+
         validateInviteOwner(invite, currentUser);
+
+        if (invite.getStatus() != InviteStatus.PENDING) {
+            throw new BadRequestException(
+                    "Invite is no longer valid"
+            );
+        }
 
         invite.setStatus(
                 InviteStatus.DECLINED
@@ -269,6 +330,12 @@ public class OrganizationInviteService {
             User currentUser
     ) {
 
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
 
         OrganizationInvite invite =
                 organizationInviteRepository
@@ -278,10 +345,17 @@ public class OrganizationInviteService {
                                         "Invite not found"
                                 ));
 
-        organizationMemberAccessService.validateManager(
-                invite.getOrganization().getId(),
-                currentUser.getId()
-        );
+        if (!invite.getOrganization().getId().equals(organization.getId())) {
+            throw new BadRequestException(
+                    "Invalid invite"
+            );
+        }
+
+        if (invite.getStatus() != InviteStatus.PENDING) {
+            throw new BadRequestException(
+                    "Only pending invites can be cancelled"
+            );
+        }
 
         invite.setStatus(
                 InviteStatus.CANCELLED
@@ -305,6 +379,63 @@ public class OrganizationInviteService {
                 ).stream()
                 .map(organizationInviteMapper::toResponse)
                 .toList();
+    }
+
+    private void validateUserCanBeInvited(
+            Organization organization,
+            User targetUser
+    ) {
+
+        if (memberRepository.existsByOrganizationIdAndUserId(
+                organization.getId(),
+                targetUser.getId()
+        )) {
+            throw new BadRequestException(
+                    "User is already a member"
+            );
+        }
+
+        if (organizationBanRepository.existsByOrganizationIdAndUserId(
+                organization.getId(),
+                targetUser.getId()
+        )) {
+            throw new ForbiddenException(
+                    "User is banned from this organization"
+            );
+        }
+    }
+
+    private void validateInviteRole(
+            Role role
+    ) {
+
+        if (role == Role.OWNER) {
+            throw new BadRequestException(
+                    "you can not use Role OWNER in invite"
+            );
+        }
+    }
+
+    private void validatePublicInviteRole(
+            Role role
+    ) {
+
+        if (role != null && role != Role.STUDENT) {
+            throw new BadRequestException(
+                    "Public invites can only be for students"
+            );
+        }
+    }
+
+    private void validateMaxUses(
+            Integer maxUses
+    ) {
+
+        if (maxUses != null && maxUses <= 0) {
+            throw new BadRequestException(
+                    "Max uses must be greater than 0"
+            );
+        }
     }
 }
 

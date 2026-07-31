@@ -49,7 +49,8 @@ public class CourseService {
 
     public CourseResponse getBySlug(
             String organizationSlug,
-            String courseSlug
+            String courseSlug,
+            User user
     ) {
 
         Organization organization =
@@ -66,7 +67,11 @@ public class CourseService {
                         );
 
         return courseMapper.toResponse(
-                course
+                course,
+                enrollmentFor(
+                        course.getId(),
+                        user
+                )
         );
     }
 
@@ -108,7 +113,8 @@ public class CourseService {
     public Page<CourseResponse> list(
 
             String organizationSlug,
-            Pageable pageable
+            Pageable pageable,
+            User user
     ) {
 
         Organization organization =
@@ -117,13 +123,17 @@ public class CourseService {
                                 organizationSlug
                         );
 
-        return courseRepository
+        Page<Course> courses = courseRepository
                 .findAllByOrganizationIdAndStatus(
                         organization.getId(),
                         CourseStatus.PUBLISHED,
                         pageable
-                )
-                .map(courseMapper::toResponse);
+                );
+
+        return toCourseResponses(
+                courses,
+                user
+        );
     }
 
     public Page<CourseResponse> getAll(
@@ -168,9 +178,12 @@ public class CourseService {
                 courseIds.isEmpty()
                         ? Map.of()
                         : courseEnrollmentRepository
-                                .findAllByUserIdAndStatusAndCourseIdIn(
+                                .findAllByUserIdAndStatusInAndCourseIdIn(
                                         user.getId(),
-                                        EnrollmentStatus.ACTIVE,
+                                        List.of(
+                                                EnrollmentStatus.ACTIVE,
+                                                EnrollmentStatus.COMPLETED
+                                        ),
                                         courseIds
                                 )
                                 .stream()
@@ -189,6 +202,23 @@ public class CourseService {
                         enrollmentsByCourseId.get(course.getId())
                 )
         );
+    }
+
+    private CourseEnrollment enrollmentFor(
+            Long courseId,
+            User user
+    ) {
+
+        return courseEnrollmentRepository
+                .findByUserIdAndCourseId(
+                        user.getId(),
+                        courseId
+                )
+                .filter(enrollment ->
+                        enrollment.getStatus() == EnrollmentStatus.ACTIVE
+                                || enrollment.getStatus() == EnrollmentStatus.COMPLETED
+                )
+                .orElse(null);
     }
 
 

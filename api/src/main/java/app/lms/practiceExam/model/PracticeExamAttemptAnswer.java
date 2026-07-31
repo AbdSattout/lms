@@ -29,16 +29,14 @@ public class PracticeExamAttemptAnswer extends BaseEntity implements GradableQui
             name = "practice_exam_attempt_answer_options",
             joinColumns = @JoinColumn(name = "attempt_answer_id")
     )
-    @Column(name = "option_value", nullable = false)
+    @Column(name = "option_value", nullable = false, columnDefinition = "TEXT")
     private List<String> options;
 
     @Column(nullable = false)
     private Integer correctAnswerIndex;
 
-    @Column(nullable = false)
     private Integer selectedAnswerIndex;
 
-    @Column(nullable = false)
     private Boolean correct;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -6,6 +6,7 @@ export interface BaseEntityResponse {
 export interface User {
   id: number
   name?: string
+  username?: string
   picture?: string
 }
 
@@ -32,7 +33,14 @@ export interface OrganizationResponse {
   image?: string
   visibility: OrganizationVisibility
   ownerName: string
+  membersCount: number
+  viewer?: OrganizationViewerResponse
   baseEntity?: BaseEntityResponse
+}
+
+export interface OrganizationViewerResponse {
+  joined: boolean
+  role?: Role
 }
 
 export type CourseStatus = "DRAFT" | "PUBLISHED"
@@ -52,6 +60,15 @@ export interface CourseEnrollmentResponse {
   completedAt?: string
 }
 
+export interface OrganizationSummaryResponse {
+  id: number
+  name: string
+  slug: string
+  description?: string
+  image?: string
+  visibility: OrganizationVisibility
+}
+
 export interface CourseResponse {
   id: number
   title: string
@@ -59,13 +76,14 @@ export interface CourseResponse {
   description?: string
   coverUrl?: string
   status: CourseStatus
+  organization: OrganizationSummaryResponse
   organizationName: string
   enrollment?: CourseEnrollmentResponse
   baseEntity?: BaseEntityResponse
 }
 
 export interface EnrollmentResponse {
-  courseId: number
+  courseId?: number | null
   courseTitle: string
   enrolledAt: string
   rewards?: GamificationAwardResponse[]
@@ -108,7 +126,7 @@ export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
 
 export interface QuestionResponse {
   id: number
-  courseId: number
+  courseId?: number | null
   content: string
   options: string[]
   correctAnswerIndex: number
@@ -126,11 +144,18 @@ export interface QuestionPublicResponse {
 export interface QuizResponse {
   id: number
   title: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
   baseEntity?: BaseEntityResponse
 }
+
+export type PostReactionType =
+  | "LIKE"
+  | "LOVE"
+  | "SUPPORT"
+  | "CELEBRATE"
+  | "INSIGHTFUL"
 
 export interface PostResponse {
   id: number
@@ -138,9 +163,11 @@ export interface PostResponse {
   content?: string
   author: AuthorResponse
   organizationId: number
-  courseId: number
-  likesCount: number
-  commentsCount: number
+  courseId?: number | null
+  likeCount: number
+  commentCount: number
+  reactionCounts: Record<PostReactionType, number>
+  viewerReaction?: PostReactionType
   baseEntity?: BaseEntityResponse
 }
 
@@ -165,7 +192,7 @@ export interface CourseMediaResponse {
   name: string
   url: string
   type: FileType
-  courseId: number
+  courseId?: number | null
   organizationMediaId?: number
   sizeBytes?: number
   baseEntity?: BaseEntityResponse
@@ -218,7 +245,7 @@ export interface ChapterDetailsResponse {
   id: number
   title: string
   position?: number
-  courseId: number
+  courseId?: number | null
   organizationId: number
   baseEntity?: BaseEntityResponse
 }
@@ -228,7 +255,7 @@ export interface LessonDetailsResponse {
   title: string
   position?: number
   chapterId: number
-  courseId: number
+  courseId?: number | null
   organizationId: number
   baseEntity?: BaseEntityResponse
 }
@@ -292,7 +319,7 @@ export interface StorageResponse {
 }
 
 export interface OrganizationOverviewResponse {
-  owner: UserResponse
+  owner: UserResponse & { username?: string }
   membersCount: number
   adminsCount: number
   studentsCount: number
@@ -325,11 +352,12 @@ export interface OrganizationInviteResponse {
   userName: string
   role: Role
   status: InviteStatus
+  token?: string
   invitedByName: string
   expiresAt: string
-  createdAt: string
   maxUses: number
   usedCount: number
+  organization?: OrganizationSummaryResponse
   baseEntity?: BaseEntityResponse
 }
 
@@ -356,6 +384,7 @@ export interface OrganizationMemberResponse {
 export interface UserResponse {
   id: number
   name: string
+  username?: string
   picture: string
 }
 
@@ -364,13 +393,6 @@ export interface JoinRequestResponse {
   status: JoinRequestStatus
   createdAt: string
   user: UserResponse
-}
-
-export interface UserSearchResponse {
-  id: number
-  name: string
-  picture: string
-  email: string
 }
 
 export interface PostMediaResponse {
@@ -402,7 +424,7 @@ export interface OrganizationMediaSummaryResponse {
 
 export interface FinalQuizResponse {
   quizId: number
-  courseId: number
+  courseId?: number | null
   difficulty?: QuestionDifficulty
   questions: QuestionPublicResponse[]
   baseEntity?: BaseEntityResponse
@@ -443,7 +465,7 @@ export interface PracticeQuizResponse {
   id: number
   title: string
   description?: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
   baseEntity?: BaseEntityResponse
@@ -453,7 +475,7 @@ export interface PracticeQuizSummaryResponse {
   id: number
   title: string
   description?: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questionCount: number
   baseEntity?: BaseEntityResponse
@@ -504,10 +526,13 @@ export interface CourseProgressResponse {
   completedAt?: string
 }
 
+export type RoadmapFollowStatus = "NOT_FOLLOWING" | "ACTIVE" | "COMPLETED"
+
 export interface RoadmapResponse {
   id: number
   organization: OrganizationResponse
   items: RoadmapItemResponse[]
+  followStatus?: RoadmapFollowStatus
   baseEntity?: BaseEntityResponse
 }
 
@@ -526,6 +551,7 @@ export interface PracticeExamResponse {
   id: number
   title: string
   description?: string
+  timeLimitMinutes?: number
   courseId: number
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
@@ -535,9 +561,44 @@ export interface PracticeExamResponse {
 export interface CreatePracticeExamRequest {
   title: string
   description?: string
+  timeLimitMinutes?: number
   questionIds: number[]
 }
 
 export interface UpdatePracticeExamQuestionsRequest {
   questionIds: number[]
+}
+
+export interface UserOverviewResponse {
+  organizationsCount: number
+  enrolledCoursesCount: number
+  completedCoursesCount: number
+  followingRoadmapsCount: number
+  completedRoadmapsCount: number
+  certificatesCount: number
+  totalXp: number
+  currentLevel: number
+  currentStreak: number
+  longestStreak: number
+}
+
+export interface CourseOverviewResponse {
+  enrollmentsCount: number
+  completedEnrollmentsCount: number
+  activeEnrollmentsCount: number
+  droppedEnrollmentsCount: number
+  chaptersCount: number
+  lessonsCount: number
+  blocksCount: number
+  questionsCount: number
+  certificatesCount: number
+}
+
+export interface CheckoutSessionResponse {
+  checkoutId: string
+  checkoutUrl: string
+}
+
+export interface CustomerPortalSessionResponse {
+  customerPortalUrl: string
 }

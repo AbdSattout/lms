@@ -14,6 +14,7 @@ export function CourseMediaClient({ orgSlug, course }: CourseMediaClientProps) {
       title={`وسائط ${course.title}`}
       orgSlug={orgSlug}
       course={course}
+      organizationId={course.organization.id}
     />
   )
 }

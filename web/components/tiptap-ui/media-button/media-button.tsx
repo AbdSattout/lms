@@ -22,6 +22,8 @@ export interface MediaButtonProps {
   onInserted?: () => void
   orgSlug?: string
   course?: CourseResponse
+  organizationId?: number
+  courseId?: number
 }
 
 export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
@@ -32,16 +34,21 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
       onInserted,
       orgSlug,
       course,
+      organizationId: orgIdProp,
+      courseId: courseIdProp,
     },
     ref
   ) => {
     const { editor } = useTiptapEditor(providedEditor)
+    const organizationId = orgIdProp ?? course?.organization.id ?? null
+    const courseId = courseIdProp ?? course?.id ?? null
+
     const { isVisible, canInsert, handleMediaInsert } = useMedia({
       editor,
       hideWhenUnavailable,
       onInserted,
-      orgSlug,
-      courseSlug: course?.slug ?? null,
+      organizationId,
+      courseId,
     })
     const [open, setOpen] = useState(false)
 
@@ -77,9 +84,10 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
             <DialogHeader>
               <DialogTitle>Select media</DialogTitle>
             </DialogHeader>
-            {orgSlug && (
+            {orgSlug && organizationId && (
               <MediaLibrary
                 orgSlug={orgSlug}
+                organizationId={organizationId}
                 course={course}
                 title="Media library"
                 dialog

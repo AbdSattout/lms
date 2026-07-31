@@ -195,6 +195,21 @@ export const invites = {
         }
       ),
   }),
+  accept: defineApiRoute({
+    post: (token: string, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/invites/accept?token=${token}`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
+
+  decline: defineApiRoute({
+    post: (token: string, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/invites/decline?token=${token}`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
   getMyInvites: defineApiRoute({
     get: (options?: BackendFetchOptions) =>
       backend<OrganizationInviteResponse[]>(
@@ -243,6 +258,10 @@ export const invites = {
   }),
 }
 
+function withPageable(path: string, pageable: PageableInput) {
+  return `${path}${toQueryString(pageable)}`
+}
+
 export const members = {
   list: defineApiRoute({
     get: (
@@ -251,41 +270,49 @@ export const members = {
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        `/dashboard/organizations/${slug}/members${toQueryString(pageable)}`,
+        withPageable(`/dashboard/organizations/${slug}/members`, pageable),
         { method: "GET", ...options }
       ),
   }),
-  // Add these new routes:
-  getOwners: defineApiRoute({
+  owners: defineApiRoute({
     get: (
       slug: string,
       pageable: PageableInput,
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        `/dashboard/organizations/${slug}/members/owners${toQueryString(pageable)}`,
+        withPageable(
+          `/dashboard/organizations/${slug}/members/owners`,
+          pageable
+        ),
         { method: "GET", ...options }
       ),
   }),
-  getAdmins: defineApiRoute({
+  admins: defineApiRoute({
     get: (
       slug: string,
       pageable: PageableInput,
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        `/dashboard/organizations/${slug}/members/admins${toQueryString(pageable)}`,
+        withPageable(
+          `/dashboard/organizations/${slug}/members/admins`,
+          pageable
+        ),
         { method: "GET", ...options }
       ),
   }),
-  getStudents: defineApiRoute({
+  students: defineApiRoute({
     get: (
       slug: string,
       pageable: PageableInput,
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        `/dashboard/organizations/${slug}/members/students${toQueryString(pageable)}`,
+        withPageable(
+          `/dashboard/organizations/${slug}/members/students`,
+          pageable
+        ),
         { method: "GET", ...options }
       ),
   }),
@@ -319,13 +346,10 @@ export const joinRequests = {
     }),
     accept: defineApiRoute({
       post: (slug: string, id: number, options?: BackendFetchOptions) =>
-        backend<void>(
-          `/dashboard/organizations/${slug}/join-requests/${id}/accept`,
-          {
-            method: "POST",
-            ...options,
-          }
-        ),
+        backend<void>(`/dashboard/organizations/${slug}/join-requests/${id}`, {
+          method: "POST",
+          ...options,
+        }),
     }),
     reject: defineApiRoute({
       post: (slug: string, id: number, options?: BackendFetchOptions) =>

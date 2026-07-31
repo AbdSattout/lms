@@ -3,7 +3,6 @@ package app.lms.post.service;
 import app.lms.common.exception.NotFoundException;
 import app.lms.post.dto.CommentResponse;
 import app.lms.post.dto.CreateCommentRequest;
-import app.lms.post.mapper.CommentMapper;
 import app.lms.post.model.Comment;
 import app.lms.post.model.Post;
 import app.lms.post.repository.CommentRepository;
@@ -13,14 +12,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
     private final CommentRepository commentRepository;
-    private final CommentMapper commentMapper;
+    private final CommentResponseService commentResponseService;
     private final PostAccessService postAccessService;
     private final CommentAccessService commentAccessService;
     private final PostService postService;
@@ -36,6 +34,12 @@ public class CommentService {
                 postService.findPostById(
                         postId
                 );
+
+        postAccessService.validateInteractionAccess(
+                post,
+                user
+        );
+
         if (post.getCommentsCount() == null) {
             post.setCommentsCount(0L);
         }
@@ -65,6 +69,7 @@ public class CommentService {
                         .author(user)
                         .post(post)
                         .parent(parent)
+                        .likesCount(0L)
                         .build();
 
         commentRepository.save(
@@ -75,8 +80,9 @@ public class CommentService {
                 post.getCommentsCount() + 1
         );
 
-        return commentMapper.toResponse(
-                comment
+        return commentResponseService.build(
+                comment,
+                user
         );
     }
 
@@ -135,10 +141,10 @@ public class CommentService {
                 user
         );
 
-        return commentRepository
-                .findByPostIdOrderByCreatedAtAsc(postId)
-                .stream()
-                .map(commentMapper::toResponse)
-                .toList();
+        return commentResponseService.buildList(
+                commentRepository
+                        .findByPostIdOrderByCreatedAtAsc(postId),
+                user
+        );
     }
 }

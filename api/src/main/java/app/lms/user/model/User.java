@@ -18,6 +18,7 @@ public class User {
     private Long id;
     private String name;
     private String username;
+    @Column(columnDefinition = "TEXT")
     private String picture;
     private String pictureFileId;
     private String email;
