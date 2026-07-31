@@ -3,10 +3,13 @@ package app.lms.course.service;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.CourseBan.repository.CourseBanRepository;
+import app.lms.course.CourseBan.repository.CourseModerationRepository;
 import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
+import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,8 @@ public class CourseAccessService {
             organizationMemberAccessService;
 
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
+    private final CourseModerationRepository courseModerationRepository;
+    private final CourseBanRepository courseBanRepository;
 
     public Course getById(
             Long courseId
@@ -298,12 +303,33 @@ public class CourseAccessService {
     ) {
 
         if (
-                course.getStatus() ==
-                        CourseStatus.BANNED
+                courseModerationRepository.existsByCourseId(
+                        course.getId()
+                )
         ) {
 
             throw new ForbiddenException(
                     "This course has been banned."
+            );
+
+        }
+
+    }
+
+    public void validateUserNotBannedFromCourse(
+            Course course,
+            User user
+    ) {
+
+        if (
+                courseBanRepository.existsByCourseIdAndUserId(
+                        course.getId(),
+                        user.getId()
+                )
+        ) {
+
+            throw new ForbiddenException(
+                    "This user has been banned from this course"
             );
 
         }

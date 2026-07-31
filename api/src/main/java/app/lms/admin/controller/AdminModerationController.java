@@ -130,6 +130,10 @@ public class AdminModerationController {
             @PathVariable
             Long courseId,
 
+            @RequestBody
+            @Valid
+            BanRequest request,
+
             @AuthenticationPrincipal
             AdminPrincipal admin
 
@@ -137,6 +141,7 @@ public class AdminModerationController {
 
         moderationService.banCourse(
                 courseId,
+                request,
                 admin.getId()
         );
 
@@ -157,6 +162,51 @@ public class AdminModerationController {
 
         moderationService.unbanCourse(
                 courseId,
+                admin.getId()
+        );
+
+        return ResponseEntity.ok()
+                .build();
+    }
+
+    @PostMapping("/organizations/{organizationId}//ban")
+    public ResponseEntity<Void> banOrganization(
+
+            @PathVariable
+            Long organizationId,
+
+            @RequestBody
+            @Valid
+            BanRequest request,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        moderationService.banOrganization(
+                organizationId,
+                request,
+                admin.getId()
+        );
+
+        return ResponseEntity.ok()
+                .build();
+    }
+
+    @PostMapping("/organizations/{organizationId}//ban")
+    public ResponseEntity<Void> unbanOrganization(
+
+            @PathVariable
+            Long organizationId,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        moderationService.unbanOrganization(
+                organizationId,
                 admin.getId()
         );
 

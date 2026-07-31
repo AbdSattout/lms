@@ -7,11 +7,15 @@ import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.course.CourseBan.model.CourseBan;
+import app.lms.course.CourseBan.model.CourseModeration;
 import app.lms.course.CourseBan.repository.CourseBanRepository;
+import app.lms.course.CourseBan.repository.CourseModerationRepository;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.OrganizationBan.model.OrganizationBan;
+import app.lms.organization.OrganizationBan.model.OrganizationModeration;
 import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
+import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
@@ -31,6 +35,8 @@ public class AdminModerationAccessService {
     private final OrganizationBanRepository organizationBanRepository;
     private final CourseBanRepository courseBanRepository;
     private final OrganizationMemberRepository organizationMemberRepository;
+    private final CourseModerationRepository courseModerationRepository;
+    private final OrganizationModerationRepository organizationModerationRepository;
 
     public User getUser(
             Long userId
@@ -183,6 +189,70 @@ public class AdminModerationAccessService {
                 .ifPresent(
                         organizationMemberRepository::delete
                 );
+
+    }
+
+    public CourseModeration getCourseModerationBan(
+            Course course
+    ) {
+
+        return courseModerationRepository
+                .findByCourseId(
+                        course.getId()
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Ban not found"
+                        )
+                );
+    }
+
+    public void validateCourseModerationNotBanned(
+            Course course
+    ) {
+
+        if (
+                courseModerationRepository.existsByCourseId(
+                        course.getId()
+                )
+        ) {
+
+            throw new BadRequestException(
+                    "Course is already banned "
+            );
+        }
+
+    }
+
+    public OrganizationModeration getOrganizationModerationBan(
+            Organization organization
+    ) {
+
+        return organizationModerationRepository
+                .findByOrganizationId(
+                        organization.getId()
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Ban not found"
+                        )
+                );
+    }
+
+    public void validateOrganizationModerationNotBanned(
+            Organization organization
+    ) {
+
+        if (
+                organizationModerationRepository.existsByOrganizationId(
+                        organization.getId()
+                )
+        ) {
+
+            throw new BadRequestException(
+                    "Organization is already banned "
+            );
+        }
 
     }
 

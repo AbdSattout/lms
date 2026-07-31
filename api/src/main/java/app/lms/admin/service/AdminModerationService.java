@@ -4,12 +4,16 @@ import app.lms.admin.dto.BanRequest;
 import app.lms.admin.model.Admin;
 import app.lms.common.exception.BadRequestException;
 import app.lms.course.CourseBan.model.CourseBan;
+import app.lms.course.CourseBan.model.CourseModeration;
 import app.lms.course.CourseBan.repository.CourseBanRepository;
+import app.lms.course.CourseBan.repository.CourseModerationRepository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.organization.OrganizationBan.model.OrganizationBan;
+import app.lms.organization.OrganizationBan.model.OrganizationModeration;
 import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
+import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
@@ -27,6 +31,9 @@ public class AdminModerationService {
     private final CourseBanRepository courseBanRepository;
 
     private final CourseEnrollmentService courseEnrollmentService;
+
+    private final CourseModerationRepository courseModerationRepository;
+    private final OrganizationModerationRepository organizationModerationRepository;
 
     public void banFromOrganization(
             Long organizationId,
@@ -203,6 +210,7 @@ public class AdminModerationService {
 
     public void banCourse(
             Long courseId,
+            BanRequest request,
             Long adminId
     ){
         Admin admin =
@@ -212,14 +220,24 @@ public class AdminModerationService {
 
         accessService.validateAdmin(admin);
 
+
         Course course =
                 accessService.getCourse(
                         courseId
                 );
 
-        course.setStatus(
-                CourseStatus.BANNED
+        accessService.validateCourseModerationNotBanned(
+                course
         );
+
+        courseModerationRepository.save(
+                CourseModeration.builder()
+                        .course(course)
+                        .bannedBy(admin)
+                        .reason(request.reason())
+                        .build()
+        );
+
     }
 
     public void unbanCourse(
@@ -238,14 +256,73 @@ public class AdminModerationService {
                         courseId
                 );
 
-        if (course.getStatus() != CourseStatus.BANNED)
-            throw new BadRequestException(
-                    "course is already not banned "
-            );
+        CourseModeration ban =
+                accessService.getCourseModerationBan(
+                        course
+                );
 
-        course.setStatus(
-                CourseStatus.DRAFT
+        courseModerationRepository.delete(
+                ban
         );
+
+    }
+
+    public void banOrganization(
+            Long organizationId,
+            BanRequest request,
+            Long adminId
+    ){
+        Admin admin =
+                accessService.getAdmin(
+                        adminId
+                );
+
+        accessService.validateAdmin(admin);
+
+        Organization organization =
+                accessService.getOrganization(
+                        organizationId
+                );
+
+        accessService.validateOrganizationModerationNotBanned(
+                organization
+        );
+
+        organizationModerationRepository.save(
+                OrganizationModeration.builder()
+                        .organization(organization)
+                        .bannedBy(admin)
+                        .reason(request.reason())
+                        .build()
+        );
+
+    }
+
+    public void unbanOrganization(
+            Long organizationId,
+            Long adminId
+    ){
+        Admin admin =
+                accessService.getAdmin(
+                        adminId
+                );
+
+        accessService.validateAdmin(admin);
+
+        Organization organization =
+                accessService.getOrganization(
+                        organizationId
+                );
+
+        OrganizationModeration ban =
+                accessService.getOrganizationModerationBan(
+                        organization
+                );
+
+        organizationModerationRepository.delete(
+                ban
+        );
+
     }
 
 
