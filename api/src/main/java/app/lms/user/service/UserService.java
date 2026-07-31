@@ -19,6 +19,7 @@ import app.lms.user.dto.CurrentUserResponse;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.media.enums.FileType;
+import app.lms.user.mapper.CurrentUserMapper;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
@@ -50,13 +51,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final MediaService mediaService;
     private final UserMapper userMapper;
-    private final UserMapper mapper;
     private final LevelRepository levelRepository;
     private final UserProgressRepository userProgressRepository;
     private final UserPlanService userPlanService;
     private final UserPlanMapper userPlanMapper;
     private final PolarSubscriptionRepository polarSubscriptionRepository;
     private final SubscriptionMapper subscriptionMapper;
+    private final CurrentUserMapper currentUserMapper;
 
     @Transactional
     public UserResponse updatePicture(
@@ -142,11 +143,8 @@ public class UserService {
                                 .getCode() == PlanCode.PREMIUM
                 );
 
-        return new CurrentUserResponse(
-                user.getId(),
-                user.getName(),
-                user.getUsername(),
-                user.getPicture(),
+        return currentUserMapper.toResponse(
+                user,
                 plan,
                 polarSubscriptionRepository
                         .findFirstByUserIdOrderByCreatedAtDesc(userId)
@@ -522,7 +520,7 @@ public class UserService {
                 )
                 .stream()
                 .map(row ->
-                        mapper.toProfileResponse(
+                        userMapper.toProfileResponse(
                                 row.getUser(),
                                 row.getProfile()
                         )
