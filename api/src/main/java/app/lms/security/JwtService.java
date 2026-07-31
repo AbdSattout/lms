@@ -122,7 +122,6 @@ public class JwtService {
             }
 
         } catch (DecodingException ignored) {
-            // Fall back to raw text secrets for deployments that set JWT_SECRET as a normal string.
         }
 
         byte[] rawKey =
