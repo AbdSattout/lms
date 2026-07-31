@@ -195,6 +195,21 @@ export const invites = {
         }
       ),
   }),
+  accept: defineApiRoute({
+    post: (token: string, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/invites/accept?token=${token}`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
+
+  decline: defineApiRoute({
+    post: (token: string, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/invites/decline?token=${token}`, {
+        method: "POST",
+        ...options,
+      }),
+  }),
   getMyInvites: defineApiRoute({
     get: (options?: BackendFetchOptions) =>
       backend<OrganizationInviteResponse[]>(

@@ -27,18 +27,12 @@ export async function updatePost(
 
     revalidatePath(`/${orgSlug}/posts/${postId}`)
 
-    // 3. Revalidate the edit page (in case the user returns to it later, they get the freshest data)
     revalidatePath(`/${orgSlug}/posts/${postId}/edit`)
-
-    // You can also use layout revalidation to sweep all nested paths in one line if preferred:
-    // revalidatePath(`/${orgSlug}/posts`, 'layout')
 
     return post
   } catch (error) {
-    // Log the error securely on your server so you know exactly why it failed
     console.error("[SERVER ACTION ERROR - updatePost]:", error)
 
-    // Throw an error string so your Frontend Try/Catch in the form detects the failure correctly!
     throw new Error("فشل تعديل المنشور. تحقق من البيانات المدخلة.")
   }
 }

@@ -357,6 +357,7 @@ export interface OrganizationInviteResponse {
   expiresAt: string
   maxUses: number
   usedCount: number
+  organization?: OrganizationSummaryResponse
   baseEntity?: BaseEntityResponse
 }
 
