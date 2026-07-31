@@ -13,12 +13,6 @@ declare module "@tiptap/react" {
   }
 }
 
-interface MediaNodeAttrs {
-  organizationId: number | null
-  courseId: number | null
-  mediaId: number | null
-}
-
 export const MediaNode = Node.create({
   name: "media",
 
