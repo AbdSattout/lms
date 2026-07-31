@@ -93,10 +93,7 @@ public class AuthService {
         User user =
                 userService.getOrCreateEmailUser(email);
 
-        AuthResponse response =
-                createAuthResponse(user);
-
-        return response;
+        return createAuthResponse(user);
     }
 
     private AuthResponse loginWithProvider(
