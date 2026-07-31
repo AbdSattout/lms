@@ -38,8 +38,6 @@ export function useMedia(config?: {
   editor?: Editor | null
   hideWhenUnavailable?: boolean
   onInserted?: () => void
-  orgSlug?: string | null
-  courseSlug?: string | null
   organizationId?: number | null
   courseId?: number | null
 }) {
@@ -47,8 +45,6 @@ export function useMedia(config?: {
     editor: providedEditor,
     hideWhenUnavailable = false,
     onInserted,
-    orgSlug,
-    courseSlug,
     organizationId,
     courseId,
   } = config || {}

@@ -2,7 +2,7 @@ import "server-only"
 
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
-import type { User, UserSearchResponse } from "@/lib/api/types"
+import type { ProfileResponse, User } from "@/lib/api/types"
 import type { UpdateUserInput } from "@/lib/validation"
 
 export const me = defineApiRoute({
@@ -35,8 +35,8 @@ export const picture = defineApiRoute({
 
 export const search = defineApiRoute({
   get: (q: string, options?: BackendFetchOptions) =>
-    backend<UserSearchResponse[]>(
-      `/users/search?q=${encodeURIComponent(q)}`,
-      { method: "GET", ...options }
-    ),
+    backend<ProfileResponse[]>(`/users/search?q=${encodeURIComponent(q)}`, {
+      method: "GET",
+      ...options,
+    }),
 })

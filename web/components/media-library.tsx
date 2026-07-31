@@ -96,7 +96,7 @@ export function MediaLibrary({
     } finally {
       setLoading(false)
     }
-  }, [orgSlug, course, isCourse, page])
+  }, [orgSlug, organizationId, course, isCourse, page])
 
   useEffect(() => {
     if (dialog) {

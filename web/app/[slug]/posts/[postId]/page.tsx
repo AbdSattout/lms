@@ -15,7 +15,7 @@ async function PostDetailSection({
   postId: number
 }) {
   const [post, comments] = await Promise.all([
-    api.dashboard.posts.byId.get(postId).catch(() => null),
+    api.dashboard.posts.byId.get(slug, postId).catch(() => null),
     api.dashboard.posts.comments.get(postId).catch(() => []),
   ])
 

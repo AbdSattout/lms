@@ -23,10 +23,8 @@ export async function updatePost(
   try {
     const post = await api.dashboard.posts.byId.patch(postId, input)
 
-    // 1. Revalidate the posts list page
     revalidatePath(`/${orgSlug}/posts`)
 
-    // 2. Revalidate the individual post view page
     revalidatePath(`/${orgSlug}/posts/${postId}`)
 
     // 3. Revalidate the edit page (in case the user returns to it later, they get the freshest data)
@@ -60,8 +58,8 @@ export async function getPostsByOrg(slug: string, pageable: PageableInput) {
   return api.dashboard.posts.byOrg.get(slug, pageable)
 }
 
-export async function getPostById(postId: number) {
-  return api.dashboard.posts.byId.get(postId)
+export async function getPostById(postId: number, slug: string) {
+  return api.dashboard.posts.byId.get(slug, postId)
 }
 
 export async function getCommentsByPost(postId: number) {

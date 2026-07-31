@@ -1,5 +1,6 @@
 package app.lms.organization.controller;
 
+import app.lms.admin.dto.BanRequest;
 import app.lms.organization.dto.CreateOrganizationRequest;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
@@ -222,5 +223,24 @@ public class DashboardOrganizationController {
                         principal.user()
                 )
         );
+    }
+    @DeleteMapping("/{slug}/members/{memberId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable String slug,
+            @PathVariable Long memberId,
+            @RequestBody
+            @Valid
+            BanRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardOrganizationService.removeMember(
+                slug,
+                memberId,
+                request,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

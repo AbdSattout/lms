@@ -34,8 +34,8 @@ import { toast } from "sonner"
 
 import {
   Role,
-  UserSearchResponse,
   OrganizationInviteResponse,
+  ProfileResponse,
 } from "@/lib/api/types"
 import { useDebounce } from "@/hooks/use-debounce"
 import {
@@ -105,11 +105,9 @@ export function AddMemberForm({ slug, role, onBack }: AddMemberFormProps) {
 
 function SpecificInviteForm({ slug, role, onBack }: AddMemberFormProps) {
   const [query, setQuery] = useState("")
-  const [results, setResults] = useState<UserSearchResponse[]>([])
+  const [results, setResults] = useState<ProfileResponse[]>([])
   const [loading, setLoading] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<UserSearchResponse | null>(
-    null
-  )
+  const [selectedUser, setSelectedUser] = useState<ProfileResponse | null>(null)
   const [inviting, setInviting] = useState(false)
   const [invited, setInvited] = useState(false)
 
@@ -141,7 +139,7 @@ function SpecificInviteForm({ slug, role, onBack }: AddMemberFormProps) {
     setInviting(true)
     try {
       const response = await createInvite(slug, {
-        userId: selectedUser.id,
+        userId: selectedUser.user.id,
         role: role,
       })
 
@@ -218,12 +216,12 @@ function SpecificInviteForm({ slug, role, onBack }: AddMemberFormProps) {
               <div className="space-y-1">
                 {results.map((user) => (
                   <div
-                    key={user.id}
+                    key={user.user.id}
                     onClick={() => setSelectedUser(user)}
                     className="flex cursor-pointer items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
                   >
                     <Avatar className="h-10 w-10 shrink-0">
-                      <AvatarImage src={user.picture} alt={user.name} />
+                      <AvatarImage src={user.user.picture} alt={user.name} />
                       <AvatarFallback>
                         {user.name?.charAt(0) || "?"}
                       </AvatarFallback>
@@ -249,7 +247,10 @@ function SpecificInviteForm({ slug, role, onBack }: AddMemberFormProps) {
         <div className="flex h-full flex-col justify-center space-y-6">
           <div className="flex items-center gap-4 rounded-lg border bg-muted p-4 shadow-sm">
             <Avatar className="h-16 w-16 shrink-0">
-              <AvatarImage src={selectedUser.picture} alt={selectedUser.name} />
+              <AvatarImage
+                src={selectedUser.user.picture}
+                alt={selectedUser.user.name}
+              />
               <AvatarFallback>
                 {selectedUser.name?.charAt(0) || "?"}
               </AvatarFallback>

@@ -1,6 +1,11 @@
 import "server-only"
 
-import { login } from "@/lib/api/auth"
+import {
+  loginWithEmailOtp,
+  loginWithGoogle,
+  loginWithTelegram,
+  requestEmailOtp,
+} from "@/lib/api/auth"
 import {
   byId as blocksById,
   byLesson as blocksByLesson,
@@ -9,19 +14,10 @@ import {
   reorder as reorderBlocks,
 } from "@/lib/api/blocks"
 import {
-  byId as chaptersById,
   getLessons as chapterLessons,
+  byId as chaptersById,
 } from "@/lib/api/chapters"
-import {
-  checkout,
-  portal,
-  revoke,
-} from "@/lib/api/billing"
-import {
-  userDashboard,
-  organizationDashboard,
-} from "@/lib/api/analytics"
-import { overview } from "@/lib/api/org-overview"
+import { checkout, portal, revoke } from "@/lib/api/billing"
 import {
   chapters,
   byId as coursesById,
@@ -34,6 +30,7 @@ import {
   reorder as reorderLessons,
 } from "@/lib/api/lessons"
 import { byCourse, byId as mediaById } from "@/lib/api/media"
+
 import {
   bySlug,
   checkCourseSlugAvailability,
@@ -46,6 +43,7 @@ import {
   list,
   members,
 } from "@/lib/api/organizations"
+import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
   comments,
   deleteComment,
@@ -54,26 +52,27 @@ import {
   byId as postsById,
   byOrg as postsByOrg,
 } from "@/lib/api/posts"
-import { create, me as profileMe } from "@/lib/api/profile"
-import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
 import {
-  byId as practiceQuizById,
   create as createPracticeQuiz,
   deleteQuiz as deletePracticeQuiz,
   list as listPracticeQuizzes,
+  byId as practiceQuizById,
   updateQuestions as updatePracticeQuizQuestions,
 } from "@/lib/api/practice-quizzes"
 import {
-  byId as practiceExamById,
   create as createPracticeExam,
   deleteExam as deletePracticeExam,
   list as listPracticeExams,
+  byId as practiceExamById,
   updateQuestions as updatePracticeExamQuestions,
 } from "@/lib/api/practice-exams"
+import { create, me as profileMe } from "@/lib/api/profile"
+
+import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
 import {
-  byId as roadmapById,
   create as createRoadmap,
   list as listRoadmaps,
+  byId as roadmapById,
 } from "@/lib/api/roadmap"
 import {
   byCourse as questionsByCourse,
@@ -94,7 +93,10 @@ import {
 
 export const api = {
   auth: {
-    login,
+    loginWithTelegram,
+    loginWithGoogle,
+    requestEmailOtp,
+    loginWithEmailOtp,
   },
   organizations: {
     list,
@@ -129,12 +131,12 @@ export const api = {
       invites,
       members: {
         list: members.list,
-        getOwners: members.getOwners,
-        getAdmins: members.getAdmins,
-        getStudents: members.getStudents,
+        getOwners: members.owners,
+        getAdmins: members.admins,
+        getStudents: members.students,
       },
       joinRequests: joinRequests.dashboard,
-      overview: overview,
+      overview: orgOverview,
     },
     courses: {
       byId: coursesById,
@@ -208,12 +210,8 @@ export const api = {
       generateQuestionFromBlock,
       transformText,
     },
-        analytics: {
-      user: userDashboard,
-      organization: organizationDashboard,
-    },
   },
-    billing: {
+  billing: {
     checkout,
     portal,
     revoke,

@@ -21,8 +21,18 @@ export const createQuestionSchema = z.object({
 })
 export type CreateQuestionInput = z.infer<typeof createQuestionSchema>
 
+export const usernameSchema = z
+  .string()
+  .min(3, "اسم المستخدم يجب أن يكون 3 أحرف على الأقل")
+  .max(30, "اسم المستخدم طويل جداً")
+  .regex(
+    /^[a-z0-9_]+$/,
+    "اسم المستخدم يجب أن يحتوي على أحرف إنجليزية صغيرة وأرقام وشرطة سفلية فقط"
+  )
+
 export const updateUserSchema = z.object({
   name: z.string().min(1, "الاسم مطلوب").optional(),
+  username: usernameSchema.optional(),
 })
 export type UpdateUserInput = z.infer<typeof updateUserSchema>
 

@@ -16,6 +16,9 @@ export function LoginButton() {
   const handleLogin = async () => {
     try {
       setIsSubmitting(true)
+      try {
+        await authClient.signOut()
+      } catch {} // ignore sign-out errors; the sign-in flow will replace the session
       await authClient.signIn.oauth2({
         providerId: "telegram",
         callbackURL: `/api/auth/exchange?callbackUrl=${encodeURIComponent(callbackUrl)}`,

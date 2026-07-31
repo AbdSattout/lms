@@ -266,7 +266,10 @@ export const members = {
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        withPageable(`/dashboard/organizations/${slug}/members/owners`, pageable),
+        withPageable(
+          `/dashboard/organizations/${slug}/members/owners`,
+          pageable
+        ),
         { method: "GET", ...options }
       ),
   }),
@@ -277,7 +280,10 @@ export const members = {
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        withPageable(`/dashboard/organizations/${slug}/members/admins`, pageable),
+        withPageable(
+          `/dashboard/organizations/${slug}/members/admins`,
+          pageable
+        ),
         { method: "GET", ...options }
       ),
   }),
@@ -288,7 +294,10 @@ export const members = {
       options?: BackendFetchOptions
     ) =>
       backend<PageOrganizationMemberResponse>(
-        withPageable(`/dashboard/organizations/${slug}/members/students`, pageable),
+        withPageable(
+          `/dashboard/organizations/${slug}/members/students`,
+          pageable
+        ),
         { method: "GET", ...options }
       ),
   }),
@@ -322,13 +331,10 @@ export const joinRequests = {
     }),
     accept: defineApiRoute({
       post: (slug: string, id: number, options?: BackendFetchOptions) =>
-        backend<void>(
-          `/dashboard/organizations/${slug}/join-requests/${id}/accept`,
-          {
-            method: "POST",
-            ...options,
-          }
-        ),
+        backend<void>(`/dashboard/organizations/${slug}/join-requests/${id}`, {
+          method: "POST",
+          ...options,
+        }),
     }),
     reject: defineApiRoute({
       post: (slug: string, id: number, options?: BackendFetchOptions) =>
