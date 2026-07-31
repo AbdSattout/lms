@@ -29,7 +29,7 @@ public class FinalQuizAttemptAnswer extends BaseEntity implements GradableQuizQu
             name = "final_quiz_attempt_answer_options",
             joinColumns = @JoinColumn(name = "attempt_answer_id")
     )
-    @Column(name = "option_value", nullable = false)
+    @Column(name = "option_value", nullable = false, columnDefinition = "TEXT")
     private List<String> options;
 
     @Column(nullable = false)

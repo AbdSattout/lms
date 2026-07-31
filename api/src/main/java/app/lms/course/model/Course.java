@@ -40,6 +40,7 @@ public class Course extends BaseEntity {
     @Column(nullable = false )
     private String slug;
 
+    @Column(columnDefinition = "TEXT")
     private String coverUrl;
 
     private String coverFileId;
@@ -51,7 +52,7 @@ public class Course extends BaseEntity {
     )
     private List<Chapter> chapters;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

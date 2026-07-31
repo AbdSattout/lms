@@ -26,9 +26,10 @@ public class Organization extends BaseEntity {
     @Column(nullable = false , unique = true)
     private String slug;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     private String imageFileId;

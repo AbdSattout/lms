@@ -29,7 +29,7 @@ public class RandomQuizAttemptQuestion extends BaseEntity implements GradableQui
             name = "random_quiz_attempt_question_options",
             joinColumns = @JoinColumn(name = "attempt_question_id")
     )
-    @Column(name = "option_value", nullable = false)
+    @Column(name = "option_value", nullable = false, columnDefinition = "TEXT")
     private List<String> options;
 
     @Column(nullable = false)
