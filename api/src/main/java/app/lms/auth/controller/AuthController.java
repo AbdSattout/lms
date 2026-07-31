@@ -30,6 +30,16 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody @Valid LoginRequest loginRequest
+    ) {
+        AuthResponse response =
+                authService.loginWithTelegram(loginRequest);
+
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/login/google")
     public ResponseEntity<AuthResponse> loginWithGoogle(
             @RequestBody @Valid LoginRequest loginRequest

@@ -6,7 +6,7 @@ import type { AuthResponse } from "@/lib/api/types"
 
 export const login = defineApiRoute({
   post: (idToken: string) =>
-    backend<AuthResponse>("/auth/login/telegram", {
+    backend<AuthResponse>("/auth/login", {
       method: "POST",
       body: { idToken },
       requireAuth: false,
