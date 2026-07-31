@@ -7,6 +7,7 @@ import app.lms.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,75 +19,138 @@ public class FriendController {
     private final FriendService friendService;
 
     @PostMapping("/requests/{userId}")
-    public void sendRequest(
+    public ResponseEntity<Void> sendRequest(
+
             @PathVariable Long userId,
-            @AuthenticationPrincipal UserPrincipal user
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        friendService.sendRequest(userId, user.user());
+
+        friendService.sendRequest(
+                userId,
+                principal.user()
+        );
+
+        return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/requests/{id}/accept")
-    public void accept(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserPrincipal user
+    @PatchMapping("/requests/{requestId}/accept")
+    public ResponseEntity<Void> accept(
+
+            @PathVariable Long requestId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        friendService.accept(id, user.user());
+
+        friendService.accept(
+                requestId,
+                principal.user()
+        );
+
+        return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/requests/{id}/reject")
-    public void reject(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserPrincipal user
+    @PatchMapping("/requests/{requestId}/reject")
+    public ResponseEntity<Void> reject(
+
+            @PathVariable Long requestId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        friendService.reject(id, user.user());
+
+        friendService.reject(
+                requestId,
+                principal.user()
+        );
+
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/requests/{id}")
-    public void cancel(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserPrincipal user
+    @DeleteMapping("/requests/{requestId}")
+    public ResponseEntity<Void> cancel(
+
+            @PathVariable Long requestId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        friendService.cancel(id, user.user());
+
+        friendService.cancel(
+                requestId,
+                principal.user()
+        );
+
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{friendId}")
-    public void removeFriend(
+    public ResponseEntity<Void> removeFriend(
+
             @PathVariable Long friendId,
-            @AuthenticationPrincipal UserPrincipal user
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        friendService.removeFriend(friendId, user.user());
+
+        friendService.removeFriend(
+                friendId,
+                principal.user()
+        );
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public Page<FriendResponse> getFriends(
-            @AuthenticationPrincipal UserPrincipal user,
-            Pageable pageable
+    public ResponseEntity<Page<FriendResponse>> getFriends(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        return friendService.getFriends(
-                user.user(),
-                pageable
+
+        return ResponseEntity.ok(
+                friendService.getFriends(
+                        principal.user(),
+                        pageable
+                )
         );
     }
 
     @GetMapping("/requests/received")
-    public Page<FriendRequestResponse> getReceivedRequests(
-            @AuthenticationPrincipal UserPrincipal user,
-            Pageable pageable
+    public ResponseEntity<Page<FriendRequestResponse>> getReceivedRequests(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        return friendService.getReceivedRequests(
-                user.user(),
-                pageable
+
+        return ResponseEntity.ok(
+                friendService.getReceivedRequests(
+                        principal.user(),
+                        pageable
+                )
         );
     }
 
     @GetMapping("/requests/sent")
-    public Page<FriendRequestResponse> getSentRequests(
-            @AuthenticationPrincipal UserPrincipal user,
-            Pageable pageable
+    public ResponseEntity<Page<FriendRequestResponse>> getSentRequests(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
     ) {
-        return friendService.getSentRequests(
-                user.user(),
-                pageable
+
+        return ResponseEntity.ok(
+                friendService.getSentRequests(
+                        principal.user(),
+                        pageable
+                )
         );
     }
 
