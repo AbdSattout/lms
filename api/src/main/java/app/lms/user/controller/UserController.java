@@ -4,6 +4,7 @@ package app.lms.user.controller;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.security.UserPrincipal;
+import app.lms.user.dto.CurrentUserResponse;
 import app.lms.user.dto.ProfileResponse;
 import app.lms.user.service.UserService;
 import jakarta.validation.Valid;
@@ -57,12 +58,12 @@ public class UserController {
 
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(
+    public ResponseEntity<CurrentUserResponse> getCurrentUser(
             @AuthenticationPrincipal
             UserPrincipal userPrincipal
     ) {
 
-        UserResponse user =
+        CurrentUserResponse user =
                 userService.getCurrentUser(
                         userPrincipal.getId()
                 );
