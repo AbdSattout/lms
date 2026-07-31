@@ -66,4 +66,18 @@ public class OrganizationJoinRequestController {
         joinRequestService.rejectRequest(slug, id, principal.user());
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("organizations/{slug}/join")
+    public ResponseEntity<Void> join(
+            @PathVariable String slug,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        joinRequestService.join(
+                slug,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
 }

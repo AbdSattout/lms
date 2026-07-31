@@ -1,6 +1,7 @@
 package app.lms.organization.organizationInvite.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
+import app.lms.organization.model.Organization;
 import app.lms.organization.organizationInvite.enums.InviteStatus;
 import app.lms.organization.enums.Role;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class OrganizationInviteResponse {
     private Role role;
     private InviteStatus status;
     private String token;
+    private Organization organization;
     private String invitedByName;
     private LocalDateTime expiresAt;
     private Integer maxUses;

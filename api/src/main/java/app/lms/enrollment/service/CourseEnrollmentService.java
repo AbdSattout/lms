@@ -5,6 +5,7 @@ import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.CourseBan.repository.CourseBanRepository;
 import app.lms.enrollment.dto.EnrollmentResponse;
 import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.enrollment.model.CourseEnrollment;
@@ -61,6 +62,8 @@ public class CourseEnrollmentService {
 
     private final RoadmapFollowProgressService roadmapFollowProgressService;
 
+    private final CourseBanRepository courseBanRepository;
+
     @Transactional
     @ConsumesPlanUsage(PlanUsageType.COURSE_ENROLLMENT)
     public EnrollmentResponse enroll(
@@ -76,6 +79,15 @@ public class CourseEnrollmentService {
                                         "Course not found"
                                 )
                         );
+
+        if (courseBanRepository.existsByCourseIdAndUserId(
+                course.getId(),
+                user.getId())) {
+
+            throw new ForbiddenException(
+                    "You are banned from this course."
+            );
+        }
 
         if (course.getStatus() != CourseStatus.PUBLISHED) {
             throw new ConflictException(
@@ -117,52 +129,12 @@ public class CourseEnrollmentService {
             );
         }
 
-        if (organization.getVisibility() != Visibility.PUBLIC) {
-
             if (!member) {
-                boolean pending =
-                        joinRequestRepository
-                                .existsByOrganizationIdAndUserIdAndStatus(
-                                        organization.getId(),
-                                        user.getId(),
-                                        JoinRequestStatus.PENDING
-                                );
-
-                if (pending) {
-                    throw new ConflictException(
-                            "Join request already sent"
-                    );
-                }
-
-                OrganizationJoinRequest request =
-                        OrganizationJoinRequest.builder()
-                                .organization(organization)
-                                .user(user)
-                                .status(JoinRequestStatus.PENDING)
-                                .build();
-
-                joinRequestRepository.save(
-                        request
-                );
-
                 throw new ForbiddenException(
-                        "Organization is private. Join request sent."
+                        "Join to the organization first"
                 );
             }
-        }
 
-        if (!member) {
-            OrganizationMember organizationMember =
-                    OrganizationMember.builder()
-                            .organization(organization)
-                            .user(user)
-                            .role(Role.STUDENT)
-                            .build();
-
-            memberRepository.save(
-                    organizationMember
-            );
-        }
 
         if (existingEnrollment != null) {
 
@@ -400,5 +372,32 @@ public class CourseEnrollmentService {
                 enrollment.getCourse().getId(),
                 enrollment.getUser()
         );
+    }
+
+    @Transactional
+    public void unenrollFromOrganization(
+            Long organizationId,
+            User user
+    ) {
+
+        List<CourseEnrollment> enrollments =
+                enrollmentRepository
+                        .findByUserIdAndCourseOrganizationIdAndStatus(
+                                user.getId(),
+                                organizationId,
+                                EnrollmentStatus.ACTIVE
+                        );
+
+        for (CourseEnrollment enrollment : enrollments) {
+
+            enrollment.setStatus(
+                    EnrollmentStatus.DROPPED
+            );
+
+            roadmapFollowProgressService.refreshForCourse(
+                    enrollment.getCourse().getId(),
+                    user
+            );
+        }
     }
 }
