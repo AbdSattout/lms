@@ -85,7 +85,7 @@ public class AuthService {
     ) {
 
         String email =
-                emailOtpService.verifyOtpWithoutConsuming(
+                emailOtpService.verifyOtp(
                         request.getEmail(),
                         request.getOtp()
                 );
@@ -93,12 +93,7 @@ public class AuthService {
         User user =
                 userService.getOrCreateEmailUser(email);
 
-        AuthResponse response =
-                createAuthResponse(user);
-
-        emailOtpService.consumeOtp(email);
-
-        return response;
+        return createAuthResponse(user);
     }
 
     private AuthResponse loginWithProvider(

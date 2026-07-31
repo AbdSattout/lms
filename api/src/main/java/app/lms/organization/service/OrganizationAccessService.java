@@ -1,6 +1,10 @@
 package app.lms.organization.service;
 
+import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.model.Course;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
+import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
@@ -13,6 +17,8 @@ public class OrganizationAccessService {
 
     private final OrganizationRepository organizationRepository;
     private final OrganizationMemberAccessService organizationMemberAccessService;
+    private final OrganizationModerationRepository organizationModerationRepository;
+    private final OrganizationBanRepository organizationBanRepository;
 
     public Organization getBySlug(
             String slug
@@ -72,5 +78,43 @@ public class OrganizationAccessService {
                 );
 
         return organization;
+    }
+
+    public void validateNotBanned(
+            Organization organization
+    ) {
+
+        if (
+                organizationModerationRepository.existsByOrganizationId(
+                        organization.getId()
+                )
+        ) {
+
+            throw new ForbiddenException(
+                    "This organization has been banned."
+            );
+
+        }
+
+    }
+
+    public void validateUserNotBannedFromOrg(
+            Organization organization,
+            User user
+    ) {
+
+        if (
+                organizationBanRepository.existsByOrganizationIdAndUserId(
+                        organization.getId(),
+                        user.getId()
+                )
+        ) {
+
+            throw new ForbiddenException(
+                    "This user has been banned from this orgainzaiton"
+            );
+
+        }
+
     }
 }

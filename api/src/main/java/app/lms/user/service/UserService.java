@@ -1,6 +1,8 @@
 package app.lms.user.service;
 
 import app.lms.auth.enums.AuthProvider;
+import app.lms.billing.mapper.SubscriptionMapper;
+import app.lms.billing.repository.PolarSubscriptionRepository;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.gamification.model.Level;
@@ -8,9 +10,16 @@ import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
 import app.lms.gamification.repository.UserProgressRepository;
 import app.lms.user.dto.ProfileResponse;
+import app.lms.plan.dto.UserPlanResponse;
+import app.lms.plan.enums.PlanCode;
+import app.lms.plan.mapper.UserPlanMapper;
+import app.lms.plan.model.UserPlan;
+import app.lms.plan.service.UserPlanService;
+import app.lms.user.dto.CurrentUserResponse;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.media.enums.FileType;
+import app.lms.user.mapper.CurrentUserMapper;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
@@ -42,9 +51,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final MediaService mediaService;
     private final UserMapper userMapper;
-    private final UserMapper mapper;
     private final LevelRepository levelRepository;
     private final UserProgressRepository userProgressRepository;
+    private final UserPlanService userPlanService;
+    private final UserPlanMapper userPlanMapper;
+    private final PolarSubscriptionRepository polarSubscriptionRepository;
+    private final SubscriptionMapper subscriptionMapper;
+    private final CurrentUserMapper currentUserMapper;
 
     @Transactional
     public UserResponse updatePicture(
@@ -111,15 +124,34 @@ public class UserService {
         return userMapper.toResponse(updatedUser);
     }
 
-    public UserResponse getCurrentUser(
+    @Transactional
+    public CurrentUserResponse getCurrentUser(
             Long userId
     ) {
 
-        User user = findUserById(userId);
+        User user =
+                findUserById(userId);
 
-        return userMapper.toResponse(user);
+        UserPlan userPlan =
+                userPlanService.getOrCreateCurrentUserPlan(user);
+
+        UserPlanResponse plan =
+                userPlanMapper.toResponse(
+                        userPlan.getPlan(),
+                        userPlan,
+                        userPlan.getPlan()
+                                .getCode() == PlanCode.PREMIUM
+                );
+
+        return currentUserMapper.toResponse(
+                user,
+                plan,
+                polarSubscriptionRepository
+                        .findFirstByUserIdOrderByCreatedAtDesc(userId)
+                        .map(subscriptionMapper::toResponse)
+                        .orElse(null)
+        );
     }
-
 
     private User findUserById(Long userId) {
         return userRepository
@@ -130,6 +162,7 @@ public class UserService {
                         )
                 );
     }
+
     @Transactional
     public User getOrCreateUser(
             AuthProvider provider,
@@ -487,7 +520,7 @@ public class UserService {
                 )
                 .stream()
                 .map(row ->
-                        mapper.toProfileResponse(
+                        userMapper.toProfileResponse(
                                 row.getUser(),
                                 row.getProfile()
                         )

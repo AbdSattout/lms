@@ -1,7 +1,9 @@
 package app.lms.organization.organizationJoinRequest.service;
 
 import app.lms.common.exception.ConflictException;
+import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
@@ -31,11 +33,21 @@ public class OrganizationJoinRequestService {
     private final OrganizationAccessService organizationAccessService;
     private final OrganizationRepository organizationRepository;
     private final OrganizationJoinRequestMapper organizationJoinRequestMapper;
+    private final OrganizationBanRepository organizationBanRepository;
 
     @Transactional
     public JoinRequestResponse createRequest(String slug, User user) {
         Organization organization = organizationRepository.findBySlug(slug)
                 .orElseThrow(() -> new NotFoundException("Organization not found"));
+
+        if (organizationBanRepository.existsByOrganizationIdAndUserId(
+                organization.getId(),
+                user.getId())) {
+
+            throw new ForbiddenException(
+                    "You are banned from this organization."
+            );
+        }
 
         if (organization.getVisibility() == Visibility.PUBLIC) {
             throw new ConflictException("Organization is public. You can enroll directly.");
@@ -130,6 +142,54 @@ public class OrganizationJoinRequestService {
 
         request.setStatus(JoinRequestStatus.CANCELLED);
         joinRequestRepository.save(request);
+    }
+
+    @Transactional
+    public void join(String slug, User user) {
+
+        Organization organization =
+                organizationRepository
+                        .findBySlug(slug)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Organization not found"
+                                )
+                        );
+        if (organizationBanRepository.existsByOrganizationIdAndUserId(
+                organization.getId(),
+                user.getId())) {
+
+            throw new ForbiddenException(
+                    "You are banned from this organization."
+            );
+        }
+
+        if (organization.getVisibility() != Visibility.PUBLIC) {
+            throw new ConflictException(
+                    "This organization requires a join request."
+            );
+        }
+
+        boolean isMember =
+                memberRepository.existsByOrganizationIdAndUserId(
+                        organization.getId(),
+                        user.getId()
+                );
+
+        if (isMember) {
+            throw new ConflictException(
+                    "You are already a member."
+            );
+        }
+
+        OrganizationMember member =
+                OrganizationMember.builder()
+                        .organization(organization)
+                        .user(user)
+                        .role(Role.STUDENT)
+                        .build();
+
+        memberRepository.save(member);
     }
 
 

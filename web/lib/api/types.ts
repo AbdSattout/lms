@@ -77,12 +77,13 @@ export interface CourseResponse {
   coverUrl?: string
   status: CourseStatus
   organization: OrganizationSummaryResponse
+  organizationName: string
   enrollment?: CourseEnrollmentResponse
   baseEntity?: BaseEntityResponse
 }
 
 export interface EnrollmentResponse {
-  courseId: number
+  courseId?: number | null
   courseTitle: string
   enrolledAt: string
   rewards?: GamificationAwardResponse[]
@@ -125,7 +126,7 @@ export type QuestionDifficulty = "EASY" | "MEDIUM" | "HARD"
 
 export interface QuestionResponse {
   id: number
-  courseId: number
+  courseId?: number | null
   content: string
   options: string[]
   correctAnswerIndex: number
@@ -143,7 +144,7 @@ export interface QuestionPublicResponse {
 export interface QuizResponse {
   id: number
   title: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
   baseEntity?: BaseEntityResponse
@@ -162,7 +163,7 @@ export interface PostResponse {
   content?: string
   author: AuthorResponse
   organizationId: number
-  courseId: number
+  courseId?: number | null
   likeCount: number
   commentCount: number
   reactionCounts: Record<PostReactionType, number>
@@ -191,7 +192,7 @@ export interface CourseMediaResponse {
   name: string
   url: string
   type: FileType
-  courseId: number
+  courseId?: number | null
   organizationMediaId?: number
   sizeBytes?: number
   baseEntity?: BaseEntityResponse
@@ -244,7 +245,7 @@ export interface ChapterDetailsResponse {
   id: number
   title: string
   position?: number
-  courseId: number
+  courseId?: number | null
   organizationId: number
   baseEntity?: BaseEntityResponse
 }
@@ -254,7 +255,7 @@ export interface LessonDetailsResponse {
   title: string
   position?: number
   chapterId: number
-  courseId: number
+  courseId?: number | null
   organizationId: number
   baseEntity?: BaseEntityResponse
 }
@@ -318,7 +319,7 @@ export interface StorageResponse {
 }
 
 export interface OrganizationOverviewResponse {
-  owner: UserResponse
+  owner: UserResponse & { username?: string }
   membersCount: number
   adminsCount: number
   studentsCount: number
@@ -356,6 +357,7 @@ export interface OrganizationInviteResponse {
   expiresAt: string
   maxUses: number
   usedCount: number
+  organization?: OrganizationSummaryResponse
   baseEntity?: BaseEntityResponse
 }
 
@@ -422,7 +424,7 @@ export interface OrganizationMediaSummaryResponse {
 
 export interface FinalQuizResponse {
   quizId: number
-  courseId: number
+  courseId?: number | null
   difficulty?: QuestionDifficulty
   questions: QuestionPublicResponse[]
   baseEntity?: BaseEntityResponse
@@ -463,7 +465,7 @@ export interface PracticeQuizResponse {
   id: number
   title: string
   description?: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
   baseEntity?: BaseEntityResponse
@@ -473,7 +475,7 @@ export interface PracticeQuizSummaryResponse {
   id: number
   title: string
   description?: string
-  courseId: number
+  courseId?: number | null
   difficulty: QuestionDifficulty
   questionCount: number
   baseEntity?: BaseEntityResponse

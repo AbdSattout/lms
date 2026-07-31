@@ -1,5 +1,6 @@
 package app.lms.course.controller;
 
+import app.lms.admin.dto.BanRequest;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
@@ -187,6 +188,26 @@ public class DashboardCourseController {
                         principal.user()
                 )
         );
+    }
+
+    @DeleteMapping("/courses/{courseId}/members/{memberId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable Long courseId,
+            @PathVariable Long memberId,
+            @RequestBody
+            @Valid
+            BanRequest request,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardCourseService.removeMemberFromCourse(
+                courseId,
+                memberId,
+                request,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 
 }

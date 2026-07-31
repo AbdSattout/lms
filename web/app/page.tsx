@@ -1,12 +1,16 @@
+// app/page.tsx (أو مسار الصفحة الرئيسية)
 import { Suspense } from "react"
-
 import { OrgsGrid } from "@/components/orgs-grid"
 import { OrgsGridSkeleton } from "@/components/skeletons/orgs-grid-skeleton"
+import { Notifications } from "@/components/ui/notification_button"
 
 export default function HomePage() {
   return (
-    <div className="p-8">
-      <h1 className="mb-6 font-heading text-2xl">منظماتي</h1>
+    <div className="container mx-auto flex flex-col gap-6 p-4">
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-2xl font-bold">منظماتي</h1>
+        <Notifications />
+      </div>
 
       <Suspense fallback={<OrgsGridSkeleton />}>
         <OrgsGrid />
