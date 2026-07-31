@@ -75,7 +75,7 @@ public class AuthService {
             EmailOtpRequest request
     ) {
 
-        emailOtpService.requestOtp(
+        emailOtpService.requestLoginOtp(
                 request.getEmail()
         );
     }
@@ -85,7 +85,7 @@ public class AuthService {
     ) {
 
         String email =
-                emailOtpService.verifyOtp(
+                emailOtpService.verifyLoginOtp(
                         request.getEmail(),
                         request.getOtp()
                 );

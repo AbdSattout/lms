@@ -8,6 +8,7 @@ public record CurrentUserResponse(
         String name,
         String username,
         String picture,
+        String email,
         UserPlanResponse plan,
         SubscriptionResponse subscription
 ) {
