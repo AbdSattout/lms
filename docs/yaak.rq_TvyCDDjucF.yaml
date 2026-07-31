@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_TvyCDDjucF
+createdAt: 2026-07-30T17:37:06.847400600
+updatedAt: 2026-07-30T17:39:32.267597100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_XugeQvJB6M
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "reason": "kick"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 8bH7FkJpc6
+method: POST
+name: ban from org
+sortPriority: 0.0
+url: http://localhost:8080/organizations/{organizationId}/users/{userId}/ban
+urlParameters: []
