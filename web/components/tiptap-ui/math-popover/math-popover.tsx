@@ -179,7 +179,6 @@ export const MathPopover = forwardRef<HTMLButtonElement, MathPopoverProps>(
       latex,
       setLatex,
       insertMath,
-      removeMath,
       label,
       Icon,
     } = useMathPopover({

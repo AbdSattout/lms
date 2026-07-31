@@ -47,8 +47,6 @@ export const MediaButton = forwardRef<HTMLButtonElement, MediaButtonProps>(
       editor,
       hideWhenUnavailable,
       onInserted,
-      orgSlug,
-      courseSlug: course?.slug ?? null,
       organizationId,
       courseId,
     })

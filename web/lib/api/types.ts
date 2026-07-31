@@ -6,6 +6,7 @@ export interface BaseEntityResponse {
 export interface User {
   id: number
   name?: string
+  username?: string
   picture?: string
 }
 
@@ -33,7 +34,13 @@ export interface OrganizationResponse {
   visibility: OrganizationVisibility
   ownerName: string
   membersCount: number
+  viewer?: OrganizationViewerResponse
   baseEntity?: BaseEntityResponse
+}
+
+export interface OrganizationViewerResponse {
+  joined: boolean
+  role?: Role
 }
 
 export type CourseStatus = "DRAFT" | "PUBLISHED"
@@ -142,6 +149,13 @@ export interface QuizResponse {
   baseEntity?: BaseEntityResponse
 }
 
+export type PostReactionType =
+  | "LIKE"
+  | "LOVE"
+  | "SUPPORT"
+  | "CELEBRATE"
+  | "INSIGHTFUL"
+
 export interface PostResponse {
   id: number
   title: string
@@ -151,6 +165,8 @@ export interface PostResponse {
   courseId: number
   likeCount: number
   commentCount: number
+  reactionCounts: Record<PostReactionType, number>
+  viewerReaction?: PostReactionType
   baseEntity?: BaseEntityResponse
 }
 
@@ -335,9 +351,9 @@ export interface OrganizationInviteResponse {
   userName: string
   role: Role
   status: InviteStatus
+  token?: string
   invitedByName: string
   expiresAt: string
-  createdAt: string
   maxUses: number
   usedCount: number
   baseEntity?: BaseEntityResponse
@@ -366,6 +382,7 @@ export interface OrganizationMemberResponse {
 export interface UserResponse {
   id: number
   name: string
+  username?: string
   picture: string
 }
 
@@ -374,13 +391,6 @@ export interface JoinRequestResponse {
   status: JoinRequestStatus
   createdAt: string
   user: UserResponse
-}
-
-export interface UserSearchResponse {
-  id: number
-  name: string
-  picture: string
-  email: string
 }
 
 export interface PostMediaResponse {
@@ -539,6 +549,7 @@ export interface PracticeExamResponse {
   id: number
   title: string
   description?: string
+  timeLimitMinutes?: number
   courseId: number
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
@@ -548,6 +559,7 @@ export interface PracticeExamResponse {
 export interface CreatePracticeExamRequest {
   title: string
   description?: string
+  timeLimitMinutes?: number
   questionIds: number[]
 }
 
@@ -555,7 +567,7 @@ export interface UpdatePracticeExamQuestionsRequest {
   questionIds: number[]
 }
 
-export interface UserDashboardResponse {
+export interface UserOverviewResponse {
   organizationsCount: number
   enrolledCoursesCount: number
   completedCoursesCount: number
@@ -568,17 +580,16 @@ export interface UserDashboardResponse {
   longestStreak: number
 }
 
-export interface OrganizationDashboardResponse {
-  owner: UserResponse
-  membersCount: number
-  adminsCount: number
-  studentsCount: number
-  coursesCount: number
-  publishedCoursesCount: number
-  draftCoursesCount: number
-  postsCount: number
-  roadmapsCount: number
-  storage: StorageResponse
+export interface CourseOverviewResponse {
+  enrollmentsCount: number
+  completedEnrollmentsCount: number
+  activeEnrollmentsCount: number
+  droppedEnrollmentsCount: number
+  chaptersCount: number
+  lessonsCount: number
+  blocksCount: number
+  questionsCount: number
+  certificatesCount: number
 }
 
 export interface CheckoutSessionResponse {
