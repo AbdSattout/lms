@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Editor } from "@/components/editor"
 import { Input } from "@/components/ui/input"
 import { createPost } from "@/lib/actions/post"
-// استيراد مكونات Select من مكتبتك
 import {
   Select,
   SelectContent,
@@ -18,18 +17,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { CourseResponse } from "@/lib/api/types" // تأكد من المسار الصحيح
+import type { CourseResponse } from "@/lib/api/types"
 
 interface CreatePostFormProps {
   orgSlug: string
-  courses?: CourseResponse[] // إضافة الدورات للـ Props
+  courses?: CourseResponse[]
 }
 
 export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [courseId, setCourseId] = useState<number | null>(null) // State لتخزين الـ Course ID
+  const [courseId, setCourseId] = useState<number | null>(null)
   const selectedCourse = courses.find((course) => course.id === courseId)
   const [isSubmitting, startSubmit] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -51,7 +50,7 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
         const post = await createPost(orgSlug, {
           title: title.trim(),
           content: content.trim(),
-          courseId: courseId, // إرسال معرف الدورة أو null هنا
+          courseId: courseId,
         })
         toast.success("تم إنشاء المنشور بنجاح")
         router.push(`/${orgSlug}/posts/${post.id}` as Route)
@@ -62,7 +61,6 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
   }
 
   return (
-    // الإطار العام للفورم - توسيط وحجم مثالي وخلفية البطاقات الساطعة/المعتمة
     <div className="mx-auto w-full max-w-4xl pt-6">
       <form
         onSubmit={handleSubmit}
@@ -81,7 +79,6 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
           </div>
         )}
 
-        {/* خانة العنوان */}
         <div className="flex flex-col gap-3 text-start">
           <label
             htmlFor="title"
@@ -99,7 +96,6 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
           />
         </div>
 
-        {/* قائمة الدورة (إن أردت إضافة select كما طلبته بالماضي ضعها هنا كالتالي) */}
         {courses && courses.length > 0 && (
           <div className="flex flex-col gap-3 text-start">
             <label className="text-sm font-bold text-card-foreground">
@@ -131,18 +127,15 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
           </div>
         )}
 
-        {/* Editor المحتوى */}
         <div className="flex flex-col gap-3 text-start">
           <label className="flex items-center justify-between text-sm font-bold text-card-foreground">
             المحتوى
           </label>
-          {/* تحسين مظهر الأديتور بحدود أقوى وظل بسيط */}
           <div className="min-h-[300px] overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
             <Editor onChange={setContent} content={content} />
           </div>
         </div>
 
-        {/* شريط الإجراء السفلي */}
         <div className="mt-2 flex items-center justify-end gap-4 border-t border-border/40 pt-5">
           <Button
             type="button"

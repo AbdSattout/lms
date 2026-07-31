@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/empty"
 import type { PostResponse } from "@/lib/api/types"
 import { PostCardSkeleton } from "@/components/skeletons/post-card-skeleton"
-import { PostCard } from "../cards/post-card" // تأكد من مسار الاستيراد لديك
+import { PostCard } from "../cards/post-card"
 import { getPostsByOrg } from "@/lib/actions/post"
 
 interface PostsContentProps {
@@ -33,8 +33,6 @@ export function PostsContent({
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(1)
 
-  // 1. الحل الأمثل لمزامنة البيانات بدون استخدام useEffect
-  // نقوم بحفظ نسخة من البيانات القادمة من السيرفر، وإذا تغيرت نقوم بتحديث الـ State فوراً
   const [prevInitialPosts, setPrevInitialPosts] = useState(initialPosts)
 
   if (initialPosts !== prevInitialPosts) {
@@ -55,7 +53,7 @@ export function PostsContent({
         const result = await getPostsByOrg(orgSlug, {
           page,
           size: 20,
-          sort: ["createdAt,desc"], // تصحيح الفرز
+          sort: ["createdAt,desc"],
         })
 
         const fetchedPosts = result.content ?? []
@@ -72,7 +70,7 @@ export function PostsContent({
         }
       } catch (error) {
         console.error("Error fetching more posts", error)
-        setHasMore(false) // إيقاف المحاولة عند حدوث خطأ
+        setHasMore(false)
       }
     })
   }, [hasMore, isLoadingMore, orgSlug, page])
@@ -108,7 +106,6 @@ export function PostsContent({
           <EmptyTitle>لا توجد منشورات بعد</EmptyTitle>
         </EmptyHeader>
         <EmptyContent>
-          {/* 2. إزالة asChild من هنا */}
           <Button>
             <Link
               href={`/${orgSlug}/posts/create` as Route}
@@ -130,7 +127,6 @@ export function PostsContent({
           المنشورات
         </h1>
 
-        {/* 🔴 تم إصلاح زر "إنشاء منشور" ليستخدم Link بتنسيق الزر مباشرة (شبه Shadcn تماماً) بلا استخدام <Button> */}
         <Link
           href={`/${orgSlug}/posts/create` as Route}
           className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-semibold whitespace-nowrap text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"

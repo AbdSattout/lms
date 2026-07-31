@@ -59,7 +59,6 @@ export function PostDetail({
       .join("")
       .slice(0, 2) ?? "؟"
 
-  // تطبيق الترجمة العربية للوقت (مثال: منذ ساعتين)
   const timeAgo = post.baseEntity?.createdAt
     ? formatDistanceToNow(new Date(post.baseEntity.createdAt), {
         addSuffix: true,
@@ -132,7 +131,6 @@ export function PostDetail({
             </div>
           </div>
 
-          {/* القائمة الجانبية للتعديل والحذف (مثل ما في بوست كارد تماما) */}
           {isAuthor && (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-black/10 hover:text-foreground">
@@ -159,7 +157,6 @@ export function PostDetail({
           )}
         </div>
 
-        {/* محتوى المنشور (نص Markdown مع العنوان) */}
         <div className="border-b border-border/40 pb-6">
           <h1 className="mb-4 text-xl leading-relaxed font-extrabold">
             {post.title}
@@ -169,13 +166,12 @@ export function PostDetail({
               className="prose prose-neutral dark:prose-invert max-w-none text-[15.5px] leading-relaxed whitespace-pre-wrap"
               dir="rtl"
               dangerouslySetInnerHTML={{
-                __html: post.content, // Editor Output Content (html أو غيره)
+                __html: post.content,
               }}
             />
           )}
         </div>
 
-        {/* إحصائيات التفاعل الخاصة بالتفاصيل (استخدمنا comments.length للموثوقية الأكبر) */}
         <div className="mt-5 flex items-center gap-6 px-1">
           <button className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-red-500">
             <Heart className="h-6 w-6" />
@@ -190,7 +186,6 @@ export function PostDetail({
         </div>
       </div>
 
-      {/* 2. حاوية إضافة تعليق (محسّنة ولون ناعم يتناسب مع المظهر الداكن) */}
       <div className="rounded-xl border border-border/50 bg-card p-5 text-start shadow-sm">
         {replyingTo && (
           <div className="mb-3 flex items-center justify-between rounded-lg bg-muted/40 p-2.5 px-3 text-sm">
@@ -243,8 +238,6 @@ export function PostDetail({
         </div>
       </div>
 
-      {/* 3. شجرة عرض التعليقات أسفل المحتوى */}
-      {/* 🚨 تمت إزالة ال orgSlug وال postId لأنهم تسببوا بخطأ Typescript 🚨 */}
       <div className="mt-2 bg-transparent">
         <CommentSection
           comments={comments}

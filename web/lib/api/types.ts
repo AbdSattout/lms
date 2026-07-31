@@ -386,6 +386,8 @@ export interface UserResponse {
   name: string
   username?: string
   picture: string
+  email?: string | null
+  phoneNumber?: string | null
 }
 
 export interface JoinRequestResponse {

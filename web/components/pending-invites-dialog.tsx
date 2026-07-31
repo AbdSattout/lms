@@ -125,7 +125,6 @@ export function PendingInvitesDialog({
   const getInviteType = (invite: OrganizationInviteResponse) => {
     const roleLabel = invite.role === "ADMIN" ? "مشرف" : "طالب"
 
-    // إذا كانت عدد الاستخدامات أكبر من 1 تكون عامة
     if (invite.maxUses && invite.maxUses > 1) {
       return (
         <div className="flex items-center gap-1">
