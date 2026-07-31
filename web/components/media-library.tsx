@@ -42,6 +42,7 @@ const PAGE_SIZE = 24
 
 export interface MediaLibraryProps {
   orgSlug: string
+  organizationId: number
   course?: CourseResponse
   title: string
   onSelect?: (item: MediaItemShape) => void
@@ -54,6 +55,7 @@ type MediaItem = PostMediaResponse | CourseMediaResponse
 
 export function MediaLibrary({
   orgSlug,
+  organizationId,
   course,
   title,
   onSelect,
@@ -84,8 +86,8 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await fetchCourseMediaAction(orgSlug, course.slug, page, PAGE_SIZE)
-        : await fetchPostMediaAction(orgSlug, page, PAGE_SIZE)
+        ? await fetchCourseMediaAction(organizationId, course.id, orgSlug, course.slug, page, PAGE_SIZE)
+        : await fetchPostMediaAction(organizationId, orgSlug, page, PAGE_SIZE)
 
       setItems(result.content ?? [])
       setTotalPages(result.totalPages ?? 0)
@@ -94,7 +96,7 @@ export function MediaLibrary({
     } finally {
       setLoading(false)
     }
-  }, [orgSlug, course, isCourse, page])
+  }, [orgSlug, organizationId, course, isCourse, page])
 
   useEffect(() => {
     if (dialog) {
@@ -112,8 +114,8 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await uploadCourseMediaAction(orgSlug, course.slug, file)
-        : await uploadPostMediaAction(orgSlug, file)
+        ? await uploadCourseMediaAction(organizationId, course.id, orgSlug, course.slug, file)
+        : await uploadPostMediaAction(organizationId, orgSlug, file)
 
       if (result.error) {
         toast.error(result.error)
@@ -138,8 +140,8 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await deleteCourseMediaAction(orgSlug, course.slug, item.id)
-        : await deletePostMediaAction(orgSlug, item.id)
+        ? await deleteCourseMediaAction(organizationId, course.id, orgSlug, course.slug, item.id)
+        : await deletePostMediaAction(organizationId, orgSlug, item.id)
 
       if (result.error) {
         toast.error(result.error)
@@ -161,10 +163,10 @@ export function MediaLibrary({
         await import("@/lib/actions/media")
 
       const result = isCourse
-        ? await updateCourseMediaAction(orgSlug, course.slug, editingItem.id, {
+        ? await updateCourseMediaAction(organizationId, course.id, orgSlug, course.slug, editingItem.id, {
             name: editName.trim(),
           })
-        : await updatePostMediaAction(orgSlug, editingItem.id, {
+        : await updatePostMediaAction(organizationId, orgSlug, editingItem.id, {
             name: editName.trim(),
           })
 
@@ -201,12 +203,14 @@ export function MediaLibrary({
 
       const result = isCourse
         ? await updateCourseMediaAction(
+            organizationId,
+            course.id,
             orgSlug,
             course.slug,
             replacingItem.id,
             { file }
           )
-        : await updatePostMediaAction(orgSlug, replacingItem.id, { file })
+        : await updatePostMediaAction(organizationId, orgSlug, replacingItem.id, { file })
 
       if (result.error) {
         toast.error(result.error)

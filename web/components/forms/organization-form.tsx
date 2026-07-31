@@ -29,19 +29,37 @@ interface OrganizationFormProps {
     visibility?: string
     slug?: string
   }
+  onSuccess?: () => void
 }
+
+type OrganizationFormState = { error?: string; success?: boolean }
 
 export function OrganizationForm({
   initialData,
+  onSuccess,
 }: OrganizationFormProps = {}) {
-  const [state, formAction, isPending] = useActionState(
+  const [state, formAction, isPending] = useActionState<
+    OrganizationFormState,
+    FormData
+  >(
     initialData
       ? (updateOrganization as typeof createOrganization)
       : createOrganization,
-    { error: "" }
+    { error: "", success: false }
   )
 
+  const [name, setName] = useState(initialData?.name || "")
   const [slug, setSlug] = useState(initialData?.slug || "")
+  const [description, setDescription] = useState(
+    initialData?.description || ""
+  )
+  const [visibility, setVisibility] = useState(
+    initialData?.visibility || "PUBLIC"
+  )
+
+  useEffect(() => {
+    if (state.success) onSuccess?.()
+  }, [state.success, onSuccess])
   const [slugStatus, setSlugStatus] = useState<
     "idle" | "checking" | "available" | "taken"
   >("idle")
@@ -63,7 +81,7 @@ export function OrganizationForm({
 
   function handleSlugChange(value: string) {
     userEditedSlug.current = true
-    const filtered = value.replace(/[^a-z-]/g, "")
+    const filtered = value.replace(/[^a-z0-9-]/g, "")
     setSlug(filtered)
     if (!filtered) {
       userEditedSlug.current = false
@@ -104,9 +122,12 @@ export function OrganizationForm({
           id="name"
           name="name"
           required
-          defaultValue={initialData?.name}
+          value={name}
           disabled={isPending}
-          onChange={(e) => handleNameChange(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value)
+            handleNameChange(e.target.value)
+          }}
         />
       </div>
 
@@ -148,7 +169,8 @@ export function OrganizationForm({
           id="description"
           name="description"
           required
-          defaultValue={initialData?.description}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           disabled={isPending}
         />
       </div>
@@ -168,7 +190,8 @@ export function OrganizationForm({
         <Label htmlFor="visibility">حالة الظهور</Label>
         <Select
           name="visibility"
-          defaultValue={initialData?.visibility || "PUBLIC"}
+          value={visibility}
+          onValueChange={(value) => value && setVisibility(value)}
           disabled={isPending}
         >
           <SelectTrigger id="visibility" className="w-full!">

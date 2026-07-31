@@ -11,6 +11,7 @@ const backendJwtCookieOptions = {
   sameSite: "lax" as const,
   secure: isProduction,
   path: "/",
+  maxAge: 7 * 24 * 60 * 60,
 }
 
 export async function setBackendJwtCookie(token: string) {

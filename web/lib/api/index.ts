@@ -1,6 +1,13 @@
 import "server-only"
 
-import { login } from "@/lib/api/auth"
+import { generateQuestionFromBlock, transformText } from "@/lib/api/ai"
+import {
+  loginWithEmailOtp,
+  loginWithGoogle,
+  loginWithTelegram,
+  requestEmailOtp,
+} from "@/lib/api/auth"
+import { checkout, portal, revoke } from "@/lib/api/billing"
 import {
   byId as blocksById,
   byLesson as blocksByLesson,
@@ -9,10 +16,9 @@ import {
   reorder as reorderBlocks,
 } from "@/lib/api/blocks"
 import {
-  byId as chaptersById,
   getLessons as chapterLessons,
+  byId as chaptersById,
 } from "@/lib/api/chapters"
-import { overview } from "@/lib/api/org-overview"
 import {
   chapters,
   byId as coursesById,
@@ -26,6 +32,10 @@ import {
 } from "@/lib/api/lessons"
 import { byCourse, byId as mediaById } from "@/lib/api/media"
 import {
+  list as orgMediaList,
+  summary as orgMediaSummary,
+} from "@/lib/api/organization-media"
+import {
   bySlug,
   checkCourseSlugAvailability,
   checkSlugAvailability,
@@ -37,6 +47,11 @@ import {
   list,
   members,
 } from "@/lib/api/organizations"
+import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
+import {
+  byId as postMediaById,
+  byOrg as postMediaByOrg,
+} from "@/lib/api/post-media"
 import {
   comments,
   deleteComment,
@@ -45,47 +60,41 @@ import {
   byId as postsById,
   byOrg as postsByOrg,
 } from "@/lib/api/posts"
-import { create, me as profileMe } from "@/lib/api/profile"
-import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
 import {
-  byId as practiceQuizById,
-  create as createPracticeQuiz,
-  deleteQuiz as deletePracticeQuiz,
-  list as listPracticeQuizzes,
-  updateQuestions as updatePracticeQuizQuestions,
-} from "@/lib/api/practice-quizzes"
-import {
-  byId as practiceExamById,
   create as createPracticeExam,
   deleteExam as deletePracticeExam,
   list as listPracticeExams,
+  byId as practiceExamById,
   updateQuestions as updatePracticeExamQuestions,
 } from "@/lib/api/practice-exams"
 import {
-  byId as roadmapById,
+  create as createPracticeQuiz,
+  deleteQuiz as deletePracticeQuiz,
+  list as listPracticeQuizzes,
+  byId as practiceQuizById,
+  updateQuestions as updatePracticeQuizQuestions,
+} from "@/lib/api/practice-quizzes"
+import { create, me as profileMe } from "@/lib/api/profile"
+import {
+  create as createQuestion,
+  byId as questionById,
+  byCourse as questionsByCourse,
+} from "@/lib/api/questions"
+import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
+import {
   create as createRoadmap,
   list as listRoadmaps,
+  byId as roadmapById,
 } from "@/lib/api/roadmap"
-import {
-  byCourse as questionsByCourse,
-  byId as questionById,
-  create as createQuestion,
-} from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture, search as userSearch } from "@/lib/api/users"
-import { generateQuestionFromBlock, transformText } from "@/lib/api/ai"
-import {
-  byOrg as postMediaByOrg,
-  byId as postMediaById,
-} from "@/lib/api/post-media"
-import {
-  list as orgMediaList,
-  summary as orgMediaSummary,
-} from "@/lib/api/organization-media"
 
 export const api = {
   auth: {
-    login,
+    loginWithTelegram,
+    loginWithGoogle,
+    requestEmailOtp,
+    loginWithEmailOtp,
   },
   organizations: {
     list,
@@ -120,7 +129,6 @@ export const api = {
       invites,
       members,
       joinRequests: joinRequests.dashboard,
-      overview: overview,
     },
     courses: {
       byId: coursesById,
@@ -194,5 +202,15 @@ export const api = {
       generateQuestionFromBlock,
       transformText,
     },
+    overview: {
+      user: userOverview,
+      org: orgOverview,
+      course: courseOverview,
+    },
+  },
+  billing: {
+    checkout,
+    portal,
+    revoke,
   },
 } satisfies ApiTree

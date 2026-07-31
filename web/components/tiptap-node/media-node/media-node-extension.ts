@@ -5,8 +5,8 @@ declare module "@tiptap/react" {
   interface Commands<ReturnType> {
     media: {
       setMediaNode: (attrs: {
-        orgSlug: string
-        courseSlug?: string | null
+        organizationId: number
+        courseId?: number | null
         mediaId: number
       }) => ReturnType
     }
@@ -26,8 +26,8 @@ export const MediaNode = Node.create({
 
   addAttributes() {
     return {
-      orgSlug: { default: null },
-      courseSlug: { default: null },
+      organizationId: { default: null },
+      courseId: { default: null },
       mediaId: { default: null },
     }
   },
@@ -41,7 +41,21 @@ export const MediaNode = Node.create({
   },
 
   addNodeView() {
-    return ReactNodeViewRenderer(MediaNodeComponent)
+    return ReactNodeViewRenderer(MediaNodeComponent, {
+      stopEvent: ({ event }) => {
+        if (
+          event.type === "mousedown" ||
+          event.type === "drop" ||
+          event.type === "copy" ||
+          event.type === "cut" ||
+          event.type === "paste" ||
+          event.type.startsWith("drag")
+        ) {
+          return false
+        }
+        return true
+      },
+    })
   },
 
   addCommands() {
@@ -63,13 +77,21 @@ export const MediaNode = Node.create({
     if (parts.length === 2) {
       return {
         type: "media",
-        attrs: { orgSlug: parts[0], courseSlug: null, mediaId: Number(parts[1]) },
+        attrs: {
+          organizationId: Number(parts[0]),
+          courseId: null,
+          mediaId: Number(parts[1]),
+        },
       }
     }
     if (parts.length === 3) {
       return {
         type: "media",
-        attrs: { orgSlug: parts[0], courseSlug: parts[1], mediaId: Number(parts[2]) },
+        attrs: {
+          organizationId: Number(parts[0]),
+          courseId: Number(parts[1]),
+          mediaId: Number(parts[2]),
+        },
       }
     }
     return []
@@ -93,9 +115,11 @@ export const MediaNode = Node.create({
   },
 
   renderMarkdown(node) {
-    const { orgSlug, courseSlug, mediaId } = node.attrs ?? {}
-    if (!orgSlug || !mediaId) return ""
-    const path = courseSlug ? `${orgSlug}/${courseSlug}/${mediaId}` : `${orgSlug}/${mediaId}`
+    const { organizationId, courseId, mediaId } = node.attrs ?? {}
+    if (!organizationId || !mediaId) return ""
+    const path = courseId
+      ? `${organizationId}/${courseId}/${mediaId}`
+      : `${organizationId}/${mediaId}`
     return `::media ${path}\n::`
   },
 })

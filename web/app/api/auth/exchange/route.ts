@@ -29,7 +29,7 @@ async function exchangeBackendSession() {
   }
 
   try {
-    const backendSession = await api.auth.login.post(idToken)
+    const backendSession = await api.auth.loginWithTelegram.post(idToken)
     if (!backendSession.token) {
       throw new Error("Backend login response missing token.")
     }

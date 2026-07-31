@@ -9,7 +9,6 @@ import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
-import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
