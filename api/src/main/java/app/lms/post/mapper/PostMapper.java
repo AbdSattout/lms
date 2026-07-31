@@ -3,7 +3,7 @@ package app.lms.post.mapper;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.post.dto.AuthorResponse;
 import app.lms.post.dto.PostResponse;
-import app.lms.post.enums.PostReactionType;
+import app.lms.post.enums.ReactionType;
 import app.lms.post.model.Post;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +24,8 @@ public class PostMapper {
 
     public PostResponse toResponse(
             Post post,
-            Map<PostReactionType, Long> reactionCounts,
-            PostReactionType viewerReaction
+            Map<ReactionType, Long> reactionCounts,
+            ReactionType viewerReaction
     ) {
 
         return new PostResponse(
@@ -59,14 +59,14 @@ public class PostMapper {
         );
     }
 
-    private Map<PostReactionType, Long> completeReactionCounts(
-            Map<PostReactionType, Long> reactionCounts
+    private Map<ReactionType, Long> completeReactionCounts(
+            Map<ReactionType, Long> reactionCounts
     ) {
 
-        Map<PostReactionType, Long> completeCounts =
-                new EnumMap<>(PostReactionType.class);
+        Map<ReactionType, Long> completeCounts =
+                new EnumMap<>(ReactionType.class);
 
-        for (PostReactionType reactionType : PostReactionType.values()) {
+        for (ReactionType reactionType : ReactionType.values()) {
             completeCounts.put(
                     reactionType,
                     reactionCounts.getOrDefault(

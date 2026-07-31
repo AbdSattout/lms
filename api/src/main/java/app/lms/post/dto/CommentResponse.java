@@ -1,6 +1,10 @@
 package app.lms.post.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
+import app.lms.post.enums.ReactionType;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.util.Map;
 
 public record CommentResponse(
 
@@ -11,6 +15,13 @@ public record CommentResponse(
         AuthorResponse author,
 
         Long parentCommentId,
+
+        Long likeCount,
+
+        Map<ReactionType, Long> reactionCounts,
+
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        ReactionType viewerReaction,
 
         BaseEntityResponse baseEntity
 
