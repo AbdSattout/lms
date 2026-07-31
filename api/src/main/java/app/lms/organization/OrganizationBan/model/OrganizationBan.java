@@ -44,5 +44,6 @@ public class OrganizationBan extends BaseEntity {
     @JoinColumn(nullable = true)
     private User bannedByOrgAdmins;
 
+    @Column(columnDefinition = "TEXT")
     private String reason;
 }
