@@ -1,6 +1,6 @@
 package app.lms.post.enums;
 
-public enum PostReactionType {
+public enum ReactionType {
 
     LIKE,
     LOVE,

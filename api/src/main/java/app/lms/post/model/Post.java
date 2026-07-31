@@ -53,7 +53,7 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<PostLike> likes = new ArrayList<>();
+    private List<Like> likes = new ArrayList<>();
 
 
 

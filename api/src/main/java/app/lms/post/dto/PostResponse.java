@@ -1,7 +1,7 @@
 package app.lms.post.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
-import app.lms.post.enums.PostReactionType;
+import app.lms.post.enums.ReactionType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Map;
@@ -24,10 +24,10 @@ public record PostResponse(
 
         Long likeCount,
 
-        Map<PostReactionType, Long> reactionCounts,
+        Map<ReactionType, Long> reactionCounts,
 
         @JsonInclude(JsonInclude.Include.NON_NULL)
-        PostReactionType viewerReaction,
+        ReactionType viewerReaction,
 
         BaseEntityResponse baseEntity
 ) {

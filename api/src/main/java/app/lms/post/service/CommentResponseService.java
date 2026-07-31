@@ -1,16 +1,15 @@
 package app.lms.post.service;
 
-import app.lms.post.dto.PostResponse;
+import app.lms.post.dto.CommentResponse;
 import app.lms.post.enums.LikeTargetType;
 import app.lms.post.enums.ReactionType;
-import app.lms.post.mapper.PostMapper;
+import app.lms.post.mapper.CommentMapper;
+import app.lms.post.model.Comment;
 import app.lms.post.model.Like;
-import app.lms.post.model.Post;
 import app.lms.post.repository.LikeRepository;
 import app.lms.post.repository.ReactionCountProjection;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -20,113 +19,94 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class PostResponseService {
+public class CommentResponseService {
 
-    private final PostMapper postMapper;
+    private final CommentMapper commentMapper;
     private final LikeRepository likeRepository;
 
-    public PostResponse build(
-            Post post,
+    public CommentResponse build(
+            Comment comment,
             User user
     ) {
 
         return buildList(
-                List.of(post),
+                List.of(comment),
                 user
         ).getFirst();
     }
 
-    public Page<PostResponse> buildPage(
-            Page<Post> posts,
+    public List<CommentResponse> buildList(
+            List<Comment> comments,
             User user
     ) {
 
-        PostReactionContext context =
+        CommentReactionContext context =
                 reactionContext(
-                        posts.getContent(),
+                        comments,
                         user
                 );
 
-        return posts.map(post ->
-                build(
-                        post,
-                        context
-                )
-        );
-    }
-
-    public List<PostResponse> buildList(
-            List<Post> posts,
-            User user
-    ) {
-
-        PostReactionContext context =
-                reactionContext(
-                        posts,
-                        user
-                );
-
-        return posts.stream()
-                .map(post ->
+        return comments.stream()
+                .map(comment ->
                         build(
-                                post,
+                                comment,
                                 context
                         )
                 )
                 .toList();
     }
 
-    private PostResponse build(
-            Post post,
-            PostReactionContext context
+    private CommentResponse build(
+            Comment comment,
+            CommentReactionContext context
     ) {
 
-        return postMapper.toResponse(
-                post,
-                context.reactionCountsByPostId()
+        return commentMapper.toResponse(
+                comment,
+                context.reactionCountsByCommentId()
                         .getOrDefault(
-                                post.getId(),
+                                comment.getId(),
                                 Map.of()
                         ),
-                context.viewerReactionsByPostId()
-                        .get(post.getId())
+                context.viewerReactionsByCommentId()
+                        .get(comment.getId())
         );
     }
 
-    private PostReactionContext reactionContext(
-            List<Post> posts,
+    private CommentReactionContext reactionContext(
+            List<Comment> comments,
             User user
     ) {
 
-        List<Long> postIds =
-                posts.stream()
-                        .map(Post::getId)
+        List<Long> commentIds =
+                comments.stream()
+                        .map(Comment::getId)
                         .toList();
 
-        if (postIds.isEmpty()) {
-            return new PostReactionContext(
+        if (commentIds.isEmpty()) {
+            return new CommentReactionContext(
                     Map.of(),
                     Map.of()
             );
         }
 
-        return new PostReactionContext(
-                reactionCountsByPostId(postIds),
-                viewerReactionsByPostId(
-                        postIds,
+        return new CommentReactionContext(
+                reactionCountsByCommentId(commentIds),
+                viewerReactionsByCommentId(
+                        commentIds,
                         user
                 )
         );
     }
 
-    private Map<Long, Map<ReactionType, Long>> reactionCountsByPostId(
-            List<Long> postIds
+    private Map<Long, Map<ReactionType, Long>> reactionCountsByCommentId(
+            List<Long> commentIds
     ) {
 
         return likeRepository
-                .countPostReactionsByPostIds(
-                        LikeTargetType.POST,
-                        postIds
+                .countCommentReactionsByCommentIds(
+                        LikeTargetType.COMMENT,
+                        commentIds
                 )
                 .stream()
                 .collect(
@@ -144,8 +124,8 @@ public class PostResponseService {
                 );
     }
 
-    private Map<Long, ReactionType> viewerReactionsByPostId(
-            List<Long> postIds,
+    private Map<Long, ReactionType> viewerReactionsByCommentId(
+            List<Long> commentIds,
             User user
     ) {
 
@@ -154,23 +134,23 @@ public class PostResponseService {
         }
 
         return likeRepository
-                .findByUserIdAndPostIds(
+                .findByUserIdAndCommentIds(
                         user.getId(),
-                        LikeTargetType.POST,
-                        postIds
+                        LikeTargetType.COMMENT,
+                        commentIds
                 )
                 .stream()
                 .collect(
                         Collectors.toMap(
-                                like -> like.getPost()
+                                like -> like.getComment()
                                         .getId(),
                                 Like::getReactionType
                         )
                 );
     }
 
-    private record PostReactionContext(
-            Map<Long, Map<ReactionType, Long>> reactionCountsByPostId,
-            Map<Long, ReactionType> viewerReactionsByPostId
+    private record CommentReactionContext(
+            Map<Long, Map<ReactionType, Long>> reactionCountsByCommentId,
+            Map<Long, ReactionType> viewerReactionsByCommentId
     ) {}
 }
