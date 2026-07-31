@@ -99,8 +99,12 @@ export async function backend<T>(
     } catch {
       details = await response.text()
     }
+    const detailString =
+      typeof details === "object" ? JSON.stringify(details) : String(details)
 
-    throw new Error(`Backend request failed (${response.status}): ${details}`)
+    throw new Error(
+      `Backend request failed (${response.status}): ${detailString}`
+    )
   }
 
   if (response.status === 204) {
