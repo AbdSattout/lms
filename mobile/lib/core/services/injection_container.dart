@@ -9,11 +9,13 @@ import '../../features/courses/data/datasources/block_remote_datasource.dart';
 import '../../features/courses/data/repositories/block_repository_impl.dart';
 import '../../features/courses/domain/repositories/block_repository.dart';
 import '../../features/courses/domain/usecases/enroll_in_course_usecase.dart';
+import '../../features/courses/domain/usecases/get_all_courses_usecase.dart';
 import '../../features/courses/domain/usecases/get_block_content_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
+import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
@@ -105,7 +107,7 @@ Future<void> init() async {
   ));
 
 
-
+ //Profile
   sl.registerLazySingleton<ProfileRemoteDataSource>(
         () => ProfileRemoteDataSourceImpl(sl()),
   );
@@ -134,6 +136,7 @@ Future<void> init() async {
           updateProfileUseCase: sl())
   );
 
+
 //Courses
 
   sl.registerLazySingleton<CourseRemoteDataSource>(
@@ -144,6 +147,7 @@ Future<void> init() async {
         () => CourseRepositoryImpl(sl()),
   );
 
+  sl.registerLazySingleton(() => GetAllCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetMyEnrollmentsUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
@@ -212,6 +216,14 @@ Future<void> init() async {
     getBlockContentUseCase: sl(),
     submitBlockAnswerUseCase: sl(),
   ));
+
+  //Home
+  sl.registerFactory(
+        () => HomeBloc(
+      getAllCoursesUseCase: sl(),
+      getAllOrganizationsUseCase: sl(),
+    ),
+  );
 
   //! External
   

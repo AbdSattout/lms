@@ -10,9 +10,13 @@ class OrganizationModel extends OrganizationEntity {
     super.visibility,
     super.ownerName,
     super.membersCount,
+    super.viewerJoined,
+    super.viewerRole,
   });
 
   factory OrganizationModel.fromJson(Map<String, dynamic> json) {
+    final viewer = json['viewer'] as Map<String, dynamic>?;
+
     return OrganizationModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
@@ -22,6 +26,8 @@ class OrganizationModel extends OrganizationEntity {
       visibility: OrganizationVisibility.fromApi(json['visibility']),
       ownerName: json['ownerName'],
       membersCount: json['membersCount'] ?? 0,
+      viewerJoined: viewer?['joined'] ?? false,
+      viewerRole: viewer?['role'],
     );
   }
 }

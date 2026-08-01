@@ -6,16 +6,10 @@ import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
 import '../bloc/course_details_state.dart';
+import 'course_contents_page.dart';
 
-class CourseDetailsPage extends StatefulWidget {
+class CourseDetailsPage extends StatelessWidget {
   const CourseDetailsPage({super.key});
-
-  @override
-  State<CourseDetailsPage> createState() => _CourseDetailsPageState();
-}
-
-class _CourseDetailsPageState extends State<CourseDetailsPage> {
-  bool _justEnrolled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +19,6 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
         current is CourseEnrollSuccess || current is CourseDetailsError,
         listener: (context, state) {
           if (state is CourseEnrollSuccess) {
-            setState(() => _justEnrolled = true);
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
@@ -51,21 +44,17 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
           if (state is CourseDetailsError) {
             return Center(
-              child: Text(
-                state.message,
-                textAlign: TextAlign.center,
-              ),
+              child: Text(state.message, textAlign: TextAlign.center),
             );
           }
 
           if (state is CourseDetailsLoaded) {
             return _CourseDetailsContent(
               course: state.course,
-              justEnrolled: _justEnrolled,
               onEnroll: () {
-                context
-                    .read<CourseDetailsBloc>()
-                    .add(EnrollEvent(state.course.id));
+                context.read<CourseDetailsBloc>().add(
+                  EnrollEvent(state.course.id),
+                );
               },
             );
           }
@@ -79,26 +68,25 @@ class _CourseDetailsPageState extends State<CourseDetailsPage> {
 
 class _CourseDetailsContent extends StatelessWidget {
   final CourseEntity course;
-  final bool justEnrolled;
   final VoidCallback onEnroll;
 
   const _CourseDetailsContent({
     required this.course,
-    required this.justEnrolled,
     required this.onEnroll,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isEnrolled = course.enrollment != null;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
-    final isCompleted = course.enrollment?.isCompleted == true;
+    final isCompleted = course.isCompleted;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 110),
+          padding: const EdgeInsets.only(bottom: 130),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -134,15 +122,10 @@ class _CourseDetailsContent extends StatelessWidget {
                           ),
                           Row(
                             children: [
-                              _roundIconButton(
-                                icon: Icons.share_outlined,
-                                onTap: () {},
-                              ),
+                              _roundIconButton(icon: Icons.share_outlined, onTap: () {}),
                               const SizedBox(width: 10),
                               _roundIconButton(
-                                icon: Icons.bookmark_border_rounded,
-                                onTap: () {},
-                              ),
+                                  icon: Icons.bookmark_border_rounded, onTap: () {}),
                             ],
                           ),
                         ],
@@ -150,21 +133,18 @@ class _CourseDetailsContent extends StatelessWidget {
                     ),
                   ),
 
-                  if (course.organizationName != null)
+                  if (course.organizationDisplayName != null)
                     Positioned(
                       bottom: 16,
                       right: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.45),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          course.organizationName!,
+                          course.organizationDisplayName!,
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 12,
@@ -232,31 +212,32 @@ class _CourseDetailsContent extends StatelessWidget {
 
                     Row(
                       children: [
-                        Expanded(
-                          child: _StatCard(
-                            icon: isCompleted
-                                ? Icons.emoji_events_rounded
-                                : Icons.trending_up_rounded,
-                            iconColor: isCompleted
-                                ? const Color(0xff2E7D53)
-                                : const Color(0xffB4780F),
-                            iconBg: isCompleted
-                                ? AppColors.mint.withOpacity(0.5)
-                                : AppColors.peach.withOpacity(0.5),
-                            label: 'التقدم',
-                            value: isCompleted
-                                ? 'مكتمل'
-                                : '${progressPercentage.toStringAsFixed(0)}٪',
+                        if (isEnrolled)
+                          Expanded(
+                            child: _StatCard(
+                              icon: isCompleted
+                                  ? Icons.emoji_events_rounded
+                                  : Icons.trending_up_rounded,
+                              iconColor: isCompleted
+                                  ? const Color(0xff2E7D53)
+                                  : const Color(0xffB4780F),
+                              iconBg: isCompleted
+                                  ? AppColors.mint.withOpacity(0.5)
+                                  : AppColors.peach.withOpacity(0.5),
+                              label: 'التقدم',
+                              value: isCompleted
+                                  ? 'مكتمل'
+                                  : '${progressPercentage.toStringAsFixed(0)}٪',
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 12),
+                        if (isEnrolled) const SizedBox(width: 12),
                         Expanded(
                           child: _StatCard(
                             icon: Icons.apartment_rounded,
                             iconColor: AppColors.primary,
                             iconBg: AppColors.primaryLight,
                             label: 'المنظمة',
-                            value: course.organizationName ?? '—',
+                            value: course.organizationDisplayName ?? '—',
                           ),
                         ),
                       ],
@@ -274,34 +255,62 @@ class _CourseDetailsContent extends StatelessWidget {
           bottom: 20,
           child: SafeArea(
             top: false,
-            child: SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: justEnrolled ? null : onEnroll,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  disabledBackgroundColor: colors.onSurfaceVariant,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton.icon(
+                    onPressed: isEnrolled
+                        ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => CourseContentsPage(course: course),
+                        ),
+                      );
+                    }
+                        : onEnroll,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 4,
+                    ),
+                    icon: Icon(
+                      isEnrolled
+                          ? Icons.play_circle_fill_rounded
+                          : Icons.rocket_launch_rounded,
+                      color: Colors.white,
+                    ),
+                    label: Text(
+                      isEnrolled ? 'متابعة' : 'سجّل الآن',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
-                  elevation: 4,
                 ),
-                icon: Icon(
-                  justEnrolled
-                      ? Icons.check_circle_rounded
-                      : Icons.rocket_launch_rounded,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  justEnrolled ? 'تم التسجيل' : 'سجّل الآن',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+
+                const SizedBox(height: 10),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('منشورات الكورس قريباً')),
+                      );
+                    },
+                    icon: const Icon(Icons.forum_outlined, size: 18),
+                    label: const Text('منشورات الكورس'),
                   ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -326,11 +335,7 @@ class _CourseDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _roundIconButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
-    //NOTE TO SELF:KEEP THE COLORS WHITE DUMDUM
+  Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -376,29 +381,15 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(height: 10),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: colors.onSurface,
-            ),
-          ),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
         ],
       ),
     );

@@ -1,32 +1,6 @@
 import '../../domain/entities/course_entity.dart';
-
-class RewardModel extends RewardEntity {
-  const RewardModel({
-    required super.eventType,
-    super.referenceId,
-    required super.awarded,
-    required super.xpAwarded,
-    required super.totalXp,
-    required super.previousLevelNumber,
-    required super.currentLevelNumber,
-    required super.currentLevelTitle,
-    required super.leveledUp,
-  });
-
-  factory RewardModel.fromJson(Map<String, dynamic> json) {
-    return RewardModel(
-      eventType: json['eventType'] ?? '',
-      referenceId: json['referenceId'],
-      awarded: json['awarded'] ?? false,
-      xpAwarded: json['xpAwarded'] ?? 0,
-      totalXp: json['totalXp'] ?? 0,
-      previousLevelNumber: json['previousLevelNumber'] ?? 0,
-      currentLevelNumber: json['currentLevelNumber'] ?? 0,
-      currentLevelTitle: json['currentLevelTitle'] ?? '',
-      leveledUp: json['leveledUp'] ?? false,
-    );
-  }
-}
+import '../../../organizations/domain/entities/organization_entity.dart'
+    show OrganizationVisibility;
 
 class BlockModel extends BlockEntity {
   const BlockModel({
@@ -86,6 +60,28 @@ class ChapterModel extends ChapterEntity {
       lessons: (json['lessons'] as List? ?? [])
           .map((l) => LessonModel.fromJson(l as Map<String, dynamic>))
           .toList(),
+    );
+  }
+}
+
+class CourseOrganizationRefModel extends CourseOrganizationRef {
+  const CourseOrganizationRefModel({
+    required super.id,
+    required super.name,
+    required super.slug,
+    super.description,
+    super.image,
+    super.visibility,
+  });
+
+  factory CourseOrganizationRefModel.fromJson(Map<String, dynamic> json) {
+    return CourseOrganizationRefModel(
+      id: json['id'] ?? 0,
+      name: json['name'] ?? '',
+      slug: json['slug'] ?? '',
+      description: json['description'],
+      image: json['image'],
+      visibility: OrganizationVisibility.fromApi(json['visibility']),
     );
   }
 }
@@ -156,6 +152,7 @@ class CourseModel extends CourseEntity {
     super.description,
     super.coverUrl,
     super.organizationName,
+    super.organization,
     super.status,
     super.enrollment,
     super.chapters,
@@ -170,6 +167,11 @@ class CourseModel extends CourseEntity {
       description: json['description'],
       coverUrl: json['coverUrl'],
       organizationName: json['organizationName'],
+      organization: json['organization'] != null
+          ? CourseOrganizationRefModel.fromJson(
+        json['organization'] as Map<String, dynamic>,
+      )
+          : null,
       status: json['status'],
       enrollment: json['enrollment'] != null
           ? CourseEnrollmentDetailsModel.fromJson(
@@ -184,6 +186,34 @@ class CourseModel extends CourseEntity {
         json['progress'] as Map<String, dynamic>,
       )
           : null,
+    );
+  }
+}
+
+class RewardModel extends RewardEntity {
+  const RewardModel({
+    required super.eventType,
+    super.referenceId,
+    required super.awarded,
+    required super.xpAwarded,
+    required super.totalXp,
+    required super.previousLevelNumber,
+    required super.currentLevelNumber,
+    required super.currentLevelTitle,
+    required super.leveledUp,
+  });
+
+  factory RewardModel.fromJson(Map<String, dynamic> json) {
+    return RewardModel(
+      eventType: json['eventType'] ?? '',
+      referenceId: json['referenceId'],
+      awarded: json['awarded'] ?? false,
+      xpAwarded: json['xpAwarded'] ?? 0,
+      totalXp: json['totalXp'] ?? 0,
+      previousLevelNumber: json['previousLevelNumber'] ?? 0,
+      currentLevelNumber: json['currentLevelNumber'] ?? 0,
+      currentLevelTitle: json['currentLevelTitle'] ?? '',
+      leveledUp: json['leveledUp'] ?? false,
     );
   }
 }

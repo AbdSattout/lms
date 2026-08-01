@@ -4,7 +4,7 @@ import { Suspense } from "react"
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
 import { Skeleton } from "@/components/ui/skeleton"
 import { CreatePostForm } from "@/components/forms/create-post-form"
-import { api } from "@/lib/api" // استيراد الـ API لجلب الدورات
+import { api } from "@/lib/api"
 
 export default async function CreatePostPage({
   params,
@@ -13,7 +13,6 @@ export default async function CreatePostPage({
 }) {
   const { slug } = await params
 
-  // جلب الدورات الخاصة بالمنظمة لتمريرها كخيارات في المنشور
   const courses = await api.dashboard.organizations.courses
     .get(slug)
     .catch(() => [])
@@ -35,7 +34,6 @@ export default async function CreatePostPage({
           </div>
         }
       >
-        {/* تمرير الدورات للمكون */}
         <CreatePostForm orgSlug={slug} courses={courses} />
       </Suspense>
     </>

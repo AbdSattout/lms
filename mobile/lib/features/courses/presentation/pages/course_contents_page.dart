@@ -121,7 +121,7 @@ class CourseContentsPage extends StatelessWidget {
                             ),
                           ),
 
-                          if (course.organizationName != null)
+                          if (course.organizationDisplayName != null)
                             Padding(
                               padding: const EdgeInsets.only(top: 6),
                               child: Row(
@@ -136,7 +136,7 @@ class CourseContentsPage extends StatelessWidget {
                                   const SizedBox(width: 6),
 
                                   Text(
-                                    course.organizationName!,
+                                    course.organizationDisplayName!,
                                     style: TextStyle(
                                       color: colors.onSurfaceVariant,
                                     ),
@@ -206,6 +206,42 @@ class CourseContentsPage extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // STUBS — no unenroll or course-posts endpoint yet.
+                    // Wire these once the backend provides them.
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('منشورات الكورس قريباً')),
+                              );
+                            },
+                            icon: const Icon(Icons.forum_outlined, size: 18),
+                            label: const Text('منشورات الكورس'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xffD9534F),
+                              side: const BorderSide(color: Color(0xffD9534F)),
+                            ),
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('إلغاء التسجيل قريباً')),
+                              );
+                            },
+                            icon: const Icon(Icons.logout_rounded, size: 18),
+                            label: const Text('إلغاء التسجيل'),
+                          ),
+                        ),
+                      ],
                     ),
 
                     const SizedBox(height: 30),

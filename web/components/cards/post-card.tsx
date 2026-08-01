@@ -71,15 +71,9 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
       })
     : ""
 
-  const thumbnailMatch = post.content?.match(/!\[.*?\]\((.*?)\)/)
+  // ✅ 1. UPDATE: Fetch image URL from HTML (using <img src="..." > structure) instead of Markdown
+  const thumbnailMatch = post.content?.match(/<img[^>]+src=["']([^"']+)["']/i)
   const thumbnail = thumbnailMatch?.[1] ?? null
-  const previewText =
-    post.content
-      ?.replace(/!\[.*?\]\(.*?\)/g, "")
-      .replace(/\[([^\]]+)\]\(.*?\)/g, "$1")
-      .replace(/[#*`>~\-_]/g, "")
-      .trim()
-      .slice(0, 200) ?? ""
 
   return (
     <>
@@ -148,7 +142,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
             </h3>
 
             {thumbnail && (
-              <div className="relative mb-3 h-52 w-full overflow-hidden rounded-xl border border-border/40">
+              <div className="relative z-20 mb-3 h-52 w-full overflow-hidden rounded-xl border border-border/40">
                 <Image
                   src={thumbnail}
                   alt=""
@@ -159,10 +153,15 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
               </div>
             )}
 
-            {previewText && (
-              <p className="mb-3 line-clamp-3 text-[15.5px] leading-relaxed text-muted-foreground">
-                {previewText}
-              </p>
+            {/* ✅ 2. UPDATE: Added correctly mapped HTML to preserve colors and boldness  */}
+            {post.content && (
+              <div
+                className="prose prose-sm dark:prose-invert line-clamp-3 max-w-none overflow-hidden text-[15px] leading-relaxed text-muted-foreground"
+                dir="rtl"
+                dangerouslySetInnerHTML={{
+                  __html: post.content,
+                }}
+              />
             )}
           </Link>
         </div>
@@ -175,7 +174,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
 
           <Link
             href={`/${orgSlug}/posts/${post.id}` as Route}
-            className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary"
+            className="z-20 flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary"
           >
             <MessageCircle className="h-5 w-5" />
             <span className="text-[15px] font-bold">
@@ -211,7 +210,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
               disabled={isDeleting}
               onClick={handleDelete}
             >
-              {isDeleting ? "جاري الحذف..." : "حذف تأكيد"}
+              {isDeleting ? "جاري الحذف..." : "تأكيد الحذف"}
             </Button>
           </div>
         </DialogContent>

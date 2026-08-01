@@ -1,7 +1,11 @@
 "use server"
 
 import { api } from "@/lib/api"
-import { createOrganizationSchema, slugSchema, updateOrganizationSchema } from "@/lib/validation"
+import {
+  createOrganizationSchema,
+  slugSchema,
+  updateOrganizationSchema,
+} from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 export async function createOrganization(
@@ -85,11 +89,7 @@ export async function updateOrganization(
   const imageFile = image && image.size > 0 ? image : undefined
 
   try {
-    await api.dashboard.organizations.bySlug.patch(
-      oldSlug,
-      request,
-      imageFile
-    )
+    await api.dashboard.organizations.bySlug.patch(oldSlug, request, imageFile)
   } catch (error) {
     console.error("Failed to update organization:", error)
     return { error: "حدث خطأ أثناء الحفظ" }

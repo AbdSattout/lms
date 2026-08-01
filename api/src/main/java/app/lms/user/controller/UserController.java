@@ -1,11 +1,13 @@
 package app.lms.user.controller;
 
 
-import app.lms.user.dto.UpdateUserRequest;
-import app.lms.user.dto.UserResponse;
 import app.lms.security.UserPrincipal;
 import app.lms.user.dto.CurrentUserResponse;
 import app.lms.user.dto.ProfileResponse;
+import app.lms.user.dto.RequestUserEmailOtpRequest;
+import app.lms.user.dto.UpdateUserRequest;
+import app.lms.user.dto.UserResponse;
+import app.lms.user.dto.VerifyUserEmailOtpRequest;
 import app.lms.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +56,36 @@ public class UserController {
                 );
 
         return ResponseEntity.ok(updatedUser);
+    }
+
+    @PostMapping("/me/email/request-otp")
+    public ResponseEntity<Void> requestEmailOtp(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody @Valid RequestUserEmailOtpRequest request
+    ) {
+
+        userService.requestEmailOtp(
+                userPrincipal.getId(),
+                request
+        );
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
+
+    @PostMapping("/me/email/verify-otp")
+    public ResponseEntity<CurrentUserResponse> verifyEmailOtp(
+            @AuthenticationPrincipal UserPrincipal userPrincipal,
+            @RequestBody @Valid VerifyUserEmailOtpRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                userService.verifyEmailOtp(
+                        userPrincipal.getId(),
+                        request
+                )
+        );
     }
 
 
