@@ -1,5 +1,6 @@
 package app.lms.media.service;
 
+import app.lms.common.exception.BadRequestException;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
@@ -13,6 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @Service
@@ -38,7 +42,25 @@ public class MediaService {
             String folder,
             FileType fileType
     ) {
-        validateFile(file, fileType);
+        return upload(
+                file,
+                folder,
+                fileType,
+                false
+        );
+    }
+
+    public UploadedFile upload(
+            MultipartFile file,
+            String folder,
+            FileType fileType,
+            boolean gifAllowed
+    ) {
+        validateFile(
+                file,
+                fileType,
+                gifAllowed
+        );
 
         try {
 
@@ -110,11 +132,12 @@ public class MediaService {
     //VALIDATE FILE
     private void validateFile(
             MultipartFile file,
-            FileType fileType
+            FileType fileType,
+            boolean gifAllowed
     ) {
         if (file.isEmpty()) {
 
-            throw new ImageUploadException(
+            throw new BadRequestException(
                     "File is empty"
             );
         }
@@ -124,20 +147,24 @@ public class MediaService {
 
             case IMAGE -> {
 
-                if (
-                        contentType == null ||
-                                !contentType.startsWith("image/")
-                ) {
+                if (file.getSize() > MAX_IMAGE_SIZE) {
 
-                    throw new ImageUploadException(
+                    throw new BadRequestException(
+                            "Image size exceeded"
+                    );
+                }
+
+                if (!isImage(file)) {
+
+                    throw new BadRequestException(
                             "Invalid image type"
                     );
                 }
 
-                if (file.getSize() > MAX_IMAGE_SIZE) {
+                if (!gifAllowed && isGif(file)) {
 
-                    throw new ImageUploadException(
-                            "Image size exceeded"
+                    throw new BadRequestException(
+                            "GIF uploads require premium"
                     );
                 }
             }
@@ -149,14 +176,14 @@ public class MediaService {
                                 !contentType.startsWith("video/")
                 ) {
 
-                    throw new ImageUploadException(
+                    throw new BadRequestException(
                             "Invalid video type"
                     );
                 }
 
                 if (file.getSize() > MAX_VIDEO_SIZE) {
 
-                    throw new ImageUploadException(
+                    throw new BadRequestException(
                             "Video size exceeded"
                     );
                 }
@@ -164,17 +191,156 @@ public class MediaService {
             case FILE -> {
 
                 if (contentType == null) {
-                    throw new ImageUploadException(
+                    throw new BadRequestException(
                             "Invalid file type"
                     );
                 }
 
                 if (file.getSize() > MAX_FILE_SIZE) {
-                    throw new ImageUploadException(
+                    throw new BadRequestException(
                             "File size exceeded"
                     );
                 }
             }
         }
+    }
+
+    public boolean isGif(
+            MultipartFile file
+    ) {
+
+        if (file == null || file.isEmpty()) {
+            return false;
+        }
+
+        return isGifHeader(
+                header(
+                        file,
+                        6
+                )
+        );
+    }
+
+    public boolean isImage(
+            MultipartFile file
+    ) {
+
+        byte[] header =
+                header(
+                        file,
+                        12
+                );
+
+        return isJpeg(header)
+                || isPng(header)
+                || isWebp(header)
+                || isGifHeader(header);
+    }
+
+    private byte[] header(
+            MultipartFile file,
+            int size
+    ) {
+
+        try (InputStream inputStream = file.getInputStream()) {
+            return inputStream.readNBytes(size);
+        } catch (IOException ex) {
+            throw new ImageUploadException(
+                    "File read failed",
+                    ex
+            );
+        }
+    }
+
+    private boolean isJpeg(
+            byte[] header
+    ) {
+
+        return hasBytes(
+                header,
+                0xFF,
+                0xD8,
+                0xFF
+        );
+    }
+
+    private boolean isPng(
+            byte[] header
+    ) {
+
+        return hasBytes(
+                header,
+                0x89,
+                0x50,
+                0x4E,
+                0x47,
+                0x0D,
+                0x0A,
+                0x1A,
+                0x0A
+        );
+    }
+
+    private boolean isWebp(
+            byte[] header
+    ) {
+
+        return hasBytes(
+                header,
+                0x52,
+                0x49,
+                0x46,
+                0x46
+        )
+                && header.length >= 12
+                && new String(
+                        header,
+                        8,
+                        4,
+                        StandardCharsets.US_ASCII
+                )
+                .equals("WEBP");
+    }
+
+    private boolean isGifHeader(
+            byte[] header
+    ) {
+
+        return hasBytes(
+                header,
+                0x47,
+                0x49,
+                0x46,
+                0x38,
+                0x37,
+                0x61
+        )
+                || hasBytes(
+                        header,
+                        0x47,
+                        0x49,
+                        0x46,
+                        0x38,
+                        0x39,
+                        0x61
+                );
+    }
+
+    private boolean hasBytes(
+            byte[] header,
+            int... expected
+    ) {
+
+        if (header.length < expected.length) {
+            return false;
+        }
+
+        for (int i = 0; i < expected.length; i++) {
+            if ((header[i] & 0xFF) != expected[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

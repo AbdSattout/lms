@@ -105,7 +105,10 @@ public class DashboardOrganizationService {
 
         UploadedFile uploaded =
                 image != null && !image.isEmpty()
-                        ? uploadOrganizationImage(image)
+                        ? uploadOrganizationImage(
+                                image,
+                                user
+                        )
                         : null;
 
         Organization organization = Organization.builder()
@@ -171,7 +174,8 @@ public class DashboardOrganizationService {
 
             UploadedFile uploaded =
                     uploadOrganizationImage(
-                            image
+                            image,
+                            organization.getOwner()
                     );
 
             organization.setImageUrl(
@@ -385,14 +389,33 @@ public class DashboardOrganizationService {
 
 
     private UploadedFile uploadOrganizationImage(
-            MultipartFile image
+            MultipartFile image,
+            User planOwner
     ) {
+
+        validateGifUploadAllowed(
+                planOwner,
+                image
+        );
 
         return mediaService.upload(
                 image,
                 "/organizations",
-                FileType.IMAGE
+                FileType.IMAGE,
+                true
         );
+    }
+
+    private void validateGifUploadAllowed(
+            User planOwner,
+            MultipartFile image
+    ) {
+
+        if (!mediaService.isGif(image)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(planOwner);
     }
 
     private void createOwnerMember(
