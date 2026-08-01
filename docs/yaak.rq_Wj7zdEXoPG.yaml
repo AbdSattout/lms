@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_Wj7zdEXoPG
+createdAt: 2026-07-30T17:39:34.249534700
+updatedAt: 2026-07-30T17:54:48.884990200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_XugeQvJB6M
+authentication: {}
+authenticationType: null
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 8bH7FkJpc6
+method: DELETE
+name: unban from org
+sortPriority: 0.001
+url: http://localhost:8080/organizations/{organizationId}/users/{userId}/ban
+urlParameters: []

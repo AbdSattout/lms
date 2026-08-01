@@ -1,0 +1,26 @@
+type: http_request
+model: http_request
+id: rq_4bZk6gjJzU
+createdAt: 2026-07-30T17:55:13.494374200
+updatedAt: 2026-07-30T17:56:13.484393700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_XugeQvJB6M
+authentication: {}
+authenticationType: null
+body:
+  text: |-
+    {
+      "reason": "kick"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 8bH7FkJpc6
+method: POST
+name: ban from course
+sortPriority: 0.002
+url: http://localhost:8080/courses/{courseId}/users/{userId}/ban
+urlParameters: []

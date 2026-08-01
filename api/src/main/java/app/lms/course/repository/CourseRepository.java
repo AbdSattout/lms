@@ -2,31 +2,22 @@ package app.lms.course.repository;
 
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
+import app.lms.organization.repository.projection.OrganizationCountProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 public interface CourseRepository
         extends JpaRepository<Course, Long> {
 
-    Page<Course> findAllByOrganizationId(
-            Long organizationId,
-            Pageable pageable
-    );
-
-
     List<Course> findAllByOrganizationId(
             Long organizationId
-    );
-
-    List<Course> findAllByOrganizationIdAndStatus(
-            Long organizationId,
-            CourseStatus status
     );
 
     Page<Course> findAllByOrganizationIdAndStatus(
@@ -101,5 +92,29 @@ public interface CourseRepository
     long countByOrganizationIdAndStatus(
             Long organizationId,
             CourseStatus status
+    );
+
+    @Query("""
+            select course.organization.id as organizationId,
+                   count(course.id) as total
+            from Course course
+            where course.organization.id in :organizationIds
+            group by course.organization.id
+            """)
+    List<OrganizationCountProjection> countByOrganizationIds(
+            @Param("organizationIds") Collection<Long> organizationIds
+    );
+
+    @Query("""
+            select course.organization.id as organizationId,
+                   count(course.id) as total
+            from Course course
+            where course.organization.id in :organizationIds
+            and course.status = :status
+            group by course.organization.id
+            """)
+    List<OrganizationCountProjection> countByOrganizationIdsAndStatus(
+            @Param("organizationIds") Collection<Long> organizationIds,
+            @Param("status") CourseStatus status
     );
 }

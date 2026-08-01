@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_BfUKCnaJ8w
+createdAt: 2026-07-31T22:32:52.886104300
+updatedAt: 2026-07-31T22:33:28.886756700
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RzR3iA2rrn
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get received request
+sortPriority: 0.006
+url: http://localhost:8080/friends/requests/received
+urlParameters: []

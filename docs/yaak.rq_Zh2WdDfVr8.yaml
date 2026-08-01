@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_Zh2WdDfVr8
+createdAt: 2026-07-31T22:32:14.217445200
+updatedAt: 2026-07-31T22:32:45.512049300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RzR3iA2rrn
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: GET
+name: get friends
+sortPriority: 0.005
+url: http://localhost:8080/friends
+urlParameters: []

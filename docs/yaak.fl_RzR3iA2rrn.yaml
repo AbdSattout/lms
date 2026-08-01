@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_RzR3iA2rrn
+createdAt: 2026-07-31T22:21:46.870313400
+updatedAt: 2026-07-31T22:21:51.176614800
+workspaceId: wk_LvqrSfWmRY
+folderId: null
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: friend
+sortPriority: 20000.0

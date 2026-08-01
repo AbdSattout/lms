@@ -1,10 +1,14 @@
 package app.lms.post.repository;
 
+import app.lms.organization.repository.projection.OrganizationCountProjection;
 import app.lms.post.model.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,15 +25,6 @@ public interface PostRepository
             Pageable pageable
     );
 
-    List<Post> findAllByOrganizationIdAndCourseIsNullOrderByCreatedAtDesc(
-            Long organizationId
-    );
-
-    List<Post> findAllByOrganizationIdAndCourseIdInOrderByCreatedAtDesc(
-            Long organizationId,
-            List<Long> courseIds
-    );
-
     Optional<Post> findByIdAndOrganizationId(
             Long id,
             Long organizationId
@@ -40,4 +35,15 @@ public interface PostRepository
     );
 
     long countByOrganizationId(Long organizationId);
+
+    @Query("""
+            select post.organization.id as organizationId,
+                   count(post.id) as total
+            from Post post
+            where post.organization.id in :organizationIds
+            group by post.organization.id
+            """)
+    List<OrganizationCountProjection> countByOrganizationIds(
+            @Param("organizationIds") Collection<Long> organizationIds
+    );
 }

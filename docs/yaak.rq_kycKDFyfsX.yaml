@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_kycKDFyfsX
+createdAt: 2026-07-30T18:03:36.536880
+updatedAt: 2026-07-30T18:04:34.123568800
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_bPEMGkkY8L
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgwMzA1MzEwLCJleHAiOjE3ODA5MTAxMTB9.dQrVrav_jaEUDP4eC6JVs25kTRi2WXfLg123TB_twR0
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "reason": "kick"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: mAS9TrRG8g
+method: DELETE
+name: Delete user from Course
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/courses/{courseId}/members/{memberId}
+urlParameters: []

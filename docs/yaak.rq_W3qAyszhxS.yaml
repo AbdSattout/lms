@@ -1,0 +1,23 @@
+type: http_request
+model: http_request
+id: rq_W3qAyszhxS
+createdAt: 2026-07-30T17:55:14.284192300
+updatedAt: 2026-07-30T17:55:49.479698300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_XugeQvJB6M
+authentication: {}
+authenticationType: null
+body:
+  text: ''
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: 8bH7FkJpc6
+method: DELETE
+name: unban from course
+sortPriority: 0.003
+url: http://localhost:8080/courses/{courseId}/users/{userId}/ban
+urlParameters: []

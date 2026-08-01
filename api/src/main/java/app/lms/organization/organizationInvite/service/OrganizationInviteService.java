@@ -9,6 +9,7 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationInvite.dto.CreateInviteRequest;
 import app.lms.organization.organizationInvite.dto.CreatePublicInviteRequest;
+import app.lms.organization.organizationInvite.dto.OrganizationInviteOverviewResponse;
 import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
 import app.lms.organization.organizationInvite.dto.UpdateInviteCapacityRequest;
 import app.lms.organization.organizationInvite.enums.InviteStatus;
@@ -25,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -37,6 +39,7 @@ public class OrganizationInviteService {
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationInviteMapper organizationInviteMapper;
     private final OrganizationBanRepository organizationBanRepository;
+    private final OrganizationInviteOverviewService organizationInviteOverviewService;
 
     public OrganizationInviteResponse invite(
             String slug,
@@ -372,12 +375,27 @@ public class OrganizationInviteService {
         }
     }
     public List<OrganizationInviteResponse> getMyInvites(User user, Role role) {
-        return organizationInviteRepository.findAllByUserIdAndRoleAndStatus(
+        List<OrganizationInvite> invites =
+                organizationInviteRepository.findAllByUserIdAndRoleAndStatus(
                         user.getId(),
                         role,
                         InviteStatus.PENDING
-                ).stream()
-                .map(organizationInviteMapper::toResponse)
+                );
+
+        Map<Long, OrganizationInviteOverviewResponse> overviews =
+                organizationInviteOverviewService
+                        .buildByOrganizationId(invites);
+
+        return invites
+                .stream()
+                .map(invite ->
+                        organizationInviteMapper.toResponse(
+                                invite,
+                                overviews.get(
+                                        invite.getOrganization().getId()
+                                )
+                        )
+                )
                 .toList();
     }
 
