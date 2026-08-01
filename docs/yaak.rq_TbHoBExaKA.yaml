@@ -1,0 +1,19 @@
+type: http_request
+model: http_request
+id: rq_TbHoBExaKA
+createdAt: 2026-07-30T18:05:28.675922500
+updatedAt: 2026-07-30T18:06:09.788281400
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_bcxgeqLASJ
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwiaWF0IjoxNzgzODE2NTQyLCJleHAiOjE3ODQ0MjEzNDJ9.vyZi9zdt2qbGFCZ3tXtWgbQQ5PB9x7mXuBgfBeR2b_E
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: leave from org
+sortPriority: 0.002
+url: https://lms.koyeb.app/organizations/{slug}/leave
+urlParameters: []

@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_FFqZaksh8S
+createdAt: 2026-07-31T22:31:40.559688100
+updatedAt: 2026-07-31T22:32:00.678402100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RzR3iA2rrn
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: DELETE
+name: remove friend
+sortPriority: 0.004
+url: http://localhost:8080/friends/{friendId}
+urlParameters: []
