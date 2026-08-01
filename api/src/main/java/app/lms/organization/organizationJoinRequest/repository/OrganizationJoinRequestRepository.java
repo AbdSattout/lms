@@ -1,7 +1,10 @@
 package app.lms.organization.organizationJoinRequest.repository;
 
+import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -29,4 +32,16 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
     );
 
     void deleteByOrganizationId(Long organizationId);
+
+    Page<OrganizationJoinRequest> findAllByUserIdAndStatus(
+            Long userId,
+            JoinRequestStatus status,
+            Pageable pageable
+    );
+
+    Optional<OrganizationJoinRequest>
+    findByOrganizationIdAndUserId(
+            Long organizationId,
+            Long userId
+    );
 }

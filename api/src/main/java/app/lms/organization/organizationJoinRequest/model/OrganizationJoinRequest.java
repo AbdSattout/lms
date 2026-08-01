@@ -1,5 +1,6 @@
 package app.lms.organization.organizationJoinRequest.model;
 
+import app.lms.common.model.BaseEntity;
 import app.lms.organization.model.Organization;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.user.model.User;
@@ -15,7 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "organization_join_requests")
-public class OrganizationJoinRequest {
+public class OrganizationJoinRequest extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +34,6 @@ public class OrganizationJoinRequest {
     @Column(nullable = false)
     private JoinRequestStatus status;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
     @Column(name = "reviewed_at")
     private LocalDateTime reviewedAt;
 
@@ -43,8 +41,4 @@ public class OrganizationJoinRequest {
     @JoinColumn(name = "reviewed_by_id")
     private User reviewedBy;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

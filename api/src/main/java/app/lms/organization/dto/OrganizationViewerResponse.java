@@ -1,12 +1,14 @@
 package app.lms.organization.dto;
 
 import app.lms.organization.enums.Role;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import lombok.Builder;
 
 @Builder
 public record OrganizationViewerResponse(
 
         boolean joined,
-        Role role
+        Role role,
+        JoinRequestStatus joinRequestStatus
 
 ) {}
