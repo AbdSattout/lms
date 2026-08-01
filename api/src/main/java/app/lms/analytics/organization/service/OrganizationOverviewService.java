@@ -9,7 +9,10 @@ import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.plan.enums.PlanCode;
+import app.lms.plan.mapper.UserPlanMapper;
 import app.lms.plan.model.Plan;
+import app.lms.plan.model.UserPlan;
 import app.lms.plan.service.UserPlanService;
 import app.lms.post.repository.PostRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
@@ -17,6 +20,7 @@ import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,10 +38,13 @@ public class OrganizationOverviewService {
 
     private final UserPlanService userPlanService;
 
+    private final UserPlanMapper userPlanMapper;
+
     private final OrganizationMediaRepository organizationMediaRepository;
 
     private final RoadmapRepository roadmapRepository;
 
+    @Transactional
     public OrganizationOverviewResponse getOverview(
 
             String slug,
@@ -48,9 +55,14 @@ public class OrganizationOverviewService {
                 organizationAccessService
                         .getManageableOrganization(
                                 slug,
-                                user
-                        );
+                        user
+                );
 
+        UserPlan ownerPlan =
+                userPlanService
+                        .getOrCreateCurrentUserPlan(
+                                organization.getOwner()
+                        );
 
         return OrganizationOverviewResponse
                 .builder()
@@ -58,6 +70,15 @@ public class OrganizationOverviewService {
                 .owner(
                         userMapper.toResponse(
                                 organization.getOwner()
+                        )
+                )
+
+                .ownerPlan(
+                        userPlanMapper.toResponse(
+                                ownerPlan.getPlan(),
+                                ownerPlan,
+                                ownerPlan.getPlan()
+                                        .getCode() == PlanCode.PREMIUM
                         )
                 )
 
@@ -120,7 +141,12 @@ public class OrganizationOverviewService {
                         )
                 )
 
-                .storage(buildStorageResponse(organization))
+                .storage(
+                        buildStorageResponse(
+                                organization,
+                                ownerPlan.getPlan()
+                        )
+                )
 
 
                 .build();
@@ -128,14 +154,9 @@ public class OrganizationOverviewService {
     }
 
     private StorageResponse buildStorageResponse(
-            Organization organization
+            Organization organization,
+            Plan plan
     ) {
-
-        Plan plan =
-                userPlanService
-                        .getOrCreateCurrentPlan(
-                                organization.getOwner()
-                        );
 
         long used =
                 organizationMediaRepository

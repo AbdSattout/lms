@@ -19,6 +19,8 @@ import app.lms.organization.service.OrganizationAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,33 +38,48 @@ public class OrganizationJoinRequestService {
     private final OrganizationBanRepository organizationBanRepository;
 
     @Transactional
-    public JoinRequestResponse createRequest(String slug, User user) {
+    public void join(String slug, User user) {
+
         Organization organization = organizationRepository.findBySlug(slug)
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+                .orElseThrow(() ->
+                        new NotFoundException("Organization not found")
+                );
 
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
+        boolean isMember = memberRepository.existsByOrganizationIdAndUserId(
                 organization.getId(),
-                user.getId())) {
+                user.getId()
+        );
 
-            throw new ForbiddenException(
-                    "You are banned from this organization."
+        if (isMember) {
+            throw new ConflictException(
+                    "You are already a member of this organization."
             );
         }
 
         if (organization.getVisibility() == Visibility.PUBLIC) {
-            throw new ConflictException("Organization is public. You can enroll directly.");
+
+            OrganizationMember member = OrganizationMember.builder()
+                    .organization(organization)
+                    .user(user)
+                    .role(Role.STUDENT)
+                    .build();
+
+            memberRepository.save(member);
+
+            return ;
         }
 
-        boolean isMember = memberRepository.existsByOrganizationIdAndUserId(organization.getId(), user.getId());
-        if (isMember) {
-            throw new ConflictException("You are already a member of this organization.");
-        }
+        boolean hasPendingRequest =
+                joinRequestRepository.existsByOrganizationIdAndUserIdAndStatus(
+                        organization.getId(),
+                        user.getId(),
+                        JoinRequestStatus.PENDING
+                );
 
-        boolean hasPendingRequest = joinRequestRepository.existsByOrganizationIdAndUserIdAndStatus(
-                organization.getId(), user.getId(), JoinRequestStatus.PENDING
-        );
         if (hasPendingRequest) {
-            throw new ConflictException("Join request already sent");
+            throw new ConflictException(
+                    "Join request already sent."
+            );
         }
 
         OrganizationJoinRequest request = OrganizationJoinRequest.builder()
@@ -71,9 +88,9 @@ public class OrganizationJoinRequestService {
                 .status(JoinRequestStatus.PENDING)
                 .build();
 
-        OrganizationJoinRequest savedRequest = joinRequestRepository.save(request);
+        joinRequestRepository.save(request);
 
-        return organizationJoinRequestMapper.toJoinRequestResponse(savedRequest);    }
+    }
 
 
     public List<JoinRequestResponse> getPendingRequests(String slug, User user) {
@@ -144,53 +161,20 @@ public class OrganizationJoinRequestService {
         joinRequestRepository.save(request);
     }
 
-    @Transactional
-    public void join(String slug, User user) {
-
-        Organization organization =
-                organizationRepository
-                        .findBySlug(slug)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Organization not found"
-                                )
-                        );
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                organization.getId(),
-                user.getId())) {
-
-            throw new ForbiddenException(
-                    "You are banned from this organization."
-            );
-        }
-
-        if (organization.getVisibility() != Visibility.PUBLIC) {
-            throw new ConflictException(
-                    "This organization requires a join request."
-            );
-        }
-
-        boolean isMember =
-                memberRepository.existsByOrganizationIdAndUserId(
-                        organization.getId(),
-                        user.getId()
-                );
-
-        if (isMember) {
-            throw new ConflictException(
-                    "You are already a member."
-            );
-        }
-
-        OrganizationMember member =
-                OrganizationMember.builder()
-                        .organization(organization)
-                        .user(user)
-                        .role(Role.STUDENT)
-                        .build();
-
-        memberRepository.save(member);
+    public Page<JoinRequestResponse> getMyRequests(
+            User user,
+            JoinRequestStatus status,
+            Pageable pageable
+    ) {
+        return joinRequestRepository
+                .findAllByUserIdAndStatus(
+                        user.getId(),
+                        status,
+                        pageable
+                )
+                .map(organizationJoinRequestMapper::toJoinRequestResponse);
     }
+
 
 
 }
