@@ -96,7 +96,23 @@ export const comments = defineApiRoute({
       ...options,
     }),
 })
-
+export const commentLikes = defineApiRoute({
+  post: (
+    commentId: number,
+    reactionType?: PostReactionType,
+    options?: BackendFetchOptions
+  ) =>
+    backend<void>(`/comments/${commentId}/likes`, {
+      method: "POST",
+      body: reactionType ? { reactionType } : undefined,
+      ...options,
+    }),
+  delete: (commentId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/comments/${commentId}/likes`, {
+      method: "DELETE",
+      ...options,
+    }),
+})
 export const deleteComment = defineApiRoute({
   delete: (commentId: number, options?: BackendFetchOptions) =>
     backend<void>(`/comments/${commentId}`, {

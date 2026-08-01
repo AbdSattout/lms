@@ -1,14 +1,16 @@
-// components/notifications.tsx
 "use client"
 
 import { useState } from "react"
 import { Bell, Check, X, Loader2 } from "lucide-react"
+
 import { OrganizationInviteResponse } from "@/lib/api/types"
 import {
   getMyPendingInvitesAction,
   acceptInviteAction,
   declineInviteAction,
 } from "@/lib/actions/invites"
+import { cn } from "@/lib/utils"
+import { InviteDetailDialog } from "../forms/invite-detial-dialog"
 
 export function Notifications() {
   const [isOpen, setIsOpen] = useState(false)
@@ -17,6 +19,9 @@ export function Notifications() {
   const [processingInvites, setProcessingInvites] = useState<Set<number>>(
     new Set()
   )
+  const [selectedInvite, setSelectedInvite] =
+    useState<OrganizationInviteResponse | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
 
   const handleToggle = async () => {
     const willOpen = !isOpen
@@ -25,28 +30,26 @@ export function Notifications() {
     if (willOpen) {
       setIsLoading(true)
       const data = await getMyPendingInvitesAction()
-      console.log("My Invites Response:", data)
       setInvites(data)
       setIsLoading(false)
     }
   }
 
-  const handleAccept = async (invite: OrganizationInviteResponse) => {
-    if (!invite.token) {
-      console.error("No token found for invite")
-      return
-    }
+  const handleInviteClick = (invite: OrganizationInviteResponse) => {
+    setSelectedInvite(invite)
+    setIsDetailOpen(true)
+  }
 
+  const handleAccept = async (
+    invite: OrganizationInviteResponse,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation() // لتفادي فتح نافذة التفاصيل إذا قام بالضغط على الزر سريعاً من القائمة المنسدلة
+    if (!invite.token) return
     setProcessingInvites((prev) => new Set(prev).add(invite.id))
-
     const result = await acceptInviteAction(invite.token)
-
-    if (result.success) {
+    if (result.success)
       setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-    } else {
-      console.error("Failed to accept invite:", result.error)
-    }
-
     setProcessingInvites((prev) => {
       const newSet = new Set(prev)
       newSet.delete(invite.id)
@@ -54,22 +57,16 @@ export function Notifications() {
     })
   }
 
-  const handleDecline = async (invite: OrganizationInviteResponse) => {
-    if (!invite.token) {
-      console.error("No token found for invite")
-      return
-    }
-
+  const handleDecline = async (
+    invite: OrganizationInviteResponse,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation()
+    if (!invite.token) return
     setProcessingInvites((prev) => new Set(prev).add(invite.id))
-
     const result = await declineInviteAction(invite.token)
-
-    if (result.success) {
+    if (result.success)
       setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-    } else {
-      console.error("Failed to decline invite:", result.error)
-    }
-
     setProcessingInvites((prev) => {
       const newSet = new Set(prev)
       newSet.delete(invite.id)
@@ -80,79 +77,91 @@ export function Notifications() {
   const pendingCount = invites.length
 
   return (
-    <div className="relative">
+    <div className="relative z-50">
       <button
         onClick={handleToggle}
-        className="relative p-2 text-gray-600 transition-colors hover:text-gray-900 focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+        className={cn(
+          "relative rounded-full p-2.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus:ring-2 focus:ring-ring focus:outline-none",
+          isOpen && "bg-muted text-foreground"
+        )}
       >
-        <Bell className="h-6 w-6" />
+        <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
         {pendingCount > 0 && (
-          <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white ring-2 ring-white dark:ring-gray-900">
-            {pendingCount}
+          <span className="absolute end-1.5 top-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white shadow-sm ring-2 ring-background">
+            {pendingCount > 9 ? "9+" : pendingCount}
           </span>
         )}
       </button>
 
       {isOpen && (
         <>
-          {/* Backdrop for mobile */}
           <div
-            className="fixed inset-0 z-40 md:hidden"
+            className="fixed inset-0 z-40 bg-transparent"
             onClick={() => setIsOpen(false)}
           />
 
-          {/* Notification panel - opens from left to right */}
-          <div className="absolute top-full left-0 z-50 mt-2 w-80 rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-800">
-            <div className="border-b border-gray-200 p-4 dark:border-gray-700">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  الدعوات
+          <div className="absolute end-0 top-[calc(100%+0.5rem)] z-50 w-80 animate-in overflow-hidden rounded-2xl border border-border bg-background shadow-lg shadow-black/5 duration-200 zoom-in-95 fade-in slide-in-from-top-2 sm:w-96">
+            <div className="flex items-center justify-between border-b border-border bg-muted/10 p-4">
+              <div className="flex items-center gap-2">
+                <h3 className="text-base font-semibold tracking-tight text-foreground">
+                  دعوات الإنضمام
                 </h3>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="rounded-md p-1 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                {pendingCount > 0 && (
+                  <span className="flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                    {pendingCount} جديد
+                  </span>
+                )}
               </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            <div className="p-4">
+            <div className="p-2 sm:p-3">
               {isLoading ? (
                 <div className="space-y-3">
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
-                      className="flex animate-pulse flex-col gap-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700"
+                      className="flex animate-pulse flex-col gap-3 rounded-xl bg-muted/40 p-3"
                     >
-                      <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700"></div>
-                      <div className="h-3 w-1/2 rounded bg-gray-100 dark:bg-gray-600"></div>
-                      <div className="mt-2 flex gap-2">
-                        <div className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700"></div>
-                        <div className="h-8 w-16 rounded bg-gray-200 dark:bg-gray-700"></div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 shrink-0 rounded-full bg-muted-foreground/10" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 w-3/4 rounded bg-muted-foreground/20"></div>
+                          <div className="h-3 w-1/2 rounded bg-muted-foreground/10"></div>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : invites.length > 0 ? (
-                <div className="flex max-h-80 flex-col gap-3 overflow-y-auto">
+                <div className="no-scrollbar flex max-h-[350px] flex-col gap-2 overflow-y-auto pb-1">
                   {invites.map((invite) => (
                     <div
                       key={invite.id}
-                      className="flex flex-col gap-2 rounded-lg border border-gray-200 p-3 transition-colors hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600"
+                      onClick={() => handleInviteClick(invite)}
+                      className="group flex cursor-pointer flex-col gap-3 rounded-xl border border-transparent bg-background p-3 transition-all hover:border-border hover:bg-muted/40 active:scale-[0.98] sm:p-4"
                     >
                       <div className="flex items-start justify-between">
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            دعوة من: {invite.invitedByName}
+                        <div className="flex flex-col text-start">
+                          <p className="flex items-center gap-1.5 text-sm leading-tight font-semibold text-foreground">
+                            <span className="opacity-75">مِن:</span>{" "}
+                            {invite.invitedByName}
                           </p>
                           {invite.organization && (
-                            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                              المنظمة: {invite.organization.name}
+                            <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+                              <span>لصالح منظمة:</span>
+                              <span className="font-medium text-foreground opacity-90">
+                                {invite.organization.name}
+                              </span>
                             </p>
                           )}
                         </div>
-                        <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                        <span className="inline-flex shrink-0 items-center rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-secondary-foreground shadow-sm">
                           {invite.role === "ADMIN"
                             ? "مشرف"
                             : invite.role === "STUDENT"
@@ -161,47 +170,77 @@ export function Notifications() {
                         </span>
                       </div>
 
-                      <div className="mt-2 flex gap-2">
+                      <div className="mt-1 flex items-center justify-end gap-2.5">
                         <button
-                          onClick={() => handleAccept(invite)}
+                          onClick={(e) => handleAccept(invite, e)}
                           disabled={processingInvites.has(invite.id)}
-                          className="inline-flex items-center gap-1.5 rounded-md bg-black px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-gray-200"
+                          className="inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-foreground text-xs font-medium text-background transition-colors hover:bg-foreground/80 focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 sm:w-auto sm:px-3"
                         >
                           {processingInvites.has(invite.id) ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <Check className="h-3 w-3" />
+                            <Check className="h-4 w-4 shrink-0" />
                           )}
-                          قبول
+                          <span className="hidden sm:inline">موافقة</span>
                         </button>
                         <button
-                          onClick={() => handleDecline(invite)}
+                          onClick={(e) => handleDecline(invite, e)}
                           disabled={processingInvites.has(invite.id)}
-                          className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                          className="inline-flex h-8 w-8 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-border bg-background text-xs font-medium text-muted-foreground transition-colors hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive focus:ring-2 focus:ring-ring focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 sm:h-9 sm:w-auto sm:px-3"
                         >
                           {processingInvites.has(invite.id) ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
-                            <X className="h-3 w-3" />
+                            <X className="h-4 w-4 shrink-0" />
                           )}
-                          رفض
+                          <span className="hidden sm:inline">رفض</span>
                         </button>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-8 text-center">
-                  <Bell className="mx-auto h-8 w-8 text-gray-300 dark:text-gray-600" />
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    لا توجد دعوات حالياً
+                <div className="flex flex-col items-center justify-center px-4 py-10 text-center">
+                  <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-muted/60 shadow-inner">
+                    <Bell className="h-7 w-7 text-muted-foreground opacity-50" />
+                  </div>
+                  <h4 className="text-sm font-semibold text-foreground">
+                    الرقميات مُغلفة بسلام
+                  </h4>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    لا توجد دعوات انضمام لديك في الوقت الحالي.
                   </p>
                 </div>
               )}
             </div>
+            {invites.length > 0 && (
+              <div className="w-full border-t border-border bg-muted/10 px-3 py-2">
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="flex w-full items-center justify-center gap-1 py-1.5 text-center text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  إخفاء القائمة
+                </button>
+              </div>
+            )}
           </div>
         </>
       )}
+
+      <InviteDetailDialog
+        invite={selectedInvite}
+        isOpen={isDetailOpen}
+        onClose={() => {
+          setIsDetailOpen(false)
+          setSelectedInvite(null)
+        }}
+        onAccept={(invite) =>
+          setInvites((prev) => prev.filter((i) => i.id !== invite.id))
+        }
+        onDecline={(invite) =>
+          setInvites((prev) => prev.filter((i) => i.id !== invite.id))
+        }
+      />
     </div>
   )
 }

@@ -14,7 +14,16 @@ export async function createPost(orgSlug: string, input: CreatePostInput) {
   revalidatePath(`/${orgSlug}/posts`)
   return post
 }
+export async function likePost(
+  postId: number,
+  reactionType?: Parameters<typeof api.dashboard.posts.likes.post>[1]
+) {
+  return api.dashboard.posts.likes.post(postId, reactionType)
+}
 
+export async function unlikePost(postId: number) {
+  return api.dashboard.posts.likes.delete(postId)
+}
 export async function updatePost(
   orgSlug: string,
   postId: number,
@@ -44,7 +53,16 @@ export async function deletePost(postId: number, orgSlug: string) {
 export async function createComment(postId: number, input: CreateCommentInput) {
   return api.dashboard.posts.comments.post(postId, input)
 }
+export async function likeComment(
+  commentId: number,
+  reactionType?: "LIKE" | "LOVE" | "SUPPORT" | "CELEBRATE" | "INSIGHTFUL"
+) {
+  return api.dashboard.posts.commentLikes.post(commentId, reactionType)
+}
 
+export async function unlikeComment(commentId: number) {
+  return api.dashboard.posts.commentLikes.delete(commentId)
+}
 export async function deleteComment(commentId: number) {
   return api.dashboard.posts.deleteComment.delete(commentId)
 }
