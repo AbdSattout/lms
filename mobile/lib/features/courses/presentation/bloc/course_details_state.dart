@@ -8,24 +8,14 @@ class CourseDetailsLoading extends CourseDetailsState {}
 
 class CourseDetailsLoaded extends CourseDetailsState {
   final CourseEntity course;
-
-  CourseDetailsLoaded(
-      this.course,
-      );
+  CourseDetailsLoaded(this.course);
 }
 
 class CourseDetailsError extends CourseDetailsState {
   final String message;
-
-  CourseDetailsError(
-      this.message,
-      );
+  CourseDetailsError(this.message);
 }
-
 class CourseEnrollSuccess extends CourseDetailsState {
   final EnrollActionResultEntity result;
-
-  CourseEnrollSuccess(
-      this.result,
-      );
+  CourseEnrollSuccess(this.result);
 }

@@ -1,26 +1,5 @@
-class RewardEntity {
-  final String eventType;
-  final int? referenceId;
-  final bool awarded;
-  final int xpAwarded;
-  final int totalXp;
-  final int previousLevelNumber;
-  final int currentLevelNumber;
-  final String currentLevelTitle;
-  final bool leveledUp;
-
-  const RewardEntity({
-    required this.eventType,
-    this.referenceId,
-    required this.awarded,
-    required this.xpAwarded,
-    required this.totalXp,
-    required this.previousLevelNumber,
-    required this.currentLevelNumber,
-    required this.currentLevelTitle,
-    required this.leveledUp,
-  });
-}
+import '../../../organizations/domain/entities/organization_entity.dart'
+    show OrganizationVisibility;
 
 enum ContentStatus {
   locked,
@@ -41,6 +20,7 @@ enum ContentStatus {
     }
   }
 }
+
 class BlockEntity {
   final int id;
   final String title;
@@ -71,7 +51,6 @@ class LessonEntity {
   });
 }
 
-
 class ChapterEntity {
   final int id;
   final String title;
@@ -85,6 +64,24 @@ class ChapterEntity {
     required this.position,
     required this.status,
     this.lessons = const [],
+  });
+}
+
+class CourseOrganizationRef {
+  final int id;
+  final String name;
+  final String slug;
+  final String? description;
+  final String? image;
+  final OrganizationVisibility visibility;
+
+  const CourseOrganizationRef({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.description,
+    this.image,
+    this.visibility = OrganizationVisibility.unknown,
   });
 }
 
@@ -140,7 +137,10 @@ class CourseEntity {
   final String slug;
   final String? description;
   final String? coverUrl;
+
   final String? organizationName;
+  final CourseOrganizationRef? organization;
+
   final String? status;
   final CourseEnrollmentDetailsEntity? enrollment;
   final List<ChapterEntity> chapters;
@@ -153,10 +153,40 @@ class CourseEntity {
     this.description,
     this.coverUrl,
     this.organizationName,
+    this.organization,
     this.status,
     this.enrollment,
     this.chapters = const [],
     this.progressSnapshot,
+  });
+
+  String? get organizationDisplayName => organization?.name ?? organizationName;
+
+  bool get isCompleted =>
+      progressSnapshot?.completed ?? (enrollment?.isCompleted ?? false);
+}
+
+class RewardEntity {
+  final String eventType;
+  final int? referenceId;
+  final bool awarded;
+  final int xpAwarded;
+  final int totalXp;
+  final int previousLevelNumber;
+  final int currentLevelNumber;
+  final String currentLevelTitle;
+  final bool leveledUp;
+
+  const RewardEntity({
+    required this.eventType,
+    this.referenceId,
+    required this.awarded,
+    required this.xpAwarded,
+    required this.totalXp,
+    required this.previousLevelNumber,
+    required this.currentLevelNumber,
+    required this.currentLevelTitle,
+    required this.leveledUp,
   });
 }
 

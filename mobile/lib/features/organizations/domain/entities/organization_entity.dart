@@ -1,15 +1,15 @@
 enum OrganizationVisibility {
   public,
-  inviteOnly,
+  private,
   unknown;
-
   static OrganizationVisibility fromApi(String? value) {
     switch (value) {
       case 'PUBLIC':
         return OrganizationVisibility.public;
+      case 'PRIVATE':
       case 'INVITE-ONLY':
       case 'INVITE_ONLY':
-        return OrganizationVisibility.inviteOnly;
+        return OrganizationVisibility.private;
       default:
         return OrganizationVisibility.unknown;
     }
@@ -26,6 +26,9 @@ class OrganizationEntity {
   final String? ownerName;
   final int membersCount;
 
+  final bool viewerJoined;
+  final String? viewerRole;
+
   const OrganizationEntity({
     required this.id,
     required this.name,
@@ -35,5 +38,7 @@ class OrganizationEntity {
     this.visibility = OrganizationVisibility.unknown,
     this.ownerName,
     this.membersCount = 0,
+    this.viewerJoined = false,
+    this.viewerRole,
   });
 }
