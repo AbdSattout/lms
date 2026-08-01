@@ -17,6 +17,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 @Service
@@ -62,25 +65,33 @@ public class MediaService {
                 gifAllowed
         );
 
+        Path stagedFile = null;
+
         try {
 
-            FileUploadParams params =
-                    FileUploadParams.builder()
-                            .file(file.getBytes())
-                            .fileName(
-                                    UUID.randomUUID().toString()
-                            )
-                            .folder(folder)
-                            .useUniqueFileName(true)
-                            .build();
+            stagedFile =
+                    stageUploadFile(file);
 
-            FileUploadResponse response =
-                    imageKitClient.files().upload(params);
+            try (InputStream uploadStream = Files.newInputStream(stagedFile)) {
 
-            return new UploadedFile(
-                    response.url().orElseThrow(),
-                    response.fileId().orElseThrow()
-            );
+                FileUploadParams params =
+                        FileUploadParams.builder()
+                                .file(uploadStream)
+                                .fileName(
+                                        UUID.randomUUID().toString()
+                                )
+                                .folder(folder)
+                                .useUniqueFileName(true)
+                                .build();
+
+                FileUploadResponse response =
+                        imageKitClient.files().upload(params);
+
+                return new UploadedFile(
+                        response.url().orElseThrow(),
+                        response.fileId().orElseThrow()
+                );
+            }
 
         } catch (Exception e) {
 
@@ -97,6 +108,51 @@ public class MediaService {
             throw new ImageUploadException(
                     "File upload failed",
                     e
+            );
+        } finally {
+            deleteStagedFile(stagedFile);
+        }
+    }
+
+    private Path stageUploadFile(
+            MultipartFile file
+    ) throws IOException {
+
+        Path stagedFile =
+                Files.createTempFile(
+                        "lms-upload-",
+                        ".tmp"
+                );
+
+        try (InputStream inputStream = file.getInputStream()) {
+            Files.copy(
+                    inputStream,
+                    stagedFile,
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+
+            return stagedFile;
+        } catch (IOException | RuntimeException ex) {
+            deleteStagedFile(stagedFile);
+            throw ex;
+        }
+    }
+
+    private void deleteStagedFile(
+            Path stagedFile
+    ) {
+
+        if (stagedFile == null) {
+            return;
+        }
+
+        try {
+            Files.deleteIfExists(stagedFile);
+        } catch (IOException ex) {
+            log.warn(
+                    "Could not delete staged upload file. path={}",
+                    stagedFile,
+                    ex
             );
         }
     }
