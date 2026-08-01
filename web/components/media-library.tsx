@@ -110,12 +110,13 @@ export function MediaLibrary({
     setUploading(true)
 
     try {
-      const { uploadCourseMediaAction, uploadPostMediaAction } =
-        await import("@/lib/actions/media")
+      const { uploadCourseMedia, uploadPostMedia } = await import(
+        "@/lib/api/media-client"
+      )
 
       const result = isCourse
-        ? await uploadCourseMediaAction(organizationId, course.id, orgSlug, course.slug, file)
-        : await uploadPostMediaAction(organizationId, orgSlug, file)
+        ? await uploadCourseMedia(organizationId, course.id, file)
+        : await uploadPostMedia(organizationId, file)
 
       if (result.error) {
         toast.error(result.error)
@@ -198,19 +199,18 @@ export function MediaLibrary({
     setSaving(true)
 
     try {
-      const { updateCourseMediaAction, updatePostMediaAction } =
-        await import("@/lib/actions/media")
+      const { replaceCourseMediaFile, replacePostMediaFile } = await import(
+        "@/lib/api/media-client"
+      )
 
       const result = isCourse
-        ? await updateCourseMediaAction(
+        ? await replaceCourseMediaFile(
             organizationId,
             course.id,
-            orgSlug,
-            course.slug,
             replacingItem.id,
-            { file }
+            file
           )
-        : await updatePostMediaAction(organizationId, orgSlug, replacingItem.id, { file })
+        : await replacePostMediaFile(organizationId, replacingItem.id, file)
 
       if (result.error) {
         toast.error(result.error)
