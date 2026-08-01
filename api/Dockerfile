@@ -11,4 +11,4 @@ FROM eclipse-temurin:26-jdk-alpine AS runner
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 
-CMD ["java", "-jar", "app.jar"]
+CMD ["java", "-XX:MaxRAMPercentage=50", "-jar", "app.jar"]
