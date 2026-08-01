@@ -50,12 +50,12 @@ public class UserOverviewService {
 
                 .organizationsCount(
                         organizationMemberRepository
-                                .countByUserId(user.getId())
+                                .countVisibleByUserId(user.getId())
                 )
 
                 .enrolledCoursesCount(
                         courseEnrollmentRepository
-                                .countByUserIdAndStatus(
+                                .countByUserIdAndStatusAndCourseOrganizationVisible(
                                         user.getId(),
                                         EnrollmentStatus.ACTIVE
                                 )
@@ -63,7 +63,7 @@ public class UserOverviewService {
 
                 .completedCoursesCount(
                         courseEnrollmentRepository
-                                .countByUserIdAndStatus(
+                                .countByUserIdAndStatusAndCourseOrganizationVisible(
                                         user.getId(),
                                         EnrollmentStatus.COMPLETED
                                 )
@@ -76,7 +76,7 @@ public class UserOverviewService {
                 )
 
                 .completedRoadmapsCount(
-                        roadmapFollowerRepository.countByUserIdAndStatus(
+                        roadmapFollowerRepository.countByUserIdAndStatusAndRoadmapOrganizationVisible(
                                 user.getId(),
                                 RoadmapFollowStatus.COMPLETED
                         )

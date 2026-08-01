@@ -32,11 +32,48 @@ public interface RoadmapFollowerRepository
             Pageable pageable
     );
 
+    @Query("""
+            select follower
+            from RoadmapFollower follower
+            where follower.user.id = :userId
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id =
+                        follower.roadmap.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id =
+                        follower.roadmap.organization.id
+                and ban.user.id = :userId
+            )
+            order by follower.createdAt desc
+            """)
+    Page<RoadmapFollower> findAllByUserIdAndRoadmapOrganizationNotBannedOrderByCreatedAtDesc(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
     @Query(
             """
             select count(follower)
             from RoadmapFollower follower
             where follower.user.id = :userId
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id =
+                        follower.roadmap.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id =
+                        follower.roadmap.organization.id
+                and ban.user.id = :userId
+            )
             and (
                 follower.status is null
                 or follower.status <> app.lms.roadmap.enums.RoadmapFollowStatus.COMPLETED
@@ -50,5 +87,29 @@ public interface RoadmapFollowerRepository
     long countByUserIdAndStatus(
             Long userId,
             RoadmapFollowStatus status
+    );
+
+    @Query("""
+            select count(follower)
+            from RoadmapFollower follower
+            where follower.user.id = :userId
+            and follower.status = :status
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id =
+                        follower.roadmap.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id =
+                        follower.roadmap.organization.id
+                and ban.user.id = :userId
+            )
+            """)
+    long countByUserIdAndStatusAndRoadmapOrganizationVisible(
+            @Param("userId") Long userId,
+            @Param("status") RoadmapFollowStatus status
     );
 }

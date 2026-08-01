@@ -1,9 +1,7 @@
 package app.lms.organization.organizationJoinRequest.service;
 
 import app.lms.common.exception.ConflictException;
-import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
@@ -14,7 +12,6 @@ import app.lms.organization.organizationJoinRequest.model.OrganizationJoinReques
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
-import app.lms.organization.repository.OrganizationRepository;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
@@ -31,23 +28,17 @@ public class OrganizationJoinRequestService {
     private final OrganizationJoinRequestRepository joinRequestRepository;
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationAccessService organizationAccessService;
-    private final OrganizationRepository organizationRepository;
     private final OrganizationJoinRequestMapper organizationJoinRequestMapper;
-    private final OrganizationBanRepository organizationBanRepository;
 
     @Transactional
     public JoinRequestResponse createRequest(String slug, User user) {
-        Organization organization = organizationRepository.findBySlug(slug)
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
 
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                organization.getId(),
-                user.getId())) {
-
-            throw new ForbiddenException(
-                    "You are banned from this organization."
-            );
-        }
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
 
         if (organization.getVisibility() == Visibility.PUBLIC) {
             throw new ConflictException("Organization is public. You can enroll directly.");
@@ -89,14 +80,34 @@ public class OrganizationJoinRequestService {
 
     @Transactional
     public void acceptRequest(String slug, Long requestId, User currentUser) {
-        organizationAccessService.getManageableOrganization(slug, currentUser);
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
 
         OrganizationJoinRequest request = joinRequestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Join request not found"));
 
+        if (
+                !request.getOrganization()
+                        .getId()
+                        .equals(organization.getId())
+        ) {
+            throw new NotFoundException(
+                    "Join request not found"
+            );
+        }
+
         if (request.getStatus() != JoinRequestStatus.PENDING) {
             throw new ConflictException("Request is not pending.");
         }
+
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                request.getUser()
+        );
 
         request.setStatus(JoinRequestStatus.ACCEPTED);
         request.setReviewedAt(LocalDateTime.now());
@@ -133,8 +144,8 @@ public class OrganizationJoinRequestService {
 
     @Transactional
     public void cancelRequest(String slug, User user) {
-        Organization organization = organizationRepository.findBySlug(slug)
-                .orElseThrow(() -> new NotFoundException("Organization not found"));
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
 
         OrganizationJoinRequest request = joinRequestRepository
                 .findByOrganizationIdAndUserIdAndStatus(organization.getId(), user.getId(), JoinRequestStatus.PENDING)
@@ -148,21 +159,12 @@ public class OrganizationJoinRequestService {
     public void join(String slug, User user) {
 
         Organization organization =
-                organizationRepository
-                        .findBySlug(slug)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Organization not found"
-                                )
-                        );
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                organization.getId(),
-                user.getId())) {
+                organizationAccessService.getBySlug(slug);
 
-            throw new ForbiddenException(
-                    "You are banned from this organization."
-            );
-        }
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
 
         if (organization.getVisibility() != Visibility.PUBLIC) {
             throw new ConflictException(

@@ -5,14 +5,13 @@ import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.course.CourseBan.repository.CourseBanRepository;
 import app.lms.enrollment.dto.EnrollmentResponse;
 import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.enrollment.model.CourseEnrollment;
 import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
-import app.lms.course.repository.CourseRepository;
+import app.lms.course.service.CourseAccessService;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
@@ -24,6 +23,7 @@ import app.lms.organization.organizationJoinRequest.model.OrganizationJoinReques
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
+import app.lms.organization.service.OrganizationAccessService;
 import app.lms.plan.annotation.ConsumesPlanUsage;
 import app.lms.plan.enums.PlanUsageType;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
@@ -44,7 +44,7 @@ public class CourseEnrollmentService {
 
     private static final int COURSE_ENROLL_XP = 10;
 
-    private final CourseRepository courseRepository;
+    private final CourseAccessService courseAccessService;
 
     private final CourseEnrollmentRepository enrollmentRepository;
 
@@ -62,7 +62,7 @@ public class CourseEnrollmentService {
 
     private final RoadmapFollowProgressService roadmapFollowProgressService;
 
-    private final CourseBanRepository courseBanRepository;
+    private final OrganizationAccessService organizationAccessService;
 
     @Transactional
     @ConsumesPlanUsage(PlanUsageType.COURSE_ENROLLMENT)
@@ -72,22 +72,8 @@ public class CourseEnrollmentService {
     ) {
 
         Course course =
-                courseRepository
-                        .findById(courseId)
-                        .orElseThrow(() ->
-                                new NotFoundException(
-                                        "Course not found"
-                                )
-                        );
-
-        if (courseBanRepository.existsByCourseIdAndUserId(
-                course.getId(),
-                user.getId())) {
-
-            throw new ForbiddenException(
-                    "You are banned from this course."
-            );
-        }
+                courseAccessService
+                        .getById(courseId);
 
         if (course.getStatus() != CourseStatus.PUBLISHED) {
             throw new ConflictException(
@@ -97,6 +83,11 @@ public class CourseEnrollmentService {
 
         Organization organization =
                 course.getOrganization();
+
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
 
         Optional<OrganizationMember> existingMember =
                 memberRepository
@@ -129,11 +120,20 @@ public class CourseEnrollmentService {
             );
         }
 
-            if (!member) {
-                throw new ForbiddenException(
-                        "Join to the organization first"
-                );
-            }
+        if (
+                existingEnrollment != null &&
+                        existingEnrollment.getStatus() == EnrollmentStatus.COMPLETED
+        ) {
+            throw new ConflictException(
+                    "Course already completed"
+            );
+        }
+
+        if (!member) {
+            throw new ForbiddenException(
+                    "Join to the organization first"
+            );
+        }
 
 
         if (existingEnrollment != null) {
@@ -196,6 +196,17 @@ public class CourseEnrollmentService {
             Long courseId,
             User user
     ) {
+        Course course =
+                courseAccessService
+                .getById(
+                        courseId
+                );
+
+        organizationAccessService.validateUserNotBannedFromOrg(
+                course.getOrganization(),
+                user
+        );
+
         CourseEnrollment enrollment =
                 courseEnrollmentAccessService
                         .getEnrollment(
@@ -348,8 +359,19 @@ public class CourseEnrollmentService {
             User user
     ) {
 
+        Course course =
+                courseAccessService
+                        .getById(
+                                courseId
+                        );
+
+        organizationAccessService.validateUserNotBannedFromOrg(
+                course.getOrganization(),
+                user
+        );
+
         return enrollmentRepository.existsByCourseIdAndUserId(
-                courseId,
+                course.getId(),
                 user.getId()
         );
     }
@@ -374,30 +396,4 @@ public class CourseEnrollmentService {
         );
     }
 
-    @Transactional
-    public void unenrollFromOrganization(
-            Long organizationId,
-            User user
-    ) {
-
-        List<CourseEnrollment> enrollments =
-                enrollmentRepository
-                        .findByUserIdAndCourseOrganizationIdAndStatus(
-                                user.getId(),
-                                organizationId,
-                                EnrollmentStatus.ACTIVE
-                        );
-
-        for (CourseEnrollment enrollment : enrollments) {
-
-            enrollment.setStatus(
-                    EnrollmentStatus.DROPPED
-            );
-
-            roadmapFollowProgressService.refreshForCourse(
-                    enrollment.getCourse().getId(),
-                    user
-            );
-        }
-    }
 }

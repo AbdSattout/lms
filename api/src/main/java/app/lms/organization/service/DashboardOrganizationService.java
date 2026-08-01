@@ -1,13 +1,12 @@
 package app.lms.organization.service;
 
-import app.lms.admin.dto.BanRequest;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.moderation.dto.BanRequest;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.enrollment.repository.CourseEnrollmentRepository;
-import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
@@ -32,6 +31,7 @@ import app.lms.plan.service.PlanQuotaService;
 import app.lms.post.repository.PostRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
 import app.lms.user.model.User;
+import app.lms.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -63,8 +63,8 @@ public class DashboardOrganizationService {
     private final RoadmapRepository roadmapRepository;
     private final PlanQuotaService planQuotaService;
     private final OrganizationMemberAccessService organizationMemberAccessService;
-    private final CourseEnrollmentService courseEnrollmentService;
     private final OrganizationBanRepository organizationBanRepository;
+    private final UserRepository userRepository;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -493,9 +493,9 @@ public class DashboardOrganizationService {
     }
 
     @Transactional
-    public void removeMember(
+    public void banUser(
             String slug,
-            Long memberId,
+            Long userId,
             BanRequest request,
             User currentUser
     ) {
@@ -510,38 +510,97 @@ public class DashboardOrganizationService {
                         currentUser.getId()
                 );
 
-        OrganizationMember target =
-                organizationMemberRepository
-                        .findById(memberId)
+        User targetUser =
+                userRepository
+                        .findById(userId)
                         .orElseThrow(() ->
-                                new NotFoundException("Member not found"));
+                                new NotFoundException(
+                                        "User not found"
+                                )
+                        );
 
-        if (!target.getOrganization().getId().equals(organization.getId())) {
+        if (
+                organization.getOwner()
+                        .getId()
+                        .equals(targetUser.getId())
+        ) {
             throw new BadRequestException(
-                    "Member does not belong to this organization"
+                    "Organization owner cannot be banned"
             );
         }
 
-        organizationMemberAccessService.validateCanRemoveMember(
+        if (
+                organizationBanRepository.existsByOrganizationIdAndUserId(
+                        organization.getId(),
+                        targetUser.getId()
+                )
+        ) {
+            throw new BadRequestException(
+                    "User is already banned from this organization"
+            );
+        }
+
+        OrganizationMember target =
+                organizationMemberRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                targetUser.getId()
+                        )
+                        .orElse(null);
+
+        organizationMemberAccessService.validateCanBanUser(
                 actor,
                 target
         );
 
-        courseEnrollmentService.unenrollFromOrganization(
-                organization.getId(),
-                target.getUser()
-        );
-
-        organizationMemberRepository.delete(target);
-
         organizationBanRepository.save(
                 OrganizationBan.builder()
                         .organization(organization)
-                        .user(target.getUser())
+                        .user(targetUser)
                         .bannedByOrgAdmins(actor.getUser())
                         .reason(request.reason())
                         .build()
         );
+    }
+
+    @Transactional
+    public void unbanUser(
+            String slug,
+            Long userId,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(slug);
+
+        organizationMemberAccessService.validateManager(
+                organization.getId(),
+                currentUser.getId()
+        );
+
+        User targetUser =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        OrganizationBan ban =
+                organizationBanRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                targetUser.getId()
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Ban not found"
+                                )
+                        );
+
+        organizationBanRepository.delete(ban);
     }
 
 }

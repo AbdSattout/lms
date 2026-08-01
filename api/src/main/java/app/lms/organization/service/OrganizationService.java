@@ -48,6 +48,11 @@ public class OrganizationService {
         Organization organization =
                 organizationAccessService.getBySlug(slug);
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Optional<OrganizationMember> member =
                 memberRepository.findByOrganizationIdAndUserId(
                         organization.getId(),
@@ -68,12 +73,14 @@ public class OrganizationService {
 
         Page<Organization> organizations =
                 StringUtils.hasText(q)
-                        ? organizationRepository.search(
+                        ? organizationRepository.searchVisibleToUser(
                                 q.trim(),
                                 organizationSearchSimilarityThreshold,
+                                user.getId(),
                                 pageable
                         )
-                        : organizationRepository.findAll(
+                        : organizationRepository.findAllVisibleToUser(
+                                user.getId(),
                                 pageable
                         );
 
@@ -95,7 +102,9 @@ public class OrganizationService {
     ) {
 
         return memberRepository
-                .findAllByUserId(user.getId())
+                .findAllByUserIdAndOrganizationNotBanned(
+                        user.getId()
+                )
                 .stream()
                 .map(member ->
                         organizationMapper.ToResponse(
@@ -111,7 +120,9 @@ public class OrganizationService {
     ) {
 
         return memberRepository
-                .findAllByUserId(user.getId())
+                .findAllByUserIdAndOrganizationNotBanned(
+                        user.getId()
+                )
                 .stream()
                 .collect(
                         Collectors.toMap(

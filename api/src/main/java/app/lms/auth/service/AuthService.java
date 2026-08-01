@@ -9,6 +9,7 @@ import app.lms.security.JwtService;
 import app.lms.security.UserPrincipal;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
+import app.lms.user.moderation.repository.UserModerationRepository;
 import app.lms.user.service.UserService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,6 +27,7 @@ public class AuthService {
     private final UserMapper userMapper;
     private final UserService userService;
     private final EmailOtpService emailOtpService;
+    private final UserModerationRepository userModerationRepository;
 
     public AuthService(
             @Qualifier("telegramJwtDecoder") JwtDecoder telegramJwtDecoder,
@@ -33,7 +35,8 @@ public class AuthService {
             JwtService jwtService,
             UserMapper userMapper,
             UserService userService,
-            EmailOtpService emailOtpService
+            EmailOtpService emailOtpService,
+            UserModerationRepository userModerationRepository
     ) {
         this.telegramJwtDecoder =
                 telegramJwtDecoder;
@@ -47,6 +50,8 @@ public class AuthService {
                 userService;
         this.emailOtpService =
                 emailOtpService;
+        this.userModerationRepository =
+                userModerationRepository;
     }
 
     public AuthResponse loginWithTelegram(
@@ -121,6 +126,16 @@ public class AuthService {
     private AuthResponse createAuthResponse(
             User user
     ) {
+
+        if (
+                userModerationRepository.existsByUserId(
+                        user.getId()
+                )
+        ) {
+            throw new BadCredentialsException(
+                    "User is banned"
+            );
+        }
 
         String token =
                 jwtService.generateToken(

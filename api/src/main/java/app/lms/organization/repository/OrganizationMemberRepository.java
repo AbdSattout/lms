@@ -27,21 +27,50 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
             Long userId
     );
     @Query("""
-select m
-from OrganizationMember m
-join fetch m.user
-where m.organization.id = :organizationId
-""")    Page<OrganizationMember> findByOrganizationId(
-            Long organizationId,
+            select member
+            from OrganizationMember member
+            join fetch member.user
+            where member.organization.id = :organizationId
+            """)
+    Page<OrganizationMember> findByOrganizationId(
+            @Param("organizationId") Long organizationId,
             Pageable pageable
     );
 
     List<OrganizationMember>
     findAllByUserId(Long userId);
 
+    @Query("""
+            select member
+            from OrganizationMember member
+            join fetch member.organization organization
+            where member.user.id = :userId
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = organization.id
+                and ban.user.id = :userId
+            )
+            """)
+    List<OrganizationMember> findAllByUserIdAndOrganizationNotBanned(
+            @Param("userId") Long userId
+    );
+
+    @Query("""
+            select member
+            from OrganizationMember member
+            join fetch member.user
+            where member.organization.id = :organizationId
+            and member.role = :role
+            """)
     Page<OrganizationMember> findByOrganizationIdAndRole(
-            Long organizationId,
-            Role role,
+            @Param("organizationId") Long organizationId,
+            @Param("role") Role role,
             Pageable pageable
     );
     void deleteByOrganizationId(Long organizationId);
@@ -60,6 +89,26 @@ where m.organization.id = :organizationId
     );
 
     long countByUserId(Long userId);
+
+    @Query("""
+            select count(member)
+            from OrganizationMember member
+            where member.user.id = :userId
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = member.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = member.organization.id
+                and ban.user.id = :userId
+            )
+            """)
+    long countVisibleByUserId(
+            @Param("userId") Long userId
+    );
 
     @Query("""
             select member.organization.id as organizationId,

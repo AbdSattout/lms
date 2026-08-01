@@ -59,6 +59,11 @@ public class CourseService {
                                 organizationSlug
                         );
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Course course =
                 courseAccessService
                         .getPublishedBySlug(
@@ -123,6 +128,11 @@ public class CourseService {
                                 organizationSlug
                         );
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Page<Course> courses = courseRepository
                 .findAllByOrganizationIdAndStatus(
                         organization.getId(),
@@ -145,15 +155,17 @@ public class CourseService {
         Page<Course> courses =
                 StringUtils.hasText(q)
                         ? courseRepository
-                                .searchAllByStatus(
+                                .searchAllByStatusVisibleToUser(
                                         CourseStatus.PUBLISHED.name(),
                                         q.trim(),
                                         courseSearchSimilarityThreshold,
+                                        user.getId(),
                                         pageable
                                 )
                         : courseRepository
-                                .findAllByStatus(
+                                .findAllByStatusVisibleToUser(
                                         CourseStatus.PUBLISHED,
+                                        user.getId(),
                                         pageable
                                 );
 
