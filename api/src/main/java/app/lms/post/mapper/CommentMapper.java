@@ -19,6 +19,7 @@ public class CommentMapper {
 
         return toResponse(
                 comment,
+                0L,
                 Map.of(),
                 null
         );
@@ -26,6 +27,7 @@ public class CommentMapper {
 
     public CommentResponse toResponse(
             Comment comment,
+            Long likeCount,
             Map<ReactionType, Long> reactionCounts,
             ReactionType viewerReaction
     ) {
@@ -44,7 +46,7 @@ public class CommentMapper {
                         ? comment.getParent().getId()
                         : null,
 
-                comment.getLikesCount(),
+                likeCount,
 
                 completeReactionCounts(
                         reactionCounts

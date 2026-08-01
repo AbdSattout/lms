@@ -69,7 +69,6 @@ public class CommentService {
                         .author(user)
                         .post(post)
                         .parent(parent)
-                        .likesCount(0L)
                         .build();
 
         commentRepository.save(

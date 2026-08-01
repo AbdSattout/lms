@@ -69,7 +69,6 @@ public class PostService {
                         .author(user)
                         .organization(organization)
                         .course(course)
-                        .likesCount(0L)
                         .commentsCount(0L)
                         .build();
 

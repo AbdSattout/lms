@@ -17,6 +17,7 @@ public class PostMapper {
 
         return toResponse(
                 post,
+                0L,
                 Map.of(),
                 null
         );
@@ -24,6 +25,7 @@ public class PostMapper {
 
     public PostResponse toResponse(
             Post post,
+            Long likeCount,
             Map<ReactionType, Long> reactionCounts,
             ReactionType viewerReaction
     ) {
@@ -47,7 +49,7 @@ public class PostMapper {
 
                 post.getCommentsCount(),
 
-                post.getLikesCount(),
+                likeCount,
 
                 completeReactionCounts(
                         reactionCounts

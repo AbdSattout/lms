@@ -42,9 +42,6 @@ public class Post extends BaseEntity {
     @JoinColumn(name = "course_id")
     private Course course;
 
-
-    private Long likesCount = 0L;
-
     private Long commentsCount = 0L;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
