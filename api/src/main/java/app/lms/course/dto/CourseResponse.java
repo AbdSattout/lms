@@ -4,6 +4,8 @@ import app.lms.common.dto.BaseEntityResponse;
 import app.lms.enrollment.dto.CourseEnrollmentResponse;
 import app.lms.course.enums.CourseStatus;
 import app.lms.organization.dto.OrganizationSummaryResponse;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
@@ -19,6 +21,7 @@ public record CourseResponse(
         CourseStatus status,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         CourseEnrollmentResponse enrollment,
+        JoinRequestStatus joinRequest,
         BaseEntityResponse baseEntity
 
 ) {}

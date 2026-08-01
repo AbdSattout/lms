@@ -15,6 +15,7 @@ import app.lms.course.enums.CourseNodeStatus;
 import app.lms.course.model.Course;
 import app.lms.lesson.model.Lesson;
 import app.lms.organization.mapper.OrganizationMapper;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -35,13 +36,15 @@ public class CourseMapper {
 
         return toResponse(
                 course,
+                null,
                 null
         );
     }
 
     public CourseResponse toResponse(
             Course course,
-            CourseEnrollment enrollment
+            CourseEnrollment enrollment,
+            OrganizationJoinRequest joinRequest
     ) {
 
         return CourseResponse.builder()
@@ -59,6 +62,11 @@ public class CourseMapper {
                 .enrollment(
                         enrollment != null
                                 ? toEnrollmentResponse(enrollment)
+                                : null
+                )
+                .joinRequest(
+                        joinRequest != null
+                                ? joinRequest.getStatus()
                                 : null
                 )
                 .baseEntity(BaseEntityResponse.from(course))
