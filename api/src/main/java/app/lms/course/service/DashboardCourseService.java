@@ -73,7 +73,10 @@ public class DashboardCourseService {
 
         UploadedFile uploaded =
                 hasCover(cover)
-                        ? uploadCourseCover(cover)
+                        ? uploadCourseCover(
+                                cover,
+                                organization.getOwner()
+                        )
                         : null;
 
         String slugValue =
@@ -294,7 +297,11 @@ public class DashboardCourseService {
                 course.getCoverFileId();
 
         UploadedFile uploaded =
-                uploadCourseCover(cover);
+                uploadCourseCover(
+                        cover,
+                        course.getOrganization()
+                                .getOwner()
+                );
 
         course.setCoverUrl(
                 uploaded.url()
@@ -394,14 +401,34 @@ public class DashboardCourseService {
     }
 
     private UploadedFile uploadCourseCover(
-            MultipartFile cover
+            MultipartFile cover,
+            User planOwner
     ) {
+        validateGifUploadAllowed(
+                planOwner,
+                cover
+        );
+
         return mediaService.upload(
                 cover,
                 "/courses",
-                FileType.IMAGE
+                FileType.IMAGE,
+                true
         );
     }
+
+    private void validateGifUploadAllowed(
+            User planOwner,
+            MultipartFile cover
+    ) {
+
+        if (!mediaService.isGif(cover)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(planOwner);
+    }
+
     public CourseResponse getById(
             Long courseId,
             User user
