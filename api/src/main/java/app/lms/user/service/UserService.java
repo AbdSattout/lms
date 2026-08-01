@@ -17,6 +17,7 @@ import app.lms.plan.dto.UserPlanResponse;
 import app.lms.plan.enums.PlanCode;
 import app.lms.plan.mapper.UserPlanMapper;
 import app.lms.plan.model.UserPlan;
+import app.lms.plan.service.PlanQuotaService;
 import app.lms.plan.service.UserPlanService;
 import app.lms.user.dto.CurrentUserResponse;
 import app.lms.user.dto.ProfileResponse;
@@ -58,6 +59,7 @@ public class UserService {
     private final LevelRepository levelRepository;
     private final UserProgressRepository userProgressRepository;
     private final UserPlanService userPlanService;
+    private final PlanQuotaService planQuotaService;
     private final UserPlanMapper userPlanMapper;
     private final PolarSubscriptionRepository polarSubscriptionRepository;
     private final SubscriptionMapper subscriptionMapper;
@@ -74,11 +76,17 @@ public class UserService {
         String oldPictureFileId =
                 user.getPictureFileId();
 
+        validateGifUploadAllowed(
+                user,
+                image
+        );
+
         UploadedFile uploadedFile =
                 mediaService.upload(
                         image,
                         "/users",
-                        FileType.IMAGE
+                        FileType.IMAGE,
+                        true
                 );
 
         user.setPicture(uploadedFile.url());
@@ -546,6 +554,18 @@ public class UserService {
                     "Email is already linked to another account"
             );
         }
+    }
+
+    private void validateGifUploadAllowed(
+            User user,
+            MultipartFile image
+    ) {
+
+        if (!mediaService.isGif(image)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(user);
     }
 
     private String defaultNameFromEmail(

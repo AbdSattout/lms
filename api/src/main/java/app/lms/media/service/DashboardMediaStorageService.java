@@ -39,11 +39,18 @@ public class DashboardMediaStorageService {
         FileType type =
                 detectFileType(file);
 
+        validateGifUploadAllowed(
+                organization,
+                type,
+                file
+        );
+
         UploadedFile uploaded =
                 mediaService.upload(
                         file,
                         folder,
-                        type
+                        type,
+                        true
                 );
 
         return organizationMediaRepository.save(
@@ -86,11 +93,18 @@ public class DashboardMediaStorageService {
         FileType type =
                 detectFileType(file);
 
+        validateGifUploadAllowed(
+                organization,
+                type,
+                file
+        );
+
         UploadedFile uploaded =
                 mediaService.upload(
                         file,
                         folder,
-                        type
+                        type,
+                        true
                 );
 
         if (media != null) {
@@ -260,7 +274,7 @@ public class DashboardMediaStorageService {
         String contentType =
                 file.getContentType();
 
-        if (contentType != null && contentType.startsWith("image/")) {
+        if (mediaService.isImage(file)) {
             return FileType.IMAGE;
         }
 
@@ -269,6 +283,25 @@ public class DashboardMediaStorageService {
         }
 
         return FileType.FILE;
+    }
+
+    private void validateGifUploadAllowed(
+            Organization organization,
+            FileType type,
+            MultipartFile file
+    ) {
+
+        if (type != FileType.IMAGE) {
+            return;
+        }
+
+        if (!mediaService.isGif(file)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(
+                organization.getOwner()
+        );
     }
 
     private void deleteMediaIfUnused(
