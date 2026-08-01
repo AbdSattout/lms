@@ -6,7 +6,6 @@ import app.lms.common.exception.NotFoundException;
 import app.lms.moderation.dto.BanRequest;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
-import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
