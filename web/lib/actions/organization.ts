@@ -1,6 +1,7 @@
 "use server"
 
 import { api } from "@/lib/api"
+import { getImageUploadError } from "@/lib/utils/image-upload"
 import {
   createOrganizationSchema,
   slugSchema,
@@ -8,6 +9,7 @@ import {
 } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+
 export async function createOrganization(
   _prevState: { error?: string; success?: boolean },
   formData: FormData
@@ -27,6 +29,8 @@ export async function createOrganization(
 
   const { name, slug, description, visibility } = result.data
   const image = formData.get("image") as File | null
+  const imageError = getImageUploadError(image)
+  if (imageError) return { error: imageError }
   const imageFile = image && image.size > 0 ? image : undefined
 
   const org = await api.dashboard.organizations.create
@@ -95,6 +99,8 @@ export async function updateOrganization(
   }
 
   const request = result.data
+  const imageError = getImageUploadError(image)
+  if (imageError) return { error: imageError }
   const imageFile = image && image.size > 0 ? image : undefined
 
   try {

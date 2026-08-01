@@ -20,28 +20,14 @@ export async function fetchPostMediaAction(
   return api.dashboard.postMedia.byOrg.get(organizationId, { page, size })
 }
 
-export async function uploadPostMediaAction(
-  organizationId: number,
-  orgSlug: string,
-  file: File
-): Promise<{ error?: string; media?: PostMediaResponse }> {
-  const media = await api.dashboard.postMedia.byOrg
-    .post(organizationId, file)
-    .catch(() => null)
-
-  if (!media) return { error: "حدث خطأ أثناء رفع الملف" }
-  revalidatePath(`/${orgSlug}/media`)
-  return { media }
-}
-
 export async function updatePostMediaAction(
   organizationId: number,
   orgSlug: string,
   mediaId: number,
-  data: { name?: string; file?: File }
+  data: { name?: string }
 ): Promise<{ error?: string; media?: PostMediaResponse }> {
   const media = await api.dashboard.postMedia.byId
-    .patch(organizationId, mediaId, data.file, data.name)
+    .patch(organizationId, mediaId, undefined, data.name)
     .catch(() => null)
 
   if (!media) return { error: "حدث خطأ أثناء تحديث الملف" }
@@ -83,32 +69,16 @@ export async function fetchCourseMediaAction(
   return api.dashboard.media.byCourse.get(organizationId, courseId, { page, size })
 }
 
-export async function uploadCourseMediaAction(
-  organizationId: number,
-  courseId: number,
-  orgSlug: string,
-  courseSlug: string,
-  file: File
-): Promise<{ error?: string; media?: CourseMediaResponse }> {
-  const media = await api.dashboard.media.byCourse
-    .post(organizationId, courseId, file)
-    .catch(() => null)
-
-  if (!media) return { error: "حدث خطأ أثناء رفع الملف" }
-  revalidatePath(`/${orgSlug}/courses/${courseSlug}/media`)
-  return { media }
-}
-
 export async function updateCourseMediaAction(
   organizationId: number,
   courseId: number,
   orgSlug: string,
   courseSlug: string,
   mediaId: number,
-  data: { name?: string; file?: File }
+  data: { name?: string }
 ): Promise<{ error?: string; media?: CourseMediaResponse }> {
   const media = await api.dashboard.media.byId
-    .patch(organizationId, courseId, mediaId, data.file, data.name)
+    .patch(organizationId, courseId, mediaId, undefined, data.name)
     .catch(() => null)
 
   if (!media) return { error: "حدث خطأ أثناء تحديث الملف" }

@@ -16,6 +16,7 @@ import {
   updateCourseSchema,
   updateQuestionSchema,
 } from "@/lib/validation"
+import { getImageUploadError } from "@/lib/utils/image-upload"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -42,6 +43,8 @@ export async function createCourse(
 
   const { title, slug, description } = result.data
   const cover = formData.get("cover") as File | null
+  const coverError = getImageUploadError(cover)
+  if (coverError) return { error: coverError }
   const coverFile = cover?.size ? cover : undefined
 
   const course = await api.dashboard.organizations.courses
@@ -77,6 +80,8 @@ export async function updateCourse(
   }
 
   const cover = formData.get("cover") as File | null
+  const coverError = getImageUploadError(cover)
+  if (coverError) return { error: coverError }
   const coverFile = cover?.size ? cover : undefined
 
   const updated = await api.dashboard.courses.byId
