@@ -150,8 +150,8 @@ public class PlanUsageAspect {
         Object principal =
                 authentication.getPrincipal();
 
-        if (principal instanceof UserPrincipal(User user1)) {
-            return user1;
+        if (principal instanceof UserPrincipal userPrincipal) {
+            return userPrincipal.user();
         }
 
         if (principal instanceof User user) {

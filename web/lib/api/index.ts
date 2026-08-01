@@ -40,11 +40,13 @@ import {
   getCourseBySlug,
   invites,
   joinRequests,
+  leave,
   list,
   members,
 } from "@/lib/api/organizations"
 import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
+  commentLikes,
   comments,
   deleteComment,
   likes,
@@ -129,6 +131,7 @@ export const api = {
       getCourseBySlug,
       checkCourseSlugAvailability,
       invites,
+      leave,
       members: {
         list: members.list,
         getOwners: members.owners,
@@ -195,6 +198,7 @@ export const api = {
       byId: postsById,
       byOrg: postsByOrg,
       likes,
+      commentLikes,
       comments,
       deleteComment,
     },

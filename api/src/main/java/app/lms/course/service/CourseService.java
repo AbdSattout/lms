@@ -11,6 +11,7 @@ import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.model.Organization;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.service.OrganizationAccessService;
@@ -63,6 +64,11 @@ public class CourseService {
                                 organizationSlug
                         );
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Course course =
                 courseAccessService
                         .getPublishedBySlug(
@@ -71,9 +77,10 @@ public class CourseService {
                         );
         Optional<OrganizationJoinRequest> joinRequest =
                 organizationJoinRequestRepository
-                        .findByOrganizationIdAndUserId(
+                        .findByOrganizationIdAndUserIdAndStatus(
                                 organization.getId(),
-                                user.getId()
+                                user.getId(),
+                                JoinRequestStatus.PENDING
                         );
 
         return courseMapper.toResponse(
@@ -81,7 +88,8 @@ public class CourseService {
                 enrollmentFor(
                         course.getId(),
                         user
-                ),joinRequest.orElse(null)
+                ),
+                joinRequest.orElse(null)
         );
     }
 
@@ -133,6 +141,11 @@ public class CourseService {
                                 organizationSlug
                         );
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Page<Course> courses = courseRepository
                 .findAllByOrganizationIdAndStatus(
                         organization.getId(),
@@ -155,15 +168,17 @@ public class CourseService {
         Page<Course> courses =
                 StringUtils.hasText(q)
                         ? courseRepository
-                                .searchAllByStatus(
+                                .searchAllByStatusVisibleToUser(
                                         CourseStatus.PUBLISHED.name(),
                                         q.trim(),
                                         courseSearchSimilarityThreshold,
+                                        user.getId(),
                                         pageable
                                 )
                         : courseRepository
-                                .findAllByStatus(
+                                .findAllByStatusVisibleToUser(
                                         CourseStatus.PUBLISHED,
+                                        user.getId(),
                                         pageable
                                 );
 
@@ -209,7 +224,8 @@ public class CourseService {
         return courses.map(course ->
                 courseMapper.toResponse(
                         course,
-                        enrollmentsByCourseId.get(course.getId()),null
+                        enrollmentsByCourseId.get(course.getId()),
+                        null
                 )
         );
     }

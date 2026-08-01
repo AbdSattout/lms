@@ -49,7 +49,8 @@ public class MobileRoadmapService {
     ) {
 
         return roadmapRepository
-                .findAllByOrderByCreatedAtDesc(
+                .findAllVisibleToUserOrderByCreatedAtDesc(
+                        user.getId(),
                         pageable
                 )
                 .map(roadmap ->
@@ -72,6 +73,11 @@ public class MobileRoadmapService {
                         .getBySlug(
                                 organizationSlug
                         );
+
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
 
         return roadmapRepository
                 .findAllByOrganizationIdOrderByCreatedAtDesc(
@@ -99,6 +105,11 @@ public class MobileRoadmapService {
                                 organizationSlug
                         );
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Roadmap roadmap =
                 getByIdAndOrganizationId(
                         roadmapId,
@@ -123,6 +134,11 @@ public class MobileRoadmapService {
                         .getBySlug(
                                 organizationSlug
                         );
+
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
 
         Roadmap roadmap =
                 getByIdAndOrganizationId(
@@ -184,6 +200,11 @@ public class MobileRoadmapService {
                                 organizationSlug
                         );
 
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                user
+        );
+
         Roadmap roadmap =
                 getByIdAndOrganizationId(
                         roadmapId,
@@ -212,7 +233,7 @@ public class MobileRoadmapService {
     ) {
 
         return roadmapFollowerRepository
-                .findAllByUserIdOrderByCreatedAtDesc(
+                .findAllByUserIdAndRoadmapOrganizationNotBannedOrderByCreatedAtDesc(
                         user.getId(),
                         pageable
                 )

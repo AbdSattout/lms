@@ -3,7 +3,6 @@ package app.lms.organization.organizationInvite.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
@@ -38,7 +37,6 @@ public class OrganizationInviteService {
     private final UserRepository userRepository;
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationInviteMapper organizationInviteMapper;
-    private final OrganizationBanRepository organizationBanRepository;
     private final OrganizationInviteOverviewService organizationInviteOverviewService;
 
     public OrganizationInviteResponse invite(
@@ -225,14 +223,10 @@ public class OrganizationInviteService {
     public void acceptInvite(String token, User currentUser) {
         OrganizationInvite invite = findInvite(token);
 
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                invite.getOrganization().getId(),
-                currentUser.getId())) {
-
-            throw new ForbiddenException(
-                    "You are banned from this organization."
-            );
-        }
+        organizationAccessService.validateUserNotBannedFromOrg(
+                invite.getOrganization(),
+                currentUser
+        );
 
         if (invite.getStatus() == InviteStatus.ACCEPTED) {
             throw new BadRequestException("Invite already processed");
@@ -365,8 +359,15 @@ public class OrganizationInviteService {
         );
     }
     private OrganizationInvite findInvite(String token) {
-        return organizationInviteRepository.findByToken(token)
+        OrganizationInvite invite =
+                organizationInviteRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Invite not found"));
+
+        organizationAccessService.validateNotBanned(
+                invite.getOrganization()
+        );
+
+        return invite;
     }
 
     private void validateInviteOwner(OrganizationInvite invite, User currentUser) {
@@ -376,7 +377,7 @@ public class OrganizationInviteService {
     }
     public List<OrganizationInviteResponse> getMyInvites(User user, Role role) {
         List<OrganizationInvite> invites =
-                organizationInviteRepository.findAllByUserIdAndRoleAndStatus(
+                organizationInviteRepository.findAllVisibleToUserByUserIdAndRoleAndStatus(
                         user.getId(),
                         role,
                         InviteStatus.PENDING
@@ -413,14 +414,10 @@ public class OrganizationInviteService {
             );
         }
 
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                organization.getId(),
-                targetUser.getId()
-        )) {
-            throw new ForbiddenException(
-                    "User is banned from this organization"
-            );
-        }
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                targetUser
+        );
     }
 
     private void validateInviteRole(

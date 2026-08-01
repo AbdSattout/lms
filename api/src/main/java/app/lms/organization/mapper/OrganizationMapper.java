@@ -33,13 +33,28 @@ public class OrganizationMapper {
 
     public OrganizationResponse ToResponse(
             Organization organization,
+            OrganizationMember member
+    ) {
+
+        return ToResponse(
+                organization,
+                member,
+                null
+        );
+    }
+
+    public OrganizationResponse ToResponse(
+            Organization organization,
             OrganizationMember member,
             OrganizationJoinRequest request
     ) {
 
         return toResponse(
                 organization,
-                toViewerResponse(member,request)
+                toViewerResponse(
+                        member,
+                        request
+                )
         );
     }
 

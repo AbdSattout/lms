@@ -154,6 +154,13 @@ function toQueryString(pageable: PageableInput) {
   return query ? `?${query}` : ""
 }
 
+export const leave = defineApiRoute({
+  post: (slug: string, options?: BackendFetchOptions) =>
+    backend<void>(`/organizations/${slug}/leave`, {
+      method: "DELETE",
+      ...options,
+    }),
+})
 export const invites = {
   create: defineApiRoute({
     post: (

@@ -31,6 +31,27 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     );
 
     @Query("""
+            select roadmap
+            from Roadmap roadmap
+            where not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = roadmap.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = roadmap.organization.id
+                and ban.user.id = :userId
+            )
+            order by roadmap.createdAt desc
+            """)
+    Page<Roadmap> findAllVisibleToUserOrderByCreatedAtDesc(
+            @Param("userId") Long userId,
+            Pageable pageable
+    );
+
+    @Query("""
             select distinct roadmap
             from Roadmap roadmap
             join roadmap.items item

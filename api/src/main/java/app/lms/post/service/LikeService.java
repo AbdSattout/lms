@@ -95,6 +95,11 @@ public class LikeService {
 
         Post post = like.getPost();
 
+        postAccessService.validateInteractionAccess(
+                post,
+                user
+        );
+
         Long currentLikes = post.getLikesCount();
         if (currentLikes == null) {
             currentLikes = 0L;
@@ -180,6 +185,11 @@ public class LikeService {
                         );
 
         Comment comment = like.getComment();
+
+        postAccessService.validateInteractionAccess(
+                comment.getPost(),
+                user
+        );
 
         Long currentLikes = comment.getLikesCount();
         if (currentLikes == null) {

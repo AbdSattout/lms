@@ -1,11 +1,12 @@
 package app.lms.organization.organizationJoinRequest.repository;
 
-import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,15 +34,26 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
 
     void deleteByOrganizationId(Long organizationId);
 
-    Page<OrganizationJoinRequest> findAllByUserIdAndStatus(
-            Long userId,
-            JoinRequestStatus status,
+    @Query("""
+            select request
+            from OrganizationJoinRequest request
+            where request.user.id = :userId
+            and request.status = :status
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = request.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = request.organization.id
+                and ban.user.id = :userId
+            )
+            """)
+    Page<OrganizationJoinRequest> findAllVisibleToUserByUserIdAndStatus(
+            @Param("userId") Long userId,
+            @Param("status") JoinRequestStatus status,
             Pageable pageable
-    );
-
-    Optional<OrganizationJoinRequest>
-    findByOrganizationIdAndUserId(
-            Long organizationId,
-            Long userId
     );
 }
