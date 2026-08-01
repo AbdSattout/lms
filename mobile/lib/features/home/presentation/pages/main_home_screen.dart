@@ -7,14 +7,25 @@ import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/home/bloc/navbar_cubit.dart';
 import 'package:lms/features/profile/presentation/pages/profile_page.dart';
 
+import '../../../courses/domain/entities/course_entity.dart';
+import '../../../courses/presentation/bloc/course_details_bloc.dart';
+import '../../../courses/presentation/bloc/course_details_event.dart';
 import '../../../courses/presentation/bloc/my_courses_bloc.dart';
 import '../../../courses/presentation/bloc/my_courses_event.dart';
+import '../../../courses/presentation/pages/course_details_page.dart';
 import '../../../courses/presentation/pages/my_courses_page.dart';
+import '../../../courses/presentation/widgets/course_card.dart';
+import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_event.dart';
 import '../../../organizations/presentation/pages/organizations_page.dart';
+import '../../../organizations/presentation/widgets/organization_card.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
+import '../../bloc/home_bloc.dart';
+import '../../bloc/home_event.dart';
+import '../../bloc/home_state.dart';
+
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
 
@@ -38,7 +49,10 @@ class MainHomeScreen extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 controller: context.read<NavbarCubit>().controller,
                 children: [
-                  _buildHomeContent(context, user),
+                  BlocProvider(
+                    create: (_) => sl<HomeBloc>()..add(GetHomeDataEvent()),
+                    child: _HomeContent(user: user),
+                  ),
                   BlocProvider(
                     create: (_) => sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
                     child: const MyCoursesPage(),
@@ -61,461 +75,6 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHomeContent(BuildContext context, dynamic user) {
-    return SafeArea(
-      bottom: false,
-      child: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Container(
-              padding: const EdgeInsets.only(
-                top: 24,
-                left: 22,
-                right: 22,
-                bottom: 22,
-              ),
-
-              decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(34),
-                ),
-              ),
-
-              child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-
-                children: [
-
-                  Container(
-                    padding: const EdgeInsets.all(11),
-
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      shape: BoxShape.circle,
-                    ),
-
-                    child: const Icon(
-                      Icons.settings_rounded,
-                      color: AppColors.dark,
-                      size: 24,
-                    ),
-                  ),
-
-                  Row(
-                    children: [
-
-                      Text(
-                        "مسار",
-
-                        style: TextStyle(
-                          fontSize: 38,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
-                        ),
-                      ),
-
-                      const SizedBox(width: 14),
-
-                      _buildAvatar(
-                        user,
-                        radius: 23,
-                        isHome: true,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 35),
-          ),
-          SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -18),
-
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 22,
-                ),
-
-                child: Row(
-                  children: [
-
-                    Expanded(
-                      child: Container(
-                        height: 60,
-
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(22),
-
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-
-                        child: const TextField(
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-
-                            hintText:
-                            'ابحث عن كورس أو مسار...',
-
-                            prefixIcon: Icon(
-                              Icons.search_rounded,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(width: 12),
-
-                    Container(
-                      width: 60,
-                      height: 60,
-
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-
-                      child: const Icon(
-                        Icons.tune_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 8,
-              ),
-
-              child: Row(
-                mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-
-                children: [
-
-                  const Text(
-                    "الكورسات المميزة",
-
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: AppColors.dark,
-                    ),
-                  ),
-
-                  Text(
-                    "عرض الكل",
-
-                    style: TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Hero Card
-          SliverToBoxAdapter(
-            child: _buildFeaturedCourse(),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                24,
-                20,
-                24,
-                14,
-              ),
-
-              child: const Text(
-                "استكشف الكورسات",
-
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: SizedBox(
-              height: 240,
-
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                ),
-
-                itemCount: 5,
-
-                itemBuilder: (context, index) {
-                  return Container(
-                    width: 190,
-                    margin: const EdgeInsets.only(left: 14),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(22),
-
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 15,
-                        ),
-                      ],
-                    ),
-
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-
-                        children: [
-
-                          Container(
-                            height: 100,
-
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
-                              borderRadius:
-                              BorderRadius.circular(16),
-                            ),
-                          ),
-
-                          const SizedBox(height: 12),
-
-                          const Text(
-                            "Flutter",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
-                            ),
-                          ),
-
-                          const SizedBox(height: 8),
-
-                          Text(
-                            "ابدأ بتطوير التطبيقات",
-
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 100)),
-        ],
-      ),
-    );
-  }
-  Widget _buildFeaturedCourse() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 10,
-      ),
-
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(28),
-
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
-        ),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-
-            // IMAGE
-            Stack(
-              children: [
-
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(28),
-                  ),
-
-                  // child: Image.asset(
-                  //   'assets/images/course.png',
-                  //   height: 180,
-                  //   width: double.infinity,
-                  //   fit: BoxFit.cover,
-                  // ),
-                ),
-
-                Positioned(
-                  top: 14,
-                  left: 14,
-
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-
-                    child: const Row(
-                      children: [
-
-                        CircleAvatar(
-                          radius: 4,
-                          backgroundColor: Color(0xffff8900),
-                        ),
-
-                        SizedBox(width: 6),
-
-                        Text(
-                          "منشور",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(22),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-
-                  const Text(
-                    "أساسيات البرمجة للمبتدئين",
-
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: Color(0xff040415),
-                      height: 1.3,
-                    ),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Text(
-                    "دورة تفاعلية مصممة لتبسيط المفاهيم البرمجية المعقدة بأسلوب ممتع وعملي بالتحديات.",
-
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey.shade600,
-                      height: 1.7,
-                    ),
-                  ),
-
-                  const SizedBox(height: 18),
-
-                  Divider(
-                    color: Colors.grey.shade200,
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Row(
-                    mainAxisAlignment:
-                    MainAxisAlignment.spaceBetween,
-
-                    children: [
-
-                      Container(
-                        padding:
-                        const EdgeInsets.symmetric(
-                          horizontal: 18,
-                          vertical: 10,
-                        ),
-
-                        decoration: BoxDecoration(
-                          color: const Color(0xffff8900)
-                              .withOpacity(0.12),
-
-                          borderRadius:
-                          BorderRadius.circular(16),
-                        ),
-
-                        child: const Row(
-                          children: [
-
-                            Icon(
-                              Icons.menu_book_outlined,
-                              size: 18,
-                              color: AppColors.primary,
-                            ),
-
-                            SizedBox(width: 6),
-
-                            Text(
-                              "تسجيل",
-                              style: TextStyle(
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      Text(
-                        "124 طالب",
-
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
   Widget _buildSnakeBar() {
     return BlocBuilder<NavbarCubit, int>(
       builder: (context, state) {
@@ -581,7 +140,7 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildAvatar(dynamic user, {required double radius, bool isHome = false}) {
+  static Widget buildAvatar(dynamic user, {required double radius, bool isHome = false}) {
     bool hasValidImage = user.picture != null && user.picture.toString().startsWith('http');
     return Container(
       decoration: BoxDecoration(
@@ -599,59 +158,307 @@ class MainHomeScreen extends StatelessWidget {
   }
 }
 
-
-class ProfileView extends StatelessWidget {
+class _HomeContent extends StatelessWidget {
   final dynamic user;
-  const ProfileView({super.key, required this.user});
+  const _HomeContent({required this.user});
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
+      bottom: false,
+      child: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(child: _header(context)),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
+          SliverToBoxAdapter(child: _searchBar()),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 28)),
+
+          BlocBuilder<HomeBloc, HomeState>(
+            builder: (context, state) {
+              if (state is HomeLoading) {
+                return const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 60),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                );
+              }
+
+              if (state is HomeLoaded) {
+                return SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      _sectionHeader(
+                        context,
+                        title: 'المنظمات',
+                        onViewAll: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                create: (_) => sl<OrganizationBloc>()
+                                  ..add(GetAllOrganizationsEvent()),
+                                child: OrganizationsPage(
+                                  currentUserName: user.name,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      _organizationsSection(context, state),
+
+                      const SizedBox(height: 12),
+
+                      _sectionHeader(context, title: 'استكشف الكورسات'),
+                      _coursesSection(context, state),
+
+                      const SizedBox(height: 100),
+                    ],
+                  ),
+                );
+              }
+
+              return const SliverToBoxAdapter(child: SizedBox());
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _header(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 24, left: 22, right: 22, bottom: 22),
+      decoration: const BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(34)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(11),
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.settings_rounded,
+              color: AppColors.dark,
+              size: 24,
+            ),
+          ),
+          Row(
+            children: [
+              const Text(
+                "مسار",
+                style: TextStyle(
+                  fontSize: 38,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.primary,
+                ),
+              ),
+              const SizedBox(width: 14),
+              MainHomeScreen.buildAvatar(user, radius: 23, isHome: true),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Decorative for now — no search/filter endpoint confirmed yet.
+  Widget _searchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 22),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
+              ),
+              child: const TextField(
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'ابحث عن كورس أو مسار...',
+                  prefixIcon: Icon(Icons.search_rounded),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(Icons.tune_rounded, color: Colors.white),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _sectionHeader(
+      BuildContext context, {
+        required String title,
+        VoidCallback? onViewAll,
+      }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
+          if (onViewAll != null)
+            GestureDetector(
+              onTap: onViewAll,
+              child: const Text(
+                "عرض الكل",
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _organizationsSection(BuildContext context, HomeLoaded state) {
+    if (state.organizationsError != null) {
+      return _retryCard(context, state.organizationsError!,
+              () => context.read<HomeBloc>().add(GetHomeDataEvent()));
+    }
+
+    final organizations = state.organizations ?? [];
+    if (organizations.isEmpty) {
+      return _emptyCard('لا توجد منظمات حالياً');
+    }
+
+    final preview = organizations.take(5).toList();
+
+    return Column(
+      children: preview
+          .map((org) => OrganizationCard(
+        organization: org,
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('صفحة تفاصيل المنظمة قريباً')),
+          );
+        },
+      ))
+          .toList(),
+    );
+  }
+
+  Widget _coursesSection(BuildContext context, HomeLoaded state) {
+    if (state.coursesError != null) {
+      return _retryCard(context, state.coursesError!,
+              () => context.read<HomeBloc>().add(GetHomeDataEvent()));
+    }
+
+    final courses = state.courses ?? [];
+    if (courses.isEmpty) {
+      return _emptyCard('لا توجد كورسات منشورة حالياً');
+    }
+
+    return Column(
+      children: courses.map((course) {
+        return CourseCard(
+          course: course,
+          onTap: () {
+            // FIX: Home always opens Course Details, regardless of
+            // enrollment — Details is now the source of truth (fetches
+            // via org+course slug, which returns enrollment directly).
+            // Home itself doesn't have enrollment data to branch on
+            // anymore, by design.
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (_) => sl<CourseDetailsBloc>()
+                    ..add(GetCourseDetailsEvent(
+                      orgSlug: course.organization?.slug ?? '',
+                      courseSlug: course.slug,
+                    )),
+                  child: const CourseDetailsPage(),
+                ),
+              ),
+            );
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _emptyCard(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: Builder(
+        builder: (context) => Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _retryCard(BuildContext context, String message, VoidCallback onRetry) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(18),
+        ),
         child: Column(
           children: [
-            const SizedBox(height: 40),
-            MainHomeScreen._buildAvatar(user, radius: 55),
-            const SizedBox(height: 20),
-            Text(
-              user.name,
-              style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xff040415)),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: onRetry,
+              child: const Text('إعادة المحاولة'),
             ),
-            const SizedBox(height: 40),
-            _buildProfileOption(title: "الإعدادات الشخصية", iconData: Icons.settings_outlined),
-            _buildProfileOption(title: "المظهر", iconData: Icons.palette_outlined),
-            _buildProfileOption(title: "شهاداتي", iconData: Icons.workspace_premium_outlined),
-            _buildProfileOption(title: "تسجيل الخروج", iconData: Icons.logout_rounded, isDestructive: true),
-            const SizedBox(height: 100), 
           ],
         ),
       ),
     );
   }
-
-  Widget _buildProfileOption({required String title, required IconData iconData, bool isDestructive = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 4))],
-        ),
-        child: ListTile(
-          leading: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: isDestructive ? Colors.red.withOpacity(0.1) : const Color(0xffff8900).withOpacity(0.1),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(iconData, color: isDestructive ? Colors.red : AppColors.primary, size: 22),
-          ),
-          title: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: isDestructive ? Colors.red : AppColors.dark)),
-          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppColors.darkSoft),
-          onTap: () {},
-        ),
-      ),
-    );
-  }
 }
+
+// CourseEntity/OrganizationEntity imports above are used transitively via
+// state.courses/state.organizations typing.

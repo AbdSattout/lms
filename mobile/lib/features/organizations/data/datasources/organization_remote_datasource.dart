@@ -1,5 +1,6 @@
 import '../../../../core/databases/api/api_consumer.dart';
 import '../../../../core/databases/api/end_points.dart';
+import '../../../../core/models/page_response.dart';
 import '../models/organization_model.dart';
 
 abstract class OrganizationRemoteDataSource {
@@ -20,9 +21,12 @@ class OrganizationRemoteDataSourceImpl
       EndPoints.organizations,
     );
 
-    return (response as List)
-        .map((json) => OrganizationModel.fromJson(json))
-        .toList();
+    final page = PageResponse<OrganizationModel>.fromJson(
+      response,
+          (json) => OrganizationModel.fromJson(json),
+    );
+
+    return page.content;
   }
 
   @override
