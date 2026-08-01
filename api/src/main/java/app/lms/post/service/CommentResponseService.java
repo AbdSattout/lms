@@ -61,13 +61,17 @@ public class CommentResponseService {
             CommentReactionContext context
     ) {
 
-        return commentMapper.toResponse(
-                comment,
+        Map<ReactionType, Long> reactionCounts =
                 context.reactionCountsByCommentId()
                         .getOrDefault(
                                 comment.getId(),
                                 Map.of()
-                        ),
+                        );
+
+        return commentMapper.toResponse(
+                comment,
+                totalReactions(reactionCounts),
+                reactionCounts,
                 context.viewerReactionsByCommentId()
                         .get(comment.getId())
         );
@@ -122,6 +126,17 @@ public class CommentResponseService {
                                 )
                         )
                 );
+    }
+
+    private Long totalReactions(
+            Map<ReactionType, Long> reactionCounts
+    ) {
+
+        return reactionCounts
+                .values()
+                .stream()
+                .mapToLong(Long::longValue)
+                .sum();
     }
 
     private Map<Long, ReactionType> viewerReactionsByCommentId(
