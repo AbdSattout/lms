@@ -1,15 +1,15 @@
 enum OrganizationVisibility {
   public,
-  inviteOnly,
+  private,
   unknown;
-
   static OrganizationVisibility fromApi(String? value) {
     switch (value) {
       case 'PUBLIC':
         return OrganizationVisibility.public;
+      case 'PRIVATE':
       case 'INVITE-ONLY':
       case 'INVITE_ONLY':
-        return OrganizationVisibility.inviteOnly;
+        return OrganizationVisibility.private;
       default:
         return OrganizationVisibility.unknown;
     }

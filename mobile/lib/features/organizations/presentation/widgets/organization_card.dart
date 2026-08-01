@@ -18,8 +18,7 @@ class OrganizationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isInviteOnly =
-        organization.visibility == OrganizationVisibility.inviteOnly;
+    final isPrivate = organization.visibility == OrganizationVisibility.private;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
@@ -35,8 +34,6 @@ class OrganizationCard extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              // Owned-by-me orgs get a distinct lavender border instead
-              // of the normal divider color, plus a faint tint.
               color: isOwnedByMe
                   ? AppColors.lavender.withOpacity(0.08)
                   : colors.surface,
@@ -101,7 +98,7 @@ class OrganizationCard extends StatelessWidget {
                             spacing: 6,
                             runSpacing: 6,
                             children: [
-                              _VisibilityBadge(isInviteOnly: isInviteOnly),
+                              _VisibilityBadge(isPrivate: isPrivate),
                               if (isOwnedByMe) const _OwnerBadge(),
                             ],
                           ),
@@ -282,19 +279,18 @@ class _OrgLogo extends StatelessWidget {
 }
 
 class _VisibilityBadge extends StatelessWidget {
-  final bool isInviteOnly;
+  final bool isPrivate;
 
-  const _VisibilityBadge({required this.isInviteOnly});
+  const _VisibilityBadge({required this.isPrivate});
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isInviteOnly
+    final backgroundColor = isPrivate
         ? AppColors.peach.withOpacity(0.5)
         : AppColors.mint.withOpacity(0.5);
-    final iconColor =
-    isInviteOnly ? const Color(0xffB4780F) : const Color(0xff2E7D53);
-    final label = isInviteOnly ? 'دعوة فقط' : 'عامة';
-    final icon = isInviteOnly ? Icons.mail_outline_rounded : Icons.public_rounded;
+    final iconColor = isPrivate ? const Color(0xffB4780F) : const Color(0xff2E7D53);
+    final label = isPrivate ? 'خاصة' : 'عامة';
+    final icon = isPrivate ? Icons.lock_outline_rounded : Icons.public_rounded;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),

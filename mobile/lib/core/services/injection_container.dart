@@ -222,7 +222,6 @@ Future<void> init() async {
         () => HomeBloc(
       getAllCoursesUseCase: sl(),
       getAllOrganizationsUseCase: sl(),
-      getMyEnrollmentsUseCase: sl(),
     ),
   );
 

@@ -1,5 +1,6 @@
-/// Lock/progress state shared by chapters, lessons, and blocks. Confirmed
-/// values so far: LOCKED, CURRENT, COMPLETED.
+import '../../../organizations/domain/entities/organization_entity.dart'
+    show OrganizationVisibility;
+
 enum ContentStatus {
   locked,
   current,
@@ -66,9 +67,24 @@ class ChapterEntity {
   });
 }
 
-/// The "progress" object embedded directly in GET /courses/{id}. Has a
-/// REAL "completed" boolean — this is the authoritative source for
-/// "is this course finished," not CourseEnrollmentDetailsEntity's guess.
+class CourseOrganizationRef {
+  final int id;
+  final String name;
+  final String slug;
+  final String? description;
+  final String? image;
+  final OrganizationVisibility visibility;
+
+  const CourseOrganizationRef({
+    required this.id,
+    required this.name,
+    required this.slug,
+    this.description,
+    this.image,
+    this.visibility = OrganizationVisibility.unknown,
+  });
+}
+
 class CourseProgressSnapshotEntity {
   final int? currentChapterId;
   final int? currentLessonId;
@@ -87,16 +103,12 @@ class CourseProgressSnapshotEntity {
   });
 }
 
-/// The ongoing enrollment record from GET /courses/me/enrollments.
-/// Authoritative for placementTestCompleted / enrolledAt / status — NOT
-/// for "is this course completed" (see isCompleted below and
-/// CourseEntity.isCompleted, which is the one to actually use).
 class CourseEnrollmentDetailsEntity {
   final int id;
   final int courseId;
   final String courseTitle;
   final DateTime? enrolledAt;
-  final String status; // e.g. "ACTIVE"
+  final String status;
   final bool placementTestCompleted;
   final double progressPercentage;
   final int? currentChapterId;
@@ -116,9 +128,6 @@ class CourseEnrollmentDetailsEntity {
     this.currentBlockId,
   });
 
-  // GUESS, kept only as CourseEntity.isCompleted's fallback for contexts
-  // where progressSnapshot isn't available (e.g. My Courses list, which
-  // never fetches /courses/{id}). Don't use this directly anymore.
   bool get isCompleted => progressPercentage >= 100;
 }
 
@@ -128,7 +137,10 @@ class CourseEntity {
   final String slug;
   final String? description;
   final String? coverUrl;
+
   final String? organizationName;
+  final CourseOrganizationRef? organization;
+
   final String? status;
   final CourseEnrollmentDetailsEntity? enrollment;
   final List<ChapterEntity> chapters;
@@ -141,16 +153,15 @@ class CourseEntity {
     this.description,
     this.coverUrl,
     this.organizationName,
+    this.organization,
     this.status,
     this.enrollment,
     this.chapters = const [],
     this.progressSnapshot,
   });
 
-  /// FIX: this is now the single place to check "is this course done."
-  /// Prefers the real completed boolean from /courses/{id}'s progress
-  /// snapshot; falls back to the enrollment-based guess only when that
-  /// snapshot isn't available (i.e. we only have list-level data).
+  String? get organizationDisplayName => organization?.name ?? organizationName;
+
   bool get isCompleted =>
       progressSnapshot?.completed ?? (enrollment?.isCompleted ?? false);
 }

@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/api_error_resolver.dart';
-import '../../domain/entities/course_entity.dart';
 import '../../domain/usecases/enroll_in_course_usecase.dart';
 import '../../domain/usecases/get_course_by_id_usecase.dart';
 import '../../domain/usecases/get_course_by_slug_usecase.dart';
@@ -14,19 +13,18 @@ class CourseDetailsBloc
   final GetCourseBySlugUseCase getCourseBySlugUseCase;
   final EnrollInCourseUseCase enrollInCourseUseCase;
 
+  int? _lastId;
+  String? _lastOrgSlug;
+  String? _lastCourseSlug;
+
   CourseDetailsBloc({
     required this.getCourseByIdUseCase,
     required this.getCourseBySlugUseCase,
     required this.enrollInCourseUseCase,
   }) : super(CourseDetailsInitial()) {
 
-    on<GetCourseDetailsEvent>(
-      _getCourseDetails,
-    );
-
-    on<EnrollEvent>(
-      _enroll,
-    );
+    on<GetCourseDetailsEvent>(_getCourseDetails);
+    on<EnrollEvent>(_enroll);
   }
 
   Future<void> _getCourseDetails(
@@ -36,6 +34,10 @@ class CourseDetailsBloc
     try {
       emit(CourseDetailsLoading());
 
+      _lastId = event.id;
+      _lastOrgSlug = event.orgSlug;
+      _lastCourseSlug = event.courseSlug;
+
       final course = event.id != null
           ? await getCourseByIdUseCase(event.id!)
           : await getCourseBySlugUseCase(
@@ -43,29 +45,9 @@ class CourseDetailsBloc
         courseSlug: event.courseSlug!,
       );
 
-      final resolvedCourse = event.knownEnrollment != null
-          ? CourseEntity(
-        id: course.id,
-        title: course.title,
-        slug: course.slug,
-        description: course.description,
-        coverUrl: course.coverUrl,
-        organizationName: course.organizationName,
-        status: course.status,
-        // authoritative source: the enrollments list, not /courses/{id}
-        enrollment: event.knownEnrollment,
-      )
-          : course;
-
-      emit(
-        CourseDetailsLoaded(resolvedCourse),
-      );
+      emit(CourseDetailsLoaded(course));
     } catch (e) {
-      emit(
-        CourseDetailsError(
-          resolveApiErrorMessage(e),
-        ),
-      );
+      emit(CourseDetailsError(resolveApiErrorMessage(e)));
     }
   }
 
@@ -75,39 +57,18 @@ class CourseDetailsBloc
       ) async {
     try {
       final result = await enrollInCourseUseCase(event.courseId);
+      emit(CourseEnrollSuccess(result));
 
-      emit(
-        CourseEnrollSuccess(result),
-      );
+      final course = _lastOrgSlug != null && _lastCourseSlug != null
+          ? await getCourseBySlugUseCase(
+        orgSlug: _lastOrgSlug!,
+        courseSlug: _lastCourseSlug!,
+      )
+          : await getCourseByIdUseCase(_lastId ?? event.courseId);
 
-      // Refresh the course's static fields from /courses/{id}. Its
-      // "enrollment" data (if that route even includes one) still isn't
-      // trusted — TODO once the placement-test flow is built: after a
-      // fresh enroll, the correct next step is starting the placement
-      // test, not just showing 0% progress. Revisit this when we get to
-      // that step.
-      final course = await getCourseByIdUseCase(event.courseId);
-
-      final resolvedCourse = CourseEntity(
-        id: course.id,
-        title: course.title,
-        slug: course.slug,
-        description: course.description,
-        coverUrl: course.coverUrl,
-        organizationName: course.organizationName,
-        status: course.status,
-        enrollment: null,
-      );
-
-      emit(
-        CourseDetailsLoaded(resolvedCourse),
-      );
+      emit(CourseDetailsLoaded(course));
     } catch (e) {
-      emit(
-        CourseDetailsError(
-          resolveApiErrorMessage(e),
-        ),
-      );
+      emit(CourseDetailsError(resolveApiErrorMessage(e)));
     }
   }
 }

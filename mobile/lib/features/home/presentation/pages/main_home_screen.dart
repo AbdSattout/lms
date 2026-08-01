@@ -12,7 +12,6 @@ import '../../../courses/presentation/bloc/course_details_bloc.dart';
 import '../../../courses/presentation/bloc/course_details_event.dart';
 import '../../../courses/presentation/bloc/my_courses_bloc.dart';
 import '../../../courses/presentation/bloc/my_courses_event.dart';
-import '../../../courses/presentation/pages/course_contents_page.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
 import '../../../courses/presentation/pages/my_courses_page.dart';
 import '../../../courses/presentation/widgets/course_card.dart';
@@ -386,30 +385,27 @@ class _HomeContent extends StatelessWidget {
 
     return Column(
       children: courses.map((course) {
-        final enrolled = state.enrolledCoursesById[course.id];
-
         return CourseCard(
-          course: enrolled ?? course,
+          course: course,
           onTap: () {
-            if (enrolled != null) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CourseContentsPage(course: enrolled),
+            // FIX: Home always opens Course Details, regardless of
+            // enrollment — Details is now the source of truth (fetches
+            // via org+course slug, which returns enrollment directly).
+            // Home itself doesn't have enrollment data to branch on
+            // anymore, by design.
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (_) => sl<CourseDetailsBloc>()
+                    ..add(GetCourseDetailsEvent(
+                      orgSlug: course.organization?.slug ?? '',
+                      courseSlug: course.slug,
+                    )),
+                  child: const CourseDetailsPage(),
                 ),
-              );
-            } else {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BlocProvider(
-                    create: (_) => sl<CourseDetailsBloc>()
-                      ..add(GetCourseDetailsEvent(id: course.id)),
-                    child: const CourseDetailsPage(),
-                  ),
-                ),
-              );
-            }
+              ),
+            );
           },
         );
       }).toList(),
@@ -463,3 +459,6 @@ class _HomeContent extends StatelessWidget {
     );
   }
 }
+
+// CourseEntity/OrganizationEntity imports above are used transitively via
+// state.courses/state.organizations typing.

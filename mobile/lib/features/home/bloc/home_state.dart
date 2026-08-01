@@ -11,13 +11,11 @@ class HomeLoaded extends HomeState {
 
   final List<OrganizationEntity>? organizations;
   final String? organizationsError;
-  final Map<int, CourseEntity> enrolledCoursesById;
 
   HomeLoaded({
     this.courses,
     this.coursesError,
     this.organizations,
     this.organizationsError,
-    this.enrolledCoursesById = const {},
   });
 }
