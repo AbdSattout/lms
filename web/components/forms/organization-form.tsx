@@ -17,6 +17,7 @@ import {
   createOrganization,
   updateOrganization,
 } from "@/lib/actions/organization"
+import { getImageUploadError } from "@/lib/utils/image-upload"
 import { generateSlug } from "@/lib/utils"
 import { CheckIcon, Loader2Icon, XIcon } from "lucide-react"
 import { useActionState, useEffect, useRef, useState } from "react"
@@ -56,6 +57,7 @@ export function OrganizationForm({
   const [visibility, setVisibility] = useState(
     initialData?.visibility || "PUBLIC"
   )
+  const [imageError, setImageError] = useState<string | null>(null)
 
   useEffect(() => {
     if (state.success) onSuccess?.()
@@ -109,6 +111,13 @@ export function OrganizationForm({
       }
     }, 500)
   }, [slug, initialData?.slug])
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    const error = getImageUploadError(file)
+    setImageError(error)
+    if (error) e.target.value = ""
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -183,7 +192,11 @@ export function OrganizationForm({
           type="file"
           accept="image/*"
           disabled={isPending}
+          onChange={handleImageChange}
         />
+        {imageError && (
+          <p className="text-sm text-destructive">{imageError}</p>
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
