@@ -5,6 +5,8 @@ import app.lms.organization.enums.Role;
 import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +56,36 @@ public interface OrganizationInviteRepository
     })
     List<OrganizationInvite> findAllByUserIdAndRoleAndStatus(
             Long userId, Role role, InviteStatus status);
+
+    @EntityGraph(attributePaths = {
+            "organization",
+            "organization.owner",
+            "user",
+            "invitedBy"
+    })
+    @Query("""
+            select invite
+            from OrganizationInvite invite
+            where invite.user.id = :userId
+            and invite.role = :role
+            and invite.status = :status
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = invite.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = invite.organization.id
+                and ban.user.id = :userId
+            )
+            """)
+    List<OrganizationInvite> findAllVisibleToUserByUserIdAndRoleAndStatus(
+            @Param("userId") Long userId,
+            @Param("role") Role role,
+            @Param("status") InviteStatus status
+    );
 
     void deleteByOrganizationId(Long organizationId);
 }

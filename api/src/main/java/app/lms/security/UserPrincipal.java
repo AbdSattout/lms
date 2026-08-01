@@ -10,7 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-public record UserPrincipal(User user) implements UserDetails {
+public record UserPrincipal(
+        User user,
+        boolean accountNonLocked
+) implements UserDetails {
 
     @Override
     @NullMarked
@@ -40,7 +43,7 @@ public record UserPrincipal(User user) implements UserDetails {
     @Override
     @NullMarked
     public boolean isAccountNonLocked() {
-        return true;
+        return accountNonLocked;
     }
 
     @Override
@@ -59,7 +62,21 @@ public record UserPrincipal(User user) implements UserDetails {
             User user
     ) {
 
-        return new UserPrincipal(user);
+        return new UserPrincipal(
+                user,
+                true
+        );
+    }
+
+    public static UserPrincipal from(
+            User user,
+            boolean accountNonLocked
+    ) {
+
+        return new UserPrincipal(
+                user,
+                accountNonLocked
+        );
     }
 
     public Long getId() {

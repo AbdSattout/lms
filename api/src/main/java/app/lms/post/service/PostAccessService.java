@@ -21,6 +21,11 @@ public class PostAccessService {
             Organization organization,
             User user
     ) {
+        validateOrganizationAccess(
+                organization,
+                user
+        );
+
         organizationMemberAccessService.getMember(
                 organization.getId(),
                 user.getId()
@@ -32,6 +37,11 @@ public class PostAccessService {
             User user
     ) {
 
+        validateOrganizationAccess(
+                post,
+                user
+        );
+
         organizationAccessService.getManageableOrganization(
                 post.getOrganization().getSlug(),
                 user
@@ -42,6 +52,11 @@ public class PostAccessService {
             Post post,
             User user
     ) {
+
+        validateOrganizationAccess(
+                post,
+                user
+        );
 
         if (post.getCourse() == null) {
             return;
@@ -72,6 +87,34 @@ public class PostAccessService {
 
         validateCourseAccess(
                 post,
+                user
+        );
+    }
+
+    public void validateOrganizationAccess(
+            Organization organization,
+            User user
+    ) {
+
+        organizationAccessService
+                .validateNotBanned(
+                        organization
+                );
+
+        organizationAccessService
+                .validateUserNotBannedFromOrg(
+                        organization,
+                        user
+                );
+    }
+
+    private void validateOrganizationAccess(
+            Post post,
+            User user
+    ) {
+
+        validateOrganizationAccess(
+                post.getOrganization(),
                 user
         );
     }

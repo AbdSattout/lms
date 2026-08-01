@@ -1,6 +1,6 @@
 package app.lms.organization.controller;
 
-import app.lms.admin.dto.BanRequest;
+import app.lms.moderation.dto.BanRequest;
 import app.lms.organization.dto.CreateOrganizationRequest;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
@@ -224,20 +224,36 @@ public class DashboardOrganizationController {
                 )
         );
     }
-    @DeleteMapping("/{slug}/members/{memberId}")
-    public ResponseEntity<Void> removeMember(
+    @PostMapping("/{slug}/users/{userId}/ban")
+    public ResponseEntity<Void> banUser(
             @PathVariable String slug,
-            @PathVariable Long memberId,
+            @PathVariable Long userId,
             @RequestBody
             @Valid
             BanRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
-        dashboardOrganizationService.removeMember(
+        dashboardOrganizationService.banUser(
                 slug,
-                memberId,
+                userId,
                 request,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{slug}/users/{userId}/ban")
+    public ResponseEntity<Void> unbanUser(
+            @PathVariable String slug,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardOrganizationService.unbanUser(
+                slug,
+                userId,
                 principal.user()
         );
 

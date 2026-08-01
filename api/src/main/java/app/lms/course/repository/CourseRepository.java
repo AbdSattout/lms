@@ -35,8 +35,40 @@ public interface CourseRepository
             Long organizationId,
             String slug
     );
+    @Query("""
+            select course
+            from Course course
+            where course.status = :status
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = course.organization.id
+            )
+            """)
     Page<Course> findAllByStatus(
-            CourseStatus status,
+            @Param("status") CourseStatus status,
+            Pageable pageable
+    );
+
+    @Query("""
+            select course
+            from Course course
+            where course.status = :status
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = course.organization.id
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = course.organization.id
+                and ban.user.id = :userId
+            )
+            """)
+    Page<Course> findAllByStatusVisibleToUser(
+            @Param("status") CourseStatus status,
+            @Param("userId") Long userId,
             Pageable pageable
     );
 
@@ -45,6 +77,11 @@ public interface CourseRepository
                     select c.*
                     from courses c
                     where c.status = :status
+                    and not exists (
+                        select 1
+                        from organization_moderation om
+                        where om.organization_id = c.organization_id
+                    )
                     and (
                         lower(c.title) like lower(concat('%', :q, '%'))
                         or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
@@ -66,6 +103,11 @@ public interface CourseRepository
                     select count(*)
                     from courses c
                     where c.status = :status
+                    and not exists (
+                        select 1
+                        from organization_moderation om
+                        where om.organization_id = c.organization_id
+                    )
                     and (
                         lower(c.title) like lower(concat('%', :q, '%'))
                         or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
@@ -84,6 +126,77 @@ public interface CourseRepository
             @Param("status") String status,
             @Param("q") String q,
             @Param("threshold") double threshold,
+            Pageable pageable
+    );
+
+    @Query(
+            value = """
+                    select c.*
+                    from courses c
+                    where c.status = :status
+                    and not exists (
+                        select 1
+                        from organization_moderation om
+                        where om.organization_id = c.organization_id
+                    )
+                    and not exists (
+                        select 1
+                        from organization_bans ob
+                        where ob.organization_id = c.organization_id
+                        and ob.user_id = :userId
+                    )
+                    and (
+                        lower(c.title) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
+                        or lower(c.slug) like lower(concat('%', :q, '%'))
+                        or c.title % :q
+                        or coalesce(c.description, '') % :q
+                        or c.slug % :q
+                        or similarity(c.title, :q) >= :threshold
+                        or similarity(coalesce(c.description, ''), :q) >= :threshold
+                        or similarity(c.slug, :q) >= :threshold
+                    )
+                    order by greatest(
+                        similarity(c.title, :q),
+                        similarity(coalesce(c.description, ''),
+                                :q),
+                        similarity(c.slug, :q)
+                    ) desc, c.created_at desc
+                    """,
+            countQuery = """
+                    select count(*)
+                    from courses c
+                    where c.status = :status
+                    and not exists (
+                        select 1
+                        from organization_moderation om
+                        where om.organization_id = c.organization_id
+                    )
+                    and not exists (
+                        select 1
+                        from organization_bans ob
+                        where ob.organization_id = c.organization_id
+                        and ob.user_id = :userId
+                    )
+                    and (
+                        lower(c.title) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(c.description, '')) like lower(concat('%', :q, '%'))
+                        or lower(c.slug) like lower(concat('%', :q, '%'))
+                        or c.title % :q
+                        or coalesce(c.description, '') % :q
+                        or c.slug % :q
+                        or similarity(c.title, :q) >= :threshold
+                        or similarity(coalesce(c.description, ''), :q) >= :threshold
+                        or similarity(c.slug, :q) >= :threshold
+                    )
+                    """,
+            nativeQuery = true
+    )
+    Page<Course> searchAllByStatusVisibleToUser(
+            @Param("status") String status,
+            @Param("q") String q,
+            @Param("threshold") double threshold,
+            @Param("userId") Long userId,
             Pageable pageable
     );
 

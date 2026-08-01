@@ -43,6 +43,18 @@ public class CourseMapper {
 
     public CourseResponse toResponse(
             Course course,
+            CourseEnrollment enrollment
+    ) {
+
+        return toResponse(
+                course,
+                enrollment,
+                null
+        );
+    }
+
+    public CourseResponse toResponse(
+            Course course,
             CourseEnrollment enrollment,
             OrganizationJoinRequest joinRequest
     ) {

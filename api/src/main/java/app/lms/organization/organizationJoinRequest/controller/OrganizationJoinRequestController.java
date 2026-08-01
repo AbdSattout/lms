@@ -4,7 +4,6 @@ import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.service.OrganizationJoinRequestService;
 import app.lms.security.UserPrincipal;
-import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +60,7 @@ public class OrganizationJoinRequestController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("organizations/{slug}/join")
+    @PostMapping("/organizations/{slug}/join")
     public ResponseEntity<Void> join(
             @PathVariable String slug,
             @AuthenticationPrincipal UserPrincipal principal
