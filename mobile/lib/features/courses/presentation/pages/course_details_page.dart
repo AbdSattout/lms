@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
@@ -119,14 +120,6 @@ class _CourseDetailsContent extends StatelessWidget {
                           _roundIconButton(
                             icon: Icons.arrow_back_ios_new_rounded,
                             onTap: () => Navigator.maybePop(context),
-                          ),
-                          Row(
-                            children: [
-                              _roundIconButton(icon: Icons.share_outlined, onTap: () {}),
-                              const SizedBox(width: 10),
-                              _roundIconButton(
-                                  icon: Icons.bookmark_border_rounded, onTap: () {}),
-                            ],
                           ),
                         ],
                       ),
@@ -252,7 +245,7 @@ class _CourseDetailsContent extends StatelessWidget {
         Positioned(
           left: 20,
           right: 20,
-          bottom: 20,
+          bottom: 1,
           child: SafeArea(
             top: false,
             child: Column(
@@ -294,6 +287,37 @@ class _CourseDetailsContent extends StatelessWidget {
                     ),
                   ),
                 ),
+
+                // Show "View Organization" button if user is NOT a member of the org
+                if (!isEnrolled &&
+                    course.organization != null &&
+                    course.organization!.viewerJoined == false) ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => OrganizationDetailsPage(
+                              slug: course.organization!.slug,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.apartment_rounded, size: 18),
+                      label: const Text('عرض المنظمة'),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: AppColors.primary),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
 
                 const SizedBox(height: 10),
 

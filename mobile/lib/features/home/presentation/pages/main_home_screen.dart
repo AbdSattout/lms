@@ -15,6 +15,7 @@ import '../../../courses/presentation/bloc/my_courses_event.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
 import '../../../courses/presentation/pages/my_courses_page.dart';
 import '../../../courses/presentation/widgets/course_card.dart';
+import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_event.dart';
@@ -140,19 +141,22 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget buildAvatar(dynamic user, {required double radius, bool isHome = false}) {
+  static Widget buildAvatar(dynamic user, {required double radius, bool isHome = false, VoidCallback? onTap}) {
     bool hasValidImage = user.picture != null && user.picture.toString().startsWith('http');
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.border, width: isHome ? 2 : 4),
-      ),
-      child: CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.grey[200],
-        backgroundImage: hasValidImage
-            ? NetworkImage(user.picture)
-            : const AssetImage('assets/images/user.png') as ImageProvider,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border, width: isHome ? 2 : 4),
+        ),
+        child: CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey[200],
+          backgroundImage: hasValidImage
+              ? NetworkImage(user.picture)
+              : const AssetImage('assets/images/user.png') as ImageProvider,
+        ),
       ),
     );
   }
@@ -231,6 +235,8 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _header(BuildContext context) {
+    final navbarCubit = context.read<NavbarCubit>();
+
     return Container(
       padding: const EdgeInsets.only(top: 24, left: 22, right: 22, bottom: 22),
       decoration: const BoxDecoration(
@@ -263,7 +269,19 @@ class _HomeContent extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 14),
-              MainHomeScreen.buildAvatar(user, radius: 23, isHome: true),
+              MainHomeScreen.buildAvatar(
+                user,
+                radius: 23,
+                isHome: true,
+                onTap: () {
+                  navbarCubit.controller.animateToPage(
+                    3,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  navbarCubit.update(3);
+                },
+              ),
             ],
           ),
         ],
@@ -271,7 +289,6 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  // Decorative for now — no search/filter endpoint confirmed yet.
   Widget _searchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
@@ -363,8 +380,13 @@ class _HomeContent extends StatelessWidget {
           .map((org) => OrganizationCard(
         organization: org,
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('صفحة تفاصيل المنظمة قريباً')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OrganizationDetailsPage(
+                  slug: org.slug
+              )
+            ),
           );
         },
       ))
@@ -388,11 +410,6 @@ class _HomeContent extends StatelessWidget {
         return CourseCard(
           course: course,
           onTap: () {
-            // FIX: Home always opens Course Details, regardless of
-            // enrollment — Details is now the source of truth (fetches
-            // via org+course slug, which returns enrollment directly).
-            // Home itself doesn't have enrollment data to branch on
-            // anymore, by design.
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -459,6 +476,3 @@ class _HomeContent extends StatelessWidget {
     );
   }
 }
-
-// CourseEntity/OrganizationEntity imports above are used transitively via
-// state.courses/state.organizations typing.

@@ -6,6 +6,7 @@ import '../bloc/organization_bloc.dart';
 import '../bloc/organization_event.dart';
 import '../bloc/organization_state.dart';
 import '../widgets/organization_card.dart';
+import 'organization_details_page.dart';
 
 class OrganizationsPage extends StatelessWidget {
   final String? currentUserName;
@@ -127,11 +128,11 @@ class OrganizationsPage extends StatelessWidget {
                             organization: organization,
                             isOwnedByMe: isOwnedByMe,
                             onTap: () {
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'صفحة تفاصيل المنظمة قريباً',
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => OrganizationDetailsPage(
+                                    slug: organization.slug,
                                   ),
                                 ),
                               );
