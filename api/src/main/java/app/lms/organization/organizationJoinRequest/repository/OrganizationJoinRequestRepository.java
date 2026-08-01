@@ -1,5 +1,6 @@
 package app.lms.organization.organizationJoinRequest.repository;
 
+import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import org.springframework.data.domain.Page;
@@ -36,5 +37,11 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
             Long userId,
             JoinRequestStatus status,
             Pageable pageable
+    );
+
+    Optional<OrganizationJoinRequest>
+    findByOrganizationIdAndUserId(
+            Long organizationId,
+            Long userId
     );
 }
