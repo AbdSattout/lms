@@ -8,6 +8,9 @@ import app.lms.organization.enums.Role;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
+import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
@@ -35,6 +38,7 @@ public class OrganizationService {
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationMemberAccessService organizationMemberAccessService;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
+    private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
 
     @Value("${app.search.organization-similarity-threshold:0.2}")
     private double organizationSearchSimilarityThreshold;
@@ -58,10 +62,18 @@ public class OrganizationService {
                         organization.getId(),
                         user.getId()
                 );
+        Optional<OrganizationJoinRequest> request =
+                organizationJoinRequestRepository
+                        .findByOrganizationIdAndUserIdAndStatus(
+                                organization.getId(),
+                                user.getId(),
+                                JoinRequestStatus.PENDING
+                        );
 
         return organizationMapper.ToResponse(
                 organization,
-                member.orElse(null)
+                member.orElse(null),
+                request.orElse(null)
         );
     }
 
@@ -92,7 +104,8 @@ public class OrganizationService {
                                 organization,
                                 membersByOrganizationId.get(
                                         organization.getId()
-                                )
+                                ),
+                                null
                         )
                 );
     }
@@ -109,7 +122,8 @@ public class OrganizationService {
                 .map(member ->
                         organizationMapper.ToResponse(
                                 member.getOrganization(),
-                                member
+                                member,
+                                null
                         )
                 )
                 .toList();

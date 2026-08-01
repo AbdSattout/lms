@@ -11,6 +11,9 @@ import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.model.Organization;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
+import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.placementTest.service.CoursePlacementTestAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
@@ -24,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,6 +47,7 @@ public class CourseService {
     private final BlockProgressRepository blockProgressRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final CoursePlacementTestAccessService placementTestAccessService;
+    private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
 
     @Value("${app.search.course-similarity-threshold:0.2}")
     private double courseSearchSimilarityThreshold;
@@ -70,13 +75,21 @@ public class CourseService {
                                 organization.getId(),
                                 courseSlug
                         );
+        Optional<OrganizationJoinRequest> joinRequest =
+                organizationJoinRequestRepository
+                        .findByOrganizationIdAndUserIdAndStatus(
+                                organization.getId(),
+                                user.getId(),
+                                JoinRequestStatus.PENDING
+                        );
 
         return courseMapper.toResponse(
                 course,
                 enrollmentFor(
                         course.getId(),
                         user
-                )
+                ),
+                joinRequest.orElse(null)
         );
     }
 
@@ -211,7 +224,8 @@ public class CourseService {
         return courses.map(course ->
                 courseMapper.toResponse(
                         course,
-                        enrollmentsByCourseId.get(course.getId())
+                        enrollmentsByCourseId.get(course.getId()),
+                        null
                 )
         );
     }

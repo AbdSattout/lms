@@ -36,9 +36,25 @@ public class OrganizationMapper {
             OrganizationMember member
     ) {
 
+        return ToResponse(
+                organization,
+                member,
+                null
+        );
+    }
+
+    public OrganizationResponse ToResponse(
+            Organization organization,
+            OrganizationMember member,
+            OrganizationJoinRequest request
+    ) {
+
         return toResponse(
                 organization,
-                toViewerResponse(member)
+                toViewerResponse(
+                        member,
+                        request
+                )
         );
     }
 
@@ -66,7 +82,8 @@ public class OrganizationMapper {
     }
 
     public OrganizationViewerResponse toViewerResponse(
-            OrganizationMember member
+            OrganizationMember member,
+            OrganizationJoinRequest request
     ) {
 
         return OrganizationViewerResponse.builder()
@@ -74,6 +91,11 @@ public class OrganizationMapper {
                 .role(
                         member != null
                                 ? member.getRole()
+                                : null
+                )
+                .joinRequestStatus(
+                        request != null
+                                ? request.getStatus()
                                 : null
                 )
                 .build();

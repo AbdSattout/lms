@@ -1,10 +1,12 @@
 package app.lms.organization.organizationJoinRequest.controller;
 
 import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.service.OrganizationJoinRequestService;
 import app.lms.security.UserPrincipal;
-import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +18,6 @@ import java.util.List;
 public class OrganizationJoinRequestController {
 
     private final OrganizationJoinRequestService joinRequestService;
-
-
-    @PostMapping("/organizations/{slug}/join-request")
-    public ResponseEntity<JoinRequestResponse> createJoinRequest(
-            @PathVariable String slug,
-            @AuthenticationPrincipal UserPrincipal principal
-    ) {
-        return ResponseEntity.ok(joinRequestService.createRequest(slug, principal.user() ));
-    }
 
 
     @DeleteMapping("/organizations/{slug}/join-request")
@@ -67,7 +60,7 @@ public class OrganizationJoinRequestController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("organizations/{slug}/join")
+    @PostMapping("/organizations/{slug}/join")
     public ResponseEntity<Void> join(
             @PathVariable String slug,
             @AuthenticationPrincipal UserPrincipal principal
@@ -79,5 +72,18 @@ public class OrganizationJoinRequestController {
         );
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/my-requests")
+    public Page<JoinRequestResponse> getMyRequests(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @RequestParam JoinRequestStatus status,
+            Pageable pageable
+    ) {
+        return joinRequestService.getMyRequests(
+                principal.user(),
+                status,
+                pageable
+        );
     }
 }
