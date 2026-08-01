@@ -38,7 +38,16 @@ export async function createOrganization(
   revalidatePath("/")
   redirect(`/${org.slug}`)
 }
-
+export async function leaveOrganizationAction(slug: string) {
+  try {
+    await api.dashboard.organizations.leave.post(slug)
+    revalidatePath("/")
+  } catch (error) {
+    console.error("Leave organization failed:", error)
+    return { success: false, error: "فشل مغادرة المنظمة" }
+  }
+  redirect("/dashboard")
+}
 export async function checkSlugAvailability(slug: string) {
   if (!slug || !slugSchema.safeParse(slug).success) {
     return false
