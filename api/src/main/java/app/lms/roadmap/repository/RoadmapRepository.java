@@ -1,5 +1,6 @@
 package app.lms.roadmap.repository;
 
+import app.lms.organization.repository.projection.OrganizationCountProjection;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.course.enums.CourseStatus;
 import app.lms.enrollment.enums.EnrollmentStatus;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,4 +76,15 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     );
 
     long countByOrganizationId(Long organizationId);
+
+    @Query("""
+            select roadmap.organization.id as organizationId,
+                   count(roadmap.id) as total
+            from Roadmap roadmap
+            where roadmap.organization.id in :organizationIds
+            group by roadmap.organization.id
+            """)
+    List<OrganizationCountProjection> countByOrganizationIds(
+            @Param("organizationIds") Collection<Long> organizationIds
+    );
 }
