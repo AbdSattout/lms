@@ -1,6 +1,7 @@
 package app.lms.organization.dto;
 
 import app.lms.organization.enums.Role;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import lombok.Builder;
 
@@ -9,6 +10,8 @@ public record OrganizationViewerResponse(
 
         boolean joined,
         Role role,
-        JoinRequestStatus joinRequestStatus
+        JoinRequestStatus joinRequestStatus,
+        InviteStatus inviteStatus,
+        OrganizationViewerMemberResponse member
 
 ) {}

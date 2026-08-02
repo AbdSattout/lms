@@ -38,6 +38,23 @@ public interface OrganizationInviteRepository
             InviteStatus status
     );
 
+    Optional<OrganizationInvite> findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
+            Long organizationId,
+            Long userId
+    );
+
+    @Query("""
+            select invite
+            from OrganizationInvite invite
+            where invite.organization.id in :organizationIds
+            and invite.user.id = :userId
+            order by invite.organization.id asc, invite.createdAt desc, invite.id desc
+            """)
+    List<OrganizationInvite> findAllByOrganizationIdsAndUserIdOrderByLatest(
+            @Param("organizationIds") Collection<Long> organizationIds,
+            @Param("userId") Long userId
+    );
+
     @EntityGraph(attributePaths = {
             "organization",
             "organization.owner",

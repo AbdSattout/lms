@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,18 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
     Optional<OrganizationJoinRequest> findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
             Long organizationId,
             Long userId
+    );
+
+    @Query("""
+            select request
+            from OrganizationJoinRequest request
+            where request.organization.id in :organizationIds
+            and request.user.id = :userId
+            order by request.organization.id asc, request.createdAt desc, request.id desc
+            """)
+    List<OrganizationJoinRequest> findAllByOrganizationIdsAndUserIdOrderByLatest(
+            @Param("organizationIds") Collection<Long> organizationIds,
+            @Param("userId") Long userId
     );
 
     void deleteByOrganizationId(Long organizationId);

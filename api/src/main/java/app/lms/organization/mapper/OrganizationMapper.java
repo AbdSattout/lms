@@ -4,8 +4,11 @@ import app.lms.common.dto.BaseEntityResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.OrganizationSummaryResponse;
+import app.lms.organization.dto.OrganizationViewerMemberResponse;
 import app.lms.organization.dto.OrganizationViewerResponse;
 import app.lms.organization.model.Organization;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
+import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
@@ -37,11 +40,27 @@ public class OrganizationMapper {
             OrganizationJoinRequest request
     ) {
 
+        return ToResponse(
+                organization,
+                member,
+                request,
+                null
+        );
+    }
+
+    public OrganizationResponse ToResponse(
+            Organization organization,
+            OrganizationMember member,
+            OrganizationJoinRequest request,
+            OrganizationInvite invite
+    ) {
+
         return toResponse(
                 organization,
                 toViewerResponse(
                         member,
-                        request
+                        request,
+                        invite
                 )
         );
     }
@@ -71,7 +90,8 @@ public class OrganizationMapper {
 
     public OrganizationViewerResponse toViewerResponse(
             OrganizationMember member,
-            OrganizationJoinRequest request
+            OrganizationJoinRequest request,
+            OrganizationInvite invite
     ) {
 
         return OrganizationViewerResponse.builder()
@@ -81,13 +101,47 @@ public class OrganizationMapper {
                                 ? member.getRole()
                                 : null
                 )
-                .joinRequestStatus(
-                        member != null
-                                ? JoinRequestStatus.ACCEPTED
-                                : request != null
-                                ? request.getStatus()
-                                : null
-                )
+                .joinRequestStatus(joinRequestStatusFor(member, request))
+                .inviteStatus(inviteStatusFor(invite))
+                .member(viewerMemberResponseFor(member))
+                .build();
+    }
+
+    private JoinRequestStatus joinRequestStatusFor(
+            OrganizationMember member,
+            OrganizationJoinRequest request
+    ) {
+
+        if (member != null) {
+            return JoinRequestStatus.ACCEPTED;
+        }
+
+        return request != null
+                ? request.getStatus()
+                : null;
+    }
+
+    private InviteStatus inviteStatusFor(
+            OrganizationInvite invite
+    ) {
+
+        return invite != null
+                ? invite.getStatus()
+                : null;
+    }
+
+    private OrganizationViewerMemberResponse viewerMemberResponseFor(
+            OrganizationMember member
+    ) {
+
+        if (member == null) {
+            return null;
+        }
+
+        return OrganizationViewerMemberResponse.builder()
+                .memberId(member.getId())
+                .role(member.getRole())
+                .joinedAt(member.getJoinedAt())
                 .build();
     }
 
