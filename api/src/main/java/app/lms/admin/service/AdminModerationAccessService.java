@@ -85,7 +85,7 @@ public class AdminModerationAccessService {
     ) {
 
         if (
-                userModerationRepository.existsByUserId(
+                userModerationRepository.existsActiveByUserId(
                         user.getId()
                 )
         ) {
@@ -117,7 +117,7 @@ public class AdminModerationAccessService {
     ) {
 
         if (
-                organizationModerationRepository.existsByOrganizationId(
+                organizationModerationRepository.existsActiveByOrganizationId(
                         organization.getId()
                 )
         ) {

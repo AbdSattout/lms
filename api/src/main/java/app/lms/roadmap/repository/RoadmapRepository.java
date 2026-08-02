@@ -37,12 +37,20 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
                 select moderation.id
                 from OrganizationModeration moderation
                 where moderation.organization.id = roadmap.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
                 from OrganizationBan ban
                 where ban.organization.id = roadmap.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             order by roadmap.createdAt desc
             """)

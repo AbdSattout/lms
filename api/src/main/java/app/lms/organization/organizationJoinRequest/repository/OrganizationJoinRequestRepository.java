@@ -32,6 +32,11 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
             JoinRequestStatus status
     );
 
+    Optional<OrganizationJoinRequest> findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
+            Long organizationId,
+            Long userId
+    );
+
     void deleteByOrganizationId(Long organizationId);
 
     @Query("""
@@ -43,12 +48,20 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
                 select moderation.id
                 from OrganizationModeration moderation
                 where moderation.organization.id = request.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
                 from OrganizationBan ban
                 where ban.organization.id = request.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             """)
     Page<OrganizationJoinRequest> findAllVisibleToUserByUserIdAndStatus(

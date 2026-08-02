@@ -38,7 +38,7 @@ public class OrganizationMemberAccessService {
     ) {
 
         if (
-                organizationBanRepository.existsByOrganizationIdAndUserId(
+                organizationBanRepository.existsActiveByOrganizationIdAndUserId(
                         organizationId,
                         userId
                 )

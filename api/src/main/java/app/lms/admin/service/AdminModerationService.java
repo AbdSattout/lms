@@ -1,7 +1,9 @@
 package app.lms.admin.service;
 
 import app.lms.admin.model.Admin;
+import app.lms.common.exception.BadRequestException;
 import app.lms.moderation.dto.BanRequest;
+import app.lms.moderation.service.BanNotificationEmailService;
 import app.lms.organization.OrganizationBan.model.OrganizationModeration;
 import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
@@ -12,6 +14,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -21,6 +25,7 @@ public class AdminModerationService {
 
     private final OrganizationModerationRepository organizationModerationRepository;
     private final UserModerationRepository userModerationRepository;
+    private final BanNotificationEmailService banNotificationEmailService;
 
     public void banUser(
             Long userId,
@@ -40,16 +45,52 @@ public class AdminModerationService {
                         userId
                 );
 
-        accessService.validateUserModerationNotBanned(
-                user
-        );
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        LocalDateTime expiresAt =
+                request.expiresAtFrom(
+                        now
+                );
+
+        UserModeration existingBan =
+                userModerationRepository
+                        .findByUserId(
+                                user.getId()
+                        )
+                        .orElse(null);
+
+        if (existingBan != null) {
+            validateBanIsExpired(
+                    existingBan.getExpiresAt(),
+                    now,
+                    "User is already banned"
+            );
+
+            existingBan.setBannedBy(admin);
+            existingBan.setReason(request.reason());
+            existingBan.setExpiresAt(expiresAt);
+            banNotificationEmailService.sendUserBan(
+                    user,
+                    request.reason(),
+                    expiresAt
+            );
+            return;
+        }
 
         userModerationRepository.save(
                 UserModeration.builder()
                         .user(user)
                         .bannedBy(admin)
                         .reason(request.reason())
+                        .expiresAt(expiresAt)
                         .build()
+        );
+
+        banNotificationEmailService.sendUserBan(
+                user,
+                request.reason(),
+                expiresAt
         );
     }
 
@@ -98,19 +139,70 @@ public class AdminModerationService {
                         organizationId
                 );
 
-        accessService.validateOrganizationModerationNotBanned(
-                organization
-        );
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        LocalDateTime expiresAt =
+                request.expiresAtFrom(
+                        now
+                );
+
+        OrganizationModeration existingBan =
+                organizationModerationRepository
+                        .findByOrganizationId(
+                                organization.getId()
+                        )
+                        .orElse(null);
+
+        if (existingBan != null) {
+            validateBanIsExpired(
+                    existingBan.getExpiresAt(),
+                    now,
+                    "Organization is already banned "
+            );
+
+            existingBan.setBannedBy(admin);
+            existingBan.setReason(request.reason());
+            existingBan.setExpiresAt(expiresAt);
+            banNotificationEmailService.sendOrganizationBan(
+                    organization,
+                    request.reason(),
+                    expiresAt
+            );
+            return;
+        }
 
         organizationModerationRepository.save(
                 OrganizationModeration.builder()
                         .organization(organization)
                         .bannedBy(admin)
                         .reason(request.reason())
+                        .expiresAt(expiresAt)
                         .build()
+        );
+
+        banNotificationEmailService.sendOrganizationBan(
+                organization,
+                request.reason(),
+                expiresAt
         );
 
     }
 
+    private void validateBanIsExpired(
+            LocalDateTime expiresAt,
+            LocalDateTime now,
+            String message
+    ) {
+
+        if (
+                expiresAt == null
+                        || expiresAt.isAfter(now)
+        ) {
+            throw new BadRequestException(
+                    message
+            );
+        }
+    }
 
 }

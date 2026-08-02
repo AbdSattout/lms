@@ -40,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         return UserPrincipal.from(
                 user,
-                !userModerationRepository.existsByUserId(
+                !userModerationRepository.existsActiveByUserId(
                         user.getId()
                 )
         );

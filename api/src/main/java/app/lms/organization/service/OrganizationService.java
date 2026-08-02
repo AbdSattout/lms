@@ -62,18 +62,17 @@ public class OrganizationService {
                         organization.getId(),
                         user.getId()
                 );
-        Optional<OrganizationJoinRequest> request =
-                organizationJoinRequestRepository
-                        .findByOrganizationIdAndUserIdAndStatus(
-                                organization.getId(),
-                                user.getId(),
-                                JoinRequestStatus.PENDING
-                        );
+        OrganizationJoinRequest request =
+                latestRelevantJoinRequest(
+                        organization,
+                        user,
+                        member.orElse(null)
+                );
 
         return organizationMapper.ToResponse(
                 organization,
                 member.orElse(null),
-                request.orElse(null)
+                request
         );
     }
 
@@ -145,6 +144,27 @@ public class OrganizationService {
                                 Function.identity()
                         )
                 );
+    }
+
+    private OrganizationJoinRequest latestRelevantJoinRequest(
+            Organization organization,
+            User user,
+            OrganizationMember member
+    ) {
+
+        if (member != null) {
+            return null;
+        }
+
+        return organizationJoinRequestRepository
+                .findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
+                        organization.getId(),
+                        user.getId()
+                )
+                .filter(request ->
+                        request.getStatus() != JoinRequestStatus.ACCEPTED
+                )
+                .orElse(null);
     }
 
     @Transactional
