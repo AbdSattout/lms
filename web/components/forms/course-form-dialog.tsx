@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { createCourse, updateCourse } from "@/lib/actions/course"
 import type { CourseResponse } from "@/lib/api/types"
+import { getImageUploadError } from "@/lib/utils/image-upload"
 import { generateSlug } from "@/lib/utils"
 import { useActionState, useEffect, useRef, useState } from "react"
 
@@ -34,6 +35,7 @@ export function CourseFormDialog({
 
   const [title, setTitle] = useState(course?.title ?? "")
   const [slug, setSlug] = useState(course?.slug ?? "")
+  const [coverError, setCoverError] = useState<string | null>(null)
   const userEditedSlug = useRef(false)
 
   useEffect(() => {
@@ -55,6 +57,13 @@ export function CourseFormDialog({
     if (!filtered) {
       userEditedSlug.current = false
     }
+  }
+
+  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null
+    const error = getImageUploadError(file)
+    setCoverError(error)
+    if (error) e.target.value = ""
   }
 
   return (
@@ -120,7 +129,11 @@ export function CourseFormDialog({
               type="file"
               accept="image/*"
               disabled={isPending}
+              onChange={handleCoverChange}
             />
+            {coverError && (
+              <p className="text-sm text-destructive">{coverError}</p>
+            )}
           </div>
 
           {state.error && (

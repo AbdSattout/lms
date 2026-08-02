@@ -2,13 +2,10 @@ package app.lms.post.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.enrollment.service.CourseEnrollmentAccessService;
 import app.lms.course.model.Course;
-import app.lms.course.repository.CourseRepository;
 import app.lms.course.service.CourseAccessService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
-import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.post.dto.CreatePostRequest;
 import app.lms.post.dto.PostResponse;
 import app.lms.post.dto.UpdatePostRequest;
@@ -30,9 +27,6 @@ public class PostService {
     private final PostResponseService postResponseService;
     private final PostAccessService postAccessService;
     private final OrganizationAccessService organizationAccessService;
-    private final CourseRepository courseRepository;
-    private final OrganizationMemberAccessService organizationMemberAccessService;
-    private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
     @Transactional
     public PostResponse create(
@@ -75,7 +69,6 @@ public class PostService {
                         .author(user)
                         .organization(organization)
                         .course(course)
-                        .likesCount(0L)
                         .commentsCount(0L)
                         .build();
 
@@ -145,6 +138,11 @@ public class PostService {
         Organization organization =
                 organizationAccessService.getBySlug(slug);
 
+        postAccessService.validateOrganizationAccess(
+                organization,
+                user
+        );
+
         Page<Post> posts = postRepository
                 .findByOrganizationIdAndCourseIsNull(
                         organization.getId(),
@@ -187,25 +185,15 @@ public class PostService {
             User user,
             Pageable pageable
     ) {
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(
-                        () -> new NotFoundException("Course not found")
-                );
-
-        if (!organizationMemberAccessService.isManager(
-                course.getOrganization().getId(),
-                user.getId()
-        )) {
-
-            courseEnrollmentAccessService.validateEnrolled(
-                    courseId,
-                    user
-            );
-        }
+        Course course =
+                courseAccessService
+                        .getEnrolledCourse(
+                                courseId,
+                                user
+                        );
 
         Page<Post> posts = postRepository.findByCourseId(
-                courseId,
+                course.getId(),
                 pageable
         );
 

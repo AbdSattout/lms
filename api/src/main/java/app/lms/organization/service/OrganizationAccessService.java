@@ -2,7 +2,6 @@ package app.lms.organization.service;
 
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.course.model.Course;
 import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
@@ -24,26 +23,36 @@ public class OrganizationAccessService {
             String slug
     ) {
 
-        return organizationRepository
+        Organization organization =
+                organizationRepository
                 .findBySlug(slug)
                 .orElseThrow(() ->
                         new NotFoundException(
                                 "Organization not found"
                         )
                 );
+
+        validateNotBanned(organization);
+
+        return organization;
     }
 
     public Organization getById(
             Long organizationId
     ) {
 
-        return organizationRepository
+        Organization organization =
+                organizationRepository
                 .findById(organizationId)
                 .orElseThrow(() ->
                         new NotFoundException(
                                 "Organization not found"
                         )
                 );
+
+        validateNotBanned(organization);
+
+        return organization;
     }
 
     public Organization getManageableOrganization(
@@ -85,7 +94,7 @@ public class OrganizationAccessService {
     ) {
 
         if (
-                organizationModerationRepository.existsByOrganizationId(
+                organizationModerationRepository.existsActiveByOrganizationId(
                         organization.getId()
                 )
         ) {
@@ -104,14 +113,14 @@ public class OrganizationAccessService {
     ) {
 
         if (
-                organizationBanRepository.existsByOrganizationIdAndUserId(
+                organizationBanRepository.existsActiveByOrganizationIdAndUserId(
                         organization.getId(),
                         user.getId()
                 )
         ) {
 
             throw new ForbiddenException(
-                    "This user has been banned from this orgainzaiton"
+                    "This user has been banned from this organization"
             );
 
         }

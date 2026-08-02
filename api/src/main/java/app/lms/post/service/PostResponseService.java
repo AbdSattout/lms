@@ -81,13 +81,17 @@ public class PostResponseService {
             PostReactionContext context
     ) {
 
-        return postMapper.toResponse(
-                post,
+        Map<ReactionType, Long> reactionCounts =
                 context.reactionCountsByPostId()
                         .getOrDefault(
                                 post.getId(),
                                 Map.of()
-                        ),
+                        );
+
+        return postMapper.toResponse(
+                post,
+                totalReactions(reactionCounts),
+                reactionCounts,
                 context.viewerReactionsByPostId()
                         .get(post.getId())
         );
@@ -142,6 +146,17 @@ public class PostResponseService {
                                 )
                         )
                 );
+    }
+
+    private Long totalReactions(
+            Map<ReactionType, Long> reactionCounts
+    ) {
+
+        return reactionCounts
+                .values()
+                .stream()
+                .mapToLong(Long::longValue)
+                .sum();
     }
 
     private Map<Long, ReactionType> viewerReactionsByPostId(

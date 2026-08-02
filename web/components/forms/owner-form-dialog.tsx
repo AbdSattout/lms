@@ -3,11 +3,12 @@
 
 import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
-import { Shield, User, AtSign } from "lucide-react"
 import type { UserResponse } from "@/lib/api/types"
-
+import { Shield, User, AtSign, Mail, Phone } from "lucide-react"
 export type OwnerResponse = UserResponse & {
-  username?: string
+  memberId?: number
+  role?: string
+  user?: UserResponse
 }
 
 interface OwnerDialogProps {
@@ -56,8 +57,40 @@ export function OwnerDialog({ open, onOpenChange, owner }: OwnerDialogProps) {
                 <AtSign className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">اسم المستخدم</p>
-                  <p className="font-medium text-foreground" dir="ltr">
-                    {owner.username ? `@${owner.username}` : "غير متوفر"}
+                  <p
+                    className="font-medium text-foreground"
+                    dir={owner.username ? "ltr" : "rtl"}
+                  >
+                    {owner.username || "غير متوفر"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">
+                    البريد الإلكتروني
+                  </p>
+                  <p
+                    className={`font-medium text-foreground ${owner.email ? "ltr" : ""}`}
+                    dir={owner.email ? "ltr" : "rtl"}
+                  >
+                    {owner.email || "غير متوفر"}
+                  </p>
+                </div>
+              </div>
+
+              {/* Phone Number */}
+              <div className="flex items-center gap-3 text-sm">
+                <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">رقم الهاتف</p>
+                  <p
+                    className={`font-medium text-foreground ${owner.phoneNumber ? "ltr" : ""}`}
+                    dir={owner.phoneNumber ? "ltr" : "rtl"}
+                  >
+                    {owner.phoneNumber || "غير متوفر"}
                   </p>
                 </div>
               </div>

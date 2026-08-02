@@ -3,12 +3,12 @@ package app.lms.organization.organizationInvite.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.organizationInvite.dto.CreateInviteRequest;
 import app.lms.organization.organizationInvite.dto.CreatePublicInviteRequest;
+import app.lms.organization.organizationInvite.dto.OrganizationInviteOverviewResponse;
 import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
 import app.lms.organization.organizationInvite.dto.UpdateInviteCapacityRequest;
 import app.lms.organization.organizationInvite.enums.InviteStatus;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -36,7 +37,8 @@ public class OrganizationInviteService {
     private final UserRepository userRepository;
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationInviteMapper organizationInviteMapper;
-    private final OrganizationBanRepository organizationBanRepository;
+    private final OrganizationInviteOverviewService organizationInviteOverviewService;
+    private final OrganizationInviteEmailService organizationInviteEmailService;
 
     public OrganizationInviteResponse invite(
             String slug,
@@ -90,6 +92,7 @@ public class OrganizationInviteService {
                         .build();
 
         OrganizationInvite savedInvite = organizationInviteRepository.save(invite);
+        organizationInviteEmailService.sendPrivateInvite(savedInvite);
 
         return organizationInviteMapper.toResponse(savedInvite);
 
@@ -127,6 +130,7 @@ public class OrganizationInviteService {
         invite.setInvitedBy(currentUser);
 
         OrganizationInvite updatedInvite = organizationInviteRepository.save(invite);
+        organizationInviteEmailService.sendPrivateInvite(updatedInvite);
 
         return organizationInviteMapper.toResponse(updatedInvite);
 
@@ -222,14 +226,10 @@ public class OrganizationInviteService {
     public void acceptInvite(String token, User currentUser) {
         OrganizationInvite invite = findInvite(token);
 
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                invite.getOrganization().getId(),
-                currentUser.getId())) {
-
-            throw new ForbiddenException(
-                    "You are banned from this organization."
-            );
-        }
+        organizationAccessService.validateUserNotBannedFromOrg(
+                invite.getOrganization(),
+                currentUser
+        );
 
         if (invite.getStatus() == InviteStatus.ACCEPTED) {
             throw new BadRequestException("Invite already processed");
@@ -362,8 +362,15 @@ public class OrganizationInviteService {
         );
     }
     private OrganizationInvite findInvite(String token) {
-        return organizationInviteRepository.findByToken(token)
+        OrganizationInvite invite =
+                organizationInviteRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Invite not found"));
+
+        organizationAccessService.validateNotBanned(
+                invite.getOrganization()
+        );
+
+        return invite;
     }
 
     private void validateInviteOwner(OrganizationInvite invite, User currentUser) {
@@ -372,12 +379,27 @@ public class OrganizationInviteService {
         }
     }
     public List<OrganizationInviteResponse> getMyInvites(User user, Role role) {
-        return organizationInviteRepository.findAllByUserIdAndRoleAndStatus(
+        List<OrganizationInvite> invites =
+                organizationInviteRepository.findAllVisibleToUserByUserIdAndRoleAndStatus(
                         user.getId(),
                         role,
                         InviteStatus.PENDING
-                ).stream()
-                .map(organizationInviteMapper::toResponse)
+                );
+
+        Map<Long, OrganizationInviteOverviewResponse> overviews =
+                organizationInviteOverviewService
+                        .buildByOrganizationId(invites);
+
+        return invites
+                .stream()
+                .map(invite ->
+                        organizationInviteMapper.toResponse(
+                                invite,
+                                overviews.get(
+                                        invite.getOrganization().getId()
+                                )
+                        )
+                )
                 .toList();
     }
 
@@ -395,14 +417,10 @@ public class OrganizationInviteService {
             );
         }
 
-        if (organizationBanRepository.existsByOrganizationIdAndUserId(
-                organization.getId(),
-                targetUser.getId()
-        )) {
-            throw new ForbiddenException(
-                    "User is banned from this organization"
-            );
-        }
+        organizationAccessService.validateUserNotBannedFromOrg(
+                organization,
+                targetUser
+        );
     }
 
     private void validateInviteRole(

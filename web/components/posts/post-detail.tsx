@@ -9,17 +9,16 @@ import { CommentSection } from "@/components/posts/comment-section"
 import type { CommentResponse, PostResponse } from "@/lib/api/types"
 import { formatDistanceToNow } from "date-fns"
 import { ar } from "date-fns/locale"
+import { MessageCircle, MoreHorizontal, Pencil, Trash2, X } from "lucide-react"
+import { ReactionPicker } from "@/components/posts/reaction-picker"
 import {
-  Heart,
-  MessageCircle,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  X,
-} from "lucide-react"
+  likePost,
+  unlikePost,
+  createComment,
+  deletePost,
+} from "@/lib/actions/post"
 import { useState, useTransition } from "react"
 import { toast } from "sonner"
-import { createComment, deletePost } from "@/lib/actions/post"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,13 +43,16 @@ export function PostDetail({
   const [newComment, setNewComment] = useState("")
   const [isSubmitting, startSubmit] = useTransition()
   const [error, setError] = useState<string | null>(null)
+
+  const [isLikePending, startLikeTransition] = useTransition()
   const [replyingTo, setReplyingTo] = useState<{
     id: number
     authorName: string
   } | null>(null)
 
-  // حالة التحكم بالـ Dropdown للكاتب (يمكن ربطها بالمستخدم الفعلي لاحقاً)
   const [isAuthor] = useState(true)
+  const [postReaction, setPostReaction] = useState(post.viewerReaction)
+  const [postLikeCount, setPostLikeCount] = useState(post.likeCount || 0)
 
   const authorInitials =
     post.author?.name
@@ -58,8 +60,6 @@ export function PostDetail({
       .map((n) => n[0])
       .join("")
       .slice(0, 2) ?? "؟"
-
-  // تطبيق الترجمة العربية للوقت (مثال: منذ ساعتين)
   const timeAgo = post.baseEntity?.createdAt
     ? formatDistanceToNow(new Date(post.baseEntity.createdAt), {
         addSuffix: true,
@@ -90,7 +90,12 @@ export function PostDetail({
   function handleReply(commentId: number, authorName: string) {
     setReplyingTo({ id: commentId, authorName })
     setNewComment("")
-    setTimeout(() => document.getElementById("comment-textarea")?.focus(), 50)
+    setTimeout(() => {
+      document.getElementById("comment-textarea")?.focus()
+      document
+        .getElementById("comment-textarea")
+        ?.scrollIntoView({ behavior: "smooth", block: "center" })
+    }, 150)
   }
 
   async function handleDeletePost() {
@@ -105,25 +110,55 @@ export function PostDetail({
     }
   }
 
+  function handlePostReaction(type: Parameters<typeof likePost>[1]) {
+    startLikeTransition(async () => {
+      try {
+        if (postReaction === type) {
+          await unlikePost(post.id)
+          setPostReaction(undefined)
+          setPostLikeCount((prev) => Math.max(0, prev - 1))
+        } else {
+          await likePost(post.id, type)
+          if (!postReaction) setPostLikeCount((prev) => prev + 1)
+          setPostReaction(type)
+        }
+      } catch {
+        toast.error("فشل تحديث التفاعل")
+      }
+    })
+  }
+
+  function handleRemovePostReaction() {
+    startLikeTransition(async () => {
+      try {
+        await unlikePost(post.id)
+        setPostReaction(undefined)
+        setPostLikeCount((prev) => Math.max(0, prev - 1))
+      } catch {
+        toast.error("فشل إزالة التفاعل")
+      }
+    })
+  }
+
   return (
-    <div className="mx-auto flex w-full max-w-180 flex-col gap-7 pt-2 pb-20 text-start">
-      <div className="rounded-xl border border-border/50 bg-card p-5 text-card-foreground shadow-sm md:p-7">
-        <div className="mb-5 flex items-start justify-between gap-3">
+    <div className="mx-auto flex w-full max-w-[850px] flex-col gap-6 pt-2 pb-20 text-start">
+      <div className="rounded-xl border border-border/50 bg-card p-5 text-card-foreground shadow-sm transition-all md:p-7">
+        <div className="mb-6 flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 shrink-0 ring-1 ring-border/40">
+            <Avatar className="h-10 w-10 shrink-0 shadow-sm ring-1 ring-border/40">
               <AvatarImage src={post.author?.picture} />
               <AvatarFallback>{authorInitials}</AvatarFallback>
             </Avatar>
-            <div className="flex flex-col gap-0.5 text-start">
-              <span className="truncate text-[15px] font-bold text-foreground">
+            <div className="flex flex-col gap-1 text-start">
+              <span className="truncate text-base font-bold text-foreground">
                 {post.author?.name ?? "مستخدم"}
               </span>
-              <div className="flex items-center gap-2 text-[13px] font-medium text-muted-foreground">
-                <span>{timeAgo}</span>
+              <div className="flex items-center gap-2 text-[13px] leading-none font-medium text-muted-foreground">
+                <span suppressHydrationWarning>{timeAgo}</span>
                 {post.courseId && (
                   <>
                     <span className="text-[10px]">●</span>
-                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-semibold text-primary/90">
+                    <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary/90">
                       دورة #{post.title}
                     </span>
                   </>
@@ -132,84 +167,97 @@ export function PostDetail({
             </div>
           </div>
 
-          {/* القائمة الجانبية للتعديل والحذف (مثل ما في بوست كارد تماما) */}
           {isAuthor && (
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-black/10 hover:text-foreground">
+              <DropdownMenuTrigger className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                 <MoreHorizontal className="h-5 w-5" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
                 dir="rtl"
-                className="w-auto min-w-0"
+                className="w-36 shadow-lg"
               >
                 <DropdownMenuItem className="cursor-pointer gap-2 py-2">
-                  <Link href={`/${orgSlug}/posts/${post.id}/edit` as Route}>
-                    <Pencil className="h-4 w-4" />
+                  <Link
+                    href={`/${orgSlug}/posts/${post.id}/edit` as Route}
+                    className="flex w-full items-center gap-2"
+                  >
+                    <Pencil className="h-4 w-4" /> تعديل
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  className="cursor-pointer gap-2 py-2 text-red-500 focus:bg-red-500/10 focus:text-red-500"
+                  className="cursor-pointer gap-2 py-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
                   onClick={handleDeletePost}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-4 w-4" /> حذف
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
         </div>
 
-        {/* محتوى المنشور (نص Markdown مع العنوان) */}
-        <div className="border-b border-border/40 pb-6">
-          <h1 className="mb-4 text-xl leading-relaxed font-extrabold">
+        <div className="pb-5">
+          <h1 className="mb-4 text-2xl leading-tight font-bold">
             {post.title}
           </h1>
           {post.content && (
             <div
               className="prose prose-neutral dark:prose-invert max-w-none text-[15.5px] leading-relaxed whitespace-pre-wrap"
               dir="rtl"
-              dangerouslySetInnerHTML={{
-                __html: post.content, // Editor Output Content (html أو غيره)
-              }}
+              dangerouslySetInnerHTML={{ __html: post.content }}
             />
           )}
         </div>
 
-        {/* إحصائيات التفاعل الخاصة بالتفاصيل (استخدمنا comments.length للموثوقية الأكبر) */}
-        <div className="mt-5 flex items-center gap-6 px-1">
-          <button className="flex items-center gap-1.5 text-muted-foreground transition-colors hover:text-red-500">
-            <Heart className="h-6 w-6" />
-            <span className="text-[15px] font-bold">{post.likeCount || 0}</span>
-          </button>
-          <div className="flex cursor-pointer items-center gap-1.5 text-muted-foreground transition-colors hover:text-primary">
-            <MessageCircle className="h-6 w-6" />
-            <span className="text-[15px] font-bold">
-              {post.commentCount} تعليق
-            </span>
+        <div className="flex flex-wrap items-center justify-between border-t border-border/50 px-2 pt-4">
+          <div className="flex w-full items-center gap-6">
+            <div className="flex items-center gap-1.5 transition-transform">
+              <ReactionPicker
+                onReactionSelect={handlePostReaction}
+                currentReaction={postReaction}
+                onRemoveReaction={handleRemovePostReaction}
+              />
+              {postLikeCount > 0 && (
+                <span className="me-1 mt-[2px] text-[15px] font-bold text-muted-foreground">
+                  {postLikeCount}
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={() =>
+                document.getElementById("comment-textarea")?.focus()
+              }
+              className="flex cursor-pointer items-center gap-1.5 text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <MessageCircle className="h-6 w-6 stroke-[1.5]" />
+              <span className="mt-1 text-[14.5px] font-bold">
+                {post.commentCount} تعليق
+              </span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 2. حاوية إضافة تعليق (محسّنة ولون ناعم يتناسب مع المظهر الداكن) */}
-      <div className="rounded-xl border border-border/50 bg-card p-5 text-start shadow-sm">
+      <div className="mt-3 rounded-xl border border-border/50 bg-card p-5 shadow-sm">
         {replyingTo && (
-          <div className="mb-3 flex items-center justify-between rounded-lg bg-muted/40 p-2.5 px-3 text-sm">
-            <span className="font-semibold text-primary">
-              رد على @{replyingTo.authorName}
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-primary/10 bg-primary/5 px-4 py-3">
+            <span className="text-[13px] font-semibold text-primary">
+              الرد على تعليق: @{replyingTo.authorName}
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setReplyingTo(null)}
-              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
+              className="h-7 text-muted-foreground hover:bg-muted"
             >
-              إلغاء <X className="ms-1 h-3.5 w-3.5" />
+              إلغاء الرد <X className="mr-2 h-4 w-4" />
             </Button>
           </div>
         )}
 
         {error && (
-          <p className="mb-3 rounded bg-destructive/10 p-2 text-sm text-destructive">
+          <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-center text-sm font-medium text-destructive">
             {error}
           </p>
         )}
@@ -219,39 +267,37 @@ export function PostDetail({
             id="comment-textarea"
             placeholder={
               replyingTo
-                ? "اكتب ردك بشكل محترم..."
-                : "أضف تعليقاً وشارك أفكارك..."
+                ? "اكتب ردك بشكل محترم ومُثرٍ للنقاش..."
+                : "أضف تعليقاً وشارك أفكارك البناءة مع الجميع..."
             }
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="min-h-24 resize-y border-border/60 bg-background/50 text-base transition-all placeholder:text-[14px] focus:border-primary"
+            className="min-h-24 resize-y rounded-lg border-border/60 bg-transparent p-4 text-[14.5px] shadow-inner transition-all placeholder:text-muted-foreground focus:bg-background"
             dir="rtl"
           />
-          <div className="mt-3 flex justify-end gap-2">
+          <div className="mt-4 flex justify-end">
             <Button
               onClick={handleSubmitComment}
               disabled={isSubmitting || !newComment.trim()}
-              className="px-6 font-semibold tracking-wide shadow-md"
+              className="px-8 font-semibold tracking-wide shadow"
             >
               {isSubmitting
                 ? "جاري الإرسال..."
                 : replyingTo
-                  ? "إرسال الرد"
-                  : "إضافة تعليق"}
+                  ? "تأكيد الرد"
+                  : "إضافة التعليق"}
             </Button>
           </div>
         </div>
       </div>
 
-      {/* 3. شجرة عرض التعليقات أسفل المحتوى */}
-      {/* 🚨 تمت إزالة ال orgSlug وال postId لأنهم تسببوا بخطأ Typescript 🚨 */}
       <div className="mt-2 bg-transparent">
         <CommentSection
           comments={comments}
           onReply={handleReply}
-          onCommentDeleted={(commentId) => {
+          onCommentDeleted={(commentId) =>
             setComments((prev) => prev.filter((c) => c.id !== commentId))
-          }}
+          }
         />
       </div>
     </div>

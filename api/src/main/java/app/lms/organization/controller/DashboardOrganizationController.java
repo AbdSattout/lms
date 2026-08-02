@@ -1,9 +1,10 @@
 package app.lms.organization.controller;
 
-import app.lms.admin.dto.BanRequest;
+import app.lms.moderation.dto.BanRequest;
 import app.lms.organization.dto.CreateOrganizationRequest;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
+import app.lms.organization.dto.OrganizationUserSearchResponse;
 import app.lms.organization.dto.UpdateOrganizationRequest;
 import app.lms.organization.enums.Role;
 import app.lms.organization.service.DashboardOrganizationService;
@@ -224,20 +225,69 @@ public class DashboardOrganizationController {
                 )
         );
     }
-    @DeleteMapping("/{slug}/members/{memberId}")
+
+    @GetMapping("/{slug}/users/search")
+    public ResponseEntity<List<OrganizationUserSearchResponse>> searchUsers(
+            @PathVariable String slug,
+            @RequestParam String q,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.searchUsers(
+                        slug,
+                        q,
+                        principal.user()
+                )
+        );
+    }
+
+    @DeleteMapping("/{slug}/members/{userId}")
     public ResponseEntity<Void> removeMember(
             @PathVariable String slug,
-            @PathVariable Long memberId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardOrganizationService.removeMember(
+                slug,
+                userId,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{slug}/users/{userId}/ban")
+    public ResponseEntity<Void> banUser(
+            @PathVariable String slug,
+            @PathVariable Long userId,
             @RequestBody
             @Valid
             BanRequest request,
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
-        dashboardOrganizationService.removeMember(
+        dashboardOrganizationService.banUser(
                 slug,
-                memberId,
+                userId,
                 request,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{slug}/users/{userId}/ban")
+    public ResponseEntity<Void> unbanUser(
+            @PathVariable String slug,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardOrganizationService.unbanUser(
+                slug,
+                userId,
                 principal.user()
         );
 

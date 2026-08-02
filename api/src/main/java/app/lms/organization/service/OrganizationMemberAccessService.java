@@ -3,6 +3,7 @@ package app.lms.organization.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.organizationInvite.dto.OrganizationInviteResponse;
 import app.lms.organization.organizationInvite.enums.InviteStatus;
 import app.lms.organization.enums.Role;
@@ -28,12 +29,24 @@ public class OrganizationMemberAccessService {
     private final OrganizationInviteRepository
             organizationInviteRepository;
     private final OrganizationMapper organizationMapper;
+    private final OrganizationBanRepository organizationBanRepository;
 
 
     public OrganizationMember getMember(
             Long organizationId,
             Long userId
     ) {
+
+        if (
+                organizationBanRepository.existsActiveByOrganizationIdAndUserId(
+                        organizationId,
+                        userId
+                )
+        ) {
+            throw new ForbiddenException(
+                    "You are banned from this organization."
+            );
+        }
 
         return memberRepository
                 .findByOrganizationIdAndUserId(
@@ -99,11 +112,34 @@ public class OrganizationMemberAccessService {
             OrganizationMember target
     ) {
 
+        if (actor.getRole() != Role.OWNER) {
+            throw new ForbiddenException(
+                    "Only organization owners can remove admins"
+            );
+        }
+
+        if (target.getRole() != Role.ADMIN) {
+            throw new ForbiddenException(
+                    "Only organization admins can be removed"
+            );
+        }
+    }
+
+    public void validateCanBanUser(
+            OrganizationMember actor,
+            OrganizationMember target
+    ) {
+
+        if (target == null) {
+            validateCanBanNonMember(actor);
+            return;
+        }
+
         if (actor.getRole() == Role.OWNER) {
 
             if (target.getRole() == Role.OWNER) {
                 throw new ForbiddenException(
-                        "Owner cannot be removed"
+                        "Owner cannot be banned"
                 );
             }
 
@@ -114,10 +150,26 @@ public class OrganizationMemberAccessService {
 
             if (target.getRole() != Role.STUDENT) {
                 throw new ForbiddenException(
-                        "Admins can only remove students"
+                        "Admins can only ban students"
                 );
             }
 
+            return;
+        }
+
+        throw new ForbiddenException(
+                "Access denied"
+        );
+    }
+
+    private void validateCanBanNonMember(
+            OrganizationMember actor
+    ) {
+
+        if (
+                actor.getRole() == Role.OWNER ||
+                        actor.getRole() == Role.ADMIN
+        ) {
             return;
         }
 

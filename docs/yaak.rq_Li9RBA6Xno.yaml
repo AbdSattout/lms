@@ -1,0 +1,27 @@
+type: http_request
+model: http_request
+id: rq_Li9RBA6Xno
+createdAt: 2026-07-30T18:02:07.852632900
+updatedAt: 2026-07-30T18:03:09.729000200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_Q4vPANan6j
+authentication:
+  token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNzg1MTMwODgyLCJleHAiOjE3ODU3MzU2ODJ9.QV1ye79ZvFEXSZvyEjNyX3MnfG5A5MX5xa6mNKeqeOs
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "reason": "kick"
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: jbfWGcUnDU
+method: DELETE
+name: delete user from Organization
+sortPriority: 0.001
+url: http://localhost:8080/dashboard/organizations/{slug}/members/{memberId}
+urlParameters: []

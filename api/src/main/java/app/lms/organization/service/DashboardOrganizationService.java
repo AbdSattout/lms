@@ -1,13 +1,12 @@
 package app.lms.organization.service;
 
-import app.lms.admin.dto.BanRequest;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.moderation.dto.BanRequest;
+import app.lms.moderation.service.BanNotificationEmailService;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
-import app.lms.enrollment.repository.CourseEnrollmentRepository;
-import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
@@ -24,6 +23,8 @@ import app.lms.organization.enums.Visibility;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
+import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
@@ -31,7 +32,10 @@ import app.lms.organization.repository.OrganizationRepository;
 import app.lms.plan.service.PlanQuotaService;
 import app.lms.post.repository.PostRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
+import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
+import app.lms.user.repository.UserRepository;
+import app.lms.user.repository.projection.UserSearchRow;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -41,8 +45,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,8 +71,10 @@ public class DashboardOrganizationService {
     private final RoadmapRepository roadmapRepository;
     private final PlanQuotaService planQuotaService;
     private final OrganizationMemberAccessService organizationMemberAccessService;
-    private final CourseEnrollmentService courseEnrollmentService;
     private final OrganizationBanRepository organizationBanRepository;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
+    private final BanNotificationEmailService banNotificationEmailService;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -105,7 +115,10 @@ public class DashboardOrganizationService {
 
         UploadedFile uploaded =
                 image != null && !image.isEmpty()
-                        ? uploadOrganizationImage(image)
+                        ? uploadOrganizationImage(
+                                image,
+                                user
+                        )
                         : null;
 
         Organization organization = Organization.builder()
@@ -171,7 +184,8 @@ public class DashboardOrganizationService {
 
             UploadedFile uploaded =
                     uploadOrganizationImage(
-                            image
+                            image,
+                            organization.getOwner()
                     );
 
             organization.setImageUrl(
@@ -385,14 +399,33 @@ public class DashboardOrganizationService {
 
 
     private UploadedFile uploadOrganizationImage(
-            MultipartFile image
+            MultipartFile image,
+            User planOwner
     ) {
+
+        validateGifUploadAllowed(
+                planOwner,
+                image
+        );
 
         return mediaService.upload(
                 image,
                 "/organizations",
-                FileType.IMAGE
+                FileType.IMAGE,
+                true
         );
+    }
+
+    private void validateGifUploadAllowed(
+            User planOwner,
+            MultipartFile image
+    ) {
+
+        if (!mediaService.isGif(image)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(planOwner);
     }
 
     private void createOwnerMember(
@@ -492,10 +525,199 @@ public class DashboardOrganizationService {
                 .map(organizationMapper::toMemberResponse);
     }
 
+    public List<OrganizationUserSearchResponse> searchUsers(
+            String slug,
+            String q,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        String searchQuery =
+                q == null ? "" : q.trim();
+
+        String usernameQ =
+                searchQuery;
+
+        if (usernameQ.startsWith("@")) {
+            usernameQ =
+                    usernameQ.substring(1);
+        }
+
+        List<UserSearchRow> rows =
+                userRepository
+                        .searchWithProfile(
+                                searchQuery,
+                                usernameQ
+                        )
+                        .stream()
+                        .filter(row ->
+                                !row.getUser()
+                                        .getId()
+                                        .equals(
+                                                currentUser.getId()
+                                        )
+                        )
+                        .toList();
+
+        List<Long> userIds =
+                rows.stream()
+                        .map(row ->
+                                row.getUser()
+                                        .getId()
+                        )
+                        .toList();
+
+        Map<Long, OrganizationMember> membersByUserId =
+                loadMembersByUserId(
+                        organization.getId(),
+                        userIds
+                );
+
+        Map<Long, OrganizationInvite> invitesByUserId =
+                loadPendingInvitesByUserId(
+                        organization.getId(),
+                        userIds
+                );
+
+        return rows.stream()
+                .map(row ->
+                        toOrganizationUserSearchResponse(
+                                row,
+                                membersByUserId.get(
+                                        row.getUser()
+                                                .getId()
+                                ),
+                                invitesByUserId.get(
+                                        row.getUser()
+                                                .getId()
+                                )
+                        )
+                )
+                .toList();
+    }
+
+    private Map<Long, OrganizationMember> loadMembersByUserId(
+            Long organizationId,
+            List<Long> userIds
+    ) {
+
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return organizationMemberRepository
+                .findAllByOrganizationIdAndUserIdIn(
+                        organizationId,
+                        userIds
+                )
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                member ->
+                                        member.getUser()
+                                                .getId(),
+                                Function.identity()
+                        )
+                );
+    }
+
+    private Map<Long, OrganizationInvite> loadPendingInvitesByUserId(
+            Long organizationId,
+            List<Long> userIds
+    ) {
+
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return organizationInviteRepository
+                .findAllByOrganizationIdAndUserIdInAndStatus(
+                        organizationId,
+                        userIds,
+                        InviteStatus.PENDING
+                )
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                invite ->
+                                        invite.getUser()
+                                                .getId(),
+                                Function.identity()
+                        )
+                );
+    }
+
+    private OrganizationUserSearchResponse toOrganizationUserSearchResponse(
+            UserSearchRow row,
+            OrganizationMember member,
+            OrganizationInvite invite
+    ) {
+
+        return OrganizationUserSearchResponse.builder()
+                .name(row.getUser().getName())
+                .email(row.getProfile() != null ? row.getProfile().getEmail() : null)
+                .phone(row.getProfile() != null ? row.getProfile().getPhone() : null)
+                .university(row.getProfile() != null ? row.getProfile().getUniversity() : null)
+                .user(userMapper.toResponse(row.getUser()))
+                .member(member != null)
+                .role(member != null ? member.getRole() : null)
+                .invited(invite != null)
+                .inviteId(invite != null ? invite.getId() : null)
+                .inviteStatus(invite != null ? invite.getStatus() : null)
+                .inviteRole(invite != null ? invite.getRole() : null)
+                .build();
+    }
+
     @Transactional
     public void removeMember(
             String slug,
-            Long memberId,
+            Long userId,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        OrganizationMember actor =
+                organizationMemberAccessService.getMember(
+                        organization.getId(),
+                        currentUser.getId()
+                );
+
+        OrganizationMember target =
+                organizationMemberRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                userId
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Member not found"
+                                )
+                        );
+
+        organizationMemberAccessService.validateCanRemoveMember(
+                actor,
+                target
+        );
+
+        organizationMemberRepository.delete(target);
+    }
+
+    @Transactional
+    public void banUser(
+            String slug,
+            Long userId,
             BanRequest request,
             User currentUser
     ) {
@@ -510,38 +732,152 @@ public class DashboardOrganizationService {
                         currentUser.getId()
                 );
 
-        OrganizationMember target =
-                organizationMemberRepository
-                        .findById(memberId)
+        User targetUser =
+                userRepository
+                        .findById(userId)
                         .orElseThrow(() ->
-                                new NotFoundException("Member not found"));
+                                new NotFoundException(
+                                        "User not found"
+                                )
+                        );
 
-        if (!target.getOrganization().getId().equals(organization.getId())) {
+        if (
+                organization.getOwner()
+                        .getId()
+                        .equals(targetUser.getId())
+        ) {
             throw new BadRequestException(
-                    "Member does not belong to this organization"
+                    "Organization owner cannot be banned"
             );
         }
 
-        organizationMemberAccessService.validateCanRemoveMember(
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        LocalDateTime expiresAt =
+                request.expiresAtFrom(
+                        now
+                );
+
+        OrganizationBan existingBan =
+                organizationBanRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                targetUser.getId()
+                        )
+                        .orElse(null);
+
+        if (existingBan != null) {
+            validateBanIsExpired(
+                    existingBan.getExpiresAt(),
+                    now
+            );
+        }
+
+        OrganizationMember target =
+                organizationMemberRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                targetUser.getId()
+                        )
+                        .orElse(null);
+
+        organizationMemberAccessService.validateCanBanUser(
                 actor,
                 target
         );
 
-        courseEnrollmentService.unenrollFromOrganization(
-                organization.getId(),
-                target.getUser()
-        );
-
-        organizationMemberRepository.delete(target);
+        if (existingBan != null) {
+            existingBan.setBannedByAppAdmins(null);
+            existingBan.setBannedByOrgAdmins(
+                    actor.getUser()
+            );
+            existingBan.setReason(
+                    request.reason()
+            );
+            existingBan.setExpiresAt(
+                    expiresAt
+            );
+            banNotificationEmailService.sendOrganizationUserBan(
+                    targetUser,
+                    organization,
+                    request.reason(),
+                    expiresAt
+            );
+            return;
+        }
 
         organizationBanRepository.save(
                 OrganizationBan.builder()
                         .organization(organization)
-                        .user(target.getUser())
+                        .user(targetUser)
                         .bannedByOrgAdmins(actor.getUser())
                         .reason(request.reason())
+                        .expiresAt(expiresAt)
                         .build()
         );
+
+        banNotificationEmailService.sendOrganizationUserBan(
+                targetUser,
+                organization,
+                request.reason(),
+                expiresAt
+        );
+    }
+
+    @Transactional
+    public void unbanUser(
+            String slug,
+            Long userId,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getBySlug(slug);
+
+        organizationMemberAccessService.validateManager(
+                organization.getId(),
+                currentUser.getId()
+        );
+
+        User targetUser =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        OrganizationBan ban =
+                organizationBanRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                targetUser.getId()
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Ban not found"
+                                )
+                        );
+
+        organizationBanRepository.delete(ban);
+    }
+
+    private void validateBanIsExpired(
+            LocalDateTime expiresAt,
+            LocalDateTime now
+    ) {
+
+        if (
+                expiresAt == null
+                        || expiresAt.isAfter(now)
+        ) {
+            throw new BadRequestException(
+                    "User is already banned from this organization"
+            );
+        }
     }
 
 }

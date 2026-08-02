@@ -1,10 +1,7 @@
 package app.lms.course.service;
 
-import app.lms.admin.dto.BanRequest;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.course.CourseBan.model.CourseBan;
-import app.lms.course.CourseBan.repository.CourseBanRepository;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.dto.CreateCourseRequest;
 import app.lms.course.dto.UpdateCourseRequest;
@@ -13,17 +10,12 @@ import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.enrollment.model.CourseEnrollment;
-import app.lms.enrollment.service.CourseEnrollmentAccessService;
-import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
-import app.lms.organization.OrganizationBan.model.OrganizationBan;
 import app.lms.organization.model.Organization;
-import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.service.OrganizationAccessService;
-import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.plan.service.PlanQuotaService;
 import app.lms.quiz.model.Quiz;
 import app.lms.quiz.repository.QuizRepository;
@@ -60,18 +52,6 @@ public class DashboardCourseService {
     private final PlanQuotaService
             planQuotaService;
 
-    private final OrganizationMemberAccessService
-            organizationMemberAccessService;
-
-    private final CourseEnrollmentService
-            courseEnrollmentService;
-
-    private final CourseEnrollmentAccessService
-            courseEnrollmentAccessService;
-
-    private final CourseBanRepository
-            courseBanRepository;
-
     @Transactional
     public CourseResponse create(
 
@@ -93,7 +73,10 @@ public class DashboardCourseService {
 
         UploadedFile uploaded =
                 hasCover(cover)
-                        ? uploadCourseCover(cover)
+                        ? uploadCourseCover(
+                                cover,
+                                organization.getOwner()
+                        )
                         : null;
 
         String slugValue =
@@ -314,7 +297,11 @@ public class DashboardCourseService {
                 course.getCoverFileId();
 
         UploadedFile uploaded =
-                uploadCourseCover(cover);
+                uploadCourseCover(
+                        cover,
+                        course.getOrganization()
+                                .getOwner()
+                );
 
         course.setCoverUrl(
                 uploaded.url()
@@ -414,14 +401,34 @@ public class DashboardCourseService {
     }
 
     private UploadedFile uploadCourseCover(
-            MultipartFile cover
+            MultipartFile cover,
+            User planOwner
     ) {
+        validateGifUploadAllowed(
+                planOwner,
+                cover
+        );
+
         return mediaService.upload(
                 cover,
                 "/courses",
-                FileType.IMAGE
+                FileType.IMAGE,
+                true
         );
     }
+
+    private void validateGifUploadAllowed(
+            User planOwner,
+            MultipartFile cover
+    ) {
+
+        if (!mediaService.isGif(cover)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(planOwner);
+    }
+
     public CourseResponse getById(
             Long courseId,
             User user
@@ -486,53 +493,4 @@ public class DashboardCourseService {
                 .toList();
     }
 
-    @Transactional
-    public void removeMemberFromCourse(
-            Long courseId,
-            Long memberId,
-            BanRequest request,
-            User currentUser
-    ) {
-
-        Course course =
-                courseRepository.findById(
-                        courseId
-                ).orElseThrow(() -> new NotFoundException("course not found"));
-
-
-        OrganizationMember member =
-                organizationMemberAccessService.getMember(
-                        course.getOrganization().getId(),
-                        memberId
-                );
-
-                courseEnrollmentAccessService.getEnrollment(
-                        courseId,
-                        member.getUser()
-                );
-
-        OrganizationMember actor =
-                organizationMemberAccessService.getMember(
-                        course.getOrganization().getId(),
-                        currentUser.getId()
-                );
-
-        organizationMemberAccessService.validateCanRemoveMember(
-                actor,
-                member
-        );
-
-        courseEnrollmentService.unenroll(
-                course.getId(),
-                member.getUser()
-        );
-        courseBanRepository.save(
-                CourseBan.builder()
-                        .course(course)
-                        .user(member.getUser())
-                        .bannedByOrgAdmins(actor.getUser())
-                        .reason(request.reason())
-                        .build()
-        );
-    }
 }

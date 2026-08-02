@@ -7,6 +7,8 @@ import app.lms.user.model.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(
         name = "organization_bans",
@@ -46,4 +48,7 @@ public class OrganizationBan extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String reason;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 }

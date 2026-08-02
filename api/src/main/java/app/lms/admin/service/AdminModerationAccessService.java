@@ -6,20 +6,12 @@ import app.lms.admin.repository.AdminRepository;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
-import app.lms.course.CourseBan.model.CourseBan;
-import app.lms.course.CourseBan.model.CourseModeration;
-import app.lms.course.CourseBan.repository.CourseBanRepository;
-import app.lms.course.CourseBan.repository.CourseModerationRepository;
-import app.lms.course.model.Course;
-import app.lms.course.repository.CourseRepository;
-import app.lms.organization.OrganizationBan.model.OrganizationBan;
-import app.lms.organization.OrganizationBan.model.OrganizationModeration;
-import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
-import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
 import app.lms.user.model.User;
+import app.lms.user.moderation.model.UserModeration;
+import app.lms.user.moderation.repository.UserModerationRepository;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,12 +23,8 @@ public class AdminModerationAccessService {
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
     private final OrganizationRepository organizationRepository;
-    private final CourseRepository courseRepository;
-    private final OrganizationBanRepository organizationBanRepository;
-    private final CourseBanRepository courseBanRepository;
-    private final OrganizationMemberRepository organizationMemberRepository;
-    private final CourseModerationRepository courseModerationRepository;
     private final OrganizationModerationRepository organizationModerationRepository;
+    private final UserModerationRepository userModerationRepository;
 
     public User getUser(
             Long userId
@@ -92,145 +80,30 @@ public class AdminModerationAccessService {
                 );
     }
 
-    public Course getCourse(
-            Long courseId
-    ) {
-
-        return courseRepository
-                .findById(courseId)
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Course not found"
-                        )
-                );
-    }
-
-    public void validateOrganizationNotBanned(
-            Organization organization,
+    public void validateUserModerationNotBanned(
             User user
     ) {
 
         if (
-                organizationBanRepository.existsByOrganizationIdAndUserId(
-                        organization.getId(),
+                userModerationRepository.existsActiveByUserId(
                         user.getId()
                 )
         ) {
 
             throw new BadRequestException(
-                    "User is already banned from this organization"
+                    "User is already banned"
             );
         }
 
     }
 
-    public void validateCourseNotBanned(
-            Course course,
+    public UserModeration getUserModerationBan(
             User user
     ) {
 
-        if (
-                courseBanRepository.existsByCourseIdAndUserId(
-                        course.getId(),
+        return userModerationRepository
+                .findByUserId(
                         user.getId()
-                )
-        ) {
-
-            throw new BadRequestException(
-                    "User is already banned from this course"
-            );
-        }
-
-    }
-
-    public OrganizationBan getOrganizationBan(
-            Organization organization,
-            User user
-    ) {
-
-        return organizationBanRepository
-                .findByOrganizationIdAndUserId(
-                        organization.getId(),
-                        user.getId()
-                )
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Ban not found"
-                        )
-                );
-    }
-
-    public CourseBan getCourseBan(
-            Course course,
-            User user
-    ) {
-
-        return courseBanRepository
-                .findByCourseIdAndUserId(
-                        course.getId(),
-                        user.getId()
-                )
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Ban not found"
-                        )
-                );
-    }
-    public void removeMembership(
-            Organization organization,
-            User user
-    ) {
-
-        organizationMemberRepository
-                .findByOrganizationIdAndUserId(
-                        organization.getId(),
-                        user.getId()
-                )
-                .ifPresent(
-                        organizationMemberRepository::delete
-                );
-
-    }
-
-    public CourseModeration getCourseModerationBan(
-            Course course
-    ) {
-
-        return courseModerationRepository
-                .findByCourseId(
-                        course.getId()
-                )
-                .orElseThrow(() ->
-                        new NotFoundException(
-                                "Ban not found"
-                        )
-                );
-    }
-
-    public void validateCourseModerationNotBanned(
-            Course course
-    ) {
-
-        if (
-                courseModerationRepository.existsByCourseId(
-                        course.getId()
-                )
-        ) {
-
-            throw new BadRequestException(
-                    "Course is already banned "
-            );
-        }
-
-    }
-
-    public OrganizationModeration getOrganizationModerationBan(
-            Organization organization
-    ) {
-
-        return organizationModerationRepository
-                .findByOrganizationId(
-                        organization.getId()
                 )
                 .orElseThrow(() ->
                         new NotFoundException(
@@ -244,7 +117,7 @@ public class AdminModerationAccessService {
     ) {
 
         if (
-                organizationModerationRepository.existsByOrganizationId(
+                organizationModerationRepository.existsActiveByOrganizationId(
                         organization.getId()
                 )
         ) {

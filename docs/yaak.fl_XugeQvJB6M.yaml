@@ -1,0 +1,13 @@
+type: folder
+model: folder
+id: fl_XugeQvJB6M
+createdAt: 2026-07-30T17:36:56.365423400
+updatedAt: 2026-07-31T22:21:51.122394500
+workspaceId: wk_LvqrSfWmRY
+folderId: null
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: admin
+sortPriority: 19000.0

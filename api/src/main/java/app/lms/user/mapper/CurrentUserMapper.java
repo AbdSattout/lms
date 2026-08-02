@@ -20,6 +20,7 @@ public class CurrentUserMapper {
                 user.getName(),
                 user.getUsername(),
                 user.getPicture(),
+                user.getEmail(),
                 plan,
                 subscription
         );

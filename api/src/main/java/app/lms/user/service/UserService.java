@@ -1,6 +1,7 @@
 package app.lms.user.service;
 
 import app.lms.auth.enums.AuthProvider;
+import app.lms.auth.service.EmailOtpService;
 import app.lms.billing.mapper.SubscriptionMapper;
 import app.lms.billing.repository.PolarSubscriptionRepository;
 import app.lms.common.exception.BadRequestException;
@@ -9,24 +10,29 @@ import app.lms.gamification.model.Level;
 import app.lms.gamification.model.UserProgress;
 import app.lms.gamification.repository.LevelRepository;
 import app.lms.gamification.repository.UserProgressRepository;
-import app.lms.user.dto.ProfileResponse;
+import app.lms.media.dto.UploadedFile;
+import app.lms.media.enums.FileType;
+import app.lms.media.service.MediaService;
 import app.lms.plan.dto.UserPlanResponse;
 import app.lms.plan.enums.PlanCode;
 import app.lms.plan.mapper.UserPlanMapper;
 import app.lms.plan.model.UserPlan;
+import app.lms.plan.service.PlanQuotaService;
 import app.lms.plan.service.UserPlanService;
 import app.lms.user.dto.CurrentUserResponse;
+import app.lms.user.dto.ProfileResponse;
+import app.lms.user.dto.RequestUserEmailOtpRequest;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
-import app.lms.media.enums.FileType;
+import app.lms.user.dto.VerifyUserEmailOtpRequest;
 import app.lms.user.mapper.CurrentUserMapper;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
-import app.lms.media.service.MediaService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -34,7 +40,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import app.lms.media.dto.UploadedFile;
 
 import java.util.List;
 import java.util.Locale;
@@ -54,10 +59,12 @@ public class UserService {
     private final LevelRepository levelRepository;
     private final UserProgressRepository userProgressRepository;
     private final UserPlanService userPlanService;
+    private final PlanQuotaService planQuotaService;
     private final UserPlanMapper userPlanMapper;
     private final PolarSubscriptionRepository polarSubscriptionRepository;
     private final SubscriptionMapper subscriptionMapper;
     private final CurrentUserMapper currentUserMapper;
+    private final EmailOtpService emailOtpService;
 
     @Transactional
     public UserResponse updatePicture(
@@ -69,11 +76,17 @@ public class UserService {
         String oldPictureFileId =
                 user.getPictureFileId();
 
+        validateGifUploadAllowed(
+                user,
+                image
+        );
+
         UploadedFile uploadedFile =
                 mediaService.upload(
                         image,
                         "/users",
-                        FileType.IMAGE
+                        FileType.IMAGE,
+                        true
                 );
 
         user.setPicture(uploadedFile.url());
@@ -99,6 +112,79 @@ public class UserService {
 
 
         return userMapper.toResponse(updatedUser);
+    }
+
+    @Transactional
+    public void requestEmailOtp(
+            Long userId,
+            RequestUserEmailOtpRequest request
+    ) {
+
+        User user =
+                findUserById(userId);
+
+        validateCanSetLoginEmail(user);
+
+        String normalizedEmail =
+                normalizeEmail(
+                        request.getEmail()
+                );
+
+        ensureEmailAvailable(
+                normalizedEmail,
+                user.getId()
+        );
+
+        emailOtpService.requestSetUserEmailOtp(
+                normalizedEmail
+        );
+    }
+
+    @Transactional
+    public CurrentUserResponse verifyEmailOtp(
+            Long userId,
+            VerifyUserEmailOtpRequest request
+    ) {
+
+        User user =
+                findUserById(userId);
+
+        validateCanSetLoginEmail(user);
+
+        String normalizedEmail =
+                normalizeEmail(
+                        request.getEmail()
+                );
+
+        ensureEmailAvailable(
+                normalizedEmail,
+                user.getId()
+        );
+
+        String verifiedEmail =
+                emailOtpService.verifySetUserEmailOtp(
+                        normalizedEmail,
+                        request.getOtp()
+                );
+
+        ensureEmailAvailable(
+                verifiedEmail,
+                user.getId()
+        );
+
+        user.setEmail(verifiedEmail);
+
+        try {
+            userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException(
+                    "Email is already linked to another account"
+            );
+        }
+
+        return getCurrentUser(
+                user.getId()
+        );
     }
 
     @Transactional
@@ -153,7 +239,7 @@ public class UserService {
         );
     }
 
-    private User findUserById(Long userId) {
+     public User findUserById(Long userId) {
         return userRepository
                 .findById(userId)
                 .orElseThrow(() ->
@@ -433,9 +519,53 @@ public class UserService {
             String email
     ) {
 
+        if (!StringUtils.hasText(email)) {
+            throw new BadRequestException(
+                    "Email is required"
+            );
+        }
+
         return email
                 .trim()
                 .toLowerCase(Locale.ROOT);
+    }
+
+    private void validateCanSetLoginEmail(
+            User user
+    ) {
+
+        if (StringUtils.hasText(user.getEmail())) {
+            throw new ConflictException(
+                    "Email is already set and cannot be changed"
+            );
+        }
+    }
+
+    private void ensureEmailAvailable(
+            String email,
+            Long userId
+    ) {
+
+        if (userRepository.existsByEmailIgnoreCaseAndIdNot(
+                email,
+                userId
+        )) {
+            throw new ConflictException(
+                    "Email is already linked to another account"
+            );
+        }
+    }
+
+    private void validateGifUploadAllowed(
+            User user,
+            MultipartFile image
+    ) {
+
+        if (!mediaService.isGif(image)) {
+            return;
+        }
+
+        planQuotaService.validateGifUploadAllowed(user);
     }
 
     private String defaultNameFromEmail(
@@ -500,7 +630,10 @@ public class UserService {
 
         userProgressRepository.save(progress);
     }
-    public List<ProfileResponse> search(String q){
+    public List<ProfileResponse> search(
+            String q,
+            Long currentUserId
+    ){
 
         String searchQuery =
                 q == null ? "" : q.trim();
@@ -519,6 +652,11 @@ public class UserService {
                         usernameQ
                 )
                 .stream()
+                .filter(row ->
+                        !row.getUser()
+                                .getId()
+                                .equals(currentUserId)
+                )
                 .map(row ->
                         userMapper.toProfileResponse(
                                 row.getUser(),

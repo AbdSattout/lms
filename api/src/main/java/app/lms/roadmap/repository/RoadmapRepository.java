@@ -1,5 +1,6 @@
 package app.lms.roadmap.repository;
 
+import app.lms.organization.repository.projection.OrganizationCountProjection;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.course.enums.CourseStatus;
 import app.lms.enrollment.enums.EnrollmentStatus;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,35 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     );
 
     Page<Roadmap> findAllByOrderByCreatedAtDesc(
+            Pageable pageable
+    );
+
+    @Query("""
+            select roadmap
+            from Roadmap roadmap
+            where not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id = roadmap.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = roadmap.organization.id
+                and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
+            order by roadmap.createdAt desc
+            """)
+    Page<Roadmap> findAllVisibleToUserOrderByCreatedAtDesc(
+            @Param("userId") Long userId,
             Pageable pageable
     );
 
@@ -74,4 +105,15 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
     );
 
     long countByOrganizationId(Long organizationId);
+
+    @Query("""
+            select roadmap.organization.id as organizationId,
+                   count(roadmap.id) as total
+            from Roadmap roadmap
+            where roadmap.organization.id in :organizationIds
+            group by roadmap.organization.id
+            """)
+    List<OrganizationCountProjection> countByOrganizationIds(
+            @Param("organizationIds") Collection<Long> organizationIds
+    );
 }

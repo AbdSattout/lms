@@ -37,10 +37,6 @@ public class LikeService {
                 user
         );
 
-        if (post.getLikesCount() == null) {
-            post.setLikesCount(0L);
-        }
-
         Like existingLike =
                 likeRepository
                         .findByPostIdAndUserId(
@@ -69,10 +65,6 @@ public class LikeService {
         likeRepository.save(
                 like
         );
-
-        post.setLikesCount(
-                post.getLikesCount() + 1
-        );
     }
 
     @Transactional
@@ -95,12 +87,10 @@ public class LikeService {
 
         Post post = like.getPost();
 
-        Long currentLikes = post.getLikesCount();
-        if (currentLikes == null) {
-            currentLikes = 0L;
-        }
-
-        post.setLikesCount(Math.max(0, currentLikes - 1));
+        postAccessService.validateInteractionAccess(
+                post,
+                user
+        );
 
         likeRepository.delete(
                 like
@@ -122,10 +112,6 @@ public class LikeService {
                 comment.getPost(),
                 user
         );
-
-        if (comment.getLikesCount() == null) {
-            comment.setLikesCount(0L);
-        }
 
         Like existingLike =
                 likeRepository
@@ -155,10 +141,6 @@ public class LikeService {
         likeRepository.save(
                 like
         );
-
-        comment.setLikesCount(
-                comment.getLikesCount() + 1
-        );
     }
 
     @Transactional
@@ -181,12 +163,10 @@ public class LikeService {
 
         Comment comment = like.getComment();
 
-        Long currentLikes = comment.getLikesCount();
-        if (currentLikes == null) {
-            currentLikes = 0L;
-        }
-
-        comment.setLikesCount(Math.max(0, currentLikes - 1));
+        postAccessService.validateInteractionAccess(
+                comment.getPost(),
+                user
+        );
 
         likeRepository.delete(
                 like

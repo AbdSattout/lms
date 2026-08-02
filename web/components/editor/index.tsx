@@ -166,7 +166,7 @@ const MobileToolbarContent = ({
 )
 
 interface EditorProps {
-  onChange?: (markdown: string) => void
+  onChange?: (html: string) => void // 🔥 Renamed from markdown to html logically
   content?: string
   orgSlug?: string
   course?: import("@/lib/api/types").CourseResponse
@@ -202,7 +202,6 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
     immediatelyRender: false,
     textDirection: "auto",
     content: content,
-    contentType: "markdown",
     autofocus: true,
     editorProps: {
       attributes: {
@@ -215,7 +214,8 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
     },
     extensions: editorExtensions,
     onUpdate: ({ editor }) => {
-      onChange?.(editor.getMarkdown())
+      // 🔥 Changed to return Proper HTML formats
+      onChange?.(editor.getHTML())
     },
   })
 

@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_XdytcxLW4y
+createdAt: 2026-07-31T22:27:29.733201600
+updatedAt: 2026-07-31T22:30:12.169632300
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RzR3iA2rrn
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: PATCH
+name: accept request
+sortPriority: 0.001
+url: http://localhost:8080/friends/requests/{requestId}/accept
+urlParameters: []

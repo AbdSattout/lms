@@ -176,12 +176,14 @@ export interface AuthorResponse {
   name?: string
   picture?: string
 }
-
 export interface CommentResponse {
   id: number
   content: string
   author: AuthorResponse
   parentCommentId?: number
+  likeCount: number
+  reactionCounts: Record<PostReactionType, number>
+  viewerReaction?: PostReactionType
   baseEntity?: BaseEntityResponse
 }
 
@@ -357,10 +359,35 @@ export interface OrganizationInviteResponse {
   expiresAt: string
   maxUses: number
   usedCount: number
-  organization?: OrganizationSummaryResponse
+  organization?: OrganizationInviteOrgResponse
+  overview?: OrganizationInviteOverviewResponse
   baseEntity?: BaseEntityResponse
 }
-
+export interface OrganizationInviteOrgResponse {
+  id: number
+  name: string
+  slug: string
+  description?: string
+  imageUrl?: string // Note: imageUrl, not image
+  visibility: OrganizationVisibility
+  owner?: OrganizationInviteOwnerResponse
+}
+export interface OrganizationInviteOwnerResponse {
+  id: number
+  name: string
+  username?: string
+  picture?: string
+}
+export interface OrganizationInviteOverviewResponse {
+  membersCount: number
+  adminsCount: number
+  studentsCount: number
+  coursesCount: number
+  publishedCoursesCount: number
+  draftCoursesCount: number
+  postsCount: number
+  roadmapsCount: number
+}
 export interface CreateInviteRequest {
   userId: number
   role?: Role
@@ -386,6 +413,8 @@ export interface UserResponse {
   name: string
   username?: string
   picture: string
+  email?: string | null
+  phoneNumber?: string | null
 }
 
 export interface JoinRequestResponse {

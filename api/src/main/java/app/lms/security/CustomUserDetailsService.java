@@ -1,6 +1,7 @@
 package app.lms.security;
 
 import app.lms.user.model.User;
+import app.lms.user.moderation.repository.UserModerationRepository;
 import app.lms.user.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.NullMarked;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final UserModerationRepository userModerationRepository;
 
     @Override
     @NullMarked
@@ -36,6 +38,11 @@ public class CustomUserDetailsService implements UserDetailsService {
                         )
                 );
 
-        return UserPrincipal.from(user);
+        return UserPrincipal.from(
+                user,
+                !userModerationRepository.existsActiveByUserId(
+                        user.getId()
+                )
+        );
     }
 }

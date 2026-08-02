@@ -1,0 +1,18 @@
+type: http_request
+model: http_request
+id: rq_LApZ6TybRH
+createdAt: 2026-07-31T22:21:58.173258100
+updatedAt: 2026-07-31T22:28:03.862588100
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RzR3iA2rrn
+authentication: {}
+authenticationType: bearer
+body: {}
+bodyType: null
+description: ''
+headers: []
+method: POST
+name: send request
+sortPriority: 0.0
+url: http://localhost:8080/friends/requests/{userId}
+urlParameters: []

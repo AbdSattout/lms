@@ -1,6 +1,7 @@
 package app.lms.plan.service;
 
 import app.lms.plan.exception.PlanLimitExceededException;
+import app.lms.plan.enums.PlanCode;
 import app.lms.plan.model.Plan;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
@@ -108,6 +109,23 @@ public class PlanQuotaService {
         if (organizationCourseCount.getAsLong() >= limit) {
             throw new PlanLimitExceededException(
                     "Organization course limit reached"
+            );
+        }
+    }
+
+    @Transactional
+    public void validateGifUploadAllowed(
+            User planOwner
+    ) {
+
+        Plan plan =
+                userPlanService.getOrCreateCurrentPlanForUpdate(
+                        planOwner
+                );
+
+        if (plan.getCode() != PlanCode.PREMIUM) {
+            throw new PlanLimitExceededException(
+                    "GIF uploads require premium"
             );
         }
     }

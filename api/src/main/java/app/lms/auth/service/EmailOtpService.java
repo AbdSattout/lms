@@ -23,12 +23,8 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class EmailOtpService {
 
-    private static final String CODE_KEY_PREFIX =
-            "auth:email-otp:code:";
-    private static final String ATTEMPTS_KEY_PREFIX =
-            "auth:email-otp:attempts:";
-    private static final String COOLDOWN_KEY_PREFIX =
-            "auth:email-otp:cooldown:";
+    private static final String KEY_PREFIX =
+            "auth:email-otp:";
 
     private final StringRedisTemplate redisTemplate;
     private final EmailDeliveryService emailDeliveryService;
@@ -50,15 +46,63 @@ public class EmailOtpService {
     @Value("${app.email-otp.app-name}")
     private String appName;
 
-    public void requestOtp(
+    public void requestLoginOtp(
             String email
+    ) {
+
+        requestOtp(
+                email,
+                EmailOtpPurpose.EMAIL_LOGIN
+        );
+    }
+
+    public String verifyLoginOtp(
+            String email,
+            String otp
+    ) {
+
+        return verifyOtp(
+                email,
+                otp,
+                EmailOtpPurpose.EMAIL_LOGIN
+        );
+    }
+
+    public void requestSetUserEmailOtp(
+            String email
+    ) {
+
+        requestOtp(
+                email,
+                EmailOtpPurpose.SET_USER_EMAIL
+        );
+    }
+
+    public String verifySetUserEmailOtp(
+            String email,
+            String otp
+    ) {
+
+        return verifyOtp(
+                email,
+                otp,
+                EmailOtpPurpose.SET_USER_EMAIL
+        );
+    }
+
+    private void requestOtp(
+            String email,
+            EmailOtpPurpose purpose
     ) {
 
         String normalizedEmail =
                 normalizeEmail(email);
 
         ensureMailConfigured();
-        ensureNotInCooldown(normalizedEmail);
+        ensureNotInCooldown(
+                purpose,
+                normalizedEmail
+        );
 
         String otp =
                 String.format(
@@ -70,18 +114,28 @@ public class EmailOtpService {
                 Duration.ofMinutes(ttlMinutes);
 
         redisTemplate.opsForValue().set(
-                codeKey(normalizedEmail),
+                codeKey(
+                        purpose,
+                        normalizedEmail
+                ),
                 hashOtp(
+                        purpose,
                         normalizedEmail,
                         otp
                 ),
                 ttl
         );
         redisTemplate.delete(
-                attemptsKey(normalizedEmail)
+                attemptsKey(
+                        purpose,
+                        normalizedEmail
+                )
         );
         redisTemplate.opsForValue().set(
-                cooldownKey(normalizedEmail),
+                cooldownKey(
+                        purpose,
+                        normalizedEmail
+                ),
                 "1",
                 Duration.ofSeconds(cooldownSeconds)
         );
@@ -89,22 +143,27 @@ public class EmailOtpService {
         try {
             sendOtpEmail(
                     normalizedEmail,
-                    otp
+                    otp,
+                    purpose
             );
 
         } catch (MailException |
                  MessagingException |
                  IllegalStateException ex) {
-            clearOtp(normalizedEmail);
+            clearOtp(
+                    purpose,
+                    normalizedEmail
+            );
             throw new BadRequestException(
                     "Failed to send email OTP"
             );
         }
     }
 
-    public String verifyOtp(
+    private String verifyOtp(
             String email,
-            String otp
+            String otp,
+            EmailOtpPurpose purpose
     ) {
 
         String normalizedEmail =
@@ -113,7 +172,12 @@ public class EmailOtpService {
         String storedHash =
                 redisTemplate
                         .opsForValue()
-                        .get(codeKey(normalizedEmail));
+                        .get(
+                                codeKey(
+                                        purpose,
+                                        normalizedEmail
+                                )
+                        );
 
         if (!StringUtils.hasText(storedHash)) {
             throw invalidOtp();
@@ -122,25 +186,37 @@ public class EmailOtpService {
         Long attemptCount =
                 redisTemplate
                         .opsForValue()
-                        .increment(attemptsKey(normalizedEmail));
+                        .increment(
+                                attemptsKey(
+                                        purpose,
+                                        normalizedEmail
+                                )
+                        );
 
         long attempts =
                 attemptCount == null ? 1 : attemptCount;
 
         if (attempts == 1) {
             redisTemplate.expire(
-                    attemptsKey(normalizedEmail),
+                    attemptsKey(
+                            purpose,
+                            normalizedEmail
+                    ),
                     Duration.ofMinutes(ttlMinutes)
             );
         }
 
         if (attempts > maxAttempts) {
-            clearOtp(normalizedEmail);
+            clearOtp(
+                    purpose,
+                    normalizedEmail
+            );
             throw invalidOtp();
         }
 
         String submittedHash =
                 hashOtp(
+                        purpose,
                         normalizedEmail,
                         otp
                 );
@@ -152,30 +228,41 @@ public class EmailOtpService {
             throw invalidOtp();
         }
 
-        clearOtp(normalizedEmail);
+        clearOtp(
+                purpose,
+                normalizedEmail
+        );
 
         return normalizedEmail;
     }
 
     private void sendOtpEmail(
             String email,
-            String otp
+            String otp,
+            EmailOtpPurpose purpose
     ) throws MessagingException {
 
         emailDeliveryService.sendHtml(
                 email,
-                "Your " + appName + " login code",
-                plainTextEmail(otp),
-                htmlEmail(otp)
+                "Your " + appName + " " + purpose.subject(),
+                plainTextEmail(
+                        otp,
+                        purpose
+                ),
+                htmlEmail(
+                        otp,
+                        purpose
+                )
         );
     }
 
     private String plainTextEmail(
-            String otp
+            String otp,
+            EmailOtpPurpose purpose
     ) {
 
         return """
-                Your %s login code is:
+                Your %s %s is:
 
                 %s
 
@@ -185,17 +272,27 @@ public class EmailOtpService {
                 """
                 .formatted(
                         appName,
+                        purpose.subject(),
                         otp,
                         ttlMinutes
                 );
     }
 
     private String htmlEmail(
-            String otp
+            String otp,
+            EmailOtpPurpose purpose
     ) {
 
         String safeAppName =
                 escapeHtml(appName);
+        String safeHeading =
+                escapeHtml(
+                        purpose.heading()
+                );
+        String safeMessage =
+                escapeHtml(
+                        purpose.message()
+                );
 
         return """
                 <!doctype html>
@@ -208,8 +305,8 @@ public class EmailOtpService {
                           <tr>
                             <td style="padding:28px 28px 12px;">
                               <div style="font-size:14px;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:0.04em;">%s</div>
-                              <h1 style="margin:14px 0 10px;font-size:24px;line-height:32px;color:#111827;">Your login code</h1>
-                              <p style="margin:0;color:#4b5563;font-size:15px;line-height:24px;">Use this code to finish signing in. It expires in %d minutes.</p>
+                              <h1 style="margin:14px 0 10px;font-size:24px;line-height:32px;color:#111827;">%s</h1>
+                              <p style="margin:0;color:#4b5563;font-size:15px;line-height:24px;">%s It expires in %d minutes.</p>
                             </td>
                           </tr>
                           <tr>
@@ -234,6 +331,8 @@ public class EmailOtpService {
                 """
                 .formatted(
                         safeAppName,
+                        safeHeading,
+                        safeMessage,
                         ttlMinutes,
                         otp
                 );
@@ -261,12 +360,16 @@ public class EmailOtpService {
     }
 
     private void ensureNotInCooldown(
+            EmailOtpPurpose purpose,
             String email
     ) {
 
         Boolean cooldownExists =
                 redisTemplate.hasKey(
-                        cooldownKey(email)
+                        cooldownKey(
+                                purpose,
+                                email
+                        )
                 );
 
         if (Boolean.TRUE.equals(cooldownExists)) {
@@ -286,6 +389,7 @@ public class EmailOtpService {
     }
 
     private String hashOtp(
+            EmailOtpPurpose purpose,
             String email,
             String otp
     ) {
@@ -296,7 +400,10 @@ public class EmailOtpService {
 
             byte[] hash =
                     digest.digest(
-                            (jwtSecret + ":" + email + ":" + otp)
+                            (jwtSecret + ":" +
+                                    purpose.name() + ":" +
+                                    email + ":" +
+                                    otp)
                                     .getBytes(StandardCharsets.UTF_8)
                     );
 
@@ -311,17 +418,27 @@ public class EmailOtpService {
     }
 
     private void clearOtp(
+            EmailOtpPurpose purpose,
             String email
     ) {
 
         redisTemplate.delete(
-                codeKey(email)
+                codeKey(
+                        purpose,
+                        email
+                )
         );
         redisTemplate.delete(
-                attemptsKey(email)
+                attemptsKey(
+                        purpose,
+                        email
+                )
         );
         redisTemplate.delete(
-                cooldownKey(email)
+                cooldownKey(
+                        purpose,
+                        email
+                )
         );
     }
 
@@ -333,23 +450,83 @@ public class EmailOtpService {
     }
 
     private String codeKey(
+            EmailOtpPurpose purpose,
             String email
     ) {
 
-        return CODE_KEY_PREFIX + email;
+        return KEY_PREFIX + purpose.keySegment() + ":code:" + email;
     }
 
     private String attemptsKey(
+            EmailOtpPurpose purpose,
             String email
     ) {
 
-        return ATTEMPTS_KEY_PREFIX + email;
+        return KEY_PREFIX + purpose.keySegment() + ":attempts:" + email;
     }
 
     private String cooldownKey(
+            EmailOtpPurpose purpose,
             String email
     ) {
 
-        return COOLDOWN_KEY_PREFIX + email;
+        return KEY_PREFIX + purpose.keySegment() + ":cooldown:" + email;
+    }
+
+    private enum EmailOtpPurpose {
+        EMAIL_LOGIN(
+                "email-login",
+                "login code",
+                "Your login code",
+                "Use this code to finish signing in."
+        ),
+        SET_USER_EMAIL(
+                "set-user-email",
+                "email verification code",
+                "Verify your email",
+                "Use this code to verify your email address."
+        );
+
+        private final String keySegment;
+        private final String subject;
+        private final String heading;
+        private final String message;
+
+        EmailOtpPurpose(
+                String keySegment,
+                String subject,
+                String heading,
+                String message
+        ) {
+
+            this.keySegment =
+                    keySegment;
+            this.subject =
+                    subject;
+            this.heading =
+                    heading;
+            this.message =
+                    message;
+        }
+
+        private String keySegment() {
+
+            return keySegment;
+        }
+
+        private String subject() {
+
+            return subject;
+        }
+
+        private String heading() {
+
+            return heading;
+        }
+
+        private String message() {
+
+            return message;
+        }
     }
 }

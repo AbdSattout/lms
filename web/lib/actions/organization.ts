@@ -1,9 +1,15 @@
 "use server"
 
 import { api } from "@/lib/api"
-import { createOrganizationSchema, slugSchema, updateOrganizationSchema } from "@/lib/validation"
+import { getImageUploadError } from "@/lib/utils/image-upload"
+import {
+  createOrganizationSchema,
+  slugSchema,
+  updateOrganizationSchema,
+} from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+
 export async function createOrganization(
   _prevState: { error?: string; success?: boolean },
   formData: FormData
@@ -23,6 +29,8 @@ export async function createOrganization(
 
   const { name, slug, description, visibility } = result.data
   const image = formData.get("image") as File | null
+  const imageError = getImageUploadError(image)
+  if (imageError) return { error: imageError }
   const imageFile = image && image.size > 0 ? image : undefined
 
   const org = await api.dashboard.organizations.create
@@ -34,7 +42,16 @@ export async function createOrganization(
   revalidatePath("/")
   redirect(`/${org.slug}`)
 }
-
+export async function leaveOrganizationAction(slug: string) {
+  try {
+    await api.dashboard.organizations.leave.post(slug)
+    revalidatePath("/")
+  } catch (error) {
+    console.error("Leave organization failed:", error)
+    return { success: false, error: "فشل مغادرة المنظمة" }
+  }
+  redirect("/dashboard")
+}
 export async function checkSlugAvailability(slug: string) {
   if (!slug || !slugSchema.safeParse(slug).success) {
     return false
@@ -82,14 +99,12 @@ export async function updateOrganization(
   }
 
   const request = result.data
+  const imageError = getImageUploadError(image)
+  if (imageError) return { error: imageError }
   const imageFile = image && image.size > 0 ? image : undefined
 
   try {
-    await api.dashboard.organizations.bySlug.patch(
-      oldSlug,
-      request,
-      imageFile
-    )
+    await api.dashboard.organizations.bySlug.patch(oldSlug, request, imageFile)
   } catch (error) {
     console.error("Failed to update organization:", error)
     return { error: "حدث خطأ أثناء الحفظ" }
