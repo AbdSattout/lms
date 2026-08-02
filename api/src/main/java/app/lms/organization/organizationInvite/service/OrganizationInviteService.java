@@ -38,6 +38,7 @@ public class OrganizationInviteService {
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationInviteMapper organizationInviteMapper;
     private final OrganizationInviteOverviewService organizationInviteOverviewService;
+    private final OrganizationInviteEmailService organizationInviteEmailService;
 
     public OrganizationInviteResponse invite(
             String slug,
@@ -91,6 +92,7 @@ public class OrganizationInviteService {
                         .build();
 
         OrganizationInvite savedInvite = organizationInviteRepository.save(invite);
+        organizationInviteEmailService.sendPrivateInvite(savedInvite);
 
         return organizationInviteMapper.toResponse(savedInvite);
 
@@ -128,6 +130,7 @@ public class OrganizationInviteService {
         invite.setInvitedBy(currentUser);
 
         OrganizationInvite updatedInvite = organizationInviteRepository.save(invite);
+        organizationInviteEmailService.sendPrivateInvite(updatedInvite);
 
         return organizationInviteMapper.toResponse(updatedInvite);
 
