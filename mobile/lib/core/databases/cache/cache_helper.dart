@@ -71,6 +71,7 @@ class CacheHelper {
       return await sharedPreferences.setInt(key, value);
     }
   }
+
   Future<void> saveTheme(ThemeMode mode) async {
     await saveData(
       key: "theme",

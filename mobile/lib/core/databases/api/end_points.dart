@@ -40,10 +40,12 @@ class EndPoints {
 
   static String skipPlacementTest(int courseId) =>
       'mobile/courses/$courseId/placement-test/skip';
+
   // Organizations
   static const String organizations = 'organizations';
-
   static String organizationBySlug(String slug) => 'organizations/$slug';
+  static String organizationJoin(String slug) => 'organizations/$slug/join';
+  static String organizationLeave(String slug) => 'organizations/$slug/leave';
 
   static String organizationCourses(String orgSlug) =>
       'organizations/$orgSlug/courses';

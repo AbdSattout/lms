@@ -18,7 +18,10 @@ import '../../../courses/presentation/widgets/course_card.dart';
 import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_event.dart';
+import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../../organizations/presentation/bloc/organization_details_event.dart';
 import '../../../organizations/presentation/pages/organizations_page.dart';
+import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../../organizations/presentation/widgets/organization_card.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
@@ -363,8 +366,15 @@ class _HomeContent extends StatelessWidget {
           .map((org) => OrganizationCard(
         organization: org,
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('صفحة تفاصيل المنظمة قريباً')),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BlocProvider(
+                create: (_) => sl<OrganizationDetailsBloc>()
+                  ..add(GetOrganizationDetailsEvent(org.slug)),
+                child: OrganizationDetailsPage(slug: org.slug),
+              ),
+            ),
           );
         },
       ))
@@ -459,6 +469,3 @@ class _HomeContent extends StatelessWidget {
     );
   }
 }
-
-// CourseEntity/OrganizationEntity imports above are used transitively via
-// state.courses/state.organizations typing.

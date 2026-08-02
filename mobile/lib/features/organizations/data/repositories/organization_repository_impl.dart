@@ -16,4 +16,19 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
   Future<OrganizationEntity> getOrganizationBySlug(String slug) {
     return remote.getOrganizationBySlug(slug);
   }
+
+  @override
+  Future<void> joinOrganization(String slug) {
+    return remote.joinOrganization(slug);
+  }
+
+  @override
+  Future<void> leaveOrganization(String slug) {
+    return remote.leaveOrganization(slug);
+  }
+
+  @override
+  Future<void> cancelJoinRequest(String slug) {
+    return remote.cancelJoinRequest(slug);
+  }
 }
