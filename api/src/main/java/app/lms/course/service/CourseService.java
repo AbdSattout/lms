@@ -10,11 +10,10 @@ import app.lms.course.enums.CourseStatus;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
+import app.lms.organization.dto.OrganizationViewerResponse;
 import app.lms.organization.model.Organization;
-import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
-import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
-import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.service.OrganizationAccessService;
+import app.lms.organization.service.OrganizationViewerService;
 import app.lms.placementTest.service.CoursePlacementTestAccessService;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.user.model.User;
@@ -27,7 +26,6 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -47,7 +45,7 @@ public class CourseService {
     private final BlockProgressRepository blockProgressRepository;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final CoursePlacementTestAccessService placementTestAccessService;
-    private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
+    private final OrganizationViewerService organizationViewerService;
 
     @Value("${app.search.course-similarity-threshold:0.2}")
     private double courseSearchSimilarityThreshold;
@@ -75,13 +73,11 @@ public class CourseService {
                                 organization.getId(),
                                 courseSlug
                         );
-        Optional<OrganizationJoinRequest> joinRequest =
-                organizationJoinRequestRepository
-                        .findByOrganizationIdAndUserIdAndStatus(
-                                organization.getId(),
-                                user.getId(),
-                                JoinRequestStatus.PENDING
-                        );
+        OrganizationViewerResponse organizationViewer =
+                organizationViewerService.forOrganization(
+                        organization,
+                        user
+                );
 
         return courseMapper.toResponse(
                 course,
@@ -89,7 +85,7 @@ public class CourseService {
                         course.getId(),
                         user
                 ),
-                joinRequest.orElse(null)
+                organizationViewer
         );
     }
 
@@ -221,11 +217,22 @@ public class CourseService {
                                         )
                                 );
 
+        Map<Long, OrganizationViewerResponse> organizationViewersByOrganizationId =
+                organizationViewerService.byOrganizationId(
+                        courses.getContent()
+                                .stream()
+                                .map(Course::getOrganization)
+                                .toList(),
+                        user
+                );
+
         return courses.map(course ->
                 courseMapper.toResponse(
                         course,
                         enrollmentsByCourseId.get(course.getId()),
-                        null
+                        organizationViewersByOrganizationId.get(
+                                course.getOrganization().getId()
+                        )
                 )
         );
     }

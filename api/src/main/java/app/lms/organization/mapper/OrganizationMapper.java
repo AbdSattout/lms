@@ -36,6 +36,17 @@ public class OrganizationMapper {
 
     public OrganizationResponse ToResponse(
             Organization organization,
+            OrganizationViewerResponse viewer
+    ) {
+
+        return toResponse(
+                organization,
+                viewer
+        );
+    }
+
+    public OrganizationResponse ToResponse(
+            Organization organization,
             OrganizationMember member,
             OrganizationJoinRequest request
     ) {
@@ -149,6 +160,17 @@ public class OrganizationMapper {
             Organization organization
     ) {
 
+        return toSummaryResponse(
+                organization,
+                null
+        );
+    }
+
+    public OrganizationSummaryResponse toSummaryResponse(
+            Organization organization,
+            OrganizationViewerResponse viewer
+    ) {
+
         return OrganizationSummaryResponse.builder()
                 .id(organization.getId())
                 .name(organization.getName())
@@ -156,6 +178,7 @@ public class OrganizationMapper {
                 .description(organization.getDescription())
                 .image(organization.getImageUrl())
                 .visibility(organization.getVisibility())
+                .viewer(viewer)
                 .build();
     }
 

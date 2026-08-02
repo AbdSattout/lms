@@ -22,7 +22,7 @@ import java.util.Locale;
 public class OrganizationInviteEmailService {
 
     private static final String DEFAULT_INVITE_URL_TEMPLATE =
-            "https://lmscenter.vercel.app/invite/{inviteId}";
+            "https://lmscenter.vercel.app/organizations/{slug}/invites/{inviteId}";
 
     private static final DateTimeFormatter EXPIRY_DATE_FORMATTER =
             DateTimeFormatter.ofPattern(
@@ -35,7 +35,7 @@ public class OrganizationInviteEmailService {
     @Value("${app.email-otp.app-name:MSAR LMS Center}")
     private String appName;
 
-    @Value("${app.organization-invites.url-template:https://lmscenter.vercel.app/invite/{inviteId}}")
+    @Value("${app.organization-invites.url-template:https://lmscenter.vercel.app/organizations/{slug}/invites/{inviteId}}")
     private String inviteUrlTemplate;
 
     public void sendPrivateInvite(
@@ -229,6 +229,14 @@ public class OrganizationInviteEmailService {
 
         return template
                 .replace(
+                        "{slug}",
+                        organizationSlug(invite)
+                )
+                .replace(
+                        "%7Bslug%7D",
+                        organizationSlug(invite)
+                )
+                .replace(
                         "{inviteId}",
                         inviteId
                 )
@@ -252,6 +260,22 @@ public class OrganizationInviteEmailService {
         }
 
         return "this organization";
+    }
+
+    private String organizationSlug(
+            OrganizationInvite invite
+    ) {
+
+        Organization organization =
+                invite.getOrganization();
+
+        if (organization != null &&
+                StringUtils.hasText(organization.getSlug())) {
+            return organization.getSlug()
+                    .trim();
+        }
+
+        return "";
     }
 
     private String inviterName(

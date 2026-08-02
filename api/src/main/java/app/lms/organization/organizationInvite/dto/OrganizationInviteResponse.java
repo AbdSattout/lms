@@ -23,6 +23,7 @@ public class OrganizationInviteResponse {
     private String userName;
     private Role role;
     private InviteStatus status;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String token;
     private OrganizationInviteOrganizationResponse organization;
     @JsonInclude(JsonInclude.Include.NON_NULL)
