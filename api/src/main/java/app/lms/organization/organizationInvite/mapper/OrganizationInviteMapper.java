@@ -31,7 +31,7 @@ public class OrganizationInviteMapper {
                 .userName(invite.getUser() != null ? invite.getUser().getName() : "Public Link")
                 .role(invite.getRole())
                 .status(invite.getStatus())
-                .token(invite.getToken())
+                .token(invite.getUser() == null ? invite.getToken() : null)
                 .organization(
                         toOrganizationResponse(
                                 invite.getOrganization()
