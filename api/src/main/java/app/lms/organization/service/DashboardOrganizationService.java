@@ -4,6 +4,7 @@ import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.moderation.dto.BanRequest;
+import app.lms.moderation.service.BanNotificationEmailService;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.media.dto.UploadedFile;
@@ -73,6 +74,7 @@ public class DashboardOrganizationService {
     private final OrganizationBanRepository organizationBanRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final BanNotificationEmailService banNotificationEmailService;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -796,6 +798,12 @@ public class DashboardOrganizationService {
             existingBan.setExpiresAt(
                     expiresAt
             );
+            banNotificationEmailService.sendOrganizationUserBan(
+                    targetUser,
+                    organization,
+                    request.reason(),
+                    expiresAt
+            );
             return;
         }
 
@@ -807,6 +815,13 @@ public class DashboardOrganizationService {
                         .reason(request.reason())
                         .expiresAt(expiresAt)
                         .build()
+        );
+
+        banNotificationEmailService.sendOrganizationUserBan(
+                targetUser,
+                organization,
+                request.reason(),
+                expiresAt
         );
     }
 

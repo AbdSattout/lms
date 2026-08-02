@@ -3,6 +3,7 @@ package app.lms.admin.service;
 import app.lms.admin.model.Admin;
 import app.lms.common.exception.BadRequestException;
 import app.lms.moderation.dto.BanRequest;
+import app.lms.moderation.service.BanNotificationEmailService;
 import app.lms.organization.OrganizationBan.model.OrganizationModeration;
 import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
@@ -24,6 +25,7 @@ public class AdminModerationService {
 
     private final OrganizationModerationRepository organizationModerationRepository;
     private final UserModerationRepository userModerationRepository;
+    private final BanNotificationEmailService banNotificationEmailService;
 
     public void banUser(
             Long userId,
@@ -68,6 +70,11 @@ public class AdminModerationService {
             existingBan.setBannedBy(admin);
             existingBan.setReason(request.reason());
             existingBan.setExpiresAt(expiresAt);
+            banNotificationEmailService.sendUserBan(
+                    user,
+                    request.reason(),
+                    expiresAt
+            );
             return;
         }
 
@@ -78,6 +85,12 @@ public class AdminModerationService {
                         .reason(request.reason())
                         .expiresAt(expiresAt)
                         .build()
+        );
+
+        banNotificationEmailService.sendUserBan(
+                user,
+                request.reason(),
+                expiresAt
         );
     }
 
@@ -151,6 +164,11 @@ public class AdminModerationService {
             existingBan.setBannedBy(admin);
             existingBan.setReason(request.reason());
             existingBan.setExpiresAt(expiresAt);
+            banNotificationEmailService.sendOrganizationBan(
+                    organization,
+                    request.reason(),
+                    expiresAt
+            );
             return;
         }
 
@@ -161,6 +179,12 @@ public class AdminModerationService {
                         .reason(request.reason())
                         .expiresAt(expiresAt)
                         .build()
+        );
+
+        banNotificationEmailService.sendOrganizationBan(
+                organization,
+                request.reason(),
+                expiresAt
         );
 
     }
