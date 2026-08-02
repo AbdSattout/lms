@@ -22,6 +22,8 @@ import app.lms.organization.enums.Visibility;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
+import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
@@ -29,8 +31,10 @@ import app.lms.organization.repository.OrganizationRepository;
 import app.lms.plan.service.PlanQuotaService;
 import app.lms.post.repository.PostRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
+import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
+import app.lms.user.repository.projection.UserSearchRow;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -41,7 +45,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,6 +71,7 @@ public class DashboardOrganizationService {
     private final OrganizationMemberAccessService organizationMemberAccessService;
     private final OrganizationBanRepository organizationBanRepository;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -512,6 +520,195 @@ public class DashboardOrganizationService {
                         pageable
                 )
                 .map(organizationMapper::toMemberResponse);
+    }
+
+    public List<OrganizationUserSearchResponse> searchUsers(
+            String slug,
+            String q,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        String searchQuery =
+                q == null ? "" : q.trim();
+
+        String usernameQ =
+                searchQuery;
+
+        if (usernameQ.startsWith("@")) {
+            usernameQ =
+                    usernameQ.substring(1);
+        }
+
+        List<UserSearchRow> rows =
+                userRepository
+                        .searchWithProfile(
+                                searchQuery,
+                                usernameQ
+                        )
+                        .stream()
+                        .filter(row ->
+                                !row.getUser()
+                                        .getId()
+                                        .equals(
+                                                currentUser.getId()
+                                        )
+                        )
+                        .toList();
+
+        List<Long> userIds =
+                rows.stream()
+                        .map(row ->
+                                row.getUser()
+                                        .getId()
+                        )
+                        .toList();
+
+        Map<Long, OrganizationMember> membersByUserId =
+                loadMembersByUserId(
+                        organization.getId(),
+                        userIds
+                );
+
+        Map<Long, OrganizationInvite> invitesByUserId =
+                loadPendingInvitesByUserId(
+                        organization.getId(),
+                        userIds
+                );
+
+        return rows.stream()
+                .map(row ->
+                        toOrganizationUserSearchResponse(
+                                row,
+                                membersByUserId.get(
+                                        row.getUser()
+                                                .getId()
+                                ),
+                                invitesByUserId.get(
+                                        row.getUser()
+                                                .getId()
+                                )
+                        )
+                )
+                .toList();
+    }
+
+    private Map<Long, OrganizationMember> loadMembersByUserId(
+            Long organizationId,
+            List<Long> userIds
+    ) {
+
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return organizationMemberRepository
+                .findAllByOrganizationIdAndUserIdIn(
+                        organizationId,
+                        userIds
+                )
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                member ->
+                                        member.getUser()
+                                                .getId(),
+                                Function.identity()
+                        )
+                );
+    }
+
+    private Map<Long, OrganizationInvite> loadPendingInvitesByUserId(
+            Long organizationId,
+            List<Long> userIds
+    ) {
+
+        if (userIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return organizationInviteRepository
+                .findAllByOrganizationIdAndUserIdInAndStatus(
+                        organizationId,
+                        userIds,
+                        InviteStatus.PENDING
+                )
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                invite ->
+                                        invite.getUser()
+                                                .getId(),
+                                Function.identity()
+                        )
+                );
+    }
+
+    private OrganizationUserSearchResponse toOrganizationUserSearchResponse(
+            UserSearchRow row,
+            OrganizationMember member,
+            OrganizationInvite invite
+    ) {
+
+        return OrganizationUserSearchResponse.builder()
+                .name(row.getUser().getName())
+                .email(row.getProfile() != null ? row.getProfile().getEmail() : null)
+                .phone(row.getProfile() != null ? row.getProfile().getPhone() : null)
+                .university(row.getProfile() != null ? row.getProfile().getUniversity() : null)
+                .user(userMapper.toResponse(row.getUser()))
+                .member(member != null)
+                .role(member != null ? member.getRole() : null)
+                .invited(invite != null)
+                .inviteId(invite != null ? invite.getId() : null)
+                .inviteStatus(invite != null ? invite.getStatus() : null)
+                .inviteRole(invite != null ? invite.getRole() : null)
+                .build();
+    }
+
+    @Transactional
+    public void removeMember(
+            String slug,
+            Long userId,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        OrganizationMember actor =
+                organizationMemberAccessService.getMember(
+                        organization.getId(),
+                        currentUser.getId()
+                );
+
+        OrganizationMember target =
+                organizationMemberRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                userId
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Member not found"
+                                )
+                        );
+
+        organizationMemberAccessService.validateCanRemoveMember(
+                actor,
+                target
+        );
+
+        organizationMemberRepository.delete(target);
     }
 
     @Transactional

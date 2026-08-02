@@ -112,31 +112,17 @@ public class OrganizationMemberAccessService {
             OrganizationMember target
     ) {
 
-        if (actor.getRole() == Role.OWNER) {
-
-            if (target.getRole() == Role.OWNER) {
-                throw new ForbiddenException(
-                        "Owner cannot be removed"
-                );
-            }
-
-            return;
+        if (actor.getRole() != Role.OWNER) {
+            throw new ForbiddenException(
+                    "Only organization owners can remove admins"
+            );
         }
 
-        if (actor.getRole() == Role.ADMIN) {
-
-            if (target.getRole() != Role.STUDENT) {
-                throw new ForbiddenException(
-                        "Admins can only remove students"
-                );
-            }
-
-            return;
+        if (target.getRole() != Role.ADMIN) {
+            throw new ForbiddenException(
+                    "Only organization admins can be removed"
+            );
         }
-
-        throw new ForbiddenException(
-                "Access denied"
-        );
     }
 
     public void validateCanBanUser(
