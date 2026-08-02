@@ -67,6 +67,12 @@ class ChapterEntity {
   });
 }
 
+/// NEW — confirmed nested shape from GET /courses, GET /organizations/
+/// {slug}/courses, and GET /organizations/{orgSlug}/courses/{courseSlug}.
+/// This is what makes org+course-slug-based navigation possible (Course
+/// Details needs orgSlug to fetch itself). NOT present on GET /courses/{id}
+/// or GET /courses/me/enrollments — those only give the flat
+/// organizationName string, hence CourseEntity keeping both.
 class CourseOrganizationRef {
   final int id;
   final String name;
@@ -75,6 +81,15 @@ class CourseOrganizationRef {
   final String? image;
   final OrganizationVisibility visibility;
 
+  // NOT YET LIVE on this endpoint as of this writing (backend confirmed
+  // "eventually" adding it) — deliberately nullable. null must mean
+  // "unknown / not yet provided," never treated the same as false
+  // ("confirmed not a member"). Defaulting this to false would hide
+  // Enroll for every course the moment this field is absent, which is
+  // exactly the regression to avoid.
+  final bool? viewerJoined;
+  final String? viewerRole;
+
   const CourseOrganizationRef({
     required this.id,
     required this.name,
@@ -82,6 +97,8 @@ class CourseOrganizationRef {
     this.description,
     this.image,
     this.visibility = OrganizationVisibility.unknown,
+    this.viewerJoined,
+    this.viewerRole,
   });
 }
 
@@ -138,6 +155,11 @@ class CourseEntity {
   final String? description;
   final String? coverUrl;
 
+  // Two ways an org can show up depending on which endpoint this course
+  // came from — see CourseOrganizationRef doc above. Use
+  // organizationDisplayName for display; use `organization` specifically
+  // when you need the org's slug (e.g. to navigate/fetch by org+course
+  // slug).
   final String? organizationName;
   final CourseOrganizationRef? organization;
 

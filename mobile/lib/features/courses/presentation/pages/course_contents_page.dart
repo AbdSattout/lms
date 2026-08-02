@@ -293,10 +293,6 @@ class CourseContentsPage extends StatelessWidget {
                             if (state.course.chapters.isEmpty) {
                               return _comingSoonCard(colors);
                             }
-                            // FIX: pass course.id down so _LessonRow can
-                            // use it (it's a separate widget from
-                            // CourseContentsPage and has no other way to
-                            // see `course`).
                             return _chaptersList(
                                 context, colors, state.course.chapters, course.id);
                           }
@@ -375,11 +371,6 @@ class CourseContentsPage extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                // pushReplacement, not push — otherwise this
-                // (placementTestCompleted: false) copy of Contents stays
-                // on the stack underneath the post-test one, and hitting
-                // back reveals the stale version instead of returning to
-                // My Courses.
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

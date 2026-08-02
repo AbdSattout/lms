@@ -6,10 +6,14 @@ import 'core/theme/app_themes.dart';
 import 'core/theme/theme_cubit.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
+import 'features/auth/presentation/bloc/auth_state.dart';
 import 'features/auth/presentation/pages/telegram_login_page.dart';
+import 'features/home/presentation/pages/main_home_screen.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final AuthBloc authBloc;
+
+  const MyApp({super.key, required this.authBloc});
 
   @override
   Widget build(BuildContext context) {
@@ -26,9 +30,31 @@ class MyApp extends StatelessWidget {
           darkTheme: AppThemes.dark,
           themeMode: mode,
 
-          home: BlocProvider(
-            create: (_) => sl<AuthBloc>(),
-            child: const TelegramLoginPage(),
+          home: BlocProvider.value(
+            value: authBloc,
+            child: BlocBuilder<AuthBloc, AuthState>(
+              builder: (context, state) {
+                print("Current auth state: $state");
+
+                if (state is AuthInitial || state is AuthLoading) {
+                  return const Scaffold(
+                    body: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                } else if (state is Authenticated) {
+                  return MainHomeScreen(
+                    userAuthData: state.authEntity,
+                  );
+                } else if (state is AuthSuccess) {
+                  return MainHomeScreen(
+                    userAuthData: state.authEntity,
+                  );
+                } else {
+                  return const TelegramLoginPage();
+                }
+              },
+            ),
           ),
         );
       },

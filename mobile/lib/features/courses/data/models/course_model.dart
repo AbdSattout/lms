@@ -64,6 +64,9 @@ class ChapterModel extends ChapterEntity {
   }
 }
 
+/// NEW — parses the nested "organization" object confirmed on GET
+/// /courses, GET /organizations/{slug}/courses, and GET /organizations/
+/// {orgSlug}/courses/{courseSlug}.
 class CourseOrganizationRefModel extends CourseOrganizationRef {
   const CourseOrganizationRefModel({
     required super.id,
@@ -72,9 +75,16 @@ class CourseOrganizationRefModel extends CourseOrganizationRef {
     super.description,
     super.image,
     super.visibility,
+    super.viewerJoined,
+    super.viewerRole,
   });
 
   factory CourseOrganizationRefModel.fromJson(Map<String, dynamic> json) {
+    // Not live yet on this endpoint — json['viewer'] will simply be
+    // absent until the backend ships it, which correctly leaves both
+    // fields null rather than defaulting to false.
+    final viewer = json['viewer'] as Map<String, dynamic>?;
+
     return CourseOrganizationRefModel(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
@@ -82,6 +92,8 @@ class CourseOrganizationRefModel extends CourseOrganizationRef {
       description: json['description'],
       image: json['image'],
       visibility: OrganizationVisibility.fromApi(json['visibility']),
+      viewerJoined: viewer?['joined'],
+      viewerRole: viewer?['role'],
     );
   }
 }

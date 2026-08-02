@@ -7,6 +7,12 @@ abstract class OrganizationRemoteDataSource {
   Future<List<OrganizationModel>> getAllOrganizations();
 
   Future<OrganizationModel> getOrganizationBySlug(String slug);
+
+  Future<void> joinOrganization(String slug);
+
+  Future<void> leaveOrganization(String slug);
+
+  Future<void> cancelJoinRequest(String slug);
 }
 
 class OrganizationRemoteDataSourceImpl
@@ -36,5 +42,26 @@ class OrganizationRemoteDataSourceImpl
     );
 
     return OrganizationModel.fromJson(response);
+  }
+
+  @override
+  Future<void> joinOrganization(String slug) async {
+    await api.post(
+      EndPoints.organizationJoin(slug),
+    );
+  }
+
+  @override
+  Future<void> leaveOrganization(String slug) async {
+    await api.delete(
+      EndPoints.organizationLeave(slug),
+    );
+  }
+
+  @override
+  Future<void> cancelJoinRequest(String slug) async {
+    await api.delete(
+      EndPoints.organizationJoin(slug),
+    );
   }
 }
