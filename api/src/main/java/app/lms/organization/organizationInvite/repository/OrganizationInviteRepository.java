@@ -38,6 +38,11 @@ public interface OrganizationInviteRepository
             InviteStatus status
     );
 
+    Optional<OrganizationInvite> findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
+            Long organizationId,
+            Long userId
+    );
+
     @EntityGraph(attributePaths = {
             "organization",
             "organization.owner",

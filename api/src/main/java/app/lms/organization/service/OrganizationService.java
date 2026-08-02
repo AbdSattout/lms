@@ -8,6 +8,9 @@ import app.lms.organization.enums.Role;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
+import app.lms.organization.organizationInvite.model.OrganizationInvite;
+import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
@@ -39,6 +42,7 @@ public class OrganizationService {
     private final OrganizationMemberAccessService organizationMemberAccessService;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
+    private final OrganizationInviteRepository organizationInviteRepository;
 
     @Value("${app.search.organization-similarity-threshold:0.2}")
     private double organizationSearchSimilarityThreshold;
@@ -68,11 +72,18 @@ public class OrganizationService {
                         user,
                         member.orElse(null)
                 );
+        OrganizationInvite invite =
+                latestRelevantInvite(
+                        organization,
+                        user,
+                        member.orElse(null)
+                );
 
         return organizationMapper.ToResponse(
                 organization,
                 member.orElse(null),
-                request
+                request,
+                invite
         );
     }
 
@@ -163,6 +174,25 @@ public class OrganizationService {
                 )
                 .filter(request ->
                         request.getStatus() != JoinRequestStatus.ACCEPTED
+                )
+                .orElse(null);
+    }
+
+    private OrganizationInvite latestRelevantInvite(
+            Organization organization,
+            User user,
+            OrganizationMember member
+    ) {
+
+        return organizationInviteRepository
+                .findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
+                        organization.getId(),
+                        user.getId()
+                )
+                .filter(invite ->
+                        member != null
+                                ? invite.getStatus() == InviteStatus.ACCEPTED
+                                : invite.getStatus() != InviteStatus.ACCEPTED
                 )
                 .orElse(null);
     }
