@@ -41,6 +41,10 @@ public interface RoadmapFollowerRepository
                 from OrganizationModeration moderation
                 where moderation.organization.id =
                         follower.roadmap.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
@@ -48,6 +52,10 @@ public interface RoadmapFollowerRepository
                 where ban.organization.id =
                         follower.roadmap.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             order by follower.createdAt desc
             """)
@@ -66,6 +74,10 @@ public interface RoadmapFollowerRepository
                 from OrganizationModeration moderation
                 where moderation.organization.id =
                         follower.roadmap.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
@@ -73,6 +85,10 @@ public interface RoadmapFollowerRepository
                 where ban.organization.id =
                         follower.roadmap.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and (
                 follower.status is null
@@ -99,6 +115,10 @@ public interface RoadmapFollowerRepository
                 from OrganizationModeration moderation
                 where moderation.organization.id =
                         follower.roadmap.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
@@ -106,6 +126,10 @@ public interface RoadmapFollowerRepository
                 where ban.organization.id =
                         follower.roadmap.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             """)
     long countByUserIdAndStatusAndRoadmapOrganizationVisible(

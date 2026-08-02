@@ -27,6 +27,10 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                 select moderation.id
                 from OrganizationModeration moderation
                 where moderation.organization.id = organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             """)
     Page<Organization> findAllNotBanned(
@@ -40,12 +44,20 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                 select moderation.id
                 from OrganizationModeration moderation
                 where moderation.organization.id = organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
                 from OrganizationBan ban
                 where ban.organization.id = organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             """)
     Page<Organization> findAllVisibleToUser(
@@ -62,6 +74,10 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                             select 1
                             from organization_moderation om
                             where om.organization_id = o.id
+                            and (
+                                om.expires_at is null
+                                or om.expires_at > current_timestamp
+                            )
                         )
                     and (
                         lower(o.name) like lower(concat('%', :q, '%'))
@@ -88,6 +104,10 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                             select 1
                             from organization_moderation om
                             where om.organization_id = o.id
+                            and (
+                                om.expires_at is null
+                                or om.expires_at > current_timestamp
+                            )
                         )
                     and (
                         lower(o.name) like lower(concat('%', :q, '%'))
@@ -118,12 +138,20 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                             select 1
                             from organization_moderation om
                             where om.organization_id = o.id
+                            and (
+                                om.expires_at is null
+                                or om.expires_at > current_timestamp
+                            )
                         )
                     and not exists (
                         select 1
                         from organization_bans ob
                         where ob.organization_id = o.id
                         and ob.user_id = :userId
+                        and (
+                            ob.expires_at is null
+                            or ob.expires_at > current_timestamp
+                        )
                     )
                     and (
                         lower(o.name) like lower(concat('%', :q, '%'))
@@ -150,12 +178,20 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                             select 1
                             from organization_moderation om
                             where om.organization_id = o.id
+                            and (
+                                om.expires_at is null
+                                or om.expires_at > current_timestamp
+                            )
                         )
                     and not exists (
                         select 1
                         from organization_bans ob
                         where ob.organization_id = o.id
                         and ob.user_id = :userId
+                        and (
+                            ob.expires_at is null
+                            or ob.expires_at > current_timestamp
+                        )
                     )
                     and (
                         lower(o.name) like lower(concat('%', :q, '%'))
@@ -192,12 +228,20 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
         select moderation.id
         from OrganizationModeration moderation
         where moderation.organization.id = o.id
+        and (
+            moderation.expiresAt is null
+            or moderation.expiresAt > CURRENT_TIMESTAMP
+        )
     )
     and not exists (
         select ban.id
         from OrganizationBan ban
         where ban.organization.id = o.id
         and ban.user.id = :userId
+        and (
+            ban.expiresAt is null
+            or ban.expiresAt > CURRENT_TIMESTAMP
+        )
     )
 """)
     List<Organization> findManagedOrganizations(

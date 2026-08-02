@@ -105,12 +105,15 @@ public class UserController {
 
     @GetMapping("/search")
     public List<ProfileResponse> search(
-
-            @RequestParam String q
+            @RequestParam String q,
+            @AuthenticationPrincipal UserPrincipal userPrincipal
 
     ){
 
-        return userService.search(q);
+        return userService.search(
+                q,
+                userPrincipal.getId()
+        );
 
     }
 

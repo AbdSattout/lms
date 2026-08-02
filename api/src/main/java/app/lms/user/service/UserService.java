@@ -630,7 +630,10 @@ public class UserService {
 
         userProgressRepository.save(progress);
     }
-    public List<ProfileResponse> search(String q){
+    public List<ProfileResponse> search(
+            String q,
+            Long currentUserId
+    ){
 
         String searchQuery =
                 q == null ? "" : q.trim();
@@ -649,6 +652,11 @@ public class UserService {
                         usernameQ
                 )
                 .stream()
+                .filter(row ->
+                        !row.getUser()
+                                .getId()
+                                .equals(currentUserId)
+                )
                 .map(row ->
                         userMapper.toProfileResponse(
                                 row.getUser(),
