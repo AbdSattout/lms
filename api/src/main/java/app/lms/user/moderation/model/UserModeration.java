@@ -20,6 +20,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(
         name = "user_moderation",
@@ -48,4 +50,7 @@ public class UserModeration extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String reason;
+
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 }

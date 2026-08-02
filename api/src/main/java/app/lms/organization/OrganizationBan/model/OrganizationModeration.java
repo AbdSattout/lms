@@ -7,6 +7,8 @@ import app.lms.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "organization_moderation")
 @Getter
@@ -29,5 +31,7 @@ public class OrganizationModeration extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String reason;
 
-}
+    @Column(name = "expires_at")
+    private LocalDateTime expiresAt;
 
+}

@@ -44,6 +44,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -748,14 +749,26 @@ public class DashboardOrganizationService {
             );
         }
 
-        if (
-                organizationBanRepository.existsByOrganizationIdAndUserId(
-                        organization.getId(),
-                        targetUser.getId()
-                )
-        ) {
-            throw new BadRequestException(
-                    "User is already banned from this organization"
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        LocalDateTime expiresAt =
+                request.expiresAtFrom(
+                        now
+                );
+
+        OrganizationBan existingBan =
+                organizationBanRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                targetUser.getId()
+                        )
+                        .orElse(null);
+
+        if (existingBan != null) {
+            validateBanIsExpired(
+                    existingBan.getExpiresAt(),
+                    now
             );
         }
 
@@ -772,12 +785,27 @@ public class DashboardOrganizationService {
                 target
         );
 
+        if (existingBan != null) {
+            existingBan.setBannedByAppAdmins(null);
+            existingBan.setBannedByOrgAdmins(
+                    actor.getUser()
+            );
+            existingBan.setReason(
+                    request.reason()
+            );
+            existingBan.setExpiresAt(
+                    expiresAt
+            );
+            return;
+        }
+
         organizationBanRepository.save(
                 OrganizationBan.builder()
                         .organization(organization)
                         .user(targetUser)
                         .bannedByOrgAdmins(actor.getUser())
                         .reason(request.reason())
+                        .expiresAt(expiresAt)
                         .build()
         );
     }
@@ -820,6 +848,21 @@ public class DashboardOrganizationService {
                         );
 
         organizationBanRepository.delete(ban);
+    }
+
+    private void validateBanIsExpired(
+            LocalDateTime expiresAt,
+            LocalDateTime now
+    ) {
+
+        if (
+                expiresAt == null
+                        || expiresAt.isAfter(now)
+        ) {
+            throw new BadRequestException(
+                    "User is already banned from this organization"
+            );
+        }
     }
 
 }

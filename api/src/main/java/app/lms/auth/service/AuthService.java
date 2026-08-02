@@ -128,7 +128,7 @@ public class AuthService {
     ) {
 
         if (
-                userModerationRepository.existsByUserId(
+                userModerationRepository.existsActiveByUserId(
                         user.getId()
                 )
         ) {

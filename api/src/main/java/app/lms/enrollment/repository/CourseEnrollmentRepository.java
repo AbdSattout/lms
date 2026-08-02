@@ -36,6 +36,10 @@ public interface CourseEnrollmentRepository
                 from OrganizationModeration moderation
                 where moderation.organization.id =
                         enrollment.course.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
@@ -43,6 +47,10 @@ public interface CourseEnrollmentRepository
                 where ban.organization.id =
                         enrollment.course.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             """)
     Page<CourseEnrollment> findAllByUserIdAndStatusAndCourseOrganizationNotBanned(
@@ -61,6 +69,10 @@ public interface CourseEnrollmentRepository
                 from OrganizationModeration moderation
                 where moderation.organization.id =
                         enrollment.course.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             and not exists (
                 select ban.id
@@ -68,6 +80,10 @@ public interface CourseEnrollmentRepository
                 where ban.organization.id =
                         enrollment.course.organization.id
                 and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
             )
             """)
     long countByUserIdAndStatusAndCourseOrganizationVisible(

@@ -94,7 +94,7 @@ public class OrganizationAccessService {
     ) {
 
         if (
-                organizationModerationRepository.existsByOrganizationId(
+                organizationModerationRepository.existsActiveByOrganizationId(
                         organization.getId()
                 )
         ) {
@@ -113,7 +113,7 @@ public class OrganizationAccessService {
     ) {
 
         if (
-                organizationBanRepository.existsByOrganizationIdAndUserId(
+                organizationBanRepository.existsActiveByOrganizationIdAndUserId(
                         organization.getId(),
                         user.getId()
                 )
