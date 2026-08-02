@@ -7,6 +7,8 @@ import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
 import app.lms.organization.enums.Visibility;
 import app.lms.organization.model.Organization;
+import app.lms.organization.organizationInvite.enums.InviteStatus;
+import app.lms.organization.organizationInvite.repository.OrganizationInviteRepository;
 import app.lms.organization.organizationJoinRequest.mapper.OrganizationJoinRequestMapper;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
@@ -31,6 +33,7 @@ public class OrganizationJoinRequestService {
     private final OrganizationMemberRepository memberRepository;
     private final OrganizationAccessService organizationAccessService;
     private final OrganizationJoinRequestMapper organizationJoinRequestMapper;
+    private final OrganizationInviteRepository organizationInviteRepository;
 
     @Transactional
     public void join(String slug, User user) {
@@ -46,6 +49,10 @@ public class OrganizationJoinRequestService {
         );
 
         validateNotMember(
+                organization,
+                user
+        );
+        validateNoPendingInvite(
                 organization,
                 user
         );
@@ -260,6 +267,25 @@ public class OrganizationJoinRequestService {
 
         }
 
+    }
+
+    private void validateNoPendingInvite(
+            Organization organization,
+            User user
+    ) {
+
+        if (
+                organizationInviteRepository
+                        .existsByOrganizationIdAndUserIdAndStatus(
+                                organization.getId(),
+                                user.getId(),
+                                InviteStatus.PENDING
+                        )
+        ) {
+            throw new ConflictException(
+                    "You already have an invitation for this organization."
+            );
+        }
     }
 
     private OrganizationJoinRequest pendingRequestFor(
