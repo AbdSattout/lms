@@ -32,6 +32,11 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
             JoinRequestStatus status
     );
 
+    Optional<OrganizationJoinRequest> findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
+            Long organizationId,
+            Long userId
+    );
+
     void deleteByOrganizationId(Long organizationId);
 
     @Query("""
