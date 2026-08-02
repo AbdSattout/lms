@@ -55,6 +55,16 @@ public class SecurityConfig {
                         )
                         .permitAll()
                         .requestMatchers(
+                                HttpMethod.GET,
+                                "/certificates/me"
+                        )
+                        .hasRole("USER")
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/certificates/*"
+                        )
+                        .permitAll()
+                        .requestMatchers(
                                 "/admin/**"
                         )
                         .hasRole("ADMIN")
