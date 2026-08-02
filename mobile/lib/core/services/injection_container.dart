@@ -201,12 +201,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => JoinOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => LeaveOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
-
-  sl.registerFactory(
-        () => OrganizationBloc(getAllOrganizationsUseCase: sl()),
-  );
-
-  // ADD THIS
   sl.registerFactory(
         () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),
@@ -215,7 +209,6 @@ Future<void> init() async {
       cancelJoinRequestUseCase: sl(),
     ),
   );
-
   // Blocks
   sl.registerLazySingleton<BlockRemoteDataSource>(() => BlockRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<BlockRepository>(() => BlockRepositoryImpl(sl()));

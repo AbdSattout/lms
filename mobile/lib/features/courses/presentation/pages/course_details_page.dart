@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
 import '../bloc/course_details_state.dart';
 import 'course_contents_page.dart';
+import '../../../organizations/presentation/pages/organization_details_page.dart';
 
 class CourseDetailsPage extends StatelessWidget {
   const CourseDetailsPage({super.key});
@@ -80,6 +80,11 @@ class _CourseDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isEnrolled = course.enrollment != null;
+    // Three states: null (backend hasn't exposed this yet - don't
+    // block), false (confirmed not a member - show View Organization
+    // instead of Enroll), true (member - normal Enroll flow).
+    final viewerJoined = course.organization?.viewerJoined;
+    final isBlockedByMembership = !isEnrolled && viewerJoined == false;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
     final isCompleted = course.isCompleted;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
@@ -254,7 +259,18 @@ class _CourseDetailsContent extends StatelessWidget {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton.icon(
-                    onPressed: isEnrolled
+                    onPressed: isBlockedByMembership
+                        ? () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => OrganizationDetailsPage(
+                            slug: course.organization!.slug,
+                          ),
+                        ),
+                      );
+                    }
+                        : isEnrolled
                         ? () {
                       Navigator.push(
                         context,
@@ -272,13 +288,19 @@ class _CourseDetailsContent extends StatelessWidget {
                       elevation: 4,
                     ),
                     icon: Icon(
-                      isEnrolled
+                      isBlockedByMembership
+                          ? Icons.apartment_rounded
+                          : isEnrolled
                           ? Icons.play_circle_fill_rounded
                           : Icons.rocket_launch_rounded,
                       color: Colors.white,
                     ),
                     label: Text(
-                      isEnrolled ? 'متابعة' : 'سجّل الآن',
+                      isBlockedByMembership
+                          ? 'عرض المنظمة'
+                          : isEnrolled
+                          ? 'متابعة'
+                          : 'سجّل الآن',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -288,39 +310,7 @@ class _CourseDetailsContent extends StatelessWidget {
                   ),
                 ),
 
-                // Show "View Organization" button if user is NOT a member of the org
-                if (!isEnrolled &&
-                    course.organization != null &&
-                    course.organization!.viewerJoined == false) ...[
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 46,
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => OrganizationDetailsPage(
-                              slug: course.organization!.slug,
-                            ),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.apartment_rounded, size: 18),
-                      label: const Text('عرض المنظمة'),
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primary),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-
                 const SizedBox(height: 10),
-
                 SizedBox(
                   width: double.infinity,
                   height: 46,

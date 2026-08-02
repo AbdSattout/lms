@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/organization_entity.dart';
 import '../bloc/organization_details_bloc.dart';
@@ -9,6 +8,11 @@ import '../bloc/organization_details_event.dart';
 import '../bloc/organization_details_state.dart';
 
 class OrganizationDetailsPage extends StatelessWidget {
+  // FIX: takes the slug now, not a static OrganizationEntity — page
+  // always fetches fresh state on open (per the agreed architecture:
+  // no local/passed-in flags), so it can't show a stale Join/Leave
+  // button if something changed since the last time it was open (e.g.
+  // an admin approved a pending request elsewhere).
   final String slug;
 
   const OrganizationDetailsPage({
@@ -18,74 +22,94 @@ class OrganizationDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<OrganizationDetailsBloc>()
-        ..add(GetOrganizationDetailsEvent(slug)),
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          body: BlocConsumer<OrganizationDetailsBloc, OrganizationDetailsState>(
-            listener: (context, state) {
-              if (state is OrganizationDetailsError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-            },
-            builder: (context, state) {
-              if (state is OrganizationDetailsLoading ||
-                  state is OrganizationDetailsInitial) {
-                return const Center(child: CircularProgressIndicator());
-              }
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: BlocConsumer<OrganizationDetailsBloc, OrganizationDetailsState>(
+          listenWhen: (previous, current) => current is OrganizationDetailsError,
+          listener: (context, state) {
+            if (state is OrganizationDetailsError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
+          builder: (context, state) {
+            if (state is OrganizationDetailsLoading ||
+                state is OrganizationDetailsInitial) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-              if (state is OrganizationDetailsError) {
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(state.message, textAlign: TextAlign.center),
-                        const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            context.read<OrganizationDetailsBloc>().add(
-                              GetOrganizationDetailsEvent(slug),
-                            );
-                          },
-                          child: const Text('إعادة المحاولة'),
+            if (state is OrganizationDetailsError) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(state.message, textAlign: TextAlign.center),
+                      const SizedBox(height: 12),
+                      ElevatedButton(
+                        onPressed: () {
+                          context
+                              .read<OrganizationDetailsBloc>()
+                              .add(GetOrganizationDetailsEvent(slug));
+                        },
+                        child: const Text('إعادة المحاولة'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            if (state is OrganizationDetailsLoaded) {
+              return _OrganizationDetailsContent(
+                organization: state.organization,
+                isProcessing: state.isProcessing,
+                onJoin: () {
+                  context
+                      .read<OrganizationDetailsBloc>()
+                      .add(JoinOrganizationEvent(slug));
+                },
+                onLeave: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('مغادرة المنظمة'),
+                      content: const Text('هل أنت متأكد من مغادرة هذه المنظمة؟'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('إلغاء'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text(
+                            'مغادرة',
+                            style: TextStyle(color: Color(0xffD9534F)),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                );
-              }
+                  );
 
-              if (state is OrganizationDetailsLoaded) {
-                return _OrganizationDetailsContent(
-                  organization: state.organization,
-                  isProcessing: state.isProcessing,
-                  onJoin: () {
-                    context.read<OrganizationDetailsBloc>().add(
-                      JoinOrganizationEvent(slug),
-                    );
-                  },
-                  onLeave: () {
-                    context.read<OrganizationDetailsBloc>().add(
-                      LeaveOrganizationEvent(slug),
-                    );
-                  },
-                  onCancelRequest: () {
-                    context.read<OrganizationDetailsBloc>().add(
-                      CancelJoinRequestEvent(slug),
-                    );
-                  },
-                );
-              }
+                  if (confirmed == true && context.mounted) {
+                    context
+                        .read<OrganizationDetailsBloc>()
+                        .add(LeaveOrganizationEvent(slug));
+                  }
+                },
+                onCancelRequest: () {
+                  context
+                      .read<OrganizationDetailsBloc>()
+                      .add(CancelJoinRequestEvent(slug));
+                },
+              );
+            }
 
-              return const SizedBox();
-            },
-          ),
+            return const SizedBox();
+          },
         ),
       ),
     );
@@ -114,9 +138,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
     final hasImage =
         organization.image != null && organization.image!.isNotEmpty;
 
-    final joined = organization.viewerJoined;
-    final joinStatus = organization.joinRequestStatus;
+    final isMember = organization.viewerJoined;
     final isPrivate = organization.visibility == OrganizationVisibility.private;
+    // Not live on the backend yet — null is treated the same as "no
+    // pending request" here, since there's no functionality to
+    // incorrectly hide either way (unlike the course-eligibility case,
+    // where null vs false has real stakes).
+    final isPending = organization.joinRequestStatus == 'PENDING';
 
     final visibility = switch (organization.visibility) {
       OrganizationVisibility.public => "عامة",
@@ -127,7 +155,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 130),
+          padding: const EdgeInsets.only(bottom: 150),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -170,10 +198,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     bottom: 16,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(.45),
                         borderRadius: BorderRadius.circular(12),
@@ -212,11 +237,8 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         organization.description!.trim().isNotEmpty) ...[
                       Row(
                         children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            color: AppColors.primary,
-                            size: 18,
-                          ),
+                          const Icon(Icons.info_outline_rounded,
+                              color: AppColors.primary, size: 18),
                           const SizedBox(width: 8),
                           Text(
                             "عن المنظمة",
@@ -228,9 +250,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           ),
                         ],
                       ),
-
                       const SizedBox(height: 10),
-
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -247,7 +267,6 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const SizedBox(height: 20),
                     ],
 
@@ -262,26 +281,25 @@ class _OrganizationDetailsContent extends StatelessWidget {
                             value: organization.membersCount.toString(),
                           ),
                         ),
-
                         const SizedBox(width: 12),
-
                         Expanded(
                           child: _StatCard(
-                            icon: isPrivate
-                                ? Icons.lock_rounded
-                                : Icons.public_rounded,
-                            iconColor: isPrivate
-                                ? const Color(0xffB4780F)
-                                : const Color(0xff2E7D53),
-                            iconBg: isPrivate
-                                ? AppColors.peach.withOpacity(.45)
-                                : AppColors.mint.withOpacity(.45),
+                            icon: organization.visibility == OrganizationVisibility.public
+                                ? Icons.public_rounded
+                                : Icons.lock_rounded,
+                            iconColor: organization.visibility == OrganizationVisibility.public
+                                ? const Color(0xff2E7D53)
+                                : const Color(0xffB4780F),
+                            iconBg: organization.visibility == OrganizationVisibility.public
+                                ? AppColors.mint.withOpacity(.45)
+                                : AppColors.peach.withOpacity(.45),
                             label: "النوع",
                             value: visibility,
                           ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 20),
 
                     if (organization.ownerName != null)
@@ -291,9 +309,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: colors.surface,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(
-                            color: Theme.of(context).dividerColor,
-                          ),
+                          border: Border.all(color: Theme.of(context).dividerColor),
                         ),
                         child: Row(
                           children: [
@@ -345,46 +361,36 @@ class _OrganizationDetailsContent extends StatelessWidget {
         Positioned(
           left: 20,
           right: 20,
-          bottom: 1,
+          bottom: 20,
           child: SafeArea(
             top: false,
             child: Column(
               children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: isProcessing
-                        ? null
-                        : _getPrimaryAction(
-                      joined: joined,
-                      joinStatus: joinStatus,
-                      isPrivate: isPrivate,
-                      onJoin: onJoin,
-                      onLeave: onLeave,
-                      onCancelRequest: onCancelRequest,
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      elevation: 4,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
+                _membershipButton(
+                  isMember: isMember,
+                  isPrivate: isPrivate,
+                  isPending: isPending,
+                  isProcessing: isProcessing,
+                  onJoin: onJoin,
+                  onLeave: onLeave,
+                ),
+
+                if (isPending && !isMember) ...[
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 46,
+                    child: OutlinedButton.icon(
+                      onPressed: isProcessing ? null : onCancelRequest,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xffD9534F),
+                        side: const BorderSide(color: Color(0xffD9534F)),
                       ),
-                    ),
-                    icon: Icon(
-                      _getPrimaryIcon(joined: joined, joinStatus: joinStatus),
-                      color: Colors.white,
-                    ),
-                    label: Text(
-                      _getPrimaryLabel(joined: joined, joinStatus: joinStatus),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      icon: const Icon(Icons.close_rounded, size: 18),
+                      label: const Text("إلغاء الطلب"),
                     ),
                   ),
-                ),
+                ],
 
                 const SizedBox(height: 10),
 
@@ -394,9 +400,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('منشورات المنظمة قريباً'),
-                        ),
+                        const SnackBar(content: Text('منشورات المنظمة قريباً')),
                       );
                     },
                     icon: const Icon(Icons.campaign_outlined, size: 18),
@@ -410,38 +414,78 @@ class _OrganizationDetailsContent extends StatelessWidget {
       ],
     );
   }
+
+  Widget _membershipButton({
+    required bool isMember,
+    required bool isPrivate,
+    required bool isPending,
+    required bool isProcessing,
+    required VoidCallback onJoin,
+    required VoidCallback onLeave,
+  }) {
+    // Four real states, derived entirely from backend data:
+    // 1. Member -> Leave (destructive styling)
+    // 2. Pending request -> disabled "waiting for approval"
+    // 3. Not a member, PRIVATE -> "Request to Join"
+    // 4. Not a member, PUBLIC -> "Join" (immediate)
+    String label;
+    IconData icon;
+    Color backgroundColor;
+    VoidCallback? onPressed;
+
+    if (isMember) {
+      label = "غادر المنظمة";
+      icon = Icons.logout_rounded;
+      backgroundColor = const Color(0xffD9534F);
+      onPressed = isProcessing ? null : onLeave;
+    } else if (isPending) {
+      label = "بانتظار موافقة الإدارة";
+      icon = Icons.hourglass_top_rounded;
+      backgroundColor = AppColors.darkSoft;
+      onPressed = null;
+    } else if (isPrivate) {
+      label = "طلب الانضمام";
+      icon = Icons.person_add_alt_1_rounded;
+      backgroundColor = AppColors.primary;
+      onPressed = isProcessing ? null : onJoin;
+    } else {
+      label = "انضم إلى المنظمة";
+      icon = Icons.group_add_rounded;
+      backgroundColor = AppColors.primary;
+      onPressed = isProcessing ? null : onJoin;
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          disabledBackgroundColor: backgroundColor.withOpacity(0.6),
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        ),
+        icon: isProcessing
+            ? const SizedBox(
+          width: 20,
+          height: 20,
+          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
+        )
+            : Icon(icon, color: Colors.white),
+        label: Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-VoidCallback? _getPrimaryAction({
-  required bool joined,
-  required String? joinStatus,
-  required bool isPrivate,
-  required VoidCallback onJoin,
-  required VoidCallback onLeave,
-  required VoidCallback onCancelRequest,
-}) {
-  if (joined) return onLeave;
-  if (joinStatus == 'PENDING') return onCancelRequest;
-  return onJoin;
-}
-
-IconData _getPrimaryIcon({
-  required bool joined,
-  required String? joinStatus,
-}) {
-  if (joined) return Icons.logout_rounded;
-  if (joinStatus == 'PENDING') return Icons.close_rounded;
-  return Icons.group_add_rounded;
-}
-
-String _getPrimaryLabel({
-  required bool joined,
-  required String? joinStatus,
-}) {
-  if (joined) return 'مغادرة المنظمة';
-  if (joinStatus == 'PENDING') return 'إلغاء الطلب';
-  return 'انضم إلى المنظمة';
-}
 Widget _coverPlaceholder() {
   return Container(
     height: 220,
@@ -450,10 +494,7 @@ Widget _coverPlaceholder() {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [
-          AppColors.primary,
-          AppColors.primary.withOpacity(.65),
-        ],
+        colors: [AppColors.primary, AppColors.primary.withOpacity(.65)],
       ),
     ),
     child: const Center(
@@ -462,10 +503,7 @@ Widget _coverPlaceholder() {
   );
 }
 
-Widget _roundIconButton({
-  required IconData icon,
-  required VoidCallback onTap,
-}) {
+Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
   return GestureDetector(
     onTap: onTap,
     child: Container(
@@ -510,26 +548,15 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(height: 10),
-          Text(
-            label,
-            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
           const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: colors.onSurface,
-            ),
-          ),
+          Text(value,
+              style: TextStyle(
+                  fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
         ],
       ),
     );

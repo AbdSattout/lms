@@ -1,25 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../bloc/organization_bloc.dart';
+import '../bloc/organization_details_bloc.dart';
+import '../bloc/organization_details_event.dart';
 import '../bloc/organization_event.dart';
 import '../bloc/organization_state.dart';
 import '../widgets/organization_card.dart';
 import 'organization_details_page.dart';
-
 class OrganizationsPage extends StatelessWidget {
   final String? currentUserName;
-
   const OrganizationsPage({
     super.key,
     this.currentUserName,
   });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       body: SafeArea(
         child: BlocConsumer<OrganizationBloc, OrganizationState>(
           listenWhen: (previous, current) =>
@@ -38,7 +36,6 @@ class OrganizationsPage extends StatelessWidget {
                 child: CircularProgressIndicator(),
               );
             }
-
             if (state is OrganizationError) {
               return Center(
                 child: Padding(
@@ -131,8 +128,10 @@ class OrganizationsPage extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => OrganizationDetailsPage(
-                                    slug: organization.slug,
+                                  builder: (_) => BlocProvider(
+                                    create: (_) => sl<OrganizationDetailsBloc>()
+                                      ..add(GetOrganizationDetailsEvent(organization.slug)),
+                                    child: OrganizationDetailsPage(slug: organization.slug),
                                   ),
                                 ),
                               );
@@ -145,7 +144,6 @@ class OrganizationsPage extends StatelessWidget {
                 ],
               );
             }
-
             return const SizedBox();
           },
         ),
