@@ -202,6 +202,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LeaveOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
   sl.registerFactory(
+        () => OrganizationBloc(
+      getAllOrganizationsUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
         () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),
       joinOrganizationUseCase: sl(),
