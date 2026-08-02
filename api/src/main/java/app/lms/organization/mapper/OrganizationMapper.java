@@ -1,12 +1,12 @@
 package app.lms.organization.mapper;
 
 import app.lms.common.dto.BaseEntityResponse;
-import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.OrganizationSummaryResponse;
 import app.lms.organization.dto.OrganizationViewerResponse;
 import app.lms.organization.model.Organization;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.organizationJoinRequest.model.OrganizationJoinRequest;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.repository.OrganizationMemberRepository;
@@ -27,18 +27,6 @@ public class OrganizationMapper {
 
         return toResponse(
                 organization,
-                null
-        );
-    }
-
-    public OrganizationResponse ToResponse(
-            Organization organization,
-            OrganizationMember member
-    ) {
-
-        return ToResponse(
-                organization,
-                member,
                 null
         );
     }
@@ -94,7 +82,9 @@ public class OrganizationMapper {
                                 : null
                 )
                 .joinRequestStatus(
-                        request != null
+                        member != null
+                                ? JoinRequestStatus.ACCEPTED
+                                : request != null
                                 ? request.getStatus()
                                 : null
                 )
