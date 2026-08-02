@@ -108,6 +108,18 @@ public class OrganizationService {
 
         Map<Long, OrganizationMember> membersByOrganizationId =
                 membersByOrganizationId(user);
+        Map<Long, OrganizationJoinRequest> requestsByOrganizationId =
+                latestRelevantJoinRequestsByOrganizationId(
+                        organizations.getContent(),
+                        user,
+                        membersByOrganizationId
+                );
+        Map<Long, OrganizationInvite> invitesByOrganizationId =
+                latestRelevantInvitesByOrganizationId(
+                        organizations.getContent(),
+                        user,
+                        membersByOrganizationId
+                );
 
         return organizations.map(organization ->
                         organizationMapper.ToResponse(
@@ -115,7 +127,12 @@ public class OrganizationService {
                                 membersByOrganizationId.get(
                                         organization.getId()
                                 ),
-                                null
+                                requestsByOrganizationId.get(
+                                        organization.getId()
+                                ),
+                                invitesByOrganizationId.get(
+                                        organization.getId()
+                                )
                         )
                 );
     }
@@ -178,6 +195,42 @@ public class OrganizationService {
                 .orElse(null);
     }
 
+    private Map<Long, OrganizationJoinRequest> latestRelevantJoinRequestsByOrganizationId(
+            List<Organization> organizations,
+            User user,
+            Map<Long, OrganizationMember> membersByOrganizationId
+    ) {
+
+        List<Long> organizationIds =
+                organizationIds(organizations);
+
+        if (organizationIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return organizationJoinRequestRepository
+                .findAllByOrganizationIdsAndUserIdOrderByLatest(
+                        organizationIds,
+                        user.getId()
+                )
+                .stream()
+                .filter(request ->
+                        !membersByOrganizationId.containsKey(
+                                request.getOrganization().getId()
+                        )
+                )
+                .filter(request ->
+                        request.getStatus() != JoinRequestStatus.ACCEPTED
+                )
+                .collect(
+                        Collectors.toMap(
+                                request -> request.getOrganization().getId(),
+                                Function.identity(),
+                                (first, ignored) -> first
+                        )
+                );
+    }
+
     private OrganizationInvite latestRelevantInvite(
             Organization organization,
             User user,
@@ -195,6 +248,62 @@ public class OrganizationService {
                                 : invite.getStatus() != InviteStatus.ACCEPTED
                 )
                 .orElse(null);
+    }
+
+    private Map<Long, OrganizationInvite> latestRelevantInvitesByOrganizationId(
+            List<Organization> organizations,
+            User user,
+            Map<Long, OrganizationMember> membersByOrganizationId
+    ) {
+
+        List<Long> organizationIds =
+                organizationIds(organizations);
+
+        if (organizationIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return organizationInviteRepository
+                .findAllByOrganizationIdsAndUserIdOrderByLatest(
+                        organizationIds,
+                        user.getId()
+                )
+                .stream()
+                .filter(invite ->
+                        isRelevantInvite(
+                                invite,
+                                membersByOrganizationId.get(
+                                        invite.getOrganization().getId()
+                                )
+                        )
+                )
+                .collect(
+                        Collectors.toMap(
+                                invite -> invite.getOrganization().getId(),
+                                Function.identity(),
+                                (first, ignored) -> first
+                        )
+                );
+    }
+
+    private boolean isRelevantInvite(
+            OrganizationInvite invite,
+            OrganizationMember member
+    ) {
+
+        return member != null
+                ? invite.getStatus() == InviteStatus.ACCEPTED
+                : invite.getStatus() != InviteStatus.ACCEPTED;
+    }
+
+    private List<Long> organizationIds(
+            List<Organization> organizations
+    ) {
+
+        return organizations
+                .stream()
+                .map(Organization::getId)
+                .toList();
     }
 
     @Transactional
