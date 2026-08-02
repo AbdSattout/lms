@@ -12,6 +12,7 @@ class OrganizationModel extends OrganizationEntity {
     super.membersCount,
     super.viewerJoined,
     super.viewerRole,
+    super.joinRequestStatus,
   });
 
   factory OrganizationModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +29,7 @@ class OrganizationModel extends OrganizationEntity {
       membersCount: json['membersCount'] ?? 0,
       viewerJoined: viewer?['joined'] ?? false,
       viewerRole: viewer?['role'],
+      joinRequestStatus: viewer?['joinRequestStatus'],
     );
   }
 }

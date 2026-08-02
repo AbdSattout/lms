@@ -6,7 +6,8 @@ import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
 import 'package:lms/features/home/presentation/pages/main_home_screen.dart';
-Color kLightPrimaryColor =  AppColors.primary;
+
+Color kLightPrimaryColor = AppColors.primary;
 Color kLightSecondaryColor = AppColors.pink;
 
 class TelegramLoginPage extends StatelessWidget {
@@ -21,20 +22,27 @@ class TelegramLoginPage extends StatelessWidget {
         Theme.of(context).scaffoldBackgroundColor,
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
+            print("LoginPage listener - State: $state");
+
             if (state is AuthError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message), backgroundColor: Colors.red),
               );
             }
             if (state is AuthSuccess) {
+              print("LoginPage - AuthSuccess, navigating to home");
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => MainHomeScreen(userAuthData: state.authEntity)),
+                MaterialPageRoute(
+                  builder: (context) => MainHomeScreen(userAuthData: state.authEntity),
+                ),
               );
             }
           },
           builder: (context, state) {
             final isLoading = state is AuthLoading;
+            print("LoginPage builder - isLoading: $isLoading, state: $state");
+
             return Stack(
               children: [
                 Container(
@@ -70,7 +78,7 @@ class TelegramLoginPage extends StatelessWidget {
                             style: TextStyle(fontSize: 16, color: AppColors.darkSoft),
                           ),
                           const SizedBox(height: 40),
-                          
+
                           SizedBox(
                             width: double.infinity,
                             height: 60,
@@ -80,8 +88,7 @@ class TelegramLoginPage extends StatelessWidget {
                                 context.read<AuthBloc>().add(LoginWithTelegramRequested());
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                Theme.of(context).primaryColor,
+                                backgroundColor: Theme.of(context).primaryColor,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                 elevation: 8,
@@ -90,13 +97,13 @@ class TelegramLoginPage extends StatelessWidget {
                               child: isLoading
                                   ? const CircularProgressIndicator(color: Colors.white)
                                   : Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: const [
-                                        Icon(Icons.telegram_rounded, size: 28),
-                                        SizedBox(width: 12),
-                                        Text('الدخول بواسطة تيليجرام', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: const [
+                                  Icon(Icons.telegram_rounded, size: 28),
+                                  SizedBox(width: 12),
+                                  Text('الدخول بواسطة تيليجرام', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
                             ),
                           ),
                           const SizedBox(height: 20),

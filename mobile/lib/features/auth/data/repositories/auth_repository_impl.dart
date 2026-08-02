@@ -89,4 +89,25 @@ class AuthRepositoryImpl extends AuthRepository {
       );
     }
   }
+
+  @override
+  Future<Either<Failure, AuthEntity?>> checkCachedAuth() async {
+    try {
+      final cachedAuth = await localDataSource.getCachedAuthData();
+      return Right(cachedAuth);
+    } on CacheExeption {
+      return const Right(null);
+    } catch (e) {
+      return Left(Failure(errMessage: "Failed to check cached authentication"));
+    }
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await localDataSource.cache.removeData(key: localDataSource.key);
+    } catch (e) {
+      throw CacheExeption(errorMessage: "Failed to clear cached authentication");
+    }
+  }
 }

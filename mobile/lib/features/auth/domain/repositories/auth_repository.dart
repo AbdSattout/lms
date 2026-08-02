@@ -4,4 +4,6 @@ import '../entities/auth_entity.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, AuthEntity>> loginWithTelegram();
+  Future<Either<Failure, AuthEntity?>> checkCachedAuth();
+  Future<void> logout();
 }

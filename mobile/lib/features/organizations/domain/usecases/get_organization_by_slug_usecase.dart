@@ -3,7 +3,6 @@ import '../repositories/organization_repository.dart';
 
 class GetOrganizationBySlugUseCase {
   final OrganizationRepository repository;
-
   GetOrganizationBySlugUseCase(this.repository);
 
   Future<OrganizationEntity> call(String slug) {

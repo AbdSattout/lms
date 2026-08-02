@@ -16,7 +16,11 @@ import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
+import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
+import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
+import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
+import '../../features/organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
@@ -35,6 +39,8 @@ import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_with_telegram.dart';
+import '../../features/auth/domain/usecases/check_cached_auth_usecase.dart'; // ADD THIS
+import '../../features/auth/domain/usecases/logout_usecase.dart'; // ADD THIS
 //Courses Feature
 import 'package:lms/features/courses/data/datasources/course_remote_datasource.dart';
 import 'package:lms/features/courses/data/repositories/course_repository_impl.dart';
@@ -63,32 +69,37 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   //! Features - Auth
-  
+
   // Use cases
   sl.registerLazySingleton(() => LoginWithTelegram(repository: sl()));
+  sl.registerLazySingleton(() => CheckCachedAuth(repository: sl()));
+  sl.registerLazySingleton(() => Logout(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(
+        () => AuthRepositoryImpl(
       remoteDataSource: sl(),
       localDataSource: sl(),
       networkInfo: sl(),
     ),
   );
-  
+
   sl.registerFactory(
-    () => AuthBloc(sl()),
+        () => AuthBloc(
+      loginWithTelegram: sl(),
+      checkCachedAuth: sl(),
+      logout: sl(),
+    ),
   );
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(appAuth: sl(), apiConsumer: sl()),
+        () => AuthRemoteDataSourceImpl(appAuth: sl(), apiConsumer: sl()),
   );
   sl.registerLazySingleton(() => AuthLocalDataSource(cache: sl()));
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
-
 
   sl.registerLazySingleton<ApiConsumer>(
         () => DioConsumer(
@@ -97,17 +108,14 @@ Future<void> init() async {
     ),
   );
 
-  
   sl.registerLazySingleton(() => Dio(
     BaseOptions(
-      // (Emulator):10.0.2.2  
       baseUrl: 'http://10.0.2.2:8080/',
       receiveDataWhenStatusError: true,
     ),
   ));
 
-
- //Profile
+  // Profile
   sl.registerLazySingleton<ProfileRemoteDataSource>(
         () => ProfileRemoteDataSourceImpl(sl()),
   );
@@ -116,29 +124,19 @@ Future<void> init() async {
         () => ProfileRepositoryImpl(sl()),
   );
 
-  sl.registerLazySingleton(
-        () => GetProfileUseCase(sl()),
-  );
+  sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfilePictureUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
 
-  sl.registerLazySingleton(
-        () => UpdateProfilePictureUseCase(sl()),
-  );
-  sl.registerLazySingleton(
-        () => UpdateProfileUseCase(
-      sl(),
+  sl.registerFactory(
+        () => ProfileBloc(
+      getProfileUseCase: sl(),
+      updatePictureUseCase: sl(),
+      updateProfileUseCase: sl(),
     ),
   );
 
-  sl.registerFactory(
-      () => ProfileBloc(
-          getProfileUseCase: sl(),
-          updatePictureUseCase: sl(),
-          updateProfileUseCase: sl())
-  );
-
-
-//Courses
-
+  // Courses
   sl.registerLazySingleton<CourseRemoteDataSource>(
         () => CourseRemoteDataSourceImpl(sl()),
   );
@@ -154,9 +152,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
 
   sl.registerFactory(
-        () => MyCoursesBloc(
-      getMyEnrollmentsUseCase: sl(),
-    ),
+        () => MyCoursesBloc(getMyEnrollmentsUseCase: sl()),
   );
 
   sl.registerFactory(
@@ -166,11 +162,11 @@ Future<void> init() async {
       enrollInCourseUseCase: sl(),
     ),
   );
+
   sl.registerFactory(
-        () => CourseContentsBloc(
-      getCourseByIdUseCase: sl(),
-    ),
+        () => CourseContentsBloc(getCourseByIdUseCase: sl()),
   );
+
   sl.registerLazySingleton<PlacementTestRemoteDataSource>(
         () => PlacementTestRemoteDataSourceImpl(sl()),
   );
@@ -190,7 +186,8 @@ Future<void> init() async {
       skipPlacementTestUseCase: sl(),
     ),
   );
-  //Organizations
+
+  // Organizations
   sl.registerLazySingleton<OrganizationRemoteDataSource>(
         () => OrganizationRemoteDataSourceImpl(sl()),
   );
@@ -201,13 +198,23 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => GetAllOrganizationsUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationBySlugUseCase(sl()));
-
+  sl.registerLazySingleton(() => JoinOrganizationUseCase(sl()));
+  sl.registerLazySingleton(() => LeaveOrganizationUseCase(sl()));
+  sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
   sl.registerFactory(
         () => OrganizationBloc(
       getAllOrganizationsUseCase: sl(),
     ),
   );
-  //Blocks
+  sl.registerFactory(
+        () => OrganizationDetailsBloc(
+      getOrganizationBySlugUseCase: sl(),
+      joinOrganizationUseCase: sl(),
+      leaveOrganizationUseCase: sl(),
+      cancelJoinRequestUseCase: sl(),
+    ),
+  );
+  // Blocks
   sl.registerLazySingleton<BlockRemoteDataSource>(() => BlockRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<BlockRepository>(() => BlockRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetBlockContentUseCase(sl()));
@@ -217,7 +224,7 @@ Future<void> init() async {
     submitBlockAnswerUseCase: sl(),
   ));
 
-  //Home
+  // Home
   sl.registerFactory(
         () => HomeBloc(
       getAllCoursesUseCase: sl(),
@@ -226,23 +233,18 @@ Future<void> init() async {
   );
 
   //! External
-  
+
   // SharedPreferences initialization
   final sharedPreferences = await SharedPreferences.getInstance();
   final cacheHelper = CacheHelper();
   await cacheHelper.init();
 
-  sl.registerLazySingleton<CacheHelper>(
-        () => cacheHelper,
-  );
+  sl.registerLazySingleton<CacheHelper>(() => cacheHelper);
   sl.registerLazySingleton(() => sharedPreferences);
 
   sl.registerSingleton(
-    ThemeCubit()..setTheme(
-      sl<CacheHelper>().getTheme(),
-    ),
+    ThemeCubit()..setTheme(sl<CacheHelper>().getTheme()),
   );
-
 
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton(() => DataConnectionChecker());

@@ -6,6 +6,8 @@ import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/telegram_login_page.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -25,7 +27,24 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<AuthBloc, AuthState>(  // Add this BlocListener
+        listener: (context, state) {
+          if (state is Unauthenticated) {
+            // When logout is complete, navigate to login page
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) =>
+                    BlocProvider(
+                      create: (_) => sl<AuthBloc>(),
+                      child: const TelegramLoginPage(),
+                    ),
+              ),
+                  (route) => false,
+            );
+          }
+        },
+    child: Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listenWhen: (previous, current) =>
@@ -252,23 +271,12 @@ class _ProfilePageState extends State<ProfilePage> {
                                   child: const Text('إلغاء'),
                                 ),
                                 ElevatedButton(
-                                  onPressed: () async {
-                                    await sl<CacheHelper>().removeData(
-                                      key: "CachedAuthToken",
-                                    );
+                                  onPressed: () {
+                                    // Close the dialog first
+                                    Navigator.pop(context);
 
-                                    if (!context.mounted) return;
-
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => BlocProvider(
-                                          create: (_) => sl<AuthBloc>(),
-                                          child: const TelegramLoginPage(),
-                                        ),
-                                      ),
-                                          (route) => false,
-                                    );
+                                    // Dispatch logout event to AuthBloc
+                                    context.read<AuthBloc>().add(LogoutRequested());
                                   },
                                   child: const Text('خروج'),
                                 ),
@@ -277,7 +285,6 @@ class _ProfilePageState extends State<ProfilePage> {
                           );
                         },
                       ),
-
                       const SizedBox(height: 100),
                     ],
                   )
@@ -288,6 +295,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return const SizedBox();
         },
       ),
+    )
     );
   }
 }
