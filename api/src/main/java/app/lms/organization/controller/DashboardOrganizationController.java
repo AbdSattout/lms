@@ -4,6 +4,7 @@ import app.lms.moderation.dto.BanRequest;
 import app.lms.organization.dto.CreateOrganizationRequest;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
+import app.lms.organization.dto.OrganizationUserSearchResponse;
 import app.lms.organization.dto.UpdateOrganizationRequest;
 import app.lms.organization.enums.Role;
 import app.lms.organization.service.DashboardOrganizationService;
@@ -220,6 +221,22 @@ public class DashboardOrganizationController {
                         slug,
                         Role.STUDENT,
                         pageable,
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/{slug}/users/search")
+    public ResponseEntity<List<OrganizationUserSearchResponse>> searchUsers(
+            @PathVariable String slug,
+            @RequestParam String q,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.searchUsers(
+                        slug,
+                        q,
                         principal.user()
                 )
         );
