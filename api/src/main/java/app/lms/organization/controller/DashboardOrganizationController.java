@@ -224,6 +224,23 @@ public class DashboardOrganizationController {
                 )
         );
     }
+
+    @DeleteMapping("/{slug}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable String slug,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardOrganizationService.removeMember(
+                slug,
+                userId,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{slug}/users/{userId}/ban")
     public ResponseEntity<Void> banUser(
             @PathVariable String slug,

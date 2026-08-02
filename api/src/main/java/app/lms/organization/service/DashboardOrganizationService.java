@@ -515,6 +515,46 @@ public class DashboardOrganizationService {
     }
 
     @Transactional
+    public void removeMember(
+            String slug,
+            Long userId,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        OrganizationMember actor =
+                organizationMemberAccessService.getMember(
+                        organization.getId(),
+                        currentUser.getId()
+                );
+
+        OrganizationMember target =
+                organizationMemberRepository
+                        .findByOrganizationIdAndUserId(
+                                organization.getId(),
+                                userId
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Member not found"
+                                )
+                        );
+
+        organizationMemberAccessService.validateCanRemoveMember(
+                actor,
+                target
+        );
+
+        organizationMemberRepository.delete(target);
+    }
+
+    @Transactional
     public void banUser(
             String slug,
             Long userId,
