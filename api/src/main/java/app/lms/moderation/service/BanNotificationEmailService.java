@@ -190,6 +190,10 @@ public class BanNotificationEmailService {
                 escapeHtml(appName);
         String safeMessage =
                 escapeHtml(message);
+        String safeGreeting =
+                escapeHtml(
+                        greeting(user)
+                );
         String safeStatus =
                 escapeHtml(
                         banPeriod(expiresAt)
@@ -225,6 +229,7 @@ public class BanNotificationEmailService {
                             <td style="padding:28px 28px 12px;">
                               <div style="font-size:14px;font-weight:700;color:#dc2626;text-transform:uppercase;letter-spacing:0.04em;">%s</div>
                               <h1 style="margin:14px 0 10px;font-size:24px;line-height:32px;color:#111827;">Account access notice</h1>
+                              <p style="margin:0 0 8px;color:#111827;font-size:15px;line-height:24px;font-weight:700;">%s</p>
                               <p style="margin:0;color:#4b5563;font-size:15px;line-height:24px;">%s</p>
                             </td>
                           </tr>
@@ -255,6 +260,7 @@ public class BanNotificationEmailService {
                 """
                 .formatted(
                         safeAppName,
+                        safeGreeting,
                         safeMessage,
                         organizationBlock,
                         safeStatus,
