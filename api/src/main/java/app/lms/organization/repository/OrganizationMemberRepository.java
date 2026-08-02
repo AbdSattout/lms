@@ -26,6 +26,13 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
             Long organizationId,
             Long userId
     );
+
+    List<OrganizationMember>
+    findAllByOrganizationIdAndUserIdIn(
+            Long organizationId,
+            Collection<Long> userIds
+    );
+
     @Query("""
             select member
             from OrganizationMember member

@@ -4,6 +4,7 @@ import app.lms.moderation.dto.BanRequest;
 import app.lms.organization.dto.CreateOrganizationRequest;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
+import app.lms.organization.dto.OrganizationUserSearchResponse;
 import app.lms.organization.dto.UpdateOrganizationRequest;
 import app.lms.organization.enums.Role;
 import app.lms.organization.service.DashboardOrganizationService;
@@ -224,6 +225,39 @@ public class DashboardOrganizationController {
                 )
         );
     }
+
+    @GetMapping("/{slug}/users/search")
+    public ResponseEntity<List<OrganizationUserSearchResponse>> searchUsers(
+            @PathVariable String slug,
+            @RequestParam String q,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.searchUsers(
+                        slug,
+                        q,
+                        principal.user()
+                )
+        );
+    }
+
+    @DeleteMapping("/{slug}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable String slug,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        dashboardOrganizationService.removeMember(
+                slug,
+                userId,
+                principal.user()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{slug}/users/{userId}/ban")
     public ResponseEntity<Void> banUser(
             @PathVariable String slug,
