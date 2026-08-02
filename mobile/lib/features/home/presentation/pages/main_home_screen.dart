@@ -398,11 +398,6 @@ class _HomeContent extends StatelessWidget {
         return CourseCard(
           course: course,
           onTap: () {
-            // FIX: Home always opens Course Details, regardless of
-            // enrollment — Details is now the source of truth (fetches
-            // via org+course slug, which returns enrollment directly).
-            // Home itself doesn't have enrollment data to branch on
-            // anymore, by design.
             Navigator.push(
               context,
               MaterialPageRoute(
