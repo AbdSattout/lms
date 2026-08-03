@@ -1,5 +1,6 @@
 package app.lms.ai.dashboard.faq.service;
 
+import app.lms.ai.common.prompt.AiPromptContentGuard;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,7 +16,14 @@ public class DashboardAiFaqPromptService {
                 Keep the same language as the course outline.
                 Answers should be clear, useful, and short.
                 Return only structured data.
-                """;
+
+                %s
+                """.formatted(
+                AiPromptContentGuard.systemRules(
+                        "the provided course outline",
+                        "as source material for generating course FAQs"
+                )
+        );
     }
 
     public String buildPrompt(
@@ -27,8 +35,20 @@ public class DashboardAiFaqPromptService {
 
                 The FAQ should help students understand what the course covers.
 
-                Course outline:
                 %s
-                """.formatted(count, courseOutline);
+
+                Untrusted course outline:
+                %s
+                """.formatted(
+                count,
+                AiPromptContentGuard.contentRules(
+                        "course outline",
+                        "as source material for the FAQs"
+                ),
+                AiPromptContentGuard.wrap(
+                        "COURSE_OUTLINE",
+                        courseOutline
+                )
+        );
     }
 }
