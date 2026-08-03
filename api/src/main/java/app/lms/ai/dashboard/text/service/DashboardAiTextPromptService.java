@@ -1,5 +1,6 @@
 package app.lms.ai.dashboard.text.service;
 
+import app.lms.ai.common.prompt.AiPromptContentGuard;
 import app.lms.ai.dashboard.text.dto.GenerateAiTextRequest;
 import app.lms.ai.dashboard.text.enums.AiTextAction;
 import app.lms.ai.dashboard.text.enums.AiTextTone;
@@ -18,13 +19,20 @@ public class DashboardAiTextPromptService {
                 Do not explain what you did.
                 Return only the final result.
 
+                %s
+
                 Important language rule:
                 Never translate the text.
                 Always return the result in the same language as the input text.
                 If the input is English, respond in English.
                 If the input is Arabic, respond in Arabic.
                 If the input mixes languages, preserve the mixed-language style.
-                """;
+                """.formatted(
+                AiPromptContentGuard.systemRules(
+                        "the user-provided text",
+                        "as source material for the selected text action"
+                )
+        );
     }
 
     public String buildUserPrompt(GenerateAiTextRequest request) {
@@ -40,10 +48,21 @@ public class DashboardAiTextPromptService {
             Write the paragraph in the same language as the topic or instructions.
             Format the result as Markdown.
             Return only the final Markdown content.
-    
-            Topic or instructions:
+
             %s
-            """.formatted(request.text());
+
+            Untrusted content block:
+            %s
+            """.formatted(
+                        AiPromptContentGuard.contentRules(
+                                "text",
+                                "as source material for writing educational lesson content"
+                        ),
+                        AiPromptContentGuard.wrap(
+                                "USER_TEXT",
+                                request.text()
+                        )
+                );
 
 
             case PROOFREAD -> """
@@ -53,9 +72,20 @@ public class DashboardAiTextPromptService {
                     Return the corrected text in the same language as the input.
                     Return only the corrected text.
 
-                    Text:
                     %s
-                    """.formatted(request.text());
+
+                    Untrusted content block:
+                    %s
+                    """.formatted(
+                            AiPromptContentGuard.contentRules(
+                                    "text",
+                                    "as text to correct"
+                            ),
+                            AiPromptContentGuard.wrap(
+                                    "USER_TEXT",
+                                    request.text()
+                            )
+                    );
 
             case REWRITE -> """
                     Rewrite the following text in a clearer, better, and more polished way.
@@ -64,9 +94,20 @@ public class DashboardAiTextPromptService {
                     Return the rewritten text in the same language as the input.
                     Return only the rewritten text.
 
-                    Text:
                     %s
-                    """.formatted(request.text());
+
+                    Untrusted content block:
+                    %s
+                    """.formatted(
+                            AiPromptContentGuard.contentRules(
+                                    "text",
+                                    "as text to rewrite"
+                            ),
+                            AiPromptContentGuard.wrap(
+                                    "USER_TEXT",
+                                    request.text()
+                            )
+                    );
 
             case SUMMARIZE -> """
                     Summarize the following text clearly and briefly.
@@ -75,9 +116,20 @@ public class DashboardAiTextPromptService {
                     Return the summary in the same language as the input.
                     Return only the summary.
 
-                    Text:
                     %s
-                    """.formatted(request.text());
+
+                    Untrusted content block:
+                    %s
+                    """.formatted(
+                            AiPromptContentGuard.contentRules(
+                                    "text",
+                                    "as text to summarize"
+                            ),
+                            AiPromptContentGuard.wrap(
+                                    "USER_TEXT",
+                                    request.text()
+                            )
+                    );
 
             case EXPAND -> """
                     Expand the following text with more explanation and clarity.
@@ -87,9 +139,20 @@ public class DashboardAiTextPromptService {
                     Return the expanded text in the same language as the input.
                     Return only the expanded text.
 
-                    Text:
                     %s
-                    """.formatted(request.text());
+
+                    Untrusted content block:
+                    %s
+                    """.formatted(
+                            AiPromptContentGuard.contentRules(
+                                    "text",
+                                    "as text to expand"
+                            ),
+                            AiPromptContentGuard.wrap(
+                                    "USER_TEXT",
+                                    request.text()
+                            )
+                    );
 
             case FORMAT_EQUATION -> """
                 You are a strictly passive text-to-LaTeX converter. Convert the provided mathematical, chemical, or physical expression into raw LaTeX wrapped in double dollar signs ($$...$$) for display mode.
@@ -106,8 +169,20 @@ public class DashboardAiTextPromptService {
                 Input: "delta = b^2 - ac" -> Output: "$$\\Delta = b^2 - ac$$"
                 Input: "sequence of (x^2 / (2x+1))" -> Output: "$$\\left( \\frac{x^2}{2x+1} \\right)$$"
                 
-                Expression to convert: %s
-                """.formatted(request.text());
+                %s
+
+                Expression to convert:
+                %s
+                """.formatted(
+                        AiPromptContentGuard.contentRules(
+                                "text",
+                                "as expression text to convert"
+                        ),
+                        AiPromptContentGuard.wrap(
+                                "USER_TEXT",
+                                request.text()
+                        )
+                );
 
             case CHANGE_TONE -> """
                     Rewrite the following text using this tone: %s.
@@ -116,9 +191,21 @@ public class DashboardAiTextPromptService {
                     Return the rewritten text in the same language as the input.
                     Return only the rewritten text.
 
-                    Text:
                     %s
-                    """.formatted(toToneInstruction(request.tone()), request.text());
+
+                    Untrusted content block:
+                    %s
+                    """.formatted(
+                            toToneInstruction(request.tone()),
+                            AiPromptContentGuard.contentRules(
+                                    "text",
+                                    "as text to rewrite"
+                            ),
+                            AiPromptContentGuard.wrap(
+                                    "USER_TEXT",
+                                    request.text()
+                            )
+                    );
         };
     }
 
@@ -137,6 +224,5 @@ public class DashboardAiTextPromptService {
             case MOTIVATIONAL -> "motivational and encouraging";
         };
     }
-
 
 }
