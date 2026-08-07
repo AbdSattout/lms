@@ -3,11 +3,32 @@ export interface BaseEntityResponse {
   updatedAt: string
 }
 
+export interface Plan {
+  planId: number
+  code: string
+  name: string
+  premium: boolean
+  dailyAiToolLimit: number
+  weeklyAiQuizLimit: number
+  weeklyCourseEnrollmentLimit: number
+  activeRoadmapFollowLimit: number
+  randomQuizPerCourseLimit: number
+  organizationLimit: number
+  organizationCourseLimit: number
+  organizationStorageLimitBytes: number
+  xpMultiplier: number
+  startedAt: string
+  expiresAt: string | null
+}
+
 export interface User {
   id: number
   name?: string
   username?: string
   picture?: string
+  email?: string | null
+  plan?: Plan | null
+  subscription?: unknown | null
 }
 
 export interface AuthResponse {
@@ -368,7 +389,7 @@ export interface OrganizationInviteOrgResponse {
   name: string
   slug: string
   description?: string
-  imageUrl?: string // Note: imageUrl, not image
+  imageUrl?: string
   visibility: OrganizationVisibility
   owner?: OrganizationInviteOwnerResponse
 }
