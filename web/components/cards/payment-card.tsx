@@ -29,7 +29,6 @@ export default function PaymentCards({
 }: {
   initialUser: User | null
 }) {
-  // Pre-load from passed server arguments immediately. Instantly visible.
   const [user, setUser] = useState<User | null>(initialUser)
 
   const [loading, setLoading] = useState(false)
@@ -73,12 +72,11 @@ export default function PaymentCards({
       if (error) return setRevokeError(error)
 
       if (success) {
-        // Safe backend fresh pulls natively mapping interface data returns!
         const { user } = await getUserSubscriptionStatus()
         setUser(user)
         setShowRevokeConfirm(false)
       }
-    } catch (error) {
+    } catch {
       setRevokeError("حدث خطأ غير متوقع")
     } finally {
       setRevokeLoading(false)
@@ -126,7 +124,6 @@ export default function PaymentCards({
 
           <hr className="my-5 border-gray-100 dark:border-gray-800/80" />
 
-          {/* Compressed Spacing Layout features lines block block  */}
           <div className="flex-1 space-y-[10px]">
             <FeatureItem
               icon={Zap}
@@ -152,7 +149,6 @@ export default function PaymentCards({
           </div>
         </div>
 
-        {/* Premium Scaling Plan constraints block map  */}
         <div
           className={`relative flex flex-col rounded-[1.25rem] border-[1.5px] p-5 shadow-lg transition-all sm:p-6 ${
             isPremium
@@ -224,8 +220,7 @@ export default function PaymentCards({
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-1.5">
-                    <Loader2 className="h-4 w-4 animate-spin" /> التحميل
-                    للخطوة...
+                    <Loader2 className="h-4 w-4 animate-spin" /> جاري التحميل...
                   </span>
                 ) : (
                   "اشترك في المميزة"
@@ -301,7 +296,6 @@ export default function PaymentCards({
         </div>
       </div>
 
-      {/* Confirmation Overlays block safely attached properly below limits strictly sizing boundaries  */}
       {showRevokeConfirm && (
         <div className="fixed inset-0 z-50 flex animate-in items-center justify-center bg-black/60 p-4 backdrop-blur-sm duration-200 fade-in">
           <div className="w-full max-w-[28rem] overflow-hidden rounded-3xl bg-white shadow-2xl transition-all dark:bg-gray-900">
@@ -392,7 +386,6 @@ function FeatureItem({
     : "text-gray-400 dark:text-gray-500"
 
   return (
-    // Completely squeezed line row sizes matching UI spacing!
     <div className="flex items-center gap-[9px]">
       <div
         className={`flex shrink-0 items-center justify-center rounded-full p-[3px] shadow-sm ${checkBg}`}

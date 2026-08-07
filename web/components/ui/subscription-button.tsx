@@ -26,7 +26,7 @@ export function SubscriptionButton() {
       className="relative inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-yellow-500 px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:from-amber-600 hover:to-yellow-600 hover:shadow-xl"
     >
       <Crown className="h-4 w-4" />
-      {isPremium ? "Premium" : "ترقية"}
+      {isPremium ? "مفعل" : "ترقية"}
     </Link>
   )
 }
