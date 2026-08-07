@@ -80,9 +80,6 @@ class _CourseDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isEnrolled = course.enrollment != null;
-    // Three states: null (backend hasn't exposed this yet - don't
-    // block), false (confirmed not a member - show View Organization
-    // instead of Enroll), true (member - normal Enroll flow).
     final viewerJoined = course.organization?.viewerJoined;
     final isBlockedByMembership = !isEnrolled && viewerJoined == false;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
@@ -250,7 +247,7 @@ class _CourseDetailsContent extends StatelessWidget {
         Positioned(
           left: 20,
           right: 20,
-          bottom: 1,
+          bottom: 20,
           child: SafeArea(
             top: false,
             child: Column(
@@ -260,16 +257,7 @@ class _CourseDetailsContent extends StatelessWidget {
                   height: 56,
                   child: ElevatedButton.icon(
                     onPressed: isBlockedByMembership
-                        ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OrganizationDetailsPage(
-                            slug: course.organization!.slug,
-                          ),
-                        ),
-                      );
-                    }
+                        ? () => _showMembershipRequiredDialog(context, course)
                         : isEnrolled
                         ? () {
                       Navigator.push(
@@ -288,19 +276,13 @@ class _CourseDetailsContent extends StatelessWidget {
                       elevation: 4,
                     ),
                     icon: Icon(
-                      isBlockedByMembership
-                          ? Icons.apartment_rounded
-                          : isEnrolled
+                      isEnrolled
                           ? Icons.play_circle_fill_rounded
                           : Icons.rocket_launch_rounded,
                       color: Colors.white,
                     ),
                     label: Text(
-                      isBlockedByMembership
-                          ? 'عرض المنظمة'
-                          : isEnrolled
-                          ? 'متابعة'
-                          : 'سجّل الآن',
+                      isEnrolled ? 'متابعة' : 'سجّل الآن',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -359,6 +341,40 @@ class _CourseDetailsContent extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         child: Icon(icon, size: 18, color: AppColors.dark),
+      ),
+    );
+  }
+
+  void _showMembershipRequiredDialog(BuildContext context, CourseEntity course) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('يجب الانضمام إلى المنظمة أولاً'),
+        content: Text(
+          course.organizationDisplayName != null
+              ? 'التسجيل في هذا الكورس يتطلب أن تكون عضواً في "${course.organizationDisplayName}".'
+              : 'التسجيل في هذا الكورس يتطلب عضوية المنظمة المالكة له.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('إلغاء'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => OrganizationDetailsPage(
+                    slug: course.organization!.slug,
+                  ),
+                ),
+              );
+            },
+            child: const Text('عرض المنظمة'),
+          ),
+        ],
       ),
     );
   }

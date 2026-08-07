@@ -31,4 +31,9 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
   Future<void> cancelJoinRequest(String slug) {
     return remote.cancelJoinRequest(slug);
   }
+
+  @override
+  Future<void> deleteOrganization(String slug) {
+    return remote.deleteOrganization(slug);
+  }
 }

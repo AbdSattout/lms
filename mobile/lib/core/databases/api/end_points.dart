@@ -46,6 +46,7 @@ class EndPoints {
   static String organizationBySlug(String slug) => 'organizations/$slug';
   static String organizationJoin(String slug) => 'organizations/$slug/join';
   static String organizationLeave(String slug) => 'organizations/$slug/leave';
+  static String deleteOrganizationDashboard(String slug) => 'organizations/$slug/leave';
 
   static String organizationCourses(String orgSlug) =>
       'organizations/$orgSlug/courses';
@@ -58,4 +59,10 @@ class EndPoints {
   // Blocks
   static String blockContent(int blockId) => 'blocks/$blockId';
   static String submitBlockAnswer(int blockId) => 'blocks/$blockId/submit';
+
+  // Gamification
+  static const String gamificationMe = 'gamification/me';
+  static const String gamificationStreak = 'gamification/streak';
+  static const String gamificationActivity = 'gamification/activity';
+  static const String gamificationScoreboard = 'gamification/scoreboard';
 }
