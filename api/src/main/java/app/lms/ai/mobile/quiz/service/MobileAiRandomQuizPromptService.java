@@ -1,5 +1,6 @@
 package app.lms.ai.mobile.quiz.service;
 
+import app.lms.ai.common.prompt.AiPromptContentGuard;
 import app.lms.question.model.Question;
 import org.springframework.stereotype.Service;
 
@@ -22,23 +23,46 @@ public class MobileAiRandomQuizPromptService {
                 - Keep the same number of options as the source question.
                 - The correct option must keep the same meaning as the original correct option.
                 - Return only structured data.
-                """;
+
+                %s
+                """.formatted(
+                AiPromptContentGuard.systemRules(
+                        "the provided source questions",
+                        "as source material for rewriting the practice quiz"
+                )
+        );
     }
 
     public String buildPrompt(
             List<Question> questions
     ) {
-
-        StringBuilder builder =
-                new StringBuilder();
-
-        builder.append("""
+        return """
                 Rewrite these 10 source questions into a new practice quiz.
                 For each item, include the sourceQuestionId.
-                
-                Source questions:
-                
-                """);
+
+                %s
+
+                Untrusted source questions:
+                %s
+                """.formatted(
+                AiPromptContentGuard.contentRules(
+                        "source questions",
+                        "as source material for rewriting the practice quiz"
+                ),
+                AiPromptContentGuard.wrap(
+                        "SOURCE_QUESTIONS",
+                        buildSourceQuestions(
+                                questions
+                        )
+                )
+        );
+    }
+
+    private String buildSourceQuestions(
+            List<Question> questions
+    ) {
+        StringBuilder builder =
+                new StringBuilder();
 
         for (Question question : questions) {
 

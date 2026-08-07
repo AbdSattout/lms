@@ -109,9 +109,7 @@ public class OrganizationInviteService {
         OrganizationInvite invite = organizationInviteRepository.findById(inviteId)
                 .orElseThrow(() -> new NotFoundException("Invite not found"));
 
-        if (!invite.getOrganization().getId().equals(organization.getId())) {
-            throw new BadRequestException("Invalid invite");
-        }
+        validateInviteOrganization(invite, organization);
 
         if (invite.getStatus() == InviteStatus.ACCEPTED) {
             throw new BadRequestException("User has already accepted the invitation");
@@ -196,9 +194,7 @@ public class OrganizationInviteService {
         OrganizationInvite invite = organizationInviteRepository.findById(inviteId)
                 .orElseThrow(() -> new NotFoundException("Invite not found"));
 
-        if (!invite.getOrganization().getId().equals(organization.getId())) {
-            throw new BadRequestException("Invalid invite");
-        }
+        validateInviteOrganization(invite, organization);
 
         if (invite.getUser() != null) {
             throw new BadRequestException("Cannot change capacity for a personal invite");
@@ -226,6 +222,29 @@ public class OrganizationInviteService {
     public void acceptInvite(String token, User currentUser) {
         OrganizationInvite invite = findInvite(token);
 
+        acceptInvite(invite, currentUser);
+    }
+
+    @Transactional
+    public void acceptInvite(
+            String slug,
+            Long inviteId,
+            User currentUser
+    ) {
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
+
+        OrganizationInvite invite = findInvite(inviteId);
+
+        validateInviteOrganization(invite, organization);
+        validatePersonalInvite(invite);
+        acceptInvite(invite, currentUser);
+    }
+
+    private void acceptInvite(
+            OrganizationInvite invite,
+            User currentUser
+    ) {
         organizationAccessService.validateUserNotBannedFromOrg(
                 invite.getOrganization(),
                 currentUser
@@ -305,6 +324,29 @@ public class OrganizationInviteService {
         OrganizationInvite invite =
                 findInvite(token);
 
+        decline(invite, currentUser);
+    }
+
+    @Transactional
+    public void decline(
+            String slug,
+            Long inviteId,
+            User currentUser
+    ) {
+        Organization organization =
+                organizationAccessService.getBySlug(slug);
+
+        OrganizationInvite invite = findInvite(inviteId);
+
+        validateInviteOrganization(invite, organization);
+        decline(invite, currentUser);
+    }
+
+    private void decline(
+            OrganizationInvite invite,
+            User currentUser
+    ) {
+
         if (invite.getUser() == null) {
             throw new BadRequestException(
                     "Public invite cannot be declined"
@@ -345,11 +387,7 @@ public class OrganizationInviteService {
                                         "Invite not found"
                                 ));
 
-        if (!invite.getOrganization().getId().equals(organization.getId())) {
-            throw new BadRequestException(
-                    "Invalid invite"
-            );
-        }
+        validateInviteOrganization(invite, organization);
 
         if (invite.getStatus() != InviteStatus.PENDING) {
             throw new BadRequestException(
@@ -371,6 +409,41 @@ public class OrganizationInviteService {
         );
 
         return invite;
+    }
+
+    private OrganizationInvite findInvite(Long inviteId) {
+        OrganizationInvite invite =
+                organizationInviteRepository.findById(inviteId)
+                        .orElseThrow(() -> new NotFoundException("Invite not found"));
+
+        organizationAccessService.validateNotBanned(
+                invite.getOrganization()
+        );
+
+        return invite;
+    }
+
+    private void validateInviteOrganization(
+            OrganizationInvite invite,
+            Organization organization
+    ) {
+
+        if (!invite.getOrganization().getId().equals(organization.getId())) {
+            throw new BadRequestException(
+                    "Invalid invite"
+            );
+        }
+    }
+
+    private void validatePersonalInvite(
+            OrganizationInvite invite
+    ) {
+
+        if (invite.getUser() == null) {
+            throw new BadRequestException(
+                    "Public invite must be accepted with token"
+            );
+        }
     }
 
     private void validateInviteOwner(OrganizationInvite invite, User currentUser) {

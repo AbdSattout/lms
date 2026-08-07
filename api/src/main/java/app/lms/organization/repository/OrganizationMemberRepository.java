@@ -50,6 +50,18 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
     @Query("""
             select member
             from OrganizationMember member
+            join fetch member.organization
+            where member.organization.id in :organizationIds
+            and member.user.id = :userId
+            """)
+    List<OrganizationMember> findAllByOrganizationIdsAndUserId(
+            @Param("organizationIds") Collection<Long> organizationIds,
+            @Param("userId") Long userId
+    );
+
+    @Query("""
+            select member
+            from OrganizationMember member
             join fetch member.organization organization
             where member.user.id = :userId
             and not exists (
