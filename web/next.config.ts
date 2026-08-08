@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   typedRoutes: true,
   cacheComponents: true,
+  partialPrefetching: true,
   images: {
     remotePatterns: [
       new URL("https://t.me/i/userpic/**"),
@@ -14,6 +15,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    turbopackRustReactCompiler: true,
     instantInsights: {
       validationLevel: "manual-warning",
     },
