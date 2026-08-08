@@ -50,6 +50,14 @@ import '../../features/auth/domain/usecases/request_email_otp.dart';
 import '../../features/auth/domain/usecases/verify_email_otp.dart';
 import '../../features/auth/domain/usecases/check_cached_auth_usecase.dart'; // ADD THIS
 import '../../features/auth/domain/usecases/logout_usecase.dart'; // ADD THIS
+import '../../features/billing/data/datasources/billing_remote_datasource.dart';
+import '../../features/billing/data/repositories/billing_repository_impl.dart';
+import '../../features/billing/domain/repositories/billing_repository.dart';
+import '../../features/billing/domain/usecases/create_checkout_session_usecase.dart';
+import '../../features/billing/domain/usecases/create_portal_session_usecase.dart';
+import '../../features/billing/domain/usecases/get_billing_user_usecase.dart';
+import '../../features/billing/domain/usecases/revoke_subscription_usecase.dart';
+import '../../features/billing/presentation/bloc/billing_bloc.dart';
 //Courses Feature
 import 'package:lms/features/courses/data/datasources/course_remote_datasource.dart';
 import 'package:lms/features/courses/data/repositories/course_repository_impl.dart';
@@ -82,6 +90,7 @@ import '../../features/gamification/domain/usecases/get_activity_usecase.dart';
 import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart';
 import '../../features/gamification/presentation/bloc/gamification_bloc.dart';
 
+import 'external_url_launcher.dart';
 import '../theme/theme_cubit.dart';
 
 final sl = GetIt.instance;
@@ -126,6 +135,26 @@ Future<void> init() async {
     ),
   );
   sl.registerLazySingleton(() => AuthLocalDataSource(cache: sl()));
+
+  // Billing
+  sl.registerLazySingleton<BillingRemoteDataSource>(
+    () => BillingRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<BillingRepository>(
+    () => BillingRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetBillingUserUseCase(sl()));
+  sl.registerLazySingleton(() => CreateCheckoutSessionUseCase(sl()));
+  sl.registerLazySingleton(() => CreatePortalSessionUseCase(sl()));
+  sl.registerLazySingleton(() => RevokeSubscriptionUseCase(sl()));
+  sl.registerFactory(
+    () => BillingBloc(
+      getBillingUserUseCase: sl(),
+      createCheckoutSessionUseCase: sl(),
+      createPortalSessionUseCase: sl(),
+      revokeSubscriptionUseCase: sl(),
+    ),
+  );
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
@@ -299,4 +328,5 @@ Future<void> init() async {
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton<GoogleSignIn>(() => GoogleSignIn.instance);
   sl.registerLazySingleton(() => DataConnectionChecker());
+  sl.registerLazySingleton(() => ExternalUrlLauncher());
 }

@@ -11,7 +11,8 @@ class LeaderboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<GamificationBloc>()..add( LoadLeaderboard(period: 'WEEKLY')),
+      create: (_) =>
+          sl<GamificationBloc>()..add(LoadLeaderboard(period: 'WEEKLY')),
       child: const _LeaderboardView(),
     );
   }
@@ -77,7 +78,10 @@ class _LeaderboardViewState extends State<_LeaderboardView>
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: colors.onPrimary,
                 unselectedLabelColor: colors.onSurfaceVariant,
-                labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
                 dividerColor: Colors.transparent,
                 tabs: const [
                   Tab(text: 'أسبوعي'),
@@ -102,8 +106,12 @@ class _LeaderboardViewState extends State<_LeaderboardView>
                   const SizedBox(height: 12),
                   ElevatedButton(
                     onPressed: () {
-                      final period = _tabController.index == 0 ? 'WEEKLY' : 'MONTHLY';
-                      context.read<GamificationBloc>().add(LoadLeaderboard(period: period));
+                      final period = _tabController.index == 0
+                          ? 'WEEKLY'
+                          : 'MONTHLY';
+                      context.read<GamificationBloc>().add(
+                        LoadLeaderboard(period: period),
+                      );
                     },
                     child: const Text('إعادة المحاولة'),
                   ),
@@ -187,7 +195,7 @@ class _Podium extends StatelessWidget {
     final third = leaders[2];
 
     return SizedBox(
-      height: 180,
+      height: 260,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -230,7 +238,9 @@ class _PodiumCard extends StatelessWidget {
           CircleAvatar(
             radius: 24,
             backgroundColor: colors.primary.withOpacity(0.1),
-            backgroundImage: picture != null && picture.isNotEmpty ? NetworkImage(picture) : null,
+            backgroundImage: picture != null && picture.isNotEmpty
+                ? NetworkImage(picture)
+                : null,
             child: picture == null || picture.isEmpty
                 ? Icon(Icons.person, color: colors.primary)
                 : null,
@@ -245,7 +255,11 @@ class _PodiumCard extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             '${entry.xp} XP',
-            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: colors.primary),
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: colors.primary,
+            ),
           ),
           const SizedBox(height: 8),
           Container(
@@ -260,12 +274,18 @@ class _PodiumCard extends StatelessWidget {
                   medalColors[rank - 1].withOpacity(0.3),
                 ],
               ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
             ),
             child: Center(
               child: Text(
                 '#$rank',
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -293,7 +313,9 @@ class _LeaderboardTile extends StatelessWidget {
         color: isMe ? colors.primary.withOpacity(0.08) : colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isMe ? colors.primary.withOpacity(0.3) : colors.outlineVariant.withOpacity(0.5),
+          color: isMe
+              ? colors.primary.withOpacity(0.3)
+              : colors.outlineVariant.withOpacity(0.5),
         ),
       ),
       child: Row(
@@ -305,7 +327,9 @@ class _LeaderboardTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: entry.rank <= 3 ? colors.primary : colors.onSurfaceVariant,
+                color: entry.rank <= 3
+                    ? colors.primary
+                    : colors.onSurfaceVariant,
               ),
             ),
           ),
@@ -313,7 +337,9 @@ class _LeaderboardTile extends StatelessWidget {
           CircleAvatar(
             radius: 20,
             backgroundColor: colors.primary.withOpacity(0.1),
-            backgroundImage: picture != null && picture.isNotEmpty ? NetworkImage(picture) : null,
+            backgroundImage: picture != null && picture.isNotEmpty
+                ? NetworkImage(picture)
+                : null,
             child: picture == null || picture.isEmpty
                 ? Icon(Icons.person, color: colors.primary)
                 : null,
@@ -325,14 +351,21 @@ class _LeaderboardTile extends StatelessWidget {
               children: [
                 Text(
                   entry.name ?? '',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: colors.onSurface),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                    color: colors.onSurface,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   'المستوى ${entry.levelNumber} · ${entry.levelTitle}',
-                  style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),
@@ -340,12 +373,18 @@ class _LeaderboardTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isMe ? colors.primary.withOpacity(0.15) : colors.primary.withOpacity(0.1),
+              color: isMe
+                  ? colors.primary.withOpacity(0.15)
+                  : colors.primary.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
               '${entry.xp} XP',
-              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: colors.primary),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: colors.primary,
+              ),
             ),
           ),
           if (isMe) ...[
