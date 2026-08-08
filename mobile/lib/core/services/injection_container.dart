@@ -27,9 +27,12 @@ import '../../features/organizations/presentation/bloc/organization_details_bloc
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/usecases/get_current_account_email_usecase.dart';
 import '../../features/profile/domain/usecases/get_profile_usecase.dart';
+import '../../features/profile/domain/usecases/request_account_email_otp_usecase.dart';
 import '../../features/profile/domain/usecases/update_profile_picture_usecase.dart';
 import '../../features/profile/domain/usecases/update_profile_usecase.dart';
+import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
@@ -150,14 +153,20 @@ Future<void> init() async {
   );
 
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
+  sl.registerLazySingleton(() => GetCurrentAccountEmailUseCase(sl()));
   sl.registerLazySingleton(() => UpdateProfilePictureUseCase(sl()));
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(() => RequestAccountEmailOtpUseCase(sl()));
+  sl.registerLazySingleton(() => VerifyAccountEmailOtpUseCase(sl()));
 
   sl.registerFactory(
     () => ProfileBloc(
       getProfileUseCase: sl(),
+      getCurrentAccountEmailUseCase: sl(),
       updatePictureUseCase: sl(),
       updateProfileUseCase: sl(),
+      requestAccountEmailOtpUseCase: sl(),
+      verifyAccountEmailOtpUseCase: sl(),
     ),
   );
 

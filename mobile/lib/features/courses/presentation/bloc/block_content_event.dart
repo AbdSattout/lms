@@ -10,3 +10,5 @@ class SubmitBlockAnswerEvent extends BlockContentEvent {
   final int answerIndex;
   SubmitBlockAnswerEvent({required this.blockId, required this.answerIndex});
 }
+
+class ContinueAfterCorrectAnswerEvent extends BlockContentEvent {}

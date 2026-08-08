@@ -34,7 +34,13 @@ class EndPoints {
 
   static const String profile = 'profile/me';
 
+  static const String currentUser = 'users/me';
+
   static const String updateProfilePicture = 'users/me/picture';
+
+  static const String requestAccountEmailOtp = 'users/me/email/request-otp';
+
+  static const String verifyAccountEmailOtp = 'users/me/email/verify-otp';
 
   // Courses
   static const String courses = 'courses';
