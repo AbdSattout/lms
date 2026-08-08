@@ -109,4 +109,10 @@ public interface CourseEnrollmentRepository
             Long userId
     );
 
+    boolean existsByCourseIdAndUserIdAndStatusIn(
+            Long courseId,
+            Long userId,
+            List<EnrollmentStatus> statuses
+    );
+
 }
