@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
 import 'package:lms/features/profile/presentation/pages/profile_page.dart';
 
@@ -142,25 +143,14 @@ class MainHomeScreen extends StatelessWidget {
     VoidCallback? onTap,
   }) {
     final colors = Theme.of(context).colorScheme;
-    bool hasValidImage =
-        user.picture != null && user.picture.toString().startsWith('http');
-    return GestureDetector(
+    return ResilientNetworkAvatar(
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Theme.of(context).dividerColor,
-            width: isHome ? 2 : 4,
-          ),
-        ),
-        child: CircleAvatar(
-          radius: radius,
-          backgroundColor: colors.surfaceContainerHighest,
-          backgroundImage: hasValidImage
-              ? NetworkImage(user.picture)
-              : const AssetImage('assets/images/user.png') as ImageProvider,
-        ),
+      radius: radius,
+      imageUrl: user.picture?.toString(),
+      backgroundColor: colors.surfaceContainerHighest,
+      border: Border.all(
+        color: Theme.of(context).dividerColor,
+        width: isHome ? 2 : 4,
       ),
     );
   }
@@ -173,6 +163,7 @@ class _HomeContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      top: false,
       bottom: false,
       child: CustomScrollView(
         slivers: [
