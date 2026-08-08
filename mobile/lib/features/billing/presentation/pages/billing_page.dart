@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -709,43 +708,54 @@ class _BillingStatusCard extends StatelessWidget {
     final isRevoked = isPremium && user.isSubscriptionRevoked;
     final subscription = user.subscription;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final useLightText = isPremium || isRevoked || isDark;
+    final colors = Theme.of(context).colorScheme;
+    final useAccentSurface = isPremium || isRevoked;
     final accent = isRevoked
         ? Colors.red
         : isPremium
         ? Colors.green
         : AppColors.primary;
-    final headerSurfaceColor = Colors.white.withValues(
-      alpha: useLightText ? 0.18 : 0.80,
-    );
-    final headerSurfaceBorder = Colors.white.withValues(
-      alpha: useLightText ? 0.26 : 0.30,
-    );
-    final headerForeground = useLightText ? Colors.white : AppColors.primary;
+    final foreground = useAccentSurface ? Colors.white : colors.onSurface;
+    final muted = useAccentSurface
+        ? Colors.white.withValues(alpha: 0.72)
+        : colors.onSurfaceVariant;
+    final cardColor = useAccentSurface
+        ? null
+        : isDark
+        ? Theme.of(context).cardColor
+        : AppColors.primaryLight;
+    final panelColor = useAccentSurface
+        ? Colors.white.withValues(alpha: 0.14)
+        : Colors.white.withValues(alpha: isDark ? 0.06 : 0.72);
+    final panelBorderColor = useAccentSurface
+        ? Colors.white.withValues(alpha: 0.16)
+        : Colors.white.withValues(alpha: isDark ? 0.08 : 0.34);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            accent,
-            isRevoked
-                ? const Color(0xff991B1B)
-                : isPremium
-                ? const Color(0xff10B981)
-                : isDark
-                ? AppColors.primary.withValues(alpha: 0.50)
-                : AppColors.primaryLight,
-          ],
+        color: cardColor,
+        gradient: useAccentSurface
+            ? LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  accent,
+                  isRevoked ? const Color(0xff991B1B) : const Color(0xff10B981),
+                ],
+              )
+            : null,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: useAccentSurface
+              ? Colors.white.withValues(alpha: 0.12)
+              : accent.withValues(alpha: isDark ? 0.18 : 0.10),
         ),
-        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: accent.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: accent.withValues(alpha: isDark ? 0.12 : 0.14),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -755,12 +765,12 @@ class _BillingStatusCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
-                  color: headerSurfaceColor,
-                  borderRadius: BorderRadius.circular(17),
-                  border: Border.all(color: headerSurfaceBorder),
+                  color: panelColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: panelBorderColor),
                 ),
                 child: Icon(
                   isPremium
@@ -768,8 +778,8 @@ class _BillingStatusCard extends StatelessWidget {
                       : isRevoked
                       ? Icons.cancel_outlined
                       : Icons.school_outlined,
-                  color: headerForeground,
-                  size: 30,
+                  color: useAccentSurface ? Colors.white : accent,
+                  size: 29,
                 ),
               ),
               const SizedBox(width: 14),
@@ -777,21 +787,23 @@ class _BillingStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: _CurrentPlanLabel(
-                        text: 'خطتك الحالية',
-                        accent: accent,
-                        isOnStrongBackground: useLightText,
+                    Text(
+                      'خطتك الحالية',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: muted,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 3),
                     Text(
                       _planName(user),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: useLightText ? Colors.white : AppColors.dark,
+                        color: foreground,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -799,13 +811,14 @@ class _BillingStatusCard extends StatelessWidget {
                   ],
                 ),
               ),
-              _StatusPill(
+              _PlanHeaderBadge(
                 text: isRevoked
                     ? 'Revoked'
                     : isPremium
                     ? 'Premium'
                     : 'Free',
-                foreground: accent,
+                accent: accent,
+                isOnAccentSurface: useAccentSurface,
               ),
             ],
           ),
@@ -813,39 +826,41 @@ class _BillingStatusCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: useLightText ? 0.16 : 0.80),
+              color: panelColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.white.withValues(
-                  alpha: useLightText ? 0.16 : 0.30,
-                ),
-              ),
+              border: Border.all(color: panelBorderColor),
             ),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
+            child: Row(
               children: [
-                _StatusMetric(
-                  icon: Icons.verified_user_outlined,
-                  title: 'الحالة',
-                  value: _subscriptionStatus(user, subscription),
-                  isInverted: useLightText,
+                Expanded(
+                  child: _StatusMetric(
+                    icon: Icons.verified_user_outlined,
+                    title: 'الحالة',
+                    value: _subscriptionStatus(user, subscription),
+                    isInverted: useAccentSurface,
+                  ),
                 ),
-                _StatusMetric(
-                  icon: Icons.event_available_rounded,
-                  title: 'المدة',
-                  value: _periodLabel(isPremium ? subscription : null),
-                  isInverted: useLightText,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _StatusMetric(
+                    icon: Icons.event_available_rounded,
+                    title: 'المدة',
+                    value: _periodLabel(isPremium ? subscription : null),
+                    isInverted: useAccentSurface,
+                  ),
                 ),
-                _StatusMetric(
-                  icon: Icons.payments_outlined,
-                  title: 'الدفع',
-                  value: isRevoked
-                      ? 'ملغى'
-                      : isPremium
-                      ? 'مفعل'
-                      : 'غير مفعل',
-                  isInverted: useLightText,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _StatusMetric(
+                    icon: Icons.payments_outlined,
+                    title: 'الدفع',
+                    value: isRevoked
+                        ? 'ملغى'
+                        : isPremium
+                        ? 'مفعل'
+                        : 'غير مفعل',
+                    isInverted: useAccentSurface,
+                  ),
                 ),
               ],
             ),
@@ -856,7 +871,7 @@ class _BillingStatusCard extends StatelessWidget {
               minHeight: 3,
               borderRadius: BorderRadius.circular(99),
               backgroundColor: Colors.white.withValues(alpha: 0.20),
-              color: useLightText ? Colors.white : AppColors.primary,
+              color: useAccentSurface ? Colors.white : AppColors.primary,
             ),
           ],
         ],
@@ -967,62 +982,42 @@ class _StatusMetric extends StatelessWidget {
   }
 }
 
-class _CurrentPlanLabel extends StatelessWidget {
+class _PlanHeaderBadge extends StatelessWidget {
   final String text;
   final Color accent;
-  final bool isOnStrongBackground;
+  final bool isOnAccentSurface;
 
-  const _CurrentPlanLabel({
+  const _PlanHeaderBadge({
     required this.text,
     required this.accent,
-    required this.isOnStrongBackground,
+    required this.isOnAccentSurface,
   });
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isOnStrongBackground
-        ? Colors.white.withValues(alpha: 0.94)
-        : accent.withValues(alpha: 0.92);
-    final backgroundAlpha = isOnStrongBackground ? 0.14 : 0.34;
-    final borderColor = isOnStrongBackground
-        ? Colors.white.withValues(alpha: 0.24)
-        : Colors.white.withValues(alpha: 0.46);
+    final foreground = isOnAccentSurface ? Colors.white : accent;
+    final background = isOnAccentSurface
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.white.withValues(alpha: 0.72);
+    final borderColor = isOnAccentSurface
+        ? Colors.white.withValues(alpha: 0.20)
+        : Colors.white.withValues(alpha: 0.36);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 10, 4),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: backgroundAlpha),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: borderColor),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: 0.08),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.check_rounded, color: foreground, size: 13),
-              const SizedBox(width: 5),
-              Text(
-                text,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: foreground,
-                  fontSize: 11.5,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: borderColor),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: foreground,
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
         ),
       ),
     );
