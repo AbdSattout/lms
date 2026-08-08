@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class ResilientNetworkAvatar extends StatefulWidget {
   final String? imageUrl;
   final double radius;
-  final String fallbackAsset;
+  final String? fallbackLabel;
   final Color? backgroundColor;
   final BoxBorder? border;
   final VoidCallback? onTap;
@@ -14,7 +14,7 @@ class ResilientNetworkAvatar extends StatefulWidget {
     super.key,
     required this.imageUrl,
     required this.radius,
-    this.fallbackAsset = 'assets/images/user.png',
+    this.fallbackLabel,
     this.backgroundColor,
     this.border,
     this.onTap,
@@ -86,9 +86,11 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
   }
 
   Widget _networkImage(String url) {
+    final requestedUrl = _retryUrl(url);
+
     return Image.network(
-      url,
-      key: ValueKey('$url:$_retryToken'),
+      requestedUrl,
+      key: ValueKey(requestedUrl),
       fit: BoxFit.cover,
       gaplessPlayback: true,
       loadingBuilder: (context, child, progress) {
@@ -107,19 +109,55 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
         return _fallbackImage();
       },
       errorBuilder: (context, error, stackTrace) {
-        _handleImageError(url);
+        _handleImageError(url, requestedUrl);
         return _fallbackImage();
       },
     );
   }
 
   Widget _fallbackImage() {
-    return Image.asset(widget.fallbackAsset, fit: BoxFit.cover);
+    final colors = Theme.of(context).colorScheme;
+    final initial = _fallbackInitial(widget.fallbackLabel);
+    final foreground = colors.primary;
+    final background =
+        widget.backgroundColor ?? colors.primary.withValues(alpha: 0.10);
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            background,
+            foreground.withValues(alpha: 0.16),
+          ],
+        ),
+      ),
+      child: Center(
+        child: initial == null
+            ? Icon(
+                Icons.person_rounded,
+                color: foreground,
+                size: widget.radius * 1.05,
+              )
+            : Text(
+                initial,
+                maxLines: 1,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: widget.radius * 0.95,
+                  fontWeight: FontWeight.w900,
+                  height: 1,
+                ),
+              ),
+      ),
+    );
   }
 
-  void _handleImageError(String url) {
-    final provider = NetworkImage(url);
-    provider.evict();
+  void _handleImageError(String url, String requestedUrl) {
+    NetworkImage(url).evict();
+    NetworkImage(requestedUrl).evict();
 
     if (!_hasImageError) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -132,7 +170,7 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
     _retryTimer ??= Timer(_retryDelay, () {
       _retryTimer = null;
       if (mounted && _normalizedUrl(widget.imageUrl) == url) {
-        provider.evict();
+        NetworkImage(url).evict();
         setState(() => _retryToken++);
       }
     });
@@ -148,6 +186,23 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
     }
 
     setState(() => _retryToken++);
+  }
+
+  String _retryUrl(String url) {
+    if (_retryToken == 0 || _retryToken.isEven) return url;
+
+    final uri = Uri.parse(url);
+    final queryParameters = Map<String, String>.from(uri.queryParameters);
+    queryParameters['_lmsAvatarRetry'] = _retryToken.toString();
+
+    return uri.replace(queryParameters: queryParameters).toString();
+  }
+
+  String? _fallbackInitial(String? value) {
+    final normalized = value?.trim();
+    if (normalized == null || normalized.isEmpty) return null;
+
+    return normalized.characters.first.toUpperCase();
   }
 
   String? _normalizedUrl(String? value) {

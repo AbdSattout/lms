@@ -2,7 +2,11 @@ import '../../domain/entities/billing_user_entity.dart';
 
 enum BillingAction { none, checkout, portal, revoke }
 
-enum BillingResultDialogType { purchaseSuccess, checkoutCanceled }
+enum BillingResultDialogType {
+  purchaseSuccess,
+  checkoutCanceled,
+  subscriptionRevoked,
+}
 
 class BillingResultDialog {
   final BillingResultDialogType type;

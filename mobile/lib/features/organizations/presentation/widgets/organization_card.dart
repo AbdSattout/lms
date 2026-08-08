@@ -18,7 +18,9 @@ class OrganizationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPrivate = organization.visibility == OrganizationVisibility.private;
+    final ownerAccent = isDark ? const Color(0xffC4B5FD) : AppColors.lavender;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
@@ -28,24 +30,24 @@ class OrganizationCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: onTap,
-          splashColor: AppColors.primary.withOpacity(0.06),
-          highlightColor: AppColors.primary.withOpacity(0.03),
+          splashColor: AppColors.primary.withValues(alpha: 0.06),
+          highlightColor: AppColors.primary.withValues(alpha: 0.03),
           child: Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
               color: isOwnedByMe
-                  ? AppColors.lavender.withOpacity(0.08)
+                  ? ownerAccent.withValues(alpha: isDark ? 0.10 : 0.08)
                   : colors.surface,
               border: Border.all(
                 color: isOwnedByMe
-                    ? AppColors.lavender
+                    ? ownerAccent.withValues(alpha: isDark ? 0.46 : 1)
                     : Theme.of(context).dividerColor,
                 width: isOwnedByMe ? 1.4 : 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
@@ -81,12 +83,12 @@ class OrganizationCard extends StatelessWidget {
                                 ),
                               ),
                               if (isOwnedByMe)
-                                const Padding(
-                                  padding: EdgeInsets.only(right: 6),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
                                   child: Icon(
                                     Icons.workspace_premium_rounded,
                                     size: 18,
-                                    color: AppColors.lavender,
+                                    color: ownerAccent,
                                   ),
                                 ),
                             ],
@@ -167,7 +169,7 @@ class OrganizationCard extends StatelessWidget {
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
                               color: isOwnedByMe
-                                  ? AppColors.lavender
+                                  ? ownerAccent
                                   : colors.onSurfaceVariant,
                             ),
                             maxLines: 1,
@@ -230,7 +232,10 @@ class _OrgLogo extends StatelessWidget {
             : LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+                colors: [
+                  AppColors.primary,
+                  AppColors.primary.withValues(alpha: 0.70),
+                ],
               ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -284,12 +289,16 @@ class _VisibilityBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isPrivate
-        ? AppColors.peach.withOpacity(0.5)
-        : AppColors.mint.withOpacity(0.5);
-    final iconColor = isPrivate
-        ? const Color(0xffB4780F)
-        : const Color(0xff2E7D53);
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final badgeColor = isPrivate
+        ? (isDark ? const Color(0xffFBBF24) : const Color(0xffB4780F))
+        : (isDark ? const Color(0xff86EFAC) : const Color(0xff2E7D53));
+    final backgroundColor = isDark
+        ? badgeColor.withValues(alpha: 0.12)
+        : (isPrivate
+              ? AppColors.peach.withValues(alpha: 0.50)
+              : AppColors.mint.withValues(alpha: 0.50));
     final label = isPrivate ? 'خاصة' : 'عامة';
     final icon = isPrivate ? Icons.lock_outline_rounded : Icons.public_rounded;
 
@@ -298,18 +307,23 @@ class _VisibilityBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isDark
+              ? badgeColor.withValues(alpha: 0.24)
+              : colors.outlineVariant.withValues(alpha: 0.18),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: iconColor),
+          Icon(icon, size: 12, color: badgeColor),
           const SizedBox(width: 4),
           Text(
             label,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: iconColor,
+              color: badgeColor,
             ),
           ),
         ],
@@ -323,27 +337,32 @@ class _OwnerBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? const Color(0xffC4B5FD) : AppColors.lavender;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.lavender.withOpacity(0.35),
+        color: accent.withValues(alpha: isDark ? 0.13 : 0.35),
         borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isDark
+              ? accent.withValues(alpha: 0.26)
+              : colors.outlineVariant.withValues(alpha: 0.16),
+        ),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.workspace_premium_rounded,
-            size: 12,
-            color: AppColors.lavender,
-          ),
-          SizedBox(width: 4),
+          Icon(Icons.workspace_premium_rounded, size: 12, color: accent),
+          const SizedBox(width: 4),
           Text(
             'منظمتي',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: AppColors.lavender,
+              color: accent,
             ),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -252,7 +253,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
             _PlanCard(
               title: 'الخطة المجانية',
               subtitle: 'مناسبة لتجربة المنصة واستكشاف الميزات الأساسية.',
-              price: 'مجانا',
+              price: 'مجاناً',
               priceSuffix: '',
               icon: Icons.school_outlined,
               accentColor: AppColors.darkSoft,
@@ -260,6 +261,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
               badge: isPremium ? 'غير نشطة حاليا' : 'خطتك الحالية',
               action: _DisabledPlanButton(
                 text: isPremium ? 'غير نشطة حاليا' : 'خطتك الحالية',
+                isActiveCurrent: !isPremium,
               ),
               features: const [
                 _PlanFeature(
@@ -277,7 +279,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
                 _PlanFeature(Icons.route_rounded, 'متابعة خريطة تعليمية واحدة'),
                 _PlanFeature(
                   Icons.shuffle_rounded,
-                  'اختبار عشوائي واحد لكل دورة',
+                  'اختبار عشوائي واحد لكل دورة كل 7 أيام',
                 ),
                 _PlanFeature(Icons.business_rounded, 'منظمة واحدة'),
                 _PlanFeature(Icons.library_books_rounded, '3 دورات في المنظمة'),
@@ -410,23 +412,42 @@ class _BillingResultDialogCard extends StatelessWidget {
   const _BillingResultDialogCard({required this.type, required this.onClose});
 
   bool get isSuccess => type == BillingResultDialogType.purchaseSuccess;
+  bool get isRevoked => type == BillingResultDialogType.subscriptionRevoked;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final accent = isSuccess ? Colors.green : const Color(0xffF59E0B);
+    final accent = isSuccess
+        ? Colors.green
+        : isRevoked
+        ? const Color(0xff6366F1)
+        : const Color(0xffF59E0B);
     final accentSoft = accent.withValues(alpha: 0.11);
     final icon = isSuccess
         ? Icons.check_circle_rounded
+        : isRevoked
+        ? Icons.favorite_border_rounded
         : Icons.pause_circle_filled_rounded;
-    final title = isSuccess ? 'شكرا لشرائك!' : 'لم تكتمل عملية الدفع';
+    final title = isSuccess
+        ? 'شكرا لشرائك!'
+        : isRevoked
+        ? 'نأسف لمغادرتك'
+        : 'لم تكتمل عملية الدفع';
     final body = isSuccess
         ? 'تم تفعيل الخطة المميزة على حسابك. استمتع بكل المزايا الجديدة.'
+        : isRevoked
+        ? 'تم إلغاء الاشتراك وتحديث خطتك. سنكون سعداء بعودتك إلى الخطة المميزة في أي وقت.'
         : 'تم إيقاف العملية قبل إتمام الشراء. يمكنك الاشتراك في أي وقت.';
     final badgeText = isSuccess
         ? 'الخطة المميزة مفعلة الآن'
+        : isRevoked
+        ? 'تمت العودة إلى الخطة المجانية'
         : 'لم يتم خصم أي مبلغ';
-    final buttonText = isSuccess ? 'رائع' : 'حسنا';
+    final buttonText = isSuccess
+        ? 'رائع'
+        : isRevoked
+        ? 'شكرا'
+        : 'حسنا';
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -471,7 +492,7 @@ class _BillingResultDialogCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: accent, size: 44),
                 ),
-                if (isSuccess)
+                if (isSuccess || isRevoked)
                   Positioned(
                     top: -4,
                     right: -2,
@@ -526,6 +547,8 @@ class _BillingResultDialogCard extends StatelessWidget {
                   Icon(
                     isSuccess
                         ? Icons.workspace_premium_rounded
+                        : isRevoked
+                        ? Icons.check_rounded
                         : Icons.shield_outlined,
                     color: accent,
                     size: 20,
@@ -692,6 +715,13 @@ class _BillingStatusCard extends StatelessWidget {
         : isPremium
         ? Colors.green
         : AppColors.primary;
+    final headerSurfaceColor = Colors.white.withValues(
+      alpha: useLightText ? 0.18 : 0.80,
+    );
+    final headerSurfaceBorder = Colors.white.withValues(
+      alpha: useLightText ? 0.26 : 0.30,
+    );
+    final headerForeground = useLightText ? Colors.white : AppColors.primary;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -728,8 +758,9 @@ class _BillingStatusCard extends StatelessWidget {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.20),
+                  color: headerSurfaceColor,
                   borderRadius: BorderRadius.circular(17),
+                  border: Border.all(color: headerSurfaceBorder),
                 ),
                 child: Icon(
                   isPremium
@@ -737,7 +768,7 @@ class _BillingStatusCard extends StatelessWidget {
                       : isRevoked
                       ? Icons.cancel_outlined
                       : Icons.school_outlined,
-                  color: useLightText ? Colors.white : AppColors.primary,
+                  color: headerForeground,
                   size: 30,
                 ),
               ),
@@ -746,16 +777,15 @@ class _BillingStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'خطتك الحالية',
-                      style: TextStyle(
-                        color: useLightText
-                            ? Colors.white70
-                            : AppColors.darkSoft,
-                        fontWeight: FontWeight.w700,
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: _CurrentPlanLabel(
+                        text: 'خطتك الحالية',
+                        accent: accent,
+                        isOnStrongBackground: useLightText,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 6),
                     Text(
                       _planName(user),
                       maxLines: 1,
@@ -932,6 +962,68 @@ class _StatusMetric extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CurrentPlanLabel extends StatelessWidget {
+  final String text;
+  final Color accent;
+  final bool isOnStrongBackground;
+
+  const _CurrentPlanLabel({
+    required this.text,
+    required this.accent,
+    required this.isOnStrongBackground,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = isOnStrongBackground
+        ? Colors.white.withValues(alpha: 0.94)
+        : accent.withValues(alpha: 0.92);
+    final backgroundAlpha = isOnStrongBackground ? 0.14 : 0.34;
+    final borderColor = isOnStrongBackground
+        ? Colors.white.withValues(alpha: 0.24)
+        : Colors.white.withValues(alpha: 0.46);
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+        child: Container(
+          padding: const EdgeInsetsDirectional.fromSTEB(8, 4, 10, 4),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: backgroundAlpha),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: borderColor),
+            boxShadow: [
+              BoxShadow(
+                color: accent.withValues(alpha: 0.08),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.check_rounded, color: foreground, size: 13),
+              const SizedBox(width: 5),
+              Text(
+                text,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1188,26 +1280,53 @@ class _PrimaryPlanButton extends StatelessWidget {
 
 class _DisabledPlanButton extends StatelessWidget {
   final String text;
+  final bool isActiveCurrent;
 
-  const _DisabledPlanButton({required this.text});
+  const _DisabledPlanButton({required this.text, this.isActiveCurrent = false});
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isActiveCurrent
+        ? (isDark ? const Color(0xff86EFAC) : const Color(0xff238A5A))
+        : colors.onSurfaceVariant;
+
     return Container(
       height: 52,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+        color: isActiveCurrent
+            ? accent.withValues(alpha: isDark ? 0.13 : 0.10)
+            : Theme.of(context).dividerColor.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        text,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-          fontWeight: FontWeight.w900,
+        border: Border.all(
+          color: isActiveCurrent
+              ? accent.withValues(alpha: isDark ? 0.30 : 0.22)
+              : Colors.transparent,
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isActiveCurrent) ...[
+            Icon(Icons.check_circle_rounded, color: accent, size: 20),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isActiveCurrent
+                    ? accent
+                    : Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1262,19 +1381,29 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCurrentPlan = text == 'خطتك الحالية';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pillColor = isCurrentPlan
+        ? (isDark ? const Color(0xff86EFAC) : const Color(0xff238A5A))
+        : foreground;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.90),
+        color: isCurrentPlan
+            ? pillColor.withValues(alpha: isDark ? 0.13 : 0.10)
+            : Colors.white.withValues(alpha: 0.90),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: foreground.withValues(alpha: 0.16)),
+        border: Border.all(
+          color: pillColor.withValues(alpha: isCurrentPlan ? 0.24 : 0.16),
+        ),
       ),
       child: Text(
         text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: foreground,
+          color: pillColor,
           fontSize: 11,
           fontWeight: FontWeight.w900,
         ),
