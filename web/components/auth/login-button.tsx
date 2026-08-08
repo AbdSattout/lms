@@ -3,6 +3,7 @@
 import { useSearchParams } from "next/navigation"
 import { useState } from "react"
 
+import { GoogleIcon, TelegramIcon } from "@/components/auth/brand-icons"
 import { Button } from "@/components/ui/button"
 import { authClient } from "@/lib/auth-client"
 import { resolveSafeCallbackUrl } from "@/lib/auth/callback-url"
@@ -10,8 +11,13 @@ import { resolveSafeCallbackUrl } from "@/lib/auth/callback-url"
 export type LoginProvider = "google" | "telegram"
 
 const providerLabels: Record<LoginProvider, string> = {
-  google: "تسجيل الدخول عبر جوجل",
-  telegram: "تسجيل الدخول عبر تيليجرام",
+  google: "جوجل",
+  telegram: "تيليجرام",
+}
+
+const providerIcons: Record<LoginProvider, typeof TelegramIcon> = {
+  google: GoogleIcon,
+  telegram: TelegramIcon,
 }
 
 export function LoginButton({ provider }: { provider: LoginProvider }) {
@@ -19,6 +25,8 @@ export function LoginButton({ provider }: { provider: LoginProvider }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const callbackUrl = resolveSafeCallbackUrl(searchParams.get("callbackUrl"))
+
+  const Icon = providerIcons[provider]
 
   const handleLogin = async () => {
     try {
@@ -47,11 +55,13 @@ export function LoginButton({ provider }: { provider: LoginProvider }) {
 
   return (
     <Button
+      type="button"
+      variant="outline"
       className="w-full"
-      variant={provider === "google" ? "outline" : "default"}
       onClick={handleLogin}
       disabled={isSubmitting}
     >
+      <Icon data-icon="inline-start" />
       {isSubmitting ? "جاري تسجيل الدخول..." : providerLabels[provider]}
     </Button>
   )

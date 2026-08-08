@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 
 import { api } from "@/lib/api"
+import { BackendError } from "@/lib/api/backend"
 import {
   clearBackendJwtCookie,
   setBackendJwtCookie,
@@ -50,22 +51,21 @@ async function exchangeBackendSession(provider: LoginProvider) {
   } catch (error) {
     await clearBackendJwtCookie()
 
-    const message = error instanceof Error ? error.message : "Unexpected error."
-
     return {
       redirectToLogin: false as const,
-      errorStatus: 502,
-      message,
+      errorStatus: error instanceof BackendError ? error.status : 502,
+      message: "حدث خطأ ما، حاول مرة أخرى.",
     }
   }
 }
 
 export async function GET(request: NextRequest) {
   const providerParam = request.nextUrl.searchParams.get("provider")
-  const provider: LoginProvider = providerParam === "google" ? "google" : "telegram"
+  const provider: LoginProvider =
+    providerParam === "google" ? "google" : "telegram"
   const result = await exchangeBackendSession(provider)
 
-  if (result.redirectToLogin || result.message === "NEXT_REDIRECT") {
+  if (result.redirectToLogin) {
     return buildLoginRedirectResponse(request)
   }
 
