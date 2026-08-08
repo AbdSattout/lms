@@ -7,6 +7,11 @@ import '../models/auth_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthModel> loginWithTelegram();
+  Future<void> requestEmailOtp(String email);
+  Future<AuthModel> verifyEmailOtp({
+    required String email,
+    required String otp,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -16,13 +21,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   AuthRemoteDataSourceImpl({required this.appAuth, required this.apiConsumer});
 
   @override
-  @override
   Future<AuthModel> loginWithTelegram() async {
     try {
-      print("Auth Start");
-
-      final AuthorizationTokenResponse? result =
-      await appAuth.authorizeAndExchangeCode(
+      final result = await appAuth.authorizeAndExchangeCode(
         AuthorizationTokenRequest(
           EndPoints.telegramClientId,
           EndPoints.redirectUri,
@@ -32,14 +33,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         ),
       );
 
-      print("Auth Finished");
-
-      if (result != null && result.idToken != null) {
+      if (result.idToken != null) {
         final response = await apiConsumer.post(
           EndPoints.login,
-          data: {
-            "idToken": result.idToken,
-          },
+          data: {"idToken": result.idToken},
         );
 
         return AuthModel.fromJson(response);
@@ -48,10 +45,26 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       }
     } on FlutterAppAuthUserCancelledException {
       throw CancelException(
-        ErrorModel(
-          status: 0,
-          errorMessage: "تم إلغاء تسجيل الدخول",
-        ),
+        ErrorModel(status: 0, errorMessage: "تم إلغاء تسجيل الدخول"),
       );
     }
-  }}
+  }
+
+  @override
+  Future<void> requestEmailOtp(String email) async {
+    await apiConsumer.post(EndPoints.requestEmailOtp, data: {'email': email});
+  }
+
+  @override
+  Future<AuthModel> verifyEmailOtp({
+    required String email,
+    required String otp,
+  }) async {
+    final response = await apiConsumer.post(
+      EndPoints.verifyEmailOtp,
+      data: {'email': email, 'otp': otp},
+    );
+
+    return AuthModel.fromJson(response);
+  }
+}

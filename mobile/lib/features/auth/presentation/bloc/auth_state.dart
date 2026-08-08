@@ -6,6 +6,17 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
+class EmailOtpRequestLoading extends AuthState {}
+
+class EmailOtpVerifyLoading extends AuthState {}
+
+class EmailOtpRequestSuccess extends AuthState {
+  final String email;
+  final String message;
+
+  EmailOtpRequestSuccess({required this.email, required this.message});
+}
+
 class AuthSuccess extends AuthState {
   final String message;
   final AuthEntity authEntity;
