@@ -26,6 +26,7 @@ import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.plan.annotation.ConsumesPlanUsage;
 import app.lms.plan.enums.PlanUsageType;
+import app.lms.placementTest.repository.CoursePlacementTestAttemptRepository;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.roadmap.service.RoadmapFollowProgressService;
@@ -55,6 +56,8 @@ public class CourseEnrollmentService {
     private final BlockRepository blockRepository;
 
     private final BlockProgressRepository blockProgressRepository;
+
+    private final CoursePlacementTestAttemptRepository placementTestAttemptRepository;
 
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
 
@@ -137,6 +140,10 @@ public class CourseEnrollmentService {
 
 
         if (existingEnrollment != null) {
+
+            resetEnrollmentLearningState(
+                    existingEnrollment
+            );
 
             existingEnrollment.setStatus(
                     EnrollmentStatus.ACTIVE
@@ -330,6 +337,45 @@ public class CourseEnrollmentService {
 
         return (int) Math.round(
                 completedBlocks * 100.0 / totalBlocks
+        );
+    }
+
+    private void resetEnrollmentLearningState(
+            CourseEnrollment enrollment
+    ) {
+
+        Long courseId =
+                enrollment.getCourse()
+                        .getId();
+
+        Long userId =
+                enrollment.getUser()
+                        .getId();
+
+        blockProgressRepository.deleteByUserIdAndCourseId(
+                userId,
+                courseId
+        );
+
+        placementTestAttemptRepository.deleteByCourseIdAndUserId(
+                courseId,
+                userId
+        );
+
+        enrollment.setProgressPercentage(
+                0
+        );
+
+        enrollment.setCurrentLesson(
+                null
+        );
+
+        enrollment.setCurrentBlock(
+                null
+        );
+
+        enrollment.setCompletedAt(
+                null
         );
     }
 

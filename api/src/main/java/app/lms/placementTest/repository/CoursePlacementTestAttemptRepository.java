@@ -12,4 +12,9 @@ public interface CoursePlacementTestAttemptRepository
             Long courseId,
             Long userId
     );
+
+    void deleteByCourseIdAndUserId(
+            Long courseId,
+            Long userId
+    );
 }

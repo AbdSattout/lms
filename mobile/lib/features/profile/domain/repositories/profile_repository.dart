@@ -6,11 +6,16 @@ import '../usecases/update_profile_params.dart';
 abstract class ProfileRepository {
   Future<ProfileEntity> getProfile();
 
-  Future<ProfileEntity> updateProfile(
-      UpdateProfileParams params,
-      );
+  Future<String?> getCurrentAccountEmail();
 
-  Future<UserPictureModel> updateProfilePicture(
-      String imagePath,
-      );
+  Future<ProfileEntity> updateProfile(UpdateProfileParams params);
+
+  Future<UserPictureModel> updateProfilePicture(String imagePath);
+
+  Future<void> requestAccountEmailOtp(String email);
+
+  Future<String?> verifyAccountEmailOtp({
+    required String email,
+    required String otp,
+  });
 }

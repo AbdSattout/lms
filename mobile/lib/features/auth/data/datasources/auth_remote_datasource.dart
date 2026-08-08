@@ -80,17 +80,22 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       return AuthModel.fromJson(response);
     } on GoogleSignInException catch (e) {
+      final description = e.description?.trim();
+      final details = description == null || description.isEmpty
+          ? e.code.name
+          : '${e.code.name}: $description';
+
       if (e.code == GoogleSignInExceptionCode.canceled) {
         throw CancelException(
-          ErrorModel(status: 0, errorMessage: "Google sign-in was cancelled"),
+          ErrorModel(
+            status: 0,
+            errorMessage: "Google sign-in was cancelled ($details)",
+          ),
         );
       }
 
       throw ServerException(
-        ErrorModel(
-          status: 0,
-          errorMessage: e.description ?? "Google sign-in failed",
-        ),
+        ErrorModel(status: 0, errorMessage: "Google sign-in failed ($details)"),
       );
     }
   }
