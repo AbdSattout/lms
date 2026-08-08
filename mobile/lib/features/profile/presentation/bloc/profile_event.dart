@@ -5,12 +5,10 @@ class GetProfileEvent extends ProfileEvent {}
 class UpdateProfilePictureEvent extends ProfileEvent {
   final String imagePath;
 
-  UpdateProfilePictureEvent(
-      this.imagePath,
-      );
+  UpdateProfilePictureEvent(this.imagePath);
 }
-class UpdateProfileEvent extends ProfileEvent {
 
+class UpdateProfileEvent extends ProfileEvent {
   final String email;
   final String phone;
   final String university;
@@ -21,3 +19,18 @@ class UpdateProfileEvent extends ProfileEvent {
     required this.university,
   });
 }
+
+class RequestAccountEmailOtpEvent extends ProfileEvent {
+  final String email;
+
+  RequestAccountEmailOtpEvent(this.email);
+}
+
+class VerifyAccountEmailOtpEvent extends ProfileEvent {
+  final String email;
+  final String otp;
+
+  VerifyAccountEmailOtpEvent({required this.email, required this.otp});
+}
+
+class CancelAccountEmailOtpEvent extends ProfileEvent {}

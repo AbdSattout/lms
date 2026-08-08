@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/databases/cache/cache_helper.dart';
@@ -30,7 +31,10 @@ class _ProfilePageState extends State<ProfilePage> {
         listenWhen: (previous, current) =>
             current is ProfileUpdated ||
             current is ProfilePictureUpdated ||
-            current is ProfileError,
+            current is ProfileError ||
+            (current is ProfileLoaded &&
+                (current.accountEmailMessage != null ||
+                    current.accountEmailError != null)),
         listener: (context, state) {
           if (state is ProfileUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -48,6 +52,21 @@ class _ProfilePageState extends State<ProfilePage> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+
+          if (state is ProfileLoaded && state.accountEmailMessage != null) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.accountEmailMessage!)));
+          }
+
+          if (state is ProfileLoaded && state.accountEmailError != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.accountEmailError!),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         },
         buildWhen: (previous, current) =>
@@ -177,6 +196,30 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
 
                     const SizedBox(height: 24),
+
+                    _AccountEmailCard(
+                      accountEmail: state.accountEmail,
+                      pendingEmail: state.pendingAccountEmail,
+                      isRequesting: state.isRequestingAccountEmailOtp,
+                      isVerifying: state.isVerifyingAccountEmailOtp,
+                      onRequestOtp: (email) {
+                        context.read<ProfileBloc>().add(
+                          RequestAccountEmailOtpEvent(email),
+                        );
+                      },
+                      onVerifyOtp: (email, otp) {
+                        context.read<ProfileBloc>().add(
+                          VerifyAccountEmailOtpEvent(email: email, otp: otp),
+                        );
+                      },
+                      onCancelPending: () {
+                        context.read<ProfileBloc>().add(
+                          CancelAccountEmailOtpEvent(),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 14),
 
                     _buildInfoCard(
                       title: "رقم الهاتف",
@@ -309,6 +352,430 @@ ImageProvider _profileImageProvider(String? picture) {
   }
 
   return const AssetImage('assets/images/user.png');
+}
+
+class _AccountEmailCard extends StatefulWidget {
+  final String? accountEmail;
+  final String? pendingEmail;
+  final bool isRequesting;
+  final bool isVerifying;
+  final ValueChanged<String> onRequestOtp;
+  final void Function(String email, String otp) onVerifyOtp;
+  final VoidCallback onCancelPending;
+
+  const _AccountEmailCard({
+    required this.accountEmail,
+    required this.pendingEmail,
+    required this.isRequesting,
+    required this.isVerifying,
+    required this.onRequestOtp,
+    required this.onVerifyOtp,
+    required this.onCancelPending,
+  });
+
+  @override
+  State<_AccountEmailCard> createState() => _AccountEmailCardState();
+}
+
+class _AccountEmailCardState extends State<_AccountEmailCard> {
+  final _emailFormKey = GlobalKey<FormState>();
+  final _otpFormKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _otpController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _syncPendingEmail();
+  }
+
+  @override
+  void didUpdateWidget(covariant _AccountEmailCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncPendingEmail();
+
+    if (_hasText(widget.accountEmail) && !_hasText(oldWidget.accountEmail)) {
+      _otpController.clear();
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _otpController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final accountEmail = _normalized(widget.accountEmail);
+    final pendingEmail = _normalized(widget.pendingEmail);
+    final hasAccountEmail = _hasText(accountEmail);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _buildHeader(context, isLinked: hasAccountEmail),
+          const SizedBox(height: 16),
+          if (hasAccountEmail)
+            _buildLinkedEmail(context, accountEmail!)
+          else if (_hasText(pendingEmail))
+            _buildOtpForm(context, pendingEmail!)
+          else
+            _buildEmailForm(context),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, {required bool isLinked}) {
+    final statusColor = isLinked ? Colors.green : AppColors.primary;
+
+    return Row(
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: statusColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Icon(
+            isLinked ? Icons.mark_email_read_rounded : Icons.email_outlined,
+            color: statusColor,
+          ),
+        ),
+        const SizedBox(width: 14),
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'بريد تسجيل الدخول',
+                style: TextStyle(
+                  color: AppColors.dark,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              SizedBox(height: 3),
+              Text(
+                'مختلف عن بريد الملف الشخصي',
+                style: TextStyle(color: AppColors.darkSoft, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: statusColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            isLinked ? 'مربوط' : 'مطلوب',
+            style: TextStyle(
+              color: statusColor,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLinkedEmail(BuildContext context, String email) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      decoration: BoxDecoration(
+        color: Colors.green.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.green.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.lock_outline_rounded, color: Colors.green, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(
+                email,
+                textAlign: TextAlign.left,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppColors.dark,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmailForm(BuildContext context) {
+    final isBusy = widget.isRequesting || widget.isVerifying;
+
+    return Form(
+      key: _emailFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TextFormField(
+            controller: _emailController,
+            enabled: !isBusy,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+            textDirection: TextDirection.ltr,
+            textAlign: TextAlign.left,
+            decoration: _inputDecoration(
+              context,
+              label: 'البريد الإلكتروني',
+              hint: 'name@example.com',
+              icon: Icons.alternate_email_rounded,
+            ),
+            validator: _validateEmail,
+            onFieldSubmitted: (_) => _submitEmail(),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: isBusy ? null : _submitEmail,
+              child: widget.isRequesting
+                  ? _loadingIndicator()
+                  : const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.mark_email_read_rounded, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'إرسال رمز التحقق',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOtpForm(BuildContext context, String pendingEmail) {
+    final isBusy = widget.isRequesting || widget.isVerifying;
+
+    return Form(
+      key: _otpFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.primary.withValues(alpha: 0.16),
+              ),
+            ),
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: Text(
+                pendingEmail,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  color: AppColors.dark,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _otpController,
+            enabled: !isBusy,
+            keyboardType: TextInputType.number,
+            textInputAction: TextInputAction.done,
+            textAlign: TextAlign.center,
+            maxLength: 6,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(6),
+            ],
+            decoration: _inputDecoration(
+              context,
+              label: 'رمز التحقق',
+              hint: '000000',
+              icon: Icons.password_rounded,
+            ).copyWith(counterText: ''),
+            validator: _validateOtp,
+            onFieldSubmitted: (_) => _submitOtp(pendingEmail),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 52,
+            child: ElevatedButton(
+              onPressed: isBusy ? null : () => _submitOtp(pendingEmail),
+              child: widget.isVerifying
+                  ? _loadingIndicator()
+                  : const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.verified_rounded, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          'تأكيد البريد',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              TextButton.icon(
+                onPressed: isBusy
+                    ? null
+                    : () => widget.onRequestOtp(pendingEmail),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('إعادة الإرسال'),
+              ),
+              TextButton.icon(
+                onPressed: isBusy
+                    ? null
+                    : () {
+                        _otpController.clear();
+                        widget.onCancelPending();
+                      },
+                icon: const Icon(Icons.edit_rounded, size: 18),
+                label: const Text('تغيير البريد'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(
+    BuildContext context, {
+    required String label,
+    required String hint,
+    required IconData icon,
+  }) {
+    final colors = Theme.of(context).colorScheme;
+
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      prefixIcon: Icon(icon),
+      filled: true,
+      fillColor: colors.surface,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Theme.of(context).dividerColor),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Theme.of(context).dividerColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(16),
+        borderSide: BorderSide(color: Theme.of(context).dividerColor),
+      ),
+    );
+  }
+
+  Widget _loadingIndicator() {
+    return const SizedBox(
+      width: 22,
+      height: 22,
+      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
+    );
+  }
+
+  void _submitEmail() {
+    if (!(_emailFormKey.currentState?.validate() ?? false)) return;
+
+    widget.onRequestOtp(_emailController.text.trim());
+  }
+
+  void _submitOtp(String pendingEmail) {
+    if (!(_otpFormKey.currentState?.validate() ?? false)) return;
+
+    widget.onVerifyOtp(pendingEmail, _otpController.text.trim());
+  }
+
+  void _syncPendingEmail() {
+    final pendingEmail = _normalized(widget.pendingEmail);
+    if (_hasText(pendingEmail) && _emailController.text != pendingEmail) {
+      _emailController.text = pendingEmail!;
+    }
+  }
+
+  String? _validateEmail(String? value) {
+    final email = value?.trim() ?? '';
+    final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
+
+    if (email.isEmpty) {
+      return 'البريد الإلكتروني مطلوب';
+    }
+
+    if (!emailRegex.hasMatch(email)) {
+      return 'أدخل بريداً إلكترونياً صحيحاً';
+    }
+
+    return null;
+  }
+
+  String? _validateOtp(String? value) {
+    final otp = value?.trim() ?? '';
+
+    if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
+      return 'رمز التحقق يجب أن يكون 6 أرقام';
+    }
+
+    return null;
+  }
+
+  static String? _normalized(String? value) {
+    final normalized = value?.trim();
+    return normalized == null || normalized.isEmpty ? null : normalized;
+  }
+
+  static bool _hasText(String? value) {
+    return value != null && value.trim().isNotEmpty;
+  }
 }
 
 Widget _buildInfoCard({

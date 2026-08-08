@@ -15,10 +15,13 @@ class BlockContentBloc extends Bloc<BlockContentEvent, BlockContentState> {
   }) : super(BlockContentLoading()) {
     on<LoadBlockEvent>(_load);
     on<SubmitBlockAnswerEvent>(_submit);
+    on<ContinueAfterCorrectAnswerEvent>(_continueAfterCorrectAnswer);
   }
 
   Future<void> _load(
-      LoadBlockEvent event, Emitter<BlockContentState> emit) async {
+    LoadBlockEvent event,
+    Emitter<BlockContentState> emit,
+  ) async {
     try {
       emit(BlockContentLoading());
       final block = await getBlockContentUseCase(event.blockId);
@@ -29,11 +32,19 @@ class BlockContentBloc extends Bloc<BlockContentEvent, BlockContentState> {
   }
 
   Future<void> _submit(
-      SubmitBlockAnswerEvent event, Emitter<BlockContentState> emit) async {
+    SubmitBlockAnswerEvent event,
+    Emitter<BlockContentState> emit,
+  ) async {
     final current = state;
     if (current is! BlockContentLoaded) return;
 
-    emit(BlockContentLoaded(block: current.block, isSubmitting: true));
+    emit(
+      BlockContentLoaded(
+        block: current.block,
+        isSubmitting: true,
+        submittedAnswerIndex: event.answerIndex,
+      ),
+    );
 
     try {
       final result = await submitBlockAnswerUseCase(
@@ -42,32 +53,49 @@ class BlockContentBloc extends Bloc<BlockContentEvent, BlockContentState> {
       );
 
       if (!result.isCorrect) {
-        emit(BlockContentLoaded(
-          block: current.block,
-          isSubmitting: false,
-          lastAnswerCorrect: false,
-        ));
+        emit(
+          BlockContentLoaded(
+            block: current.block,
+            isSubmitting: false,
+            lastAnswerCorrect: false,
+            submittedAnswerIndex: event.answerIndex,
+            answerResult: result,
+          ),
+        );
         return;
       }
 
-      emit(BlockContentLoaded(
-        block: current.block,
-        isSubmitting: false,
-        lastAnswerCorrect: true,
-      ));
-
-      if (result.nextType == 'BLOCK' && result.nextBlockId != null) {
-        await Future.delayed(const Duration(milliseconds: 700));
-        add(LoadBlockEvent(result.nextBlockId!));
-      } else {
-        await Future.delayed(const Duration(milliseconds: 700));
-        emit(BlockContentFinished(
-          nextType: result.nextType,
-          message: result.message,
-        ));
-      }
+      emit(
+        BlockContentLoaded(
+          block: current.block,
+          isSubmitting: false,
+          lastAnswerCorrect: true,
+          submittedAnswerIndex: event.answerIndex,
+          answerResult: result,
+        ),
+      );
     } catch (e) {
       emit(BlockContentError(resolveApiErrorMessage(e)));
     }
+  }
+
+  Future<void> _continueAfterCorrectAnswer(
+    ContinueAfterCorrectAnswerEvent event,
+    Emitter<BlockContentState> emit,
+  ) async {
+    final current = state;
+    if (current is! BlockContentLoaded) return;
+
+    final result = current.answerResult;
+    if (result == null || !result.isCorrect) return;
+
+    if (result.nextType == 'BLOCK' && result.nextBlockId != null) {
+      add(LoadBlockEvent(result.nextBlockId!));
+      return;
+    }
+
+    emit(
+      BlockContentFinished(nextType: result.nextType, message: result.message),
+    );
   }
 }

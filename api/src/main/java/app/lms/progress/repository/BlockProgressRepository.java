@@ -3,7 +3,9 @@ package app.lms.progress.repository;
 import app.lms.progress.model.BlockProgress;
 import app.lms.question.model.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -44,6 +46,17 @@ public interface BlockProgressRepository
     long countByUserIdAndBlockLessonChapterIdAndCompletedTrue(
             Long userId,
             Long chapterId
+    );
+
+    @Modifying
+    @Query("""
+            delete from BlockProgress progress
+            where progress.user.id = :userId
+            and progress.block.lesson.chapter.course.id = :courseId
+            """)
+    void deleteByUserIdAndCourseId(
+            @Param("userId") Long userId,
+            @Param("courseId") Long courseId
     );
 
 
