@@ -13,6 +13,8 @@ abstract class OrganizationRemoteDataSource {
   Future<void> leaveOrganization(String slug);
 
   Future<void> cancelJoinRequest(String slug);
+
+  Future<void> deleteOrganization(String slug);
 }
 
 class OrganizationRemoteDataSourceImpl
@@ -62,6 +64,13 @@ class OrganizationRemoteDataSourceImpl
   Future<void> cancelJoinRequest(String slug) async {
     await api.delete(
       EndPoints.organizationJoin(slug),
+    );
+  }
+
+  @override
+  Future<void> deleteOrganization(String slug) async {
+    await api.delete(
+      EndPoints.deleteOrganizationDashboard(slug),
     );
   }
 }

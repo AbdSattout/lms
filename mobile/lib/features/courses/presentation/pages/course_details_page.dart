@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../../organizations/presentation/bloc/organization_details_event.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
@@ -80,9 +83,6 @@ class _CourseDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isEnrolled = course.enrollment != null;
-    // Three states: null (backend hasn't exposed this yet - don't
-    // block), false (confirmed not a member - show View Organization
-    // instead of Enroll), true (member - normal Enroll flow).
     final viewerJoined = course.organization?.viewerJoined;
     final isBlockedByMembership = !isEnrolled && viewerJoined == false;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
@@ -260,24 +260,23 @@ class _CourseDetailsContent extends StatelessWidget {
                   height: 56,
                   child: ElevatedButton.icon(
                     onPressed: isBlockedByMembership
-                        ? () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => OrganizationDetailsPage(
-                            slug: course.organization!.slug,
-                          ),
-                        ),
-                      );
-                    }
+                        ? () => _showMembershipRequiredDialog(context, course)
                         : isEnrolled
-                        ? () {
-                      Navigator.push(
+                        ? () async {
+                      final shouldRefresh = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => CourseContentsPage(course: course),
                         ),
                       );
+                      if (shouldRefresh == true && context.mounted) {
+                        context.read<CourseDetailsBloc>().add(
+                          GetCourseDetailsEvent(
+                            orgSlug: course.organization?.slug ?? '',
+                            courseSlug: course.slug,
+                          ),
+                        );
+                      }
                     }
                         : onEnroll,
                     style: ElevatedButton.styleFrom(
@@ -288,19 +287,13 @@ class _CourseDetailsContent extends StatelessWidget {
                       elevation: 4,
                     ),
                     icon: Icon(
-                      isBlockedByMembership
-                          ? Icons.apartment_rounded
-                          : isEnrolled
+                      isEnrolled
                           ? Icons.play_circle_fill_rounded
                           : Icons.rocket_launch_rounded,
                       color: Colors.white,
                     ),
                     label: Text(
-                      isBlockedByMembership
-                          ? 'عرض المنظمة'
-                          : isEnrolled
-                          ? 'متابعة'
-                          : 'سجّل الآن',
+                      isEnrolled ? 'متابعة' : 'سجّل الآن',
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -359,6 +352,73 @@ class _CourseDetailsContent extends StatelessWidget {
           shape: BoxShape.circle,
         ),
         child: Icon(icon, size: 18, color: AppColors.dark),
+      ),
+    );
+  }
+
+  void _showMembershipRequiredDialog(BuildContext context, CourseEntity course) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('يجب الانضمام إلى المنظمة أولاً'),
+          content: Text(
+            course.organizationDisplayName != null
+                ? 'التسجيل في هذا الكورس يتطلب أن تكون عضواً في "${course.organizationDisplayName}".'
+                : 'التسجيل في هذا الكورس يتطلب عضوية المنظمة المالكة له.',
+          ),
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('إلغاء'),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                if (course.organization != null)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        Navigator.pop(dialogContext);
+
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (_) => sl<OrganizationDetailsBloc>()
+                                ..add(GetOrganizationDetailsEvent(course.organization!.slug)),
+                              child: OrganizationDetailsPage(slug: course.organization!.slug),
+                            ),
+                          ),
+                        );
+
+                        if (context.mounted) {
+                          context.read<CourseDetailsBloc>().add(
+                            GetCourseDetailsEvent(
+                              orgSlug: course.organization!.slug,
+                              courseSlug: course.slug,
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.apartment_rounded, size: 18),
+                      label: const Text('عرض المنظمة'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -22,294 +22,282 @@ class CourseContentsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<CourseContentsBloc>(),
+      child: _CourseContentsView(course: course),
+    );
+  }
+}
+
+class _CourseContentsView extends StatelessWidget {
+  final CourseEntity course;
+
+  const _CourseContentsView({required this.course});
+
+  @override
+  Widget build(BuildContext context) {
     final enrollment = course.enrollment;
     final progress = enrollment?.progressPercentage ?? 0;
 
     final hasCover =
-        course.coverUrl != null &&
-            course.coverUrl!.isNotEmpty;
+        course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: colors.surface,
-
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 170,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            elevation: 0,
-
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-
-                  hasCover
-                      ? Image.network(
-                    course.coverUrl!,
-                    fit: BoxFit.cover,
-                  )
-                      : Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary,
-                          Color(0xff5E9CC0),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.menu_book_rounded,
-                        color: Colors.white,
-                        size: 60,
-                      ),
-                    ),
-                  ),
-
-                  Container(
-                    color: Colors.black.withOpacity(.28),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SliverToBoxAdapter(
-            child: Transform.translate(
-              offset: const Offset(0, -1),
-
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-
-                child: Column(
+      body: BlocListener<CourseContentsBloc, CourseContentsState>(
+        listener: (context, state) {
+          if (state is CourseUnenrolled) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+            Navigator.pop(context, true);
+          }
+          if (state is CourseContentsError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message)),
+            );
+          }
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              expandedHeight: 170,
+              pinned: true,
+              backgroundColor: AppColors.primary,
+              elevation: 0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Stack(
+                  fit: StackFit.expand,
                   children: [
-
-                    Container(
-                      padding: const EdgeInsets.all(22),
-
-                      decoration: BoxDecoration(
-                        color: colors.surface,
-                        borderRadius: BorderRadius.circular(24),
-
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(.08),
-                            blurRadius: 24,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-
-                      child: Column(
-                        crossAxisAlignment:
-                        CrossAxisAlignment.start,
-
-                        children: [
-
-                          Text(
-                            course.title,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900,
-                              color: colors.onSurface,
-                            ),
-                          ),
-
-                          if (course.organizationDisplayName != null)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Row(
-                                children: [
-
-                                  const Icon(
-                                    Icons.apartment_rounded,
-                                    size: 16,
-                                    color: AppColors.primary,
-                                  ),
-
-                                  const SizedBox(width: 6),
-
-                                  Text(
-                                    course.organizationDisplayName!,
-                                    style: TextStyle(
-                                      color: colors.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                          const SizedBox(height: 24),
-
-                          Row(
-                            mainAxisAlignment:
-                            MainAxisAlignment.spaceBetween,
-                            children: [
-
-                              Text(
-                                "التقدم",
-                                style: TextStyle(
-                                  color:
-                                  colors.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-
-                              Text(
-                                "${progress.toStringAsFixed(0)}%",
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          ClipRRect(
-                            borderRadius:
-                            BorderRadius.circular(20),
-                            child: LinearProgressIndicator(
-                              value:
-                              (progress / 100).clamp(0, 1),
-                              minHeight: 9,
-                              backgroundColor:
-                              colors.surfaceContainerHighest,
-                              valueColor:
-                              const AlwaysStoppedAnimation(
-                                AppColors.primary,
-                              ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 10),
-
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              progress == 100
-                                  ? "مكتملة بالكامل 🎉"
-                                  : "تابع التعلم للوصول إلى 100%",
-                              style: TextStyle(
-                                color:
-                                colors.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // STUBS — no unenroll or course-posts endpoint yet.
-                    // Wire these once the backend provides them.
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('منشورات الكورس قريباً')),
-                              );
-                            },
-                            icon: const Icon(Icons.forum_outlined, size: 18),
-                            label: const Text('منشورات الكورس'),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xffD9534F),
-                              side: const BorderSide(color: Color(0xffD9534F)),
-                            ),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('إلغاء التسجيل قريباً')),
-                              );
-                            },
-                            icon: const Icon(Icons.logout_rounded, size: 18),
-                            label: const Text('إلغاء التسجيل'),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Row(
-                        children: [
-
-                          const Icon(
-                            Icons.menu_book,
-                            color: AppColors.primary,
-                          ),
-
-                          const SizedBox(width: 8),
-
-                          Text(
-                            "محتوى الدورة",
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: colors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    enrollment?.placementTestCompleted == true
-                        ? BlocProvider(
-                      create: (_) => sl<CourseContentsBloc>()
-                        ..add(GetCourseContentsEvent(course.id)),
-                      child: BlocBuilder<CourseContentsBloc, CourseContentsState>(
-                        builder: (context, state) {
-                          if (state is CourseContentsLoading) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-
-                          if (state is CourseContentsError) {
-                            return _errorCard(context, colors, state.message);
-                          }
-
-                          if (state is CourseContentsLoaded) {
-                            if (state.course.chapters.isEmpty) {
-                              return _comingSoonCard(colors);
-                            }
-                            return _chaptersList(
-                                context, colors, state.course.chapters, course.id);
-                          }
-
-                          return const SizedBox();
-                        },
-                      ),
+                    hasCover
+                        ? Image.network(
+                      course.coverUrl!,
+                      fit: BoxFit.cover,
                     )
-                        : _placementTestPrompt(context, colors),
-
-                    const SizedBox(height: 40),
+                        : Container(
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.primary,
+                            Color(0xff5E9CC0),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.menu_book_rounded,
+                          color: Colors.white,
+                          size: 60,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      color: Colors.black.withOpacity(.28),
+                    ),
                   ],
                 ),
               ),
             ),
-          ),
-        ],
+
+            SliverToBoxAdapter(
+              child: Transform.translate(
+                offset: const Offset(0, -1),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(22),
+                        decoration: BoxDecoration(
+                          color: colors.surface,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(.08),
+                              blurRadius: 24,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              course.title,
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w900,
+                                color: colors.onSurface,
+                              ),
+                            ),
+                            if (course.organizationDisplayName != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.apartment_rounded,
+                                      size: 16,
+                                      color: AppColors.primary,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      course.organizationDisplayName!,
+                                      style: TextStyle(
+                                        color: colors.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "التقدم",
+                                  style: TextStyle(
+                                    color: colors.onSurfaceVariant,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(
+                                  "${progress.toStringAsFixed(0)}%",
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(20),
+                              child: LinearProgressIndicator(
+                                value: (progress / 100).clamp(0, 1),
+                                minHeight: 9,
+                                backgroundColor: colors.surfaceContainerHighest,
+                                valueColor: const AlwaysStoppedAnimation(
+                                  AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                progress == 100
+                                    ? "مكتملة بالكامل 🎉"
+                                    : "تابع التعلم للوصول إلى 100%",
+                                style: TextStyle(
+                                  color: colors.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('منشورات الكورس قريباً')),
+                                );
+                              },
+                              icon: const Icon(Icons.forum_outlined, size: 18),
+                              label: const Text('منشورات الكورس'),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xffD9534F),
+                                side: const BorderSide(color: Color(0xffD9534F)),
+                              ),
+                              onPressed: () {
+                                _showUnenrollConfirmation(context, course);
+                              },
+                              icon: const Icon(Icons.logout_rounded, size: 18),
+                              label: const Text('إلغاء التسجيل'),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.menu_book,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "محتوى الدورة",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: colors.onSurface,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      enrollment?.placementTestCompleted == true
+                          ? BlocBuilder<CourseContentsBloc, CourseContentsState>(
+                        builder: (context, state) {
+                          if (state is CourseContentsLoading ||
+                              state is CourseUnenrolled) {
+                            context.read<CourseContentsBloc>().add(
+                                GetCourseContentsEvent(course.id));
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Center(
+                                  child: CircularProgressIndicator()),
+                            );
+                          }
+                          if (state is CourseContentsError) {
+                            return _errorCard(
+                                context, colors, state.message);
+                          }
+                          if (state is CourseContentsLoaded) {
+                            if (state.course.chapters.isEmpty) {
+                              return _comingSoonCard(colors);
+                            }
+                            return _chaptersList(context, colors,
+                                state.course.chapters, course.id);
+                          }
+                          return const SizedBox();
+                        },
+                      )
+                          : _placementTestPrompt(context, colors),
+
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -338,9 +326,7 @@ class CourseContentsPage extends StatelessWidget {
               color: AppColors.lavender,
             ),
           ),
-
           const SizedBox(height: 18),
-
           Text(
             'حدد نقطة بدايتك أولاً',
             style: TextStyle(
@@ -349,17 +335,13 @@ class CourseContentsPage extends StatelessWidget {
               color: colors.onSurface,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             'اختبار قصير يحدد أنسب نقطة للبدء بها في هذه الدورة',
             textAlign: TextAlign.center,
             style: TextStyle(color: colors.onSurfaceVariant),
           ),
-
           const SizedBox(height: 20),
-
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -432,37 +414,27 @@ class CourseContentsPage extends StatelessWidget {
   Widget _comingSoonCard(ColorScheme colors) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24,
-        vertical: 34,
-      ),
-
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 34),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(22),
       ),
-
       child: Column(
         children: [
-
           Container(
             width: 70,
             height: 70,
-
             decoration: BoxDecoration(
               color: AppColors.primary.withOpacity(.12),
               shape: BoxShape.circle,
             ),
-
             child: const Icon(
               Icons.menu_book_rounded,
               size: 36,
               color: AppColors.primary,
             ),
           ),
-
           const SizedBox(height: 18),
-
           Text(
             "سيتم عرض الفصول والدروس هنا",
             style: TextStyle(
@@ -471,15 +443,11 @@ class CourseContentsPage extends StatelessWidget {
               color: colors.onSurface,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             "بانتظار اكتمال واجهة برمجة المحتوى من الخادم.",
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: colors.onSurfaceVariant,
-            ),
+            style: TextStyle(color: colors.onSurfaceVariant),
           ),
         ],
       ),
@@ -503,7 +471,6 @@ class _ChapterCardState extends State<_ChapterCard> {
   @override
   void initState() {
     super.initState();
-    // Auto-expand the chapter the student is currently on.
     _expanded = widget.chapter.status == ContentStatus.current;
   }
 
@@ -575,7 +542,6 @@ class _ChapterCardState extends State<_ChapterCard> {
               ),
             ),
           ),
-
           if (_expanded && !isLocked)
             Padding(
               padding: const EdgeInsets.only(bottom: 8, right: 8, left: 8),
@@ -607,7 +573,9 @@ class _LessonRow extends StatelessWidget {
         lesson.blocks.where((b) => b.status == ContentStatus.completed).length;
 
     return Material(
-      color: isCurrent ? AppColors.primaryLight.withOpacity(0.3) : Colors.transparent,
+      color: isCurrent
+          ? AppColors.primaryLight.withOpacity(0.3)
+          : Colors.transparent,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -618,19 +586,8 @@ class _LessonRow extends StatelessWidget {
           );
         }
             : () async {
-          // NOTE: was lesson.blocks.firstWhere(test, orElse: () => ...) —
-          // that throws at runtime ("type '() => BlockEntity' is not a
-          // subtype of '(() => BlockModel)?'"). lesson.blocks is declared
-          // as List<BlockEntity> but the actual object underneath is a
-          // List<BlockModel> (from JSON parsing); Dart resolves
-          // firstWhere's orElse callback type against the list's
-          // *reified* runtime type parameter (BlockModel), not its
-          // declared static type (BlockEntity), so a callback returning
-          // BlockEntity gets rejected even though it compiles fine.
-          // .where(...) + manual fallback sidesteps this entirely since
-          // there's no typed callback parameter involved.
-          final currentBlocks =
-          lesson.blocks.where((b) => b.status == ContentStatus.current);
+          final currentBlocks = lesson.blocks
+              .where((b) => b.status == ContentStatus.current);
           final startBlockId = currentBlocks.isNotEmpty
               ? currentBlocks.first.id
               : lesson.blocks.first.id;
@@ -645,10 +602,10 @@ class _LessonRow extends StatelessWidget {
             ),
           );
 
-          // FIX: was `course.id` — undefined here, this widget only has
-          // `courseId` passed down from CourseContentsPage.
           if (refreshed == true && context.mounted) {
-            context.read<CourseContentsBloc>().add(GetCourseContentsEvent(courseId));
+            context
+                .read<CourseContentsBloc>()
+                .add(GetCourseContentsEvent(courseId));
           }
         },
         child: Padding(
@@ -663,13 +620,16 @@ class _LessonRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13.5,
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
-                    color: isLocked ? colors.onSurfaceVariant : colors.onSurface,
+                    color: isLocked
+                        ? colors.onSurfaceVariant
+                        : colors.onSurface,
                   ),
                 ),
               ),
               if (isCurrent)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(8),
@@ -721,4 +681,36 @@ class _StatusIcon extends StatelessWidget {
             color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
     }
   }
+}
+
+void _showUnenrollConfirmation(BuildContext context, CourseEntity course) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) => Directionality(
+      textDirection: TextDirection.rtl,
+      child: AlertDialog(
+        title: const Text('إلغاء التسجيل'),
+        content: Text('هل أنت متأكد من إلغاء التسجيل في "${course.title}"؟'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('تراجع'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xffD9534F),
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              context.read<CourseContentsBloc>().add(
+                UnenrollFromCourseEvent(course.id),
+              );
+            },
+            child: const Text('تأكيد الإلغاء'),
+          ),
+        ],
+      ),
+    ),
+  );
 }
