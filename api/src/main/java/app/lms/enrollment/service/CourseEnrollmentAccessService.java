@@ -38,6 +38,12 @@ public class CourseEnrollmentAccessService {
                         )
                 );
 
+        if (enrollment.getStatus() == EnrollmentStatus.DROPPED) {
+            throw new ForbiddenException(
+                    "You are not enrolled in this course"
+            );
+        }
+
         organizationAccessService.validateNotBanned(
                 enrollment.getCourse()
                         .getOrganization()

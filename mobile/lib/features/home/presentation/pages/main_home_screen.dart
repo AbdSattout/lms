@@ -413,8 +413,8 @@ class _HomeContent extends StatelessWidget {
       children: courses.map((course) {
         return CourseCard(
           course: course,
-          onTap: () {
-            Navigator.push(
+          onTap: () async {
+            await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => BlocProvider(
@@ -429,6 +429,10 @@ class _HomeContent extends StatelessWidget {
                 ),
               ),
             );
+
+            if (context.mounted) {
+              context.read<HomeBloc>().add(GetHomeDataEvent());
+            }
           },
         );
       }).toList(),

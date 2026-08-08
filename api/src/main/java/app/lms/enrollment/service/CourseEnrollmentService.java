@@ -221,6 +221,10 @@ public class CourseEnrollmentService {
                                 user
                         );
 
+        resetEnrollmentLearningState(
+                enrollment
+        );
+
         enrollment.setStatus(
                 EnrollmentStatus.DROPPED
         );
@@ -416,9 +420,13 @@ public class CourseEnrollmentService {
                 user
         );
 
-        return enrollmentRepository.existsByCourseIdAndUserId(
+        return enrollmentRepository.existsByCourseIdAndUserIdAndStatusIn(
                 course.getId(),
-                user.getId()
+                user.getId(),
+                List.of(
+                        EnrollmentStatus.ACTIVE,
+                        EnrollmentStatus.COMPLETED
+                )
         );
     }
 
