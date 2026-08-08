@@ -6,6 +6,7 @@ import '../../../../core/databases/cache/cache_helper.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
+import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../billing/presentation/bloc/billing_bloc.dart';
@@ -88,10 +89,10 @@ class _ProfilePageState extends State<ProfilePage> {
           if (state is ProfileLoaded) {
             final profile = state.profile;
             final displayName = _displayName(profile);
-            final profileImage = _profileImageProvider(profile.user.picture);
             final isDark = Theme.of(context).brightness == Brightness.dark;
 
             return SafeArea(
+              top: false,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
@@ -143,9 +144,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 child: Stack(
                                   children: [
-                                    CircleAvatar(
+                                    ResilientNetworkAvatar(
                                       radius: 55,
-                                      backgroundImage: profileImage,
+                                      imageUrl: profile.user.picture,
                                     ),
 
                                     Positioned(
@@ -362,21 +363,6 @@ String? _nameFromEmail(String? email) {
   if (atIndex <= 0) return normalized;
 
   return normalized.substring(0, atIndex);
-}
-
-ImageProvider _profileImageProvider(String? picture) {
-  final normalized = picture?.trim();
-  final uri = normalized == null ? null : Uri.tryParse(normalized);
-  final isNetworkImage =
-      uri != null &&
-      (uri.scheme == 'http' || uri.scheme == 'https') &&
-      uri.host.isNotEmpty;
-
-  if (isNetworkImage) {
-    return NetworkImage(uri.toString());
-  }
-
-  return const AssetImage('assets/images/user.png');
 }
 
 class _AccountEmailCard extends StatefulWidget {
