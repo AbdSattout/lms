@@ -170,7 +170,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
     }
 
     final isPremium = user.isPremium;
-    final isRevoked = user.isSubscriptionRevoked;
+    final isRevoked = isPremium && user.isSubscriptionRevoked;
 
     return SafeArea(
       bottom: false,
@@ -344,7 +344,7 @@ class _BillingStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPremium = user.isPremium;
-    final isRevoked = user.isSubscriptionRevoked;
+    final isRevoked = isPremium && user.isSubscriptionRevoked;
     final subscription = user.subscription;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final useLightText = isPremium || isRevoked || isDark;
@@ -465,7 +465,7 @@ class _BillingStatusCard extends StatelessWidget {
                 _StatusMetric(
                   icon: Icons.event_available_rounded,
                   title: 'المدة',
-                  value: _periodLabel(subscription),
+                  value: _periodLabel(isPremium ? subscription : null),
                   isInverted: useLightText,
                 ),
                 _StatusMetric(
@@ -497,8 +497,10 @@ class _BillingStatusCard extends StatelessWidget {
 
   String _planName(BillingUserEntity user) {
     final name = user.plan?.name.trim();
-    if (user.isSubscriptionRevoked && !user.isPremium) return 'الاشتراك ملغى';
-    if (name != null && name.isNotEmpty) return name;
+    final planIsPremium = user.plan?.premium ?? false;
+    if (name != null && name.isNotEmpty && (user.isPremium || !planIsPremium)) {
+      return name;
+    }
     return user.isPremium ? 'الخطة المميزة' : 'الخطة المجانية';
   }
 
@@ -506,8 +508,8 @@ class _BillingStatusCard extends StatelessWidget {
     BillingUserEntity user,
     BillingSubscriptionEntity? subscription,
   ) {
-    if (subscription?.isRevokedOrCanceled ?? false) return 'ملغاة';
     if (!user.isPremium) return 'مجانية';
+    if (subscription?.isRevokedOrCanceled ?? false) return 'ملغاة';
     if (subscription == null) return 'مميزة';
     if (subscription.cancelAtPeriodEnd) return 'ستنتهي';
 
