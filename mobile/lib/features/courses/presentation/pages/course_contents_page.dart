@@ -23,8 +23,12 @@ class CourseContentsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => sl<CourseContentsBloc>(),
-      child: _CourseContentsView(course: course),
+      create: (_) => sl<CourseContentsBloc>()
+        ..add(GetCourseContentsEvent(course.id)),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: _CourseContentsView(course: course),
+      ),
     );
   }
 }
@@ -264,15 +268,15 @@ class _CourseContentsView extends StatelessWidget {
                       enrollment?.placementTestCompleted == true
                           ? BlocBuilder<CourseContentsBloc, CourseContentsState>(
                         builder: (context, state) {
-                          if (state is CourseContentsLoading ||
-                              state is CourseUnenrolled) {
-                            context.read<CourseContentsBloc>().add(
-                                GetCourseContentsEvent(course.id));
+                          if (state is CourseContentsLoading) {
                             return const Padding(
                               padding: EdgeInsets.symmetric(vertical: 40),
                               child: Center(
                                   child: CircularProgressIndicator()),
                             );
+                          }
+                          if (state is CourseUnenrolled) {
+                            return const SizedBox();
                           }
                           if (state is CourseContentsError) {
                             return _errorCard(
@@ -455,234 +459,6 @@ class _CourseContentsView extends StatelessWidget {
   }
 }
 
-class _ChapterCard extends StatefulWidget {
-  final ChapterEntity chapter;
-  final int courseId;
-
-  const _ChapterCard({required this.chapter, required this.courseId});
-
-  @override
-  State<_ChapterCard> createState() => _ChapterCardState();
-}
-
-class _ChapterCardState extends State<_ChapterCard> {
-  bool _expanded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _expanded = widget.chapter.status == ContentStatus.current;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final chapter = widget.chapter;
-    final isLocked = chapter.status == ContentStatus.locked;
-    final completedLessons =
-        chapter.lessons.where((l) => l.status == ContentStatus.completed).length;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        children: [
-          InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: isLocked
-                ? () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('أكمل الفصل السابق أولاً')),
-              );
-            }
-                : () => setState(() => _expanded = !_expanded),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  _StatusIcon(status: chapter.status),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          chapter.title,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                            color: isLocked
-                                ? colors.onSurfaceVariant
-                                : colors.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '$completedLessons / ${chapter.lessons.length} دروس',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  if (!isLocked)
-                    Icon(
-                      _expanded
-                          ? Icons.keyboard_arrow_up_rounded
-                          : Icons.keyboard_arrow_down_rounded,
-                      color: colors.onSurfaceVariant,
-                    ),
-                ],
-              ),
-            ),
-          ),
-          if (_expanded && !isLocked)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8, right: 8, left: 8),
-              child: Column(
-                children: chapter.lessons
-                    .map((lesson) => _LessonRow(
-                    lesson: lesson, courseId: widget.courseId))
-                    .toList(),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LessonRow extends StatelessWidget {
-  final LessonEntity lesson;
-  final int courseId;
-
-  const _LessonRow({required this.lesson, required this.courseId});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isLocked = lesson.status == ContentStatus.locked;
-    final isCurrent = lesson.status == ContentStatus.current;
-    final completedBlocks =
-        lesson.blocks.where((b) => b.status == ContentStatus.completed).length;
-
-    return Material(
-      color: isCurrent
-          ? AppColors.primaryLight.withOpacity(0.3)
-          : Colors.transparent,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
-        onTap: isLocked
-            ? () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('أكمل الدرس السابق أولاً')),
-          );
-        }
-            : () async {
-          final currentBlocks = lesson.blocks
-              .where((b) => b.status == ContentStatus.current);
-          final startBlockId = currentBlocks.isNotEmpty
-              ? currentBlocks.first.id
-              : lesson.blocks.first.id;
-
-          final refreshed = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BlocProvider(
-                create: (_) => sl<BlockContentBloc>(),
-                child: LessonContentPage(initialBlockId: startBlockId),
-              ),
-            ),
-          );
-
-          if (refreshed == true && context.mounted) {
-            context
-                .read<CourseContentsBloc>()
-                .add(GetCourseContentsEvent(courseId));
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              _StatusIcon(status: lesson.status, small: true),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  lesson.title,
-                  style: TextStyle(
-                    fontSize: 13.5,
-                    fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
-                    color: isLocked
-                        ? colors.onSurfaceVariant
-                        : colors.onSurface,
-                  ),
-                ),
-              ),
-              if (isCurrent)
-                Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Text(
-                    'متابعة',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                )
-              else if (!isLocked)
-                Text(
-                  '$completedBlocks/${lesson.blocks.length}',
-                  style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _StatusIcon extends StatelessWidget {
-  final ContentStatus status;
-  final bool small;
-
-  const _StatusIcon({required this.status, this.small = false});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = small ? 16.0 : 22.0;
-
-    switch (status) {
-      case ContentStatus.completed:
-        return Icon(Icons.check_circle_rounded,
-            color: const Color(0xff2E7D53), size: size);
-      case ContentStatus.current:
-        return Icon(Icons.play_circle_fill_rounded,
-            color: AppColors.primary, size: size);
-      case ContentStatus.locked:
-        return Icon(Icons.lock_rounded,
-            color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
-      case ContentStatus.unknown:
-        return Icon(Icons.circle_outlined,
-            color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
-    }
-  }
-}
-
 void _showUnenrollConfirmation(BuildContext context, CourseEntity course) {
   showDialog(
     context: context,
@@ -713,4 +489,130 @@ void _showUnenrollConfirmation(BuildContext context, CourseEntity course) {
       ),
     ),
   );
+}
+
+// Include _ChapterCard, _ChapterCardState, _LessonRow, _StatusIcon classes unchanged
+class _ChapterCard extends StatefulWidget {
+  final ChapterEntity chapter;
+  final int courseId;
+  const _ChapterCard({required this.chapter, required this.courseId});
+  @override
+  State<_ChapterCard> createState() => _ChapterCardState();
+}
+
+class _ChapterCardState extends State<_ChapterCard> {
+  bool _expanded = false;
+  @override
+  void initState() {
+    super.initState();
+    _expanded = widget.chapter.status == ContentStatus.current;
+  }
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final chapter = widget.chapter;
+    final isLocked = chapter.status == ContentStatus.locked;
+    final completedLessons = chapter.lessons.where((l) => l.status == ContentStatus.completed).length;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Theme.of(context).dividerColor),
+      ),
+      child: Column(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(18),
+            onTap: isLocked ? () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('أكمل الفصل السابق أولاً')));
+            } : () => setState(() => _expanded = !_expanded),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  _StatusIcon(status: chapter.status),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(chapter.title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: isLocked ? colors.onSurfaceVariant : colors.onSurface)),
+                        const SizedBox(height: 2),
+                        Text('$completedLessons / ${chapter.lessons.length} دروس', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+                      ],
+                    ),
+                  ),
+                  if (!isLocked) Icon(_expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, color: colors.onSurfaceVariant),
+                ],
+              ),
+            ),
+          ),
+          if (_expanded && !isLocked)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8, right: 8, left: 8),
+              child: Column(children: chapter.lessons.map((lesson) => _LessonRow(lesson: lesson, courseId: widget.courseId)).toList()),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LessonRow extends StatelessWidget {
+  final LessonEntity lesson;
+  final int courseId;
+  const _LessonRow({required this.lesson, required this.courseId});
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isLocked = lesson.status == ContentStatus.locked;
+    final isCurrent = lesson.status == ContentStatus.current;
+    final completedBlocks = lesson.blocks.where((b) => b.status == ContentStatus.completed).length;
+    return Material(
+      color: isCurrent ? AppColors.primaryLight.withOpacity(0.3) : Colors.transparent,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(14),
+        onTap: isLocked ? () {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('أكمل الدرس السابق أولاً')));
+        } : () async {
+          final currentBlocks = lesson.blocks.where((b) => b.status == ContentStatus.current);
+          final startBlockId = currentBlocks.isNotEmpty ? currentBlocks.first.id : lesson.blocks.first.id;
+          final refreshed = await Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(create: (_) => sl<BlockContentBloc>(), child: LessonContentPage(initialBlockId: startBlockId))));
+          if (refreshed == true && context.mounted) {
+            context.read<CourseContentsBloc>().add(GetCourseContentsEvent(courseId));
+          }
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              _StatusIcon(status: lesson.status, small: true),
+              const SizedBox(width: 10),
+              Expanded(child: Text(lesson.title, style: TextStyle(fontSize: 13.5, fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500, color: isLocked ? colors.onSurfaceVariant : colors.onSurface))),
+              if (isCurrent) Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)), child: const Text('متابعة', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: Colors.white)))
+              else if (!isLocked) Text('$completedBlocks/${lesson.blocks.length}', style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _StatusIcon extends StatelessWidget {
+  final ContentStatus status;
+  final bool small;
+  const _StatusIcon({required this.status, this.small = false});
+  @override
+  Widget build(BuildContext context) {
+    final size = small ? 16.0 : 22.0;
+    switch (status) {
+      case ContentStatus.completed: return Icon(Icons.check_circle_rounded, color: const Color(0xff2E7D53), size: size);
+      case ContentStatus.current: return Icon(Icons.play_circle_fill_rounded, color: AppColors.primary, size: size);
+      case ContentStatus.locked: return Icon(Icons.lock_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
+      case ContentStatus.unknown: return Icon(Icons.circle_outlined, color: Theme.of(context).colorScheme.onSurfaceVariant, size: size);
+    }
+  }
 }

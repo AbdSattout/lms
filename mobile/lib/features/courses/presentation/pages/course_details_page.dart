@@ -17,54 +17,56 @@ class CourseDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocConsumer<CourseDetailsBloc, CourseDetailsState>(
-        listenWhen: (previous, current) =>
-        current is CourseEnrollSuccess || current is CourseDetailsError,
-        listener: (context, state) {
-          if (state is CourseEnrollSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
-              ),
-            );
-          }
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        body: BlocConsumer<CourseDetailsBloc, CourseDetailsState>(
+          listenWhen: (previous, current) =>
+          current is CourseEnrollSuccess || current is CourseDetailsError,
+          listener: (context, state) {
+            if (state is CourseEnrollSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
+                ),
+              );
+            }
 
-          if (state is CourseDetailsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
-          }
-        },
-        buildWhen: (previous, current) =>
-        current is CourseDetailsLoading ||
-            current is CourseDetailsLoaded ||
-            (current is CourseDetailsError && previous is! CourseDetailsLoaded),
-        builder: (context, state) {
+            if (state is CourseDetailsError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
+            }
+          },
+          buildWhen: (previous, current) =>
+          current is CourseDetailsLoading ||
+              current is CourseDetailsLoaded ||
+              (current is CourseDetailsError && previous is! CourseDetailsLoaded),
+          builder: (context, state) {
+            if (state is CourseDetailsLoading || state is CourseDetailsInitial) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (state is CourseDetailsLoading || state is CourseDetailsInitial) {
-            return const Center(child: CircularProgressIndicator());
-          }
+            if (state is CourseDetailsError) {
+              return Center(
+                child: Text(state.message, textAlign: TextAlign.center),
+              );
+            }
 
-          if (state is CourseDetailsError) {
-            return Center(
-              child: Text(state.message, textAlign: TextAlign.center),
-            );
-          }
+            if (state is CourseDetailsLoaded) {
+              return _CourseDetailsContent(
+                course: state.course,
+                onEnroll: () {
+                  context.read<CourseDetailsBloc>().add(
+                    EnrollEvent(state.course.id),
+                  );
+                },
+              );
+            }
 
-          if (state is CourseDetailsLoaded) {
-            return _CourseDetailsContent(
-              course: state.course,
-              onEnroll: () {
-                context.read<CourseDetailsBloc>().add(
-                  EnrollEvent(state.course.id),
-                );
-              },
-            );
-          }
-
-          return const SizedBox();
-        },
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -84,11 +86,12 @@ class _CourseDetailsContent extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final isEnrolled = course.enrollment != null;
     final viewerJoined = course.organization?.viewerJoined;
-    final isBlockedByMembership = !isEnrolled && viewerJoined == false;
+    final viewerRole = course.organization?.viewerRole;
+    final isOwner = viewerRole == 'OWNER';
+    final isBlockedByMembership = !isEnrolled && viewerJoined == false && !isOwner;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
     final isCompleted = course.isCompleted;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
-
     return Stack(
       children: [
         SingleChildScrollView(
@@ -136,7 +139,8 @@ class _CourseDetailsContent extends StatelessWidget {
                       bottom: 16,
                       right: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.45),
                           borderRadius: BorderRadius.circular(12),
@@ -259,20 +263,30 @@ class _CourseDetailsContent extends StatelessWidget {
                   width: double.infinity,
                   height: 56,
                   child: ElevatedButton.icon(
-                    onPressed: isBlockedByMembership
+                    onPressed: isOwner
+                        ? () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('أنت مالك المنظمة، لا يمكنك التسجيل في كورساتها'),
+                        ),
+                      );
+                    }
+                        : isBlockedByMembership
                         ? () => _showMembershipRequiredDialog(context, course)
                         : isEnrolled
                         ? () async {
                       final shouldRefresh = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => CourseContentsPage(course: course),
+                          builder: (_) =>
+                              CourseContentsPage(course: course),
                         ),
                       );
                       if (shouldRefresh == true && context.mounted) {
                         context.read<CourseDetailsBloc>().add(
                           GetCourseDetailsEvent(
-                            orgSlug: course.organization?.slug ?? '',
+                            orgSlug:
+                            course.organization?.slug ?? '',
                             courseSlug: course.slug,
                           ),
                         );
@@ -280,29 +294,40 @@ class _CourseDetailsContent extends StatelessWidget {
                     }
                         : onEnroll,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
+                      backgroundColor: isOwner
+                          ? colors.surfaceContainerHighest
+                          : AppColors.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(18),
                       ),
-                      elevation: 4,
+                      elevation: isOwner ? 0 : 4,
                     ),
                     icon: Icon(
-                      isEnrolled
+                      isOwner
+                          ? Icons.admin_panel_settings_rounded
+                          : isEnrolled
                           ? Icons.play_circle_fill_rounded
                           : Icons.rocket_launch_rounded,
-                      color: Colors.white,
+                      color: isOwner
+                          ? colors.onSurfaceVariant
+                          : Colors.white,
                     ),
                     label: Text(
-                      isEnrolled ? 'متابعة' : 'سجّل الآن',
-                      style: const TextStyle(
+                      isOwner
+                          ? 'أنت مالك المنظمة'
+                          : isEnrolled
+                          ? 'متابعة'
+                          : 'سجّل الآن',
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: isOwner
+                            ? colors.onSurfaceVariant
+                            : Colors.white,
                       ),
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 10),
                 SizedBox(
                   width: double.infinity,
@@ -310,7 +335,8 @@ class _CourseDetailsContent extends StatelessWidget {
                   child: OutlinedButton.icon(
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('منشورات الكورس قريباً')),
+                        const SnackBar(
+                            content: Text('منشورات الكورس قريباً')),
                       );
                     },
                     icon: const Icon(Icons.forum_outlined, size: 18),
@@ -342,7 +368,8 @@ class _CourseDetailsContent extends StatelessWidget {
     );
   }
 
-  Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
+  Widget _roundIconButton(
+      {required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -356,7 +383,8 @@ class _CourseDetailsContent extends StatelessWidget {
     );
   }
 
-  void _showMembershipRequiredDialog(BuildContext context, CourseEntity course) {
+  void _showMembershipRequiredDialog(
+      BuildContext context, CourseEntity course) {
     showDialog(
       context: context,
       builder: (dialogContext) => Directionality(
@@ -389,8 +417,10 @@ class _CourseDetailsContent extends StatelessWidget {
                           MaterialPageRoute(
                             builder: (_) => BlocProvider(
                               create: (_) => sl<OrganizationDetailsBloc>()
-                                ..add(GetOrganizationDetailsEvent(course.organization!.slug)),
-                              child: OrganizationDetailsPage(slug: course.organization!.slug),
+                                ..add(GetOrganizationDetailsEvent(
+                                    course.organization!.slug)),
+                              child: OrganizationDetailsPage(
+                                  slug: course.organization!.slug),
                             ),
                           ),
                         );
@@ -455,15 +485,20 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+                color: iconBg, borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(height: 10),
-          Text(label, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+          Text(label,
+              style:
+              TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
           const SizedBox(height: 2),
           Text(value,
               style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: colors.onSurface)),
         ],
       ),
     );
