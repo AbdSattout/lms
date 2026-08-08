@@ -86,6 +86,10 @@ public class ProgressService {
                 );
 
         if (Boolean.TRUE.equals(progress.getCompleted())) {
+            if (!correct) {
+                return progressMapper.incorrectAnswer();
+            }
+
             return resolveNextStep(
                     block
             );
