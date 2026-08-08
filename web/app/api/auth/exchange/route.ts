@@ -11,14 +11,21 @@ import {
 } from "@/lib/auth/callback-url"
 import { getBetterAuthSession, getOidcIdToken } from "@/lib/auth/session"
 
-async function exchangeBackendSession() {
+const loginByProvider = {
+  telegram: api.auth.loginWithTelegram,
+  google: api.auth.loginWithGoogle,
+} as const
+
+export type LoginProvider = keyof typeof loginByProvider
+
+async function exchangeBackendSession(provider: LoginProvider) {
   const betterAuthSession = await getBetterAuthSession()
 
   if (!betterAuthSession) {
     return { redirectToLogin: true as const }
   }
 
-  const idToken = await getOidcIdToken()
+  const idToken = await getOidcIdToken(provider)
 
   if (!idToken) {
     return {
@@ -29,7 +36,7 @@ async function exchangeBackendSession() {
   }
 
   try {
-    const backendSession = await api.auth.loginWithTelegram.post(idToken)
+    const backendSession = await loginByProvider[provider].post(idToken)
     if (!backendSession.token) {
       throw new Error("Backend login response missing token.")
     }
@@ -54,7 +61,9 @@ async function exchangeBackendSession() {
 }
 
 export async function GET(request: NextRequest) {
-  const result = await exchangeBackendSession()
+  const providerParam = request.nextUrl.searchParams.get("provider")
+  const provider: LoginProvider = providerParam === "google" ? "google" : "telegram"
+  const result = await exchangeBackendSession(provider)
 
   if (result.redirectToLogin || result.message === "NEXT_REDIRECT") {
     return buildLoginRedirectResponse(request)

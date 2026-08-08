@@ -11,10 +11,10 @@ export async function getBetterAuthSession() {
   }
 }
 
-export async function getOidcIdToken() {
+export async function getOidcIdToken(providerId: string) {
   try {
     const tokens = await auth.api.getAccessToken({
-      body: { providerId: "telegram" },
+      body: { providerId },
       headers: await headers(),
     })
 
