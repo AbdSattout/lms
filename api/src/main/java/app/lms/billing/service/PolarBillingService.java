@@ -1,9 +1,9 @@
 package app.lms.billing.service;
 
 import app.lms.billing.client.PolarClient;
-import app.lms.billing.dto.CheckoutRequest;
 import app.lms.billing.dto.CheckoutSessionResponse;
 import app.lms.billing.dto.CustomerPortalSessionResponse;
+import app.lms.billing.enums.CheckoutClient;
 import app.lms.billing.model.PolarSubscription;
 import app.lms.billing.repository.PolarSubscriptionRepository;
 import app.lms.common.exception.BadRequestException;
@@ -32,13 +32,13 @@ public class PolarBillingService {
 
         return createPremiumCheckout(
                 user,
-                CheckoutRequest.Client.WEB
+                CheckoutClient.DEFAULT
         );
     }
 
     public CheckoutSessionResponse createPremiumCheckout(
             User user,
-            CheckoutRequest.Client client
+            CheckoutClient client
     ) {
 
         if (isPremiumPlan(

@@ -185,12 +185,14 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          const Text(
+                          Text(
                             'ادخل بريدك الإلكتروني لاستلام رمز الدخول',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
-                              color: AppColors.darkSoft,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -215,7 +217,9 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                           Row(
                             children: [
                               Expanded(
-                                child: Divider(color: Colors.grey.shade300),
+                                child: Divider(
+                                  color: Theme.of(context).dividerColor,
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -231,7 +235,9 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                                 ),
                               ),
                               Expanded(
-                                child: Divider(color: Colors.grey.shade300),
+                                child: Divider(
+                                  color: Theme.of(context).dividerColor,
+                                ),
                               ),
                             ],
                           ),
@@ -258,10 +264,12 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                                   },
                           ),
                           const SizedBox(height: 18),
-                          const Text(
+                          Text(
                             'دخول آمن ومشفر 100%',
                             style: TextStyle(
-                              color: AppColors.darkSoft,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                             ),
                           ),
@@ -492,6 +500,7 @@ class _GoogleAuthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnabled = onPressed != null;
+    final colors = Theme.of(context).colorScheme;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -519,7 +528,7 @@ class _GoogleAuthButton extends StatelessWidget {
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.disabled)) {
-                return Colors.grey.shade100;
+                return colors.surfaceContainerHighest;
               }
 
               return Colors.white;
@@ -531,7 +540,7 @@ class _GoogleAuthButton extends StatelessWidget {
             side: WidgetStateProperty.resolveWith((states) {
               return BorderSide(
                 color: states.contains(WidgetState.disabled)
-                    ? Colors.grey.shade300
+                    ? Theme.of(context).dividerColor
                     : const Color(0xFFD6DEE2),
                 width: 1.35,
               );
@@ -585,6 +594,7 @@ class _TelegramAuthButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
     final isEnabled = onPressed != null;
+    final colors = Theme.of(context).colorScheme;
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -612,7 +622,7 @@ class _TelegramAuthButton extends StatelessWidget {
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.resolveWith((states) {
               if (states.contains(WidgetState.disabled)) {
-                return Colors.grey.shade100;
+                return colors.surfaceContainerHighest;
               }
 
               return Colors.white;
@@ -624,7 +634,7 @@ class _TelegramAuthButton extends StatelessWidget {
             side: WidgetStateProperty.resolveWith((states) {
               return BorderSide(
                 color: states.contains(WidgetState.disabled)
-                    ? Colors.grey.shade300
+                    ? Theme.of(context).dividerColor
                     : primaryColor.withValues(alpha: 0.72),
                 width: 1.35,
               );

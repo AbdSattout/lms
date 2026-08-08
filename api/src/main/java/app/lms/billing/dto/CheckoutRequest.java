@@ -1,18 +1,24 @@
 package app.lms.billing.dto;
 
+import app.lms.billing.enums.CheckoutClient;
+
 public record CheckoutRequest(
-        Client client
+        CheckoutClient client
 ) {
 
-    public enum Client {
-        WEB,
-        MOBILE
+    public static CheckoutClient clientOrDefault(
+            CheckoutRequest request
+    ) {
+
+        return request == null
+                ? CheckoutClient.DEFAULT
+                : request.clientOrDefault();
     }
 
-    public Client safeClient() {
+    public CheckoutClient clientOrDefault() {
 
-        return client == null
-                ? Client.WEB
-                : client;
+        return CheckoutClient.orDefault(
+                client
+        );
     }
 }
