@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.MailException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -442,9 +441,9 @@ public class EmailOtpService {
         );
     }
 
-    private BadCredentialsException invalidOtp() {
+    private BadRequestException invalidOtp() {
 
-        return new BadCredentialsException(
+        return new BadRequestException(
                 "Invalid or expired email OTP"
         );
     }
