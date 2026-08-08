@@ -34,9 +34,9 @@ public class BillingController {
         return ResponseEntity.ok(
                 polarBillingService.createPremiumCheckout(
                         userPrincipal.user(),
-                        request == null
-                                ? CheckoutRequest.Client.WEB
-                                : request.safeClient()
+                        CheckoutRequest.clientOrDefault(
+                                request
+                        )
                 )
         );
     }

@@ -1,9 +1,9 @@
 package app.lms.billing.client;
 
 import app.lms.billing.config.PolarProperties;
-import app.lms.billing.dto.CheckoutRequest;
 import app.lms.billing.dto.CheckoutSessionResponse;
 import app.lms.billing.dto.CustomerPortalSessionResponse;
+import app.lms.billing.enums.CheckoutClient;
 import app.lms.common.exception.BadRequestException;
 import app.lms.user.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,20 +35,20 @@ public class PolarClient {
 
         return createPremiumCheckout(
                 user,
-                CheckoutRequest.Client.WEB
+                CheckoutClient.DEFAULT
         );
     }
 
     public CheckoutSessionResponse createPremiumCheckout(
             User user,
-            CheckoutRequest.Client client
+            CheckoutClient client
     ) {
 
         validateCheckoutConfiguration();
-        CheckoutRequest.Client safeClient =
-                client == null
-                        ? CheckoutRequest.Client.WEB
-                        : client;
+        CheckoutClient safeClient =
+                CheckoutClient.orDefault(
+                        client
+                );
 
         Map<String, Object> requestBody =
                 new LinkedHashMap<>();
@@ -309,10 +309,10 @@ public class PolarClient {
     }
 
     private String checkoutSuccessUrl(
-            CheckoutRequest.Client client
+            CheckoutClient client
     ) {
 
-        if (client == CheckoutRequest.Client.MOBILE) {
+        if (client == CheckoutClient.MOBILE) {
             return firstPresent(
                     polarProperties.getMobileCheckoutSuccessUrl(),
                     polarProperties.getCheckoutSuccessUrl()
@@ -326,10 +326,10 @@ public class PolarClient {
     }
 
     private String checkoutReturnUrl(
-            CheckoutRequest.Client client
+            CheckoutClient client
     ) {
 
-        if (client == CheckoutRequest.Client.MOBILE) {
+        if (client == CheckoutClient.MOBILE) {
             return firstPresent(
                     polarProperties.getMobileCheckoutReturnUrl(),
                     polarProperties.getCheckoutReturnUrl()
