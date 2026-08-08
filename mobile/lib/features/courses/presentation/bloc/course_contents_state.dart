@@ -13,3 +13,7 @@ class CourseContentsError extends CourseContentsState {
   final String message;
   CourseContentsError(this.message);
 }
+class CourseUnenrolled extends CourseContentsState {
+  final String message;
+  CourseUnenrolled(this.message);
+}

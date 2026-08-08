@@ -26,12 +26,20 @@ class OrganizationDetailsPage extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         body: BlocConsumer<OrganizationDetailsBloc, OrganizationDetailsState>(
-          listenWhen: (previous, current) => current is OrganizationDetailsError,
+          listenWhen: (previous, current) =>
+          current is OrganizationDetailsError || current is OrganizationDeleted,
           listener: (context, state) {
             if (state is OrganizationDetailsError) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text(state.message)),
               );
+            }
+
+            if (state is OrganizationDeleted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('تم حذف المنظمة')),
+              );
+              Navigator.pop(context, true);
             }
           },
           builder: (context, state) {
@@ -105,6 +113,36 @@ class OrganizationDetailsPage extends StatelessWidget {
                       .read<OrganizationDetailsBloc>()
                       .add(CancelJoinRequestEvent(slug));
                 },
+                onDelete: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: const Text('حذف المنظمة'),
+                      content: const Text(
+                        'هذا الإجراء نهائي ولا يمكن التراجع عنه. هل أنت متأكد من حذف هذه المنظمة؟',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('إلغاء'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text(
+                            'حذف',
+                            style: TextStyle(color: Color(0xffD9534F)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  if (confirmed == true && context.mounted) {
+                    context
+                        .read<OrganizationDetailsBloc>()
+                        .add(DeleteOrganizationEvent(slug));
+                  }
+                },
               );
             }
 
@@ -122,6 +160,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
   final VoidCallback onJoin;
   final VoidCallback onLeave;
   final VoidCallback onCancelRequest;
+  final VoidCallback onDelete;
 
   const _OrganizationDetailsContent({
     required this.organization,
@@ -129,6 +168,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
     required this.onJoin,
     required this.onLeave,
     required this.onCancelRequest,
+    required this.onDelete,
   });
 
   @override
@@ -139,11 +179,8 @@ class _OrganizationDetailsContent extends StatelessWidget {
         organization.image != null && organization.image!.isNotEmpty;
 
     final isMember = organization.viewerJoined;
+    final isOwner = organization.viewerRole == 'OWNER';
     final isPrivate = organization.visibility == OrganizationVisibility.private;
-    // Not live on the backend yet — null is treated the same as "no
-    // pending request" here, since there's no functionality to
-    // incorrectly hide either way (unlike the course-eligibility case,
-    // where null vs false has real stakes).
     final isPending = organization.joinRequestStatus == 'PENDING';
 
     final visibility = switch (organization.visibility) {
@@ -368,14 +405,18 @@ class _OrganizationDetailsContent extends StatelessWidget {
               children: [
                 _membershipButton(
                   isMember: isMember,
+                  isOwner: isOwner,
                   isPrivate: isPrivate,
                   isPending: isPending,
                   isProcessing: isProcessing,
                   onJoin: onJoin,
                   onLeave: onLeave,
+                  onDelete: onDelete,
                 ),
 
-                if (isPending && !isMember) ...[
+                // Owners can't have a pending request on their own org —
+                // this only ever applies to non-owner, non-member users.
+                if (isPending && !isMember && !isOwner) ...[
                   const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
@@ -417,23 +458,25 @@ class _OrganizationDetailsContent extends StatelessWidget {
 
   Widget _membershipButton({
     required bool isMember,
+    required bool isOwner,
     required bool isPrivate,
     required bool isPending,
     required bool isProcessing,
     required VoidCallback onJoin,
     required VoidCallback onLeave,
+    required VoidCallback onDelete,
   }) {
-    // Four real states, derived entirely from backend data:
-    // 1. Member -> Leave (destructive styling)
-    // 2. Pending request -> disabled "waiting for approval"
-    // 3. Not a member, PRIVATE -> "Request to Join"
-    // 4. Not a member, PUBLIC -> "Join" (immediate)
     String label;
     IconData icon;
     Color backgroundColor;
     VoidCallback? onPressed;
 
-    if (isMember) {
+    if (isOwner) {
+      label = "حذف المنظمة";
+      icon = Icons.delete_outline_rounded;
+      backgroundColor = const Color(0xffD9534F);
+      onPressed = isProcessing ? null : onDelete;
+    } else if (isMember) {
       label = "غادر المنظمة";
       icon = Icons.logout_rounded;
       backgroundColor = const Color(0xffD9534F);

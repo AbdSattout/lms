@@ -9,6 +9,7 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/pages/telegram_login_page.dart';
+import '../../../gamification/presentation/widgets/gamification_card.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
 import '../bloc/profile_event.dart';
@@ -272,10 +273,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                                 ElevatedButton(
                                   onPressed: () {
-                                    // Close the dialog first
                                     Navigator.pop(context);
-
-                                    // Dispatch logout event to AuthBloc
                                     context.read<AuthBloc>().add(LogoutRequested());
                                   },
                                   child: const Text('خروج'),
@@ -285,7 +283,9 @@ class _ProfilePageState extends State<ProfilePage> {
                           );
                         },
                       ),
-                      const SizedBox(height: 100),
+                      const SizedBox(height: 16),
+                      const GamificationCard(),
+                      const SizedBox(height: 16),
                     ],
                   )
 

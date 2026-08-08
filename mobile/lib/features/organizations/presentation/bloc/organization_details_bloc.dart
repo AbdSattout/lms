@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/api_error_resolver.dart';
 import '../../domain/usecases/cancel_join_request_usecase.dart';
+import '../../domain/usecases/delete_organization_usecase.dart';
 import '../../domain/usecases/get_organization_by_slug_usecase.dart';
 import '../../domain/usecases/join_organization_usecase.dart';
 import '../../domain/usecases/leave_organization_usecase.dart';
@@ -14,17 +15,20 @@ class OrganizationDetailsBloc
   final JoinOrganizationUseCase joinOrganizationUseCase;
   final LeaveOrganizationUseCase leaveOrganizationUseCase;
   final CancelJoinRequestUseCase cancelJoinRequestUseCase;
+  final DeleteOrganizationUseCase deleteOrganizationUseCase;
 
   OrganizationDetailsBloc({
     required this.getOrganizationBySlugUseCase,
     required this.joinOrganizationUseCase,
     required this.leaveOrganizationUseCase,
     required this.cancelJoinRequestUseCase,
+    required this.deleteOrganizationUseCase,
   }) : super(OrganizationDetailsInitial()) {
     on<GetOrganizationDetailsEvent>(_getDetails);
     on<JoinOrganizationEvent>(_join);
     on<LeaveOrganizationEvent>(_leave);
     on<CancelJoinRequestEvent>(_cancel);
+    on<DeleteOrganizationEvent>(_delete);
   }
 
   Future<void> _getDetails(
@@ -66,6 +70,23 @@ class OrganizationDetailsBloc
     slug: event.slug,
     action: () => cancelJoinRequestUseCase(event.slug),
   );
+
+  Future<void> _delete(
+      DeleteOrganizationEvent event,
+      Emitter<OrganizationDetailsState> emit,
+      ) async {
+    final current = state;
+    if (current is OrganizationDetailsLoaded) {
+      emit(OrganizationDetailsLoaded(current.organization, isProcessing: true));
+    }
+
+    try {
+      await deleteOrganizationUseCase(event.slug);
+      emit(OrganizationDeleted());
+    } catch (e) {
+      emit(OrganizationDetailsError(resolveApiErrorMessage(e)));
+    }
+  }
   Future<void> _performAction({
     required Emitter<OrganizationDetailsState> emit,
     required String slug,
