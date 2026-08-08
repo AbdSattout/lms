@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -242,101 +243,26 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             ],
                           ),
                           const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: OutlinedButton(
-                              onPressed: isBusy
-                                  ? null
-                                  : () {
-                                      context.read<AuthBloc>().add(
-                                        LoginWithGoogleRequested(),
-                                      );
-                                    },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.black87,
-                                side: BorderSide(
-                                  color: Colors.grey.shade400,
-                                  width: 1.3,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                              ),
-                              child: isGoogleLoading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.4,
-                                      ),
-                                    )
-                                  : const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          Icons.g_mobiledata_rounded,
-                                          size: 30,
-                                        ),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          'تسجيل الدخول بواسطة Google',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ),
+                          _GoogleAuthButton(
+                            isLoading: isGoogleLoading,
+                            onPressed: isBusy
+                                ? null
+                                : () {
+                                    context.read<AuthBloc>().add(
+                                      LoginWithGoogleRequested(),
+                                    );
+                                  },
                           ),
                           const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: OutlinedButton(
-                              onPressed: isBusy
-                                  ? null
-                                  : () {
-                                      context.read<AuthBloc>().add(
-                                        LoginWithTelegramRequested(),
-                                      );
-                                    },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Theme.of(context).primaryColor,
-                                side: BorderSide(
-                                  color: Theme.of(context).primaryColor,
-                                  width: 1.3,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                              ),
-                              child: isTelegramLoading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.4,
-                                      ),
-                                    )
-                                  : const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.telegram_rounded, size: 26),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          'الدخول بواسطة تيليجرام',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ),
+                          _TelegramAuthButton(
+                            isLoading: isTelegramLoading,
+                            onPressed: isBusy
+                                ? null
+                                : () {
+                                    context.read<AuthBloc>().add(
+                                      LoginWithTelegramRequested(),
+                                    );
+                                  },
                           ),
                           const SizedBox(height: 18),
                           const Text(
@@ -562,6 +488,254 @@ class _EmailOtpForm extends StatelessWidget {
 
     return null;
   }
+}
+
+class _GoogleAuthButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const _GoogleAuthButton({required this.isLoading, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = onPressed != null;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: isEnabled
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.10),
+                  blurRadius: 16,
+                  offset: const Offset(0, 7),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : const [],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.disabled)) {
+                return Colors.grey.shade100;
+              }
+
+              return Colors.white;
+            }),
+            foregroundColor: const WidgetStatePropertyAll(Color(0xFF15191C)),
+            overlayColor: WidgetStatePropertyAll(
+              Colors.black.withValues(alpha: 0.04),
+            ),
+            side: WidgetStateProperty.resolveWith((states) {
+              return BorderSide(
+                color: states.contains(WidgetState.disabled)
+                    ? Colors.grey.shade300
+                    : const Color(0xFFD6DEE2),
+                width: 1.35,
+              );
+            }),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 20),
+            ),
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 21,
+                  height: 21,
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF15191C),
+                    strokeWidth: 2.3,
+                  ),
+                )
+              : const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _GoogleLogo(size: 20),
+                    SizedBox(width: 11),
+                    Text(
+                      'تسجيل الدخول عبر جوجل',
+                      style: TextStyle(
+                        color: Color(0xFF15191C),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TelegramAuthButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const _TelegramAuthButton({required this.isLoading, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final isEnabled = onPressed != null;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: isEnabled
+            ? [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.10),
+                  blurRadius: 16,
+                  offset: const Offset(0, 7),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : const [],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.disabled)) {
+                return Colors.grey.shade100;
+              }
+
+              return Colors.white;
+            }),
+            foregroundColor: WidgetStatePropertyAll(primaryColor),
+            overlayColor: WidgetStatePropertyAll(
+              primaryColor.withValues(alpha: 0.06),
+            ),
+            side: WidgetStateProperty.resolveWith((states) {
+              return BorderSide(
+                color: states.contains(WidgetState.disabled)
+                    ? Colors.grey.shade300
+                    : primaryColor.withValues(alpha: 0.72),
+                width: 1.35,
+              );
+            }),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 20),
+            ),
+          ),
+          child: isLoading
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: primaryColor,
+                    strokeWidth: 2.4,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.telegram_rounded, color: primaryColor, size: 25),
+                    const SizedBox(width: 11),
+                    Flexible(
+                      child: Text(
+                        'الدخول بواسطة تيليجرام',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GoogleLogo extends StatelessWidget {
+  final double size;
+
+  const _GoogleLogo({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size.square(size),
+      painter: const _GoogleLogoPainter(),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  const _GoogleLogoPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final strokeWidth = size.width * 0.18;
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    double degrees(double value) => value * math.pi / 180;
+
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(rect, degrees(215), degrees(95), false, paint);
+
+    paint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(rect, degrees(150), degrees(65), false, paint);
+
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(rect, degrees(45), degrees(105), false, paint);
+
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(rect, degrees(-25), degrees(70), false, paint);
+
+    paint
+      ..strokeCap = StrokeCap.butt
+      ..color = const Color(0xFF4285F4);
+    canvas.drawLine(
+      Offset(size.width * 0.53, size.height * 0.50),
+      Offset(size.width * 0.92, size.height * 0.50),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GoogleLogoPainter oldDelegate) => false;
 }
 
 class _PrimaryAuthButton extends StatelessWidget {
