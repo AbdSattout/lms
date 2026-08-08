@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../bloc/my_courses_bloc.dart';
 import '../bloc/my_courses_event.dart';
 import '../bloc/my_courses_state.dart';
@@ -47,9 +46,9 @@ class MyCoursesPage extends StatelessWidget {
               listenWhen: (previous, current) => current is MyCoursesError,
               listener: (context, state) {
                 if (state is MyCoursesError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
                 }
               },
               builder: (context, state) {
@@ -64,8 +63,11 @@ class MyCoursesPage extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.error_outline_rounded,
-                              size: 48, color: colors.error),
+                          Icon(
+                            Icons.error_outline_rounded,
+                            size: 48,
+                            color: colors.error,
+                          ),
                           const SizedBox(height: 12),
                           Text(
                             state.message,
@@ -75,9 +77,9 @@ class MyCoursesPage extends StatelessWidget {
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
-                              context
-                                  .read<MyCoursesBloc>()
-                                  .add(GetMyEnrollmentsEvent());
+                              context.read<MyCoursesBloc>().add(
+                                GetMyEnrollmentsEvent(),
+                              );
                             },
                             child: const Text('إعادة المحاولة'),
                           ),
@@ -100,8 +102,11 @@ class MyCoursesPage extends StatelessWidget {
                               color: colors.primary.withOpacity(0.1),
                               shape: BoxShape.circle,
                             ),
-                            child: Icon(Icons.menu_book_rounded,
-                                size: 40, color: colors.primary),
+                            child: Icon(
+                              Icons.menu_book_rounded,
+                              size: 40,
+                              color: colors.primary,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           Text(
@@ -117,9 +122,9 @@ class MyCoursesPage extends StatelessWidget {
 
                   return RefreshIndicator(
                     onRefresh: () async {
-                      context
-                          .read<MyCoursesBloc>()
-                          .add(GetMyEnrollmentsEvent());
+                      context.read<MyCoursesBloc>().add(
+                        GetMyEnrollmentsEvent(),
+                      );
                     },
                     child: ListView.builder(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -129,17 +134,17 @@ class MyCoursesPage extends StatelessWidget {
                         return CourseCard(
                           course: course,
                           onTap: () async {
-                            final shouldRefresh = await Navigator.push(
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) =>
                                     CourseContentsPage(course: course),
                               ),
                             );
-                            if (shouldRefresh == true && context.mounted) {
-                              context
-                                  .read<MyCoursesBloc>()
-                                  .add(GetMyEnrollmentsEvent());
+                            if (context.mounted) {
+                              context.read<MyCoursesBloc>().add(
+                                GetMyEnrollmentsEvent(),
+                              );
                             }
                           },
                         );

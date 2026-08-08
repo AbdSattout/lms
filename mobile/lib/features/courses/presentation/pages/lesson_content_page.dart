@@ -18,6 +18,7 @@ class LessonContentPage extends StatefulWidget {
 class _LessonContentPageState extends State<LessonContentPage> {
   int? _selectedIndex;
   int? _activeBlockId;
+  bool _progressChanged = false;
 
   @override
   void initState() {
@@ -44,11 +45,16 @@ class _LessonContentPageState extends State<LessonContentPage> {
               });
             }
 
+            if (state is BlockContentLoaded &&
+                state.lastAnswerCorrect == true) {
+              _progressChanged = true;
+            }
+
             if (state is BlockContentFinished) {
               ScaffoldMessenger.of(
                 context,
               ).showSnackBar(SnackBar(content: Text(state.message)));
-              Navigator.pop(context, true);
+              Navigator.pop(context, _progressChanged);
             }
 
             if (state is BlockContentError) {
@@ -272,6 +278,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
                               ? null
                               : hasCorrectAnswer
                               ? () {
+                                  _progressChanged = true;
                                   context.read<BlockContentBloc>().add(
                                     ContinueAfterCorrectAnswerEvent(),
                                   );
