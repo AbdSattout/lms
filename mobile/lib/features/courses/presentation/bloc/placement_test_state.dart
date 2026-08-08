@@ -10,11 +10,15 @@ class PlacementTestInProgress extends PlacementTestState {
   final PlacementTestStateEntity data;
   final int heartsRemaining;
   final bool? lastAnswerCorrect;
+  final int? submittedAnswerIndex;
+  final bool isSubmitting;
 
   PlacementTestInProgress({
     required this.data,
     required this.heartsRemaining,
     this.lastAnswerCorrect,
+    this.submittedAnswerIndex,
+    this.isSubmitting = false,
   });
 }
 
