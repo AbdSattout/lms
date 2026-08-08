@@ -56,6 +56,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
         listenWhen: (previous, current) =>
             previous.errorMessage != current.errorMessage ||
             previous.successMessage != current.successMessage ||
+            previous.resultDialog != current.resultDialog ||
             previous.checkoutUrl != current.checkoutUrl ||
             previous.portalUrl != current.portalUrl,
         listener: _listen,
@@ -85,25 +86,86 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
   }
 
   void _listen(BuildContext context, BillingState state) {
-    final messenger = ScaffoldMessenger.of(context);
-
     if (state.errorMessage != null) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(state.errorMessage!),
-          backgroundColor: Colors.red,
+      context.read<BillingBloc>().add(const BillingNoticeShownEvent());
+      unawaited(
+        _showBillingNoticeDialog(
+          context,
+          title: 'تعذر تنفيذ العملية',
+          message: state.errorMessage!,
+          icon: Icons.error_outline_rounded,
+          accent: Colors.red,
         ),
       );
     }
 
     if (state.successMessage != null) {
-      messenger.showSnackBar(SnackBar(content: Text(state.successMessage!)));
+      context.read<BillingBloc>().add(const BillingNoticeShownEvent());
+      unawaited(
+        _showBillingNoticeDialog(
+          context,
+          title: 'تم التحديث',
+          message: state.successMessage!,
+          icon: Icons.check_circle_rounded,
+          accent: Colors.green,
+        ),
+      );
+    }
+
+    final resultDialog = state.resultDialog;
+    if (resultDialog != null) {
+      context.read<BillingBloc>().add(const BillingResultDialogShownEvent());
+      unawaited(_showBillingResultDialog(context, resultDialog));
     }
 
     final externalUrl = state.checkoutUrl ?? state.portalUrl;
     if (externalUrl != null) {
       unawaited(_openExternalUrl(context, externalUrl));
     }
+  }
+
+  Future<void> _showBillingResultDialog(
+    BuildContext context,
+    BillingResultDialog result,
+  ) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: _BillingResultDialogCard(
+            type: result.type,
+            onClose: () => Navigator.of(dialogContext).pop(),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _showBillingNoticeDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+    required IconData icon,
+    required Color accent,
+  }) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: _BillingNoticeDialogCard(
+            title: title,
+            message: message,
+            icon: icon,
+            accent: accent,
+            onClose: () => Navigator.of(dialogContext).pop(),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _openExternalUrl(BuildContext context, String url) async {
@@ -116,8 +178,14 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
           ? error.message ?? 'تعذر فتح الرابط'
           : 'تعذر فتح الرابط';
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      unawaited(
+        _showBillingNoticeDialog(
+          context,
+          title: 'تعذر فتح الرابط',
+          message: message,
+          icon: Icons.link_off_rounded,
+          accent: Colors.red,
+        ),
       );
     } finally {
       if (context.mounted) {
@@ -332,6 +400,277 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
     if (confirmed == true && context.mounted) {
       context.read<BillingBloc>().add(const RevokeSubscriptionEvent());
     }
+  }
+}
+
+class _BillingResultDialogCard extends StatelessWidget {
+  final BillingResultDialogType type;
+  final VoidCallback onClose;
+
+  const _BillingResultDialogCard({required this.type, required this.onClose});
+
+  bool get isSuccess => type == BillingResultDialogType.purchaseSuccess;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final accent = isSuccess ? Colors.green : const Color(0xffF59E0B);
+    final accentSoft = accent.withValues(alpha: 0.11);
+    final icon = isSuccess
+        ? Icons.check_circle_rounded
+        : Icons.pause_circle_filled_rounded;
+    final title = isSuccess ? 'شكرا لشرائك!' : 'لم تكتمل عملية الدفع';
+    final body = isSuccess
+        ? 'تم تفعيل الخطة المميزة على حسابك. استمتع بكل المزايا الجديدة.'
+        : 'تم إيقاف العملية قبل إتمام الشراء. يمكنك الاشتراك في أي وقت.';
+    final badgeText = isSuccess
+        ? 'الخطة المميزة مفعلة الآن'
+        : 'لم يتم خصم أي مبلغ';
+    final buttonText = isSuccess ? 'رائع' : 'حسنا';
+
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 390),
+        padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: accent.withValues(alpha: 0.18)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.18),
+              blurRadius: 34,
+              offset: const Offset(0, 18),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 92,
+                  height: 92,
+                  decoration: BoxDecoration(
+                    color: accentSoft,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                Container(
+                  width: 70,
+                  height: 70,
+                  decoration: BoxDecoration(
+                    color: accent.withValues(alpha: 0.14),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: accent, size: 44),
+                ),
+                if (isSuccess)
+                  Positioned(
+                    top: -4,
+                    right: -2,
+                    child: Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffF59E0B).withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Color(0xffF59E0B),
+                        size: 18,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colors.onSurface,
+                fontSize: 24,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              body,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+                fontSize: 14,
+                height: 1.55,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+              decoration: BoxDecoration(
+                color: accentSoft,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: accent.withValues(alpha: 0.18)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isSuccess
+                        ? Icons.workspace_premium_rounded
+                        : Icons.shield_outlined,
+                    color: accent,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      badgeText,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: accent,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: onClose,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.onSurface,
+                  foregroundColor: colors.surface,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: Text(
+                  buttonText,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BillingNoticeDialogCard extends StatelessWidget {
+  final String title;
+  final String message;
+  final IconData icon;
+  final Color accent;
+  final VoidCallback onClose;
+
+  const _BillingNoticeDialogCard({
+    required this.title,
+    required this.message,
+    required this.icon,
+    required this.accent,
+    required this.onClose,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24),
+      backgroundColor: Colors.transparent,
+      child: Container(
+        width: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 370),
+        padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(26),
+          border: Border.all(color: accent.withValues(alpha: 0.18)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.16),
+              blurRadius: 30,
+              offset: const Offset(0, 16),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 68,
+              height: 68,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: accent, size: 38),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colors.onSurface,
+                fontSize: 21,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+                fontSize: 14,
+                height: 1.55,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 22),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: onClose,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.onSurface,
+                  foregroundColor: colors.surface,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                child: const Text(
+                  'حسنا',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

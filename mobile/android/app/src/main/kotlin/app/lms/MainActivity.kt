@@ -66,12 +66,22 @@ class MainActivity : FlutterActivity() {
     private fun dispatchBillingDeepLink(intent: Intent?) {
         val url = intent?.dataString ?: return
         val uri = Uri.parse(url)
-        if (uri.scheme != "lms" || uri.host != "billing") return
+        val billingDeepLink = when {
+            uri.scheme == "lms" && uri.host == "billing" -> url
+            uri.scheme == "https" &&
+                uri.host == "lmscenter.vercel.app" &&
+                uri.pathSegments.size >= 3 &&
+                uri.pathSegments[0] == "mobile" &&
+                uri.pathSegments[1] == "billing" -> {
+                "lms://billing/${uri.pathSegments[2]}"
+            }
+            else -> return
+        }
 
-        pendingBillingDeepLink = url
+        pendingBillingDeepLink = billingDeepLink
         externalUrlMethodChannel?.invokeMethod(
             "billingDeepLink",
-            mapOf("url" to url)
+            mapOf("url" to billingDeepLink)
         )
     }
 }
