@@ -19,3 +19,8 @@ class CancelJoinRequestEvent extends OrganizationDetailsEvent {
   final String slug;
   CancelJoinRequestEvent(this.slug);
 }
+
+class DeleteOrganizationEvent extends OrganizationDetailsEvent {
+  final String slug;
+  DeleteOrganizationEvent(this.slug);
+}

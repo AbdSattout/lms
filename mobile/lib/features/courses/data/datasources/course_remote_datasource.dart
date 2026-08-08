@@ -18,6 +18,7 @@ abstract class CourseRemoteDataSource {
   Future<List<CourseModel>> getMyEnrollments();
 
   Future<EnrollActionResultModel> enrollInCourse(int courseId);
+  Future<void> unenrollFromCourse(int courseId);
 }
 
 class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
@@ -98,5 +99,9 @@ class CourseRemoteDataSourceImpl implements CourseRemoteDataSource {
     );
 
     return EnrollActionResultModel.fromJson(response);
+  }
+  @override
+  Future<void> unenrollFromCourse(int courseId) async {
+    await api.delete(EndPoints.unenrollFromCourse(courseId));
   }
 }

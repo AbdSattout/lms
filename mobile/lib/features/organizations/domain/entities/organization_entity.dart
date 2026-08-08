@@ -16,6 +16,18 @@ enum OrganizationVisibility {
   }
 }
 
+class OrganizationMemberEntity {
+  final int memberId;
+  final String? role;
+  final DateTime? joinedAt;
+
+  const OrganizationMemberEntity({
+    required this.memberId,
+    this.role,
+    this.joinedAt,
+  });
+}
+
 class OrganizationEntity {
   final int id;
   final String name;
@@ -25,10 +37,12 @@ class OrganizationEntity {
   final OrganizationVisibility visibility;
   final String? ownerName;
   final int membersCount;
+
   final bool viewerJoined;
   final String? viewerRole;
-
   final String? joinRequestStatus;
+  final String? inviteStatus;
+  final OrganizationMemberEntity? member;
 
   const OrganizationEntity({
     required this.id,
@@ -42,5 +56,8 @@ class OrganizationEntity {
     this.viewerJoined = false,
     this.viewerRole,
     this.joinRequestStatus,
+    this.inviteStatus,
+    this.member,
   });
+  bool get isOwner => viewerRole?.toUpperCase() == 'OWNER';
 }

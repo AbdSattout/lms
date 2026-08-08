@@ -14,9 +14,11 @@ import '../../features/courses/domain/usecases/get_block_content_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
+import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
+import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
@@ -62,6 +64,16 @@ import 'package:lms/features/organizations/data/repositories/organization_reposi
 import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
 import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
 import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
+
+// Gamification
+import '../../features/gamification/data/datasources/gamification_remote_datasource.dart';
+import '../../features/gamification/data/repositories/gamification_repository_impl.dart';
+import '../../features/gamification/domain/repositories/gamification_repository.dart';
+import '../../features/gamification/domain/usecases/get_my_progress_usecase.dart';
+import '../../features/gamification/domain/usecases/get_my_streak_usecase.dart';
+import '../../features/gamification/domain/usecases/get_activity_usecase.dart';
+import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart';
+import '../../features/gamification/presentation/bloc/gamification_bloc.dart';
 
 import '../theme/theme_cubit.dart';
 
@@ -150,7 +162,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCourseByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
   sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
-
+  sl.registerLazySingleton(() => UnenrollFromCourseUseCase(sl()));
   sl.registerFactory(
         () => MyCoursesBloc(getMyEnrollmentsUseCase: sl()),
   );
@@ -164,7 +176,10 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-        () => CourseContentsBloc(getCourseByIdUseCase: sl()),
+        () => CourseContentsBloc(
+      getCourseByIdUseCase: sl(),
+      unenrollFromCourseUseCase: sl(),
+    ),
   );
 
   sl.registerLazySingleton<PlacementTestRemoteDataSource>(
@@ -195,7 +210,7 @@ Future<void> init() async {
   sl.registerLazySingleton<OrganizationRepository>(
         () => OrganizationRepositoryImpl(sl()),
   );
-
+  sl.registerLazySingleton(() => DeleteOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => GetAllOrganizationsUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationBySlugUseCase(sl()));
   sl.registerLazySingleton(() => JoinOrganizationUseCase(sl()));
@@ -212,6 +227,7 @@ Future<void> init() async {
       joinOrganizationUseCase: sl(),
       leaveOrganizationUseCase: sl(),
       cancelJoinRequestUseCase: sl(),
+      deleteOrganizationUseCase: sl(),
     ),
   );
   // Blocks
@@ -223,6 +239,26 @@ Future<void> init() async {
     getBlockContentUseCase: sl(),
     submitBlockAnswerUseCase: sl(),
   ));
+
+  // Gamification
+  sl.registerLazySingleton<GamificationRemoteDataSource>(
+        () => GamificationRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<GamificationRepository>(
+        () => GamificationRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => GetMyProgressUseCase(sl()));
+  sl.registerLazySingleton(() => GetMyStreakUseCase(sl()));
+  sl.registerLazySingleton(() => GetActivityUseCase(sl()));
+  sl.registerLazySingleton(() => GetLeaderboardUseCase(sl()));
+  sl.registerFactory(
+        () => GamificationBloc(
+      getMyProgress: sl(),
+      getMyStreak: sl(),
+      getActivity: sl(),
+      getLeaderboard: sl(),
+    ),
+  );
 
   // Home
   sl.registerFactory(

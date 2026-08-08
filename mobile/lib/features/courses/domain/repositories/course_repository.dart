@@ -17,4 +17,5 @@ abstract class CourseRepository {
   Future<List<CourseEntity>> getMyEnrollments();
 
   Future<EnrollActionResultEntity> enrollInCourse(int courseId);
+  Future<void> unenrollFromCourse(int courseId);
 }

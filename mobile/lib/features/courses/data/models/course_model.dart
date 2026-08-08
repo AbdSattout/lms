@@ -1,6 +1,8 @@
 import '../../domain/entities/course_entity.dart';
 import '../../../organizations/domain/entities/organization_entity.dart'
     show OrganizationVisibility;
+import '../../../organizations/data/models/organization_model.dart'
+    show OrganizationMemberModel;
 
 class BlockModel extends BlockEntity {
   const BlockModel({
@@ -63,10 +65,6 @@ class ChapterModel extends ChapterEntity {
     );
   }
 }
-
-/// NEW — parses the nested "organization" object confirmed on GET
-/// /courses, GET /organizations/{slug}/courses, and GET /organizations/
-/// {orgSlug}/courses/{courseSlug}.
 class CourseOrganizationRefModel extends CourseOrganizationRef {
   const CourseOrganizationRefModel({
     required super.id,
@@ -77,12 +75,12 @@ class CourseOrganizationRefModel extends CourseOrganizationRef {
     super.visibility,
     super.viewerJoined,
     super.viewerRole,
+    super.joinRequestStatus,
+    super.inviteStatus,
+    super.member,
   });
 
   factory CourseOrganizationRefModel.fromJson(Map<String, dynamic> json) {
-    // Not live yet on this endpoint — json['viewer'] will simply be
-    // absent until the backend ships it, which correctly leaves both
-    // fields null rather than defaulting to false.
     final viewer = json['viewer'] as Map<String, dynamic>?;
 
     return CourseOrganizationRefModel(
@@ -94,6 +92,13 @@ class CourseOrganizationRefModel extends CourseOrganizationRef {
       visibility: OrganizationVisibility.fromApi(json['visibility']),
       viewerJoined: viewer?['joined'],
       viewerRole: viewer?['role'],
+      joinRequestStatus: viewer?['joinRequestStatus'],
+      inviteStatus: viewer?['inviteStatus'],
+      member: viewer?['member'] != null
+          ? OrganizationMemberModel.fromJson(
+        viewer!['member'] as Map<String, dynamic>,
+      )
+          : null,
     );
   }
 }
