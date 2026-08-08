@@ -8,6 +8,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../billing/presentation/bloc/billing_bloc.dart';
+import '../../../billing/presentation/bloc/billing_event.dart';
+import '../../../billing/presentation/pages/billing_page.dart';
 import '../../../gamification/presentation/widgets/gamification_card.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -248,6 +251,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.palette_outlined,
                       onTap: () {
                         _showThemeSheet(context);
+                      },
+                    ),
+
+                    ProfileOptionTile(
+                      title: "الخطط والمدفوعات",
+                      icon: Icons.payments_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (_) =>
+                                  sl<BillingBloc>()
+                                    ..add(const LoadBillingEvent()),
+                              child: const BillingPage(),
+                            ),
+                          ),
+                        );
                       },
                     ),
 

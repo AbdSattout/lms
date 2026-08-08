@@ -42,6 +42,11 @@ class EndPoints {
 
   static const String verifyAccountEmailOtp = 'users/me/email/verify-otp';
 
+  // Billing
+  static const String billingCheckout = 'billing/checkout';
+  static const String billingPortal = 'billing/portal';
+  static const String billingRevoke = 'billing/revoke';
+
   // Courses
   static const String courses = 'courses';
   static String courseById(int id) => 'courses/$id';
