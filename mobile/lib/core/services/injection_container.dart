@@ -14,6 +14,7 @@ import '../../features/courses/domain/usecases/get_block_content_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
+import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
@@ -161,7 +162,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCourseByIdUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
   sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
-
+  sl.registerLazySingleton(() => UnenrollFromCourseUseCase(sl()));
   sl.registerFactory(
         () => MyCoursesBloc(getMyEnrollmentsUseCase: sl()),
   );
@@ -175,7 +176,10 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-        () => CourseContentsBloc(getCourseByIdUseCase: sl()),
+        () => CourseContentsBloc(
+      getCourseByIdUseCase: sl(),
+      unenrollFromCourseUseCase: sl(),
+    ),
   );
 
   sl.registerLazySingleton<PlacementTestRemoteDataSource>(

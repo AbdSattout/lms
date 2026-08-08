@@ -28,6 +28,7 @@ import '../../../profile/presentation/bloc/profile_event.dart';
 import '../../bloc/home_bloc.dart';
 import '../../bloc/home_event.dart';
 import '../../bloc/home_state.dart';
+import '../../bloc/navbar_cubit.dart';
 
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
@@ -37,14 +38,14 @@ class MainHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = userAuthData.user;
+    final colors = Theme.of(context).colorScheme;
 
     return BlocProvider(
       create: (context) => NavbarCubit(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          backgroundColor:
-          Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           extendBody: true,
           body: BlocBuilder<NavbarCubit, int>(
             builder: (context, state) {
@@ -65,10 +66,10 @@ class MainHomeScreen extends StatelessWidget {
                     child: OrganizationsPage(currentUserName: user.name),
                   ),
                   BlocProvider(
-                    create: (_) => sl<ProfileBloc>()
-                      ..add(GetProfileEvent()),
+                    create: (_) => sl<ProfileBloc>()..add(GetProfileEvent()),
                     child: const ProfilePage(),
-                  )],
+                  ),
+                ],
               );
             },
           ),
@@ -87,8 +88,7 @@ class MainHomeScreen extends StatelessWidget {
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
-            backgroundColor:
-            Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             snakeViewColor: AppColors.primary.withOpacity(0.10),
             height: 70,
             elevation: 10,
@@ -99,7 +99,9 @@ class MainHomeScreen extends StatelessWidget {
             currentIndex: state,
             onTap: (index) {
               context.read<NavbarCubit>().controller.animateToPage(
-                index, duration: const Duration(milliseconds: 100), curve: Curves.linear,
+                index,
+                duration: const Duration(milliseconds: 100),
+                curve: Curves.linear,
               );
               context.read<NavbarCubit>().update(index);
             },
@@ -115,51 +117,40 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  BottomNavigationBarItem _buildNavItem(
-      String iconPath,
-      String label,
-      ) {
+  BottomNavigationBarItem _buildNavItem(String iconPath, String label) {
     return BottomNavigationBarItem(
-      icon: ImageIcon(
-        AssetImage(iconPath),
-        size: 22,
-      ),
-
+      icon: ImageIcon(AssetImage(iconPath), size: 22),
       activeIcon: Container(
         padding: const EdgeInsets.all(10),
-
         decoration: BoxDecoration(
           color: AppColors.primary.withOpacity(0.12),
           borderRadius: BorderRadius.circular(14),
         ),
-
-        child: ImageIcon(
-          AssetImage(iconPath),
-          size: 22,
-        ),
+        child: ImageIcon(AssetImage(iconPath), size: 22),
       ),
-
       label: label,
     );
   }
 
-  static Widget buildAvatar(dynamic user, {required double radius, bool isHome = false}) {
+  static Widget buildAvatar(dynamic user, {required double radius, bool isHome = false, VoidCallback? onTap}) {
     bool hasValidImage = user.picture != null && user.picture.toString().startsWith('http');
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.border, width: isHome ? 2 : 4),
-      ),
-      child: CircleAvatar(
-        radius: radius,
-        backgroundColor: Colors.grey[200],
-        backgroundImage: hasValidImage
-            ? NetworkImage(user.picture)
-            : const AssetImage('assets/images/user.png') as ImageProvider,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: AppColors.border, width: isHome ? 2 : 4),
+        ),
+        child: CircleAvatar(
+          radius: radius,
+          backgroundColor: Colors.grey[200],
+          backgroundImage: hasValidImage
+              ? NetworkImage(user.picture)
+              : const AssetImage('assets/images/user.png') as ImageProvider,
+        ),
       ),
     );
-  }
-}
+  }}
 
 class _HomeContent extends StatelessWidget {
   final dynamic user;
@@ -172,13 +163,9 @@ class _HomeContent extends StatelessWidget {
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(child: _header(context)),
-
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-
           SliverToBoxAdapter(child: _searchBar()),
-
           const SliverToBoxAdapter(child: SizedBox(height: 28)),
-
           BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
               if (state is HomeLoading) {
@@ -194,31 +181,21 @@ class _HomeContent extends StatelessWidget {
                 return SliverToBoxAdapter(
                   child: Column(
                     children: [
-                      _sectionHeader(
-                        context,
-                        title: 'المنظمات',
-                        onViewAll: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                create: (_) => sl<OrganizationBloc>()
-                                  ..add(GetAllOrganizationsEvent()),
-                                child: OrganizationsPage(
-                                  currentUserName: user.name,
-                                ),
-                              ),
+                      _sectionHeader(context, title: 'المنظمات', onViewAll: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (_) => sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
+                              child: OrganizationsPage(currentUserName: user.name),
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      }),
                       _organizationsSection(context, state),
-
                       const SizedBox(height: 12),
-
                       _sectionHeader(context, title: 'استكشف الكورسات'),
                       _coursesSection(context, state),
-
                       const SizedBox(height: 100),
                     ],
                   ),
@@ -234,6 +211,8 @@ class _HomeContent extends StatelessWidget {
   }
 
   Widget _header(BuildContext context) {
+    final navbarCubit = context.read<NavbarCubit>();
+
     return Container(
       padding: const EdgeInsets.only(top: 24, left: 22, right: 22, bottom: 22),
       decoration: const BoxDecoration(
@@ -244,48 +223,50 @@ class _HomeContent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            padding: const EdgeInsets.all(11),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.settings_rounded,
-              color: AppColors.dark,
-              size: 24,
-            ),
+            padding: const EdgeInsets.all(5),
+            child: const Icon(Icons.notifications, color: AppColors.dark, size: 30),
           ),
           Row(
             children: [
-              const Text(
+              Text(
                 "مسار",
-                style: TextStyle(
-                  fontSize: 38,
-                  fontWeight: FontWeight.w900,
+                style: Theme.of(context).textTheme.displayLarge?.copyWith(
                   color: AppColors.primary,
+                  fontSize: 42,
                 ),
               ),
               const SizedBox(width: 14),
-              MainHomeScreen.buildAvatar(user, radius: 23, isHome: true),
+              MainHomeScreen.buildAvatar(
+                user,
+                radius: 23,
+                isHome: true,
+                onTap: () {
+                  navbarCubit.controller.animateToPage(
+                    3,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                  navbarCubit.update(3);
+                },
+              ),
             ],
           ),
         ],
       ),
     );
   }
-
-  // Decorative for now — no search/filter endpoint confirmed yet.
   Widget _searchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Row(
         children: [
           Expanded(
+            flex: 5,
             child: Container(
-              height: 60,
+              height: 52,
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.06),
@@ -295,21 +276,23 @@ class _HomeContent extends StatelessWidget {
                 ],
               ),
               child: const TextField(
+                textDirection: TextDirection.rtl,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'ابحث عن كورس أو مسار...',
                   prefixIcon: Icon(Icons.search_rounded),
+                  contentPadding: EdgeInsets.symmetric(vertical: 14),
                 ),
               ),
             ),
           ),
           const SizedBox(width: 12),
           Container(
-            width: 60,
-            height: 60,
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               color: AppColors.primary,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.tune_rounded, color: Colors.white),
           ),
@@ -317,12 +300,13 @@ class _HomeContent extends StatelessWidget {
       ),
     );
   }
-
   Widget _sectionHeader(
       BuildContext context, {
         required String title,
         VoidCallback? onViewAll,
       }) {
+    final colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Row(
@@ -330,17 +314,16 @@ class _HomeContent extends StatelessWidget {
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w900,
+            ),
           ),
           if (onViewAll != null)
             GestureDetector(
               onTap: onViewAll,
-              child: const Text(
+              child: Text(
                 "عرض الكل",
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
               ),
             ),
         ],
@@ -350,8 +333,7 @@ class _HomeContent extends StatelessWidget {
 
   Widget _organizationsSection(BuildContext context, HomeLoaded state) {
     if (state.organizationsError != null) {
-      return _retryCard(context, state.organizationsError!,
-              () => context.read<HomeBloc>().add(GetHomeDataEvent()));
+      return _retryCard(context, state.organizationsError!, () => context.read<HomeBloc>().add(GetHomeDataEvent()));
     }
 
     final organizations = state.organizations ?? [];
@@ -370,8 +352,7 @@ class _HomeContent extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => BlocProvider(
-                create: (_) => sl<OrganizationDetailsBloc>()
-                  ..add(GetOrganizationDetailsEvent(org.slug)),
+                create: (_) => sl<OrganizationDetailsBloc>()..add(GetOrganizationDetailsEvent(org.slug)),
                 child: OrganizationDetailsPage(slug: org.slug),
               ),
             ),
@@ -384,8 +365,7 @@ class _HomeContent extends StatelessWidget {
 
   Widget _coursesSection(BuildContext context, HomeLoaded state) {
     if (state.coursesError != null) {
-      return _retryCard(context, state.coursesError!,
-              () => context.read<HomeBloc>().add(GetHomeDataEvent()));
+      return _retryCard(context, state.coursesError!, () => context.read<HomeBloc>().add(GetHomeDataEvent()));
     }
 
     final courses = state.courses ?? [];
@@ -431,15 +411,12 @@ class _HomeContent extends StatelessWidget {
           child: Text(
             message,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
         ),
       ),
     );
   }
-
   Widget _retryCard(BuildContext context, String message, VoidCallback onRetry) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
@@ -452,7 +429,7 @@ class _HomeContent extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(message, textAlign: TextAlign.center),
+            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: onRetry,

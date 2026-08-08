@@ -28,11 +28,9 @@ class EndPoints {
 
   // Courses
   static const String courses = 'courses';
-
   static String courseById(int id) => 'courses/$id';
-
   static String enrollInCourse(int id) => 'courses/$id/enroll';
-
+  static String unenrollFromCourse(int id) => 'courses/$id/enroll';
   static const String myEnrollments = 'courses/me/enrollments';
 
   static String placementTest(int courseId) =>

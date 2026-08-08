@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../../organizations/presentation/bloc/organization_details_event.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
@@ -247,7 +250,7 @@ class _CourseDetailsContent extends StatelessWidget {
         Positioned(
           left: 20,
           right: 20,
-          bottom: 20,
+          bottom: 1,
           child: SafeArea(
             top: false,
             child: Column(
@@ -259,13 +262,21 @@ class _CourseDetailsContent extends StatelessWidget {
                     onPressed: isBlockedByMembership
                         ? () => _showMembershipRequiredDialog(context, course)
                         : isEnrolled
-                        ? () {
-                      Navigator.push(
+                        ? () async {
+                      final shouldRefresh = await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => CourseContentsPage(course: course),
                         ),
                       );
+                      if (shouldRefresh == true && context.mounted) {
+                        context.read<CourseDetailsBloc>().add(
+                          GetCourseDetailsEvent(
+                            orgSlug: course.organization?.slug ?? '',
+                            courseSlug: course.slug,
+                          ),
+                        );
+                      }
                     }
                         : onEnroll,
                     style: ElevatedButton.styleFrom(
@@ -348,33 +359,66 @@ class _CourseDetailsContent extends StatelessWidget {
   void _showMembershipRequiredDialog(BuildContext context, CourseEntity course) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('يجب الانضمام إلى المنظمة أولاً'),
-        content: Text(
-          course.organizationDisplayName != null
-              ? 'التسجيل في هذا الكورس يتطلب أن تكون عضواً في "${course.organizationDisplayName}".'
-              : 'التسجيل في هذا الكورس يتطلب عضوية المنظمة المالكة له.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('إلغاء'),
+      builder: (dialogContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('يجب الانضمام إلى المنظمة أولاً'),
+          content: Text(
+            course.organizationDisplayName != null
+                ? 'التسجيل في هذا الكورس يتطلب أن تكون عضواً في "${course.organizationDisplayName}".'
+                : 'التسجيل في هذا الكورس يتطلب عضوية المنظمة المالكة له.',
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => OrganizationDetailsPage(
-                    slug: course.organization!.slug,
+          actions: [
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () => Navigator.pop(dialogContext),
+                    child: const Text('إلغاء'),
                   ),
                 ),
-              );
-            },
-            child: const Text('عرض المنظمة'),
-          ),
-        ],
+                const SizedBox(width: 10),
+                if (course.organization != null)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        Navigator.pop(dialogContext);
+
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (_) => sl<OrganizationDetailsBloc>()
+                                ..add(GetOrganizationDetailsEvent(course.organization!.slug)),
+                              child: OrganizationDetailsPage(slug: course.organization!.slug),
+                            ),
+                          ),
+                        );
+
+                        if (context.mounted) {
+                          context.read<CourseDetailsBloc>().add(
+                            GetCourseDetailsEvent(
+                              orgSlug: course.organization!.slug,
+                              courseSlug: course.slug,
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.apartment_rounded, size: 18),
+                      label: const Text('عرض المنظمة'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

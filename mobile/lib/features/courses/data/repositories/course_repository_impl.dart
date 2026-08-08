@@ -42,4 +42,8 @@ class CourseRepositoryImpl implements CourseRepository {
   Future<EnrollActionResultEntity> enrollInCourse(int courseId) {
     return remote.enrollInCourse(courseId);
   }
+  @override
+  Future<void> unenrollFromCourse(int courseId) async {
+    await remote.unenrollFromCourse(courseId);
+  }
 }

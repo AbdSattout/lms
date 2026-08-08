@@ -13,29 +13,31 @@ class MyCoursesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       body: Column(
         children: [
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
-              top: 24,
+              top: 28,
               left: 22,
               right: 22,
-              bottom: 22,
+              bottom: 24,
             ),
-            decoration: const BoxDecoration(
-              color: AppColors.primaryLight,
-              borderRadius: BorderRadius.vertical(
+            decoration: BoxDecoration(
+              color: colors.primary.withOpacity(0.08),
+              borderRadius: const BorderRadius.vertical(
                 bottom: Radius.circular(34),
               ),
             ),
-            child: const Text(
+            child: Text(
               'كورساتي',
-              style: TextStyle(
-                fontSize: 28,
+              style: textTheme.displayLarge?.copyWith(
                 fontWeight: FontWeight.w900,
-                color: AppColors.primary,
+                color: colors.primary,
               ),
             ),
           ),
@@ -51,11 +53,8 @@ class MyCoursesPage extends StatelessWidget {
                 }
               },
               builder: (context, state) {
-
                 if (state is MyCoursesLoading || state is MyCoursesInitial) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 }
 
                 if (state is MyCoursesError) {
@@ -65,11 +64,15 @@ class MyCoursesPage extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          Icon(Icons.error_outline_rounded,
+                              size: 48, color: colors.error),
+                          const SizedBox(height: 12),
                           Text(
                             state.message,
                             textAlign: TextAlign.center,
+                            style: textTheme.bodyLarge,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: () {
                               context
@@ -86,8 +89,29 @@ class MyCoursesPage extends StatelessWidget {
 
                 if (state is MyCoursesLoaded) {
                   if (state.courses.isEmpty) {
-                    return const Center(
-                      child: Text('لم تسجّل في أي كورس بعد'),
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: colors.primary.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.menu_book_rounded,
+                                size: 40, color: colors.primary),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'لم تسجّل في أي كورس بعد',
+                            style: textTheme.bodyLarge?.copyWith(
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }
 
@@ -102,17 +126,21 @@ class MyCoursesPage extends StatelessWidget {
                       itemCount: state.courses.length,
                       itemBuilder: (context, index) {
                         final course = state.courses[index];
-
                         return CourseCard(
                           course: course,
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final shouldRefresh = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (_) =>
                                     CourseContentsPage(course: course),
                               ),
                             );
+                            if (shouldRefresh == true && context.mounted) {
+                              context
+                                  .read<MyCoursesBloc>()
+                                  .add(GetMyEnrollmentsEvent());
+                            }
                           },
                         );
                       },

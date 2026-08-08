@@ -5,7 +5,7 @@ import '../../../../core/services/injection_container.dart';
 import '../bloc/gamification_bloc.dart';
 import '../bloc/gamification_event.dart';
 import '../bloc/gamification_state.dart';
-import '../pages/leaderboard_page.dart';
+import '../pages/gamification_page.dart';
 
 class GamificationCard extends StatelessWidget {
   const GamificationCard({super.key});
@@ -27,213 +27,209 @@ class _GamificationCardContent extends StatelessWidget {
     return BlocBuilder<GamificationBloc, GamificationState>(
       builder: (context, state) {
         if (state is GamificationLoading) {
-          return const _LoadingCard();
+          return const _LoadingState();
         }
         if (state is GamificationError) {
-          return _ErrorCard(message: state.message);
+          return const SizedBox.shrink();
         }
         if (state is GamificationLoaded) {
-          return _LoadedCard(
+          return _ProfileSummary(
             progress: state.progress,
             streak: state.streak,
-            latestActivity: state.activities.isNotEmpty ? state.activities.first : null,
           );
         }
-        return const _LoadingCard();
+        return const SizedBox.shrink();
       },
     );
   }
 }
 
-class _LoadingCard extends StatelessWidget {
-  const _LoadingCard();
+class _LoadingState extends StatelessWidget {
+  const _LoadingState();
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
-      child: SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: _cardDecoration(context),
+      child: const Center(
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
       ),
     );
   }
 }
 
-class _ErrorCard extends StatelessWidget {
-  final String message;
-  const _ErrorCard({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Text(message, textAlign: TextAlign.center),
-      ),
-    );
-  }
-}
-
-class _LoadedCard extends StatelessWidget {
+class _ProfileSummary extends StatelessWidget {
   final dynamic progress;
   final dynamic streak;
-  final dynamic latestActivity;
 
-  const _LoadedCard({
+  const _ProfileSummary({
     required this.progress,
     required this.streak,
-    this.latestActivity,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isEnglish = Directionality.of(context) == TextDirection.ltr;
 
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: _cardDecoration(context),
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: Row(
               children: [
-                Text(
-                  'تقدم التعلم',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    color: colors.onSurface,
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFFD700), Color(0xFFFFA000)],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.emoji_events_rounded,
+                      color: Colors.white, size: 22),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isEnglish ? 'Level ${progress.levelNumber}' : 'المستوى ${progress.levelNumber}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        progress.levelTitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.primaryLight,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
-                    'المستوى ${progress.levelNumber}',
+                    '${progress.totalXp} XP',
                     style: const TextStyle(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w700,
                       fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              progress.levelTitle,
-              style: TextStyle(
-                fontSize: 14,
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
+          ),
 
-            // XP Progress Bar
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: progress.progressPercentage / 100,
-                minHeight: 10,
-                backgroundColor: colors.surfaceContainerHighest,
-                valueColor: const AlwaysStoppedAnimation(AppColors.primary),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // Progress bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            child: Column(
               children: [
-                Text(
-                  '${progress.totalXp} XP',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: colors.onSurface,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: progress.progressPercentage / 100,
+                    minHeight: 8,
+                    backgroundColor: colors.surfaceContainerHighest,
+                    valueColor: const AlwaysStoppedAnimation(AppColors.primary),
                   ),
                 ),
-                Text(
-                  '${progress.xpToNextLevel} XP للمستوى التالي',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colors.onSurfaceVariant,
-                  ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      isEnglish
+                          ? '${progress.xpToNextLevel} XP to next level'
+                          : '${progress.xpToNextLevel} XP للمستوى التالي',
+                      style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                    ),
+                    Text(
+                      '${progress.progressPercentage.toInt()}%',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+          ),
 
-            // Streak info
-            Row(
+          // Streak row
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHighest.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _StreakBadge(
+                _MiniStreakItem(
                   icon: Icons.local_fire_department,
                   value: '${streak.currentStreak}',
-                  label: 'اليوم',
-                  color: Colors.orange,
+                  label: isEnglish ? 'Current' : 'الحالي',
+                  color: const Color(0xFFFF6B35),
                 ),
-                const SizedBox(width: 16),
-                _StreakBadge(
+                Container(width: 1, height: 30, color: colors.outlineVariant),
+                _MiniStreakItem(
                   icon: Icons.emoji_events,
                   value: '${streak.longestStreak}',
-                  label: 'الأطول',
-                  color: Colors.amber,
+                  label: isEnglish ? 'Best' : 'الأفضل',
+                  color: const Color(0xFFFFA000),
                 ),
-                const SizedBox(width: 16),
-                _StreakBadge(
+                Container(width: 1, height: 30, color: colors.outlineVariant),
+                _MiniStreakItem(
                   icon: Icons.calendar_month,
                   value: '${streak.activeDays}',
-                  label: 'نشط',
+                  label: isEnglish ? 'Active' : 'نشط',
                   color: AppColors.primary,
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+          ),
 
-            // Today's activity
-            if (latestActivity != null) ...[
-              const Divider(),
-              const SizedBox(height: 8),
-              Text(
-                'نشاط اليوم',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  _ActivityChip(label: '${latestActivity.xpEarned} XP', icon: Icons.star),
-                  _ActivityChip(label: '${latestActivity.completedBlocks} تمارين', icon: Icons.grid_view),
-                  _ActivityChip(label: '${latestActivity.completedLessons} دروس', icon: Icons.menu_book),
-                  _ActivityChip(label: '${latestActivity.totalActions} نشاط', icon: Icons.bolt),
-                ],
-              ),
-            ],
-            const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
-            // Leaderboard button
-            SizedBox(
+          // View full gamification button
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const LeaderboardPage()),
+                    MaterialPageRoute(builder: (_) => const GamificationPage()),
                   );
                 },
                 icon: const Icon(Icons.leaderboard_rounded, size: 18),
-                label: const Text('لوحة المتصدرين'),
+                label: Text(isEnglish ? 'View Gamification' : 'عرض الإنجازات'),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
@@ -244,20 +240,20 @@ class _LoadedCard extends StatelessWidget {
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _StreakBadge extends StatelessWidget {
+class _MiniStreakItem extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
   final Color color;
 
-  const _StreakBadge({
+  const _MiniStreakItem({
     required this.icon,
     required this.value,
     required this.label,
@@ -266,24 +262,23 @@ class _StreakBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 18, color: color),
-        const SizedBox(width: 4),
+        Icon(icon, size: 20, color: color),
+        const SizedBox(height: 4),
         Text(
           value,
           style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 14,
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
             color: color,
           ),
         ),
-        const SizedBox(width: 2),
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 10,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
@@ -292,35 +287,19 @@ class _StreakBadge extends StatelessWidget {
   }
 }
 
-class _ActivityChip extends StatelessWidget {
-  final String label;
-  final IconData icon;
-
-  const _ActivityChip({required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.circular(10),
+BoxDecoration _cardDecoration(BuildContext context) {
+  return BoxDecoration(
+    color: Theme.of(context).colorScheme.surface,
+    borderRadius: BorderRadius.circular(24),
+    border: Border.all(
+      color: Theme.of(context).dividerColor.withOpacity(0.5),
+    ),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.04),
+        blurRadius: 16,
+        offset: const Offset(0, 4),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: AppColors.primary),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+    ],
+  );
 }
