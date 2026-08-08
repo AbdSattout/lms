@@ -16,11 +16,22 @@ export interface BackendFetchOptions extends Omit<
   callbackUrl?: string
   headers?: HeadersInit
   body?: unknown
+  timeoutMs?: number
 }
 
-export class BackendUnauthorizedError extends Error {
-  constructor() {
-    super("Backend authentication required.")
+export class BackendError extends Error {
+  readonly status: number
+
+  constructor(status: number, message: string) {
+    super(message)
+    this.name = "BackendError"
+    this.status = status
+  }
+}
+
+export class BackendUnauthorizedError extends BackendError {
+  constructor(message = "Backend authentication required.") {
+    super(401, message)
     this.name = "BackendUnauthorizedError"
   }
 }
@@ -58,6 +69,7 @@ export async function backend<T>(
     headers,
     body,
     cache = "no-store",
+    timeoutMs = 30_000,
     ...init
   } = options
 
@@ -80,29 +92,41 @@ export async function backend<T>(
     requestHeaders.set("content-type", "application/json")
   }
 
-  const response = await fetch(buildBackendUrl(path), {
-    ...init,
-    cache,
-    headers: requestHeaders,
-    body: !hasBody ? undefined : isFormData ? body : JSON.stringify(body),
-  })
+  const timeoutSignal = AbortSignal.timeout(timeoutMs)
+
+  let response: Response
+
+  try {
+    response = await fetch(buildBackendUrl(path), {
+      ...init,
+      signal: init.signal
+        ? AbortSignal.any([init.signal, timeoutSignal])
+        : timeoutSignal,
+      cache,
+      headers: requestHeaders,
+      body: !hasBody ? undefined : isFormData ? body : JSON.stringify(body),
+    })
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "TimeoutError") {
+      throw new Error(
+        "Backend request failed (504): The backend took too long to respond."
+      )
+    }
+
+    throw error
+  }
 
   if (response.status === 401) {
+    // redirect: session expired on an authenticated call -> go to login.
+    // throw: rejected credentials (e.g. bad OTP) -> BackendUnauthorizedError.
     handleUnauthorized(unauthorized, callbackUrl)
   }
 
   if (!response.ok) {
-    let details: unknown
+    const detailString = await readResponseDetails(response)
 
-    try {
-      details = await response.json()
-    } catch {
-      details = await response.text()
-    }
-    const detailString =
-      typeof details === "object" ? JSON.stringify(details) : String(details)
-
-    throw new Error(
+    throw new BackendError(
+      response.status,
       `Backend request failed (${response.status}): ${detailString}`
     )
   }
@@ -130,4 +154,12 @@ function handleUnauthorized(
   }
 
   throw new BackendUnauthorizedError()
+}
+
+async function readResponseDetails(response: Response) {
+  try {
+    return JSON.stringify(await response.json())
+  } catch {
+    return await response.text()
+  }
 }
