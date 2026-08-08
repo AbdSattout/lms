@@ -26,6 +26,8 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     on<OpenCustomerPortalEvent>(_openCustomerPortal);
     on<RevokeSubscriptionEvent>(_revokeSubscription);
     on<BillingExternalUrlHandledEvent>(_clearExternalUrls);
+    on<BillingResultDialogShownEvent>(_clearResultDialog);
+    on<BillingNoticeShownEvent>(_clearNotice);
     on<BillingCheckoutReturnedEvent>(_checkoutReturned);
   }
 
@@ -40,6 +42,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           action: BillingAction.none,
           clearError: true,
           clearSuccess: event.silent,
+          clearResultDialog: true,
           clearCheckoutUrl: true,
           clearPortalUrl: true,
         ),
@@ -47,17 +50,21 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
 
       final user = await getBillingUserUseCase();
       final wasPremium = state.user?.isPremium ?? false;
+      final showPurchaseDialog = event.silent && !wasPremium && user.isPremium;
 
       emit(
         state.copyWith(
           user: user,
           isLoading: false,
           action: BillingAction.none,
-          successMessage: event.silent && !wasPremium && user.isPremium
-              ? 'شكرا لاشتراكك! تم تفعيل الخطة المميزة.'
+          resultDialog: showPurchaseDialog
+              ? const BillingResultDialog(
+                  BillingResultDialogType.purchaseSuccess,
+                )
               : null,
           clearError: true,
-          clearSuccess: !(event.silent && !wasPremium && user.isPremium),
+          clearSuccess: true,
+          clearResultDialog: !showPurchaseDialog,
         ),
       );
     } catch (e) {
@@ -83,6 +90,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           action: BillingAction.checkout,
           clearError: true,
           clearSuccess: true,
+          clearResultDialog: true,
           clearCheckoutUrl: true,
           clearPortalUrl: true,
         ),
@@ -97,7 +105,8 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
         state.copyWith(
           action: BillingAction.none,
           checkoutUrl: session.checkoutUrl,
-          successMessage: 'تم فتح صفحة الدفع. ارجع للتطبيق بعد إكمال العملية.',
+          clearSuccess: true,
+          clearResultDialog: true,
         ),
       );
     } catch (e) {
@@ -119,6 +128,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           action: BillingAction.portal,
           clearError: true,
           clearSuccess: true,
+          clearResultDialog: true,
           clearCheckoutUrl: true,
           clearPortalUrl: true,
         ),
@@ -133,7 +143,8 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
         state.copyWith(
           action: BillingAction.none,
           portalUrl: session.customerPortalUrl,
-          successMessage: 'تم فتح بوابة إدارة الاشتراك.',
+          clearSuccess: true,
+          clearResultDialog: true,
         ),
       );
     } catch (e) {
@@ -155,6 +166,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           action: BillingAction.revoke,
           clearError: true,
           clearSuccess: true,
+          clearResultDialog: true,
           clearCheckoutUrl: true,
           clearPortalUrl: true,
         ),
@@ -168,6 +180,7 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
           user: user,
           action: BillingAction.none,
           successMessage: 'تم إلغاء الاشتراك وتحديث خطتك.',
+          clearResultDialog: true,
         ),
       );
     } catch (e) {
@@ -184,6 +197,17 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
     emit(state.copyWith(clearCheckoutUrl: true, clearPortalUrl: true));
   }
 
+  void _clearResultDialog(
+    BillingResultDialogShownEvent event,
+    Emitter<BillingState> emit,
+  ) {
+    emit(state.copyWith(clearResultDialog: true));
+  }
+
+  void _clearNotice(BillingNoticeShownEvent event, Emitter<BillingState> emit) {
+    emit(state.copyWith(clearError: true, clearSuccess: true));
+  }
+
   Future<void> _checkoutReturned(
     BillingCheckoutReturnedEvent event,
     Emitter<BillingState> emit,
@@ -192,8 +216,11 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
       emit(
         state.copyWith(
           action: BillingAction.none,
-          successMessage: 'لم تكتمل عملية الدفع.',
+          resultDialog: const BillingResultDialog(
+            BillingResultDialogType.checkoutCanceled,
+          ),
           clearError: true,
+          clearSuccess: true,
           clearCheckoutUrl: true,
           clearPortalUrl: true,
         ),
@@ -208,24 +235,32 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
         state.copyWith(
           isLoading: true,
           action: BillingAction.none,
-          successMessage: 'تمت العودة من Polar. نتحقق من تفعيل الاشتراك...',
           clearError: true,
+          clearSuccess: true,
+          clearResultDialog: true,
           clearCheckoutUrl: true,
           clearPortalUrl: true,
         ),
       );
 
       final user = await _loadUserAfterSuccessfulCheckout();
+      final showPurchaseDialog = user.isPremium;
 
       emit(
         state.copyWith(
           user: user,
           isLoading: false,
           action: BillingAction.none,
-          successMessage: user.isPremium
-              ? 'شكرا لاشتراكك! تم تفعيل الخطة المميزة.'
+          successMessage: showPurchaseDialog
+              ? null
               : 'لم يتم تفعيل الاشتراك بعد. حدّث الصفحة بعد لحظات.',
+          resultDialog: showPurchaseDialog
+              ? const BillingResultDialog(
+                  BillingResultDialogType.purchaseSuccess,
+                )
+              : null,
           clearError: true,
+          clearResultDialog: !showPurchaseDialog,
         ),
       );
     } catch (e) {
