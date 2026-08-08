@@ -14,7 +14,8 @@ class EndPoints {
   // Google web OAuth client ID used as the ID-token audience by the backend.
   static const String googleClientId = String.fromEnvironment(
     'GOOGLE_CLIENT_ID',
-    defaultValue: '',
+    defaultValue:
+        '326110699388-969maarsvt92vapdsn67b60cj3ou56q5.apps.googleusercontent.com',
   );
 
   // OAuth / OIDC Constants
