@@ -38,6 +38,23 @@ class AuthRepositoryImpl extends AuthRepository {
   }
 
   @override
+  Future<Either<Failure, AuthEntity>> loginWithGoogle() async {
+    if (await networkInfo.isConnected!) {
+      try {
+        final remoteAuthData = await remoteDataSource.loginWithGoogle();
+        await _cacheAuthData(remoteAuthData);
+        return Right(remoteAuthData);
+      } on ServerException catch (e) {
+        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } catch (e) {
+        return Left(Failure(errMessage: e.toString()));
+      }
+    }
+
+    return Left(_networkFailure());
+  }
+
+  @override
   Future<Either<Failure, bool>> requestEmailOtp(String email) async {
     if (await networkInfo.isConnected!) {
       try {
