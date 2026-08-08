@@ -109,7 +109,7 @@ class OrganizationCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(9),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Icon(
@@ -160,7 +160,9 @@ class OrganizationCard extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            isOwnedByMe ? 'أنت (المالك)' : organization.ownerName!,
+                            isOwnedByMe
+                                ? 'أنت (المالك)'
+                                : organization.ownerName!,
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
@@ -226,37 +228,34 @@ class _OrgLogo extends StatelessWidget {
         gradient: hasImage
             ? null
             : LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.7),
-          ],
-        ),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [AppColors.primary, AppColors.primary.withOpacity(0.7)],
+              ),
       ),
       clipBehavior: Clip.antiAlias,
       child: hasImage
           ? Image.network(
-        organization.image!,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _initials(),
-        loadingBuilder: (context, child, progress) {
-          if (progress == null) return child;
-          return Container(
-            color: AppColors.primaryLight,
-            child: const Center(
-              child: SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColors.primary,
-                ),
-              ),
-            ),
-          );
-        },
-      )
+              organization.image!,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => _initials(),
+              loadingBuilder: (context, child, progress) {
+                if (progress == null) return child;
+                return Container(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  child: const Center(
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            )
           : _initials(),
     );
   }
@@ -288,7 +287,9 @@ class _VisibilityBadge extends StatelessWidget {
     final backgroundColor = isPrivate
         ? AppColors.peach.withOpacity(0.5)
         : AppColors.mint.withOpacity(0.5);
-    final iconColor = isPrivate ? const Color(0xffB4780F) : const Color(0xff2E7D53);
+    final iconColor = isPrivate
+        ? const Color(0xffB4780F)
+        : const Color(0xff2E7D53);
     final label = isPrivate ? 'خاصة' : 'عامة';
     final icon = isPrivate ? Icons.lock_outline_rounded : Icons.public_rounded;
 
@@ -331,8 +332,11 @@ class _OwnerBadge extends StatelessWidget {
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.workspace_premium_rounded,
-              size: 12, color: AppColors.lavender),
+          Icon(
+            Icons.workspace_premium_rounded,
+            size: 12,
+            color: AppColors.lavender,
+          ),
           SizedBox(width: 4),
           Text(
             'منظمتي',

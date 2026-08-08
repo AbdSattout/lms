@@ -666,7 +666,7 @@ class _LessonRow extends StatelessWidget {
         .length;
     return Material(
       color: isCurrent
-          ? AppColors.primaryLight.withOpacity(0.3)
+          ? AppColors.primary.withValues(alpha: 0.12)
           : Colors.transparent,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(

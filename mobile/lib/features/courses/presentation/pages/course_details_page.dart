@@ -242,7 +242,7 @@ class _CourseDetailsContent extends StatelessWidget {
                           child: _StatCard(
                             icon: Icons.apartment_rounded,
                             iconColor: AppColors.primary,
-                            iconBg: AppColors.primaryLight,
+                            iconBg: AppColors.primary.withValues(alpha: 0.12),
                             label: 'المنظمة',
                             value: course.organizationDisplayName ?? '—',
                           ),

@@ -321,7 +321,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           child: _StatCard(
                             icon: Icons.people_alt_rounded,
                             iconColor: AppColors.primary,
-                            iconBg: AppColors.primaryLight,
+                            iconBg: AppColors.primary.withValues(alpha: 0.12),
                             label: "الأعضاء",
                             value: organization.membersCount.toString(),
                           ),
@@ -369,7 +369,9 @@ class _OrganizationDetailsContent extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryLight,
+                                color: AppColors.primary.withValues(
+                                  alpha: 0.12,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(
