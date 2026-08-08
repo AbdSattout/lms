@@ -15,10 +15,7 @@ class OrganizationDetailsPage extends StatelessWidget {
   // an admin approved a pending request elsewhere).
   final String slug;
 
-  const OrganizationDetailsPage({
-    super.key,
-    required this.slug,
-  });
+  const OrganizationDetailsPage({super.key, required this.slug});
 
   @override
   Widget build(BuildContext context) {
@@ -27,18 +24,19 @@ class OrganizationDetailsPage extends StatelessWidget {
       child: Scaffold(
         body: BlocConsumer<OrganizationDetailsBloc, OrganizationDetailsState>(
           listenWhen: (previous, current) =>
-          current is OrganizationDetailsError || current is OrganizationDeleted,
+              current is OrganizationDetailsError ||
+              current is OrganizationDeleted,
           listener: (context, state) {
             if (state is OrganizationDetailsError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
 
             if (state is OrganizationDeleted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم حذف المنظمة')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('تم حذف المنظمة')));
               Navigator.pop(context, true);
             }
           },
@@ -59,9 +57,9 @@ class OrganizationDetailsPage extends StatelessWidget {
                       const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
-                          context
-                              .read<OrganizationDetailsBloc>()
-                              .add(GetOrganizationDetailsEvent(slug));
+                          context.read<OrganizationDetailsBloc>().add(
+                            GetOrganizationDetailsEvent(slug),
+                          );
                         },
                         child: const Text('إعادة المحاولة'),
                       ),
@@ -76,16 +74,18 @@ class OrganizationDetailsPage extends StatelessWidget {
                 organization: state.organization,
                 isProcessing: state.isProcessing,
                 onJoin: () {
-                  context
-                      .read<OrganizationDetailsBloc>()
-                      .add(JoinOrganizationEvent(slug));
+                  context.read<OrganizationDetailsBloc>().add(
+                    JoinOrganizationEvent(slug),
+                  );
                 },
                 onLeave: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (_) => AlertDialog(
                       title: const Text('مغادرة المنظمة'),
-                      content: const Text('هل أنت متأكد من مغادرة هذه المنظمة؟'),
+                      content: const Text(
+                        'هل أنت متأكد من مغادرة هذه المنظمة؟',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
@@ -103,15 +103,15 @@ class OrganizationDetailsPage extends StatelessWidget {
                   );
 
                   if (confirmed == true && context.mounted) {
-                    context
-                        .read<OrganizationDetailsBloc>()
-                        .add(LeaveOrganizationEvent(slug));
+                    context.read<OrganizationDetailsBloc>().add(
+                      LeaveOrganizationEvent(slug),
+                    );
                   }
                 },
                 onCancelRequest: () {
-                  context
-                      .read<OrganizationDetailsBloc>()
-                      .add(CancelJoinRequestEvent(slug));
+                  context.read<OrganizationDetailsBloc>().add(
+                    CancelJoinRequestEvent(slug),
+                  );
                 },
                 onDelete: () async {
                   final confirmed = await showDialog<bool>(
@@ -138,9 +138,9 @@ class OrganizationDetailsPage extends StatelessWidget {
                   );
 
                   if (confirmed == true && context.mounted) {
-                    context
-                        .read<OrganizationDetailsBloc>()
-                        .add(DeleteOrganizationEvent(slug));
+                    context.read<OrganizationDetailsBloc>().add(
+                      DeleteOrganizationEvent(slug),
+                    );
                   }
                 },
               );
@@ -182,6 +182,8 @@ class _OrganizationDetailsContent extends StatelessWidget {
     final isOwner = organization.viewerRole == 'OWNER';
     final isPrivate = organization.visibility == OrganizationVisibility.private;
     final isPending = organization.joinRequestStatus == 'PENDING';
+    final showsCancelRequest = isPending && !isMember && !isOwner;
+    final bottomContentPadding = showsCancelRequest ? 230.0 : 180.0;
 
     final visibility = switch (organization.visibility) {
       OrganizationVisibility.public => "عامة",
@@ -192,7 +194,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 150),
+          padding: EdgeInsets.only(bottom: bottomContentPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -204,12 +206,12 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     ),
                     child: hasImage
                         ? Image.network(
-                      organization.image!,
-                      width: double.infinity,
-                      height: 220,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _coverPlaceholder(),
-                    )
+                            organization.image!,
+                            width: double.infinity,
+                            height: 220,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _coverPlaceholder(),
+                          )
                         : _coverPlaceholder(),
                   ),
 
@@ -235,7 +237,10 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     bottom: 16,
                     right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.black.withOpacity(.45),
                         borderRadius: BorderRadius.circular(12),
@@ -274,8 +279,11 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         organization.description!.trim().isNotEmpty) ...[
                       Row(
                         children: [
-                          const Icon(Icons.info_outline_rounded,
-                              color: AppColors.primary, size: 18),
+                          const Icon(
+                            Icons.info_outline_rounded,
+                            color: AppColors.primary,
+                            size: 18,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             "عن المنظمة",
@@ -321,13 +329,19 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _StatCard(
-                            icon: organization.visibility == OrganizationVisibility.public
+                            icon:
+                                organization.visibility ==
+                                    OrganizationVisibility.public
                                 ? Icons.public_rounded
                                 : Icons.lock_rounded,
-                            iconColor: organization.visibility == OrganizationVisibility.public
+                            iconColor:
+                                organization.visibility ==
+                                    OrganizationVisibility.public
                                 ? const Color(0xff2E7D53)
                                 : const Color(0xffB4780F),
-                            iconBg: organization.visibility == OrganizationVisibility.public
+                            iconBg:
+                                organization.visibility ==
+                                    OrganizationVisibility.public
                                 ? AppColors.mint.withOpacity(.45)
                                 : AppColors.peach.withOpacity(.45),
                             label: "النوع",
@@ -346,7 +360,9 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: colors.surface,
                           borderRadius: BorderRadius.circular(18),
-                          border: Border.all(color: Theme.of(context).dividerColor),
+                          border: Border.all(
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -396,59 +412,87 @@ class _OrganizationDetailsContent extends StatelessWidget {
         ),
 
         Positioned(
-          left: 20,
-          right: 20,
-          bottom: 20,
+          left: 0,
+          right: 0,
+          bottom: 0,
           child: SafeArea(
             top: false,
-            child: Column(
-              children: [
-                _membershipButton(
-                  isMember: isMember,
-                  isOwner: isOwner,
-                  isPrivate: isPrivate,
-                  isPending: isPending,
-                  isProcessing: isProcessing,
-                  onJoin: onJoin,
-                  onLeave: onLeave,
-                  onDelete: onDelete,
-                ),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              decoration: BoxDecoration(
+                color: colors.surface,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.10),
+                    blurRadius: 24,
+                    offset: const Offset(0, -8),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _membershipButton(
+                    isMember: isMember,
+                    isOwner: isOwner,
+                    isPrivate: isPrivate,
+                    isPending: isPending,
+                    isProcessing: isProcessing,
+                    onJoin: onJoin,
+                    onLeave: onLeave,
+                    onDelete: onDelete,
+                  ),
 
-                // Owners can't have a pending request on their own org —
-                // this only ever applies to non-owner, non-member users.
-                if (isPending && !isMember && !isOwner) ...[
+                  // Owners can't have a pending request on their own org —
+                  // this only ever applies to non-owner, non-member users.
+                  if (showsCancelRequest) ...[
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: OutlinedButton.icon(
+                        onPressed: isProcessing ? null : onCancelRequest,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xffD9534F),
+                          side: const BorderSide(color: Color(0xffD9534F)),
+                          minimumSize: const Size.fromHeight(48),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        icon: const Icon(Icons.close_rounded, size: 18),
+                        label: const Text("إلغاء الطلب"),
+                      ),
+                    ),
+                  ],
+
                   const SizedBox(height: 10),
+
                   SizedBox(
                     width: double.infinity,
-                    height: 46,
+                    height: 48,
                     child: OutlinedButton.icon(
-                      onPressed: isProcessing ? null : onCancelRequest,
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('منشورات المنظمة قريباً'),
+                          ),
+                        );
+                      },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xffD9534F),
-                        side: const BorderSide(color: Color(0xffD9534F)),
+                        minimumSize: const Size.fromHeight(48),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
-                      icon: const Icon(Icons.close_rounded, size: 18),
-                      label: const Text("إلغاء الطلب"),
+                      icon: const Icon(Icons.campaign_outlined, size: 18),
+                      label: const Text("منشورات المنظمة"),
                     ),
                   ),
                 ],
-
-                const SizedBox(height: 10),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('منشورات المنظمة قريباً')),
-                      );
-                    },
-                    icon: const Icon(Icons.campaign_outlined, size: 18),
-                    label: const Text("منشورات المنظمة"),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -500,24 +544,33 @@ class _OrganizationDetailsContent extends StatelessWidget {
 
     return SizedBox(
       width: double.infinity,
-      height: 56,
+      height: 58,
       child: ElevatedButton.icon(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
           disabledBackgroundColor: backgroundColor.withOpacity(0.6),
-          elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          elevation: 0,
+          minimumSize: const Size.fromHeight(58),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
         ),
         icon: isProcessing
             ? const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.4),
-        )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.4,
+                ),
+              )
             : Icon(icon, color: Colors.white),
         label: Text(
           label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -591,15 +644,26 @@ class _StatCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(
+              color: iconBg,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(height: 10),
-          Text(label, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+          ),
           const SizedBox(height: 2),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: colors.onSurface,
+            ),
+          ),
         ],
       ),
     );

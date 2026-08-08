@@ -1,6 +1,7 @@
 package app.lms.billing.client;
 
 import app.lms.billing.config.PolarProperties;
+import app.lms.billing.dto.CheckoutRequest;
 import app.lms.billing.dto.CheckoutSessionResponse;
 import app.lms.billing.dto.CustomerPortalSessionResponse;
 import app.lms.common.exception.BadRequestException;
@@ -32,7 +33,22 @@ public class PolarClient {
             User user
     ) {
 
+        return createPremiumCheckout(
+                user,
+                CheckoutRequest.Client.WEB
+        );
+    }
+
+    public CheckoutSessionResponse createPremiumCheckout(
+            User user,
+            CheckoutRequest.Client client
+    ) {
+
         validateCheckoutConfiguration();
+        CheckoutRequest.Client safeClient =
+                client == null
+                        ? CheckoutRequest.Client.WEB
+                        : client;
 
         Map<String, Object> requestBody =
                 new LinkedHashMap<>();
@@ -79,12 +95,12 @@ public class PolarClient {
         putIfPresent(
                 requestBody,
                 "success_url",
-                polarProperties.getCheckoutSuccessUrl()
+                checkoutSuccessUrl(safeClient)
         );
         putIfPresent(
                 requestBody,
                 "return_url",
-                polarProperties.getCheckoutReturnUrl()
+                checkoutReturnUrl(safeClient)
         );
 
         try {
@@ -284,6 +300,50 @@ public class PolarClient {
                     "Polar premium product ID is not configured"
             );
         }
+    }
+
+    private String checkoutSuccessUrl(
+            CheckoutRequest.Client client
+    ) {
+
+        if (client == CheckoutRequest.Client.MOBILE) {
+            return firstPresent(
+                    polarProperties.getMobileCheckoutSuccessUrl(),
+                    polarProperties.getCheckoutSuccessUrl()
+            );
+        }
+
+        return firstPresent(
+                polarProperties.getWebCheckoutSuccessUrl(),
+                polarProperties.getCheckoutSuccessUrl()
+        );
+    }
+
+    private String checkoutReturnUrl(
+            CheckoutRequest.Client client
+    ) {
+
+        if (client == CheckoutRequest.Client.MOBILE) {
+            return firstPresent(
+                    polarProperties.getMobileCheckoutReturnUrl(),
+                    polarProperties.getCheckoutReturnUrl()
+            );
+        }
+
+        return firstPresent(
+                polarProperties.getWebCheckoutReturnUrl(),
+                polarProperties.getCheckoutReturnUrl()
+        );
+    }
+
+    private String firstPresent(
+            String preferred,
+            String fallback
+    ) {
+
+        return StringUtils.hasText(preferred)
+                ? preferred
+                : fallback;
     }
 
     private void validateAccessToken() {
