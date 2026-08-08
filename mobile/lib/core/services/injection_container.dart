@@ -41,6 +41,8 @@ import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_with_telegram.dart';
+import '../../features/auth/domain/usecases/request_email_otp.dart';
+import '../../features/auth/domain/usecases/verify_email_otp.dart';
 import '../../features/auth/domain/usecases/check_cached_auth_usecase.dart'; // ADD THIS
 import '../../features/auth/domain/usecases/logout_usecase.dart'; // ADD THIS
 //Courses Feature
@@ -84,12 +86,14 @@ Future<void> init() async {
 
   // Use cases
   sl.registerLazySingleton(() => LoginWithTelegram(repository: sl()));
+  sl.registerLazySingleton(() => RequestEmailOtp(repository: sl()));
+  sl.registerLazySingleton(() => VerifyEmailOtp(repository: sl()));
   sl.registerLazySingleton(() => CheckCachedAuth(repository: sl()));
   sl.registerLazySingleton(() => Logout(repository: sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
-        () => AuthRepositoryImpl(
+    () => AuthRepositoryImpl(
       remoteDataSource: sl(),
       localDataSource: sl(),
       networkInfo: sl(),
@@ -97,8 +101,10 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-        () => AuthBloc(
+    () => AuthBloc(
       loginWithTelegram: sl(),
+      requestEmailOtp: sl(),
+      verifyEmailOtp: sl(),
       checkCachedAuth: sl(),
       logout: sl(),
     ),
@@ -106,7 +112,7 @@ Future<void> init() async {
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-        () => AuthRemoteDataSourceImpl(appAuth: sl(), apiConsumer: sl()),
+    () => AuthRemoteDataSourceImpl(appAuth: sl(), apiConsumer: sl()),
   );
   sl.registerLazySingleton(() => AuthLocalDataSource(cache: sl()));
 
@@ -114,26 +120,25 @@ Future<void> init() async {
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   sl.registerLazySingleton<ApiConsumer>(
-        () => DioConsumer(
-      dio: sl(),
-      authLocalDataSource: sl(),
-    ),
+    () => DioConsumer(dio: sl(), authLocalDataSource: sl()),
   );
 
-  sl.registerLazySingleton(() => Dio(
-    BaseOptions(
-      baseUrl: 'http://10.0.2.2:8080/',
-      receiveDataWhenStatusError: true,
+  sl.registerLazySingleton(
+    () => Dio(
+      BaseOptions(
+        baseUrl: 'http://10.0.2.2:8080/',
+        receiveDataWhenStatusError: true,
+      ),
     ),
-  ));
+  );
 
   // Profile
   sl.registerLazySingleton<ProfileRemoteDataSource>(
-        () => ProfileRemoteDataSourceImpl(sl()),
+    () => ProfileRemoteDataSourceImpl(sl()),
   );
 
   sl.registerLazySingleton<ProfileRepository>(
-        () => ProfileRepositoryImpl(sl()),
+    () => ProfileRepositoryImpl(sl()),
   );
 
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
@@ -141,7 +146,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
 
   sl.registerFactory(
-        () => ProfileBloc(
+    () => ProfileBloc(
       getProfileUseCase: sl(),
       updatePictureUseCase: sl(),
       updateProfileUseCase: sl(),
@@ -150,12 +155,10 @@ Future<void> init() async {
 
   // Courses
   sl.registerLazySingleton<CourseRemoteDataSource>(
-        () => CourseRemoteDataSourceImpl(sl()),
+    () => CourseRemoteDataSourceImpl(sl()),
   );
 
-  sl.registerLazySingleton<CourseRepository>(
-        () => CourseRepositoryImpl(sl()),
-  );
+  sl.registerLazySingleton<CourseRepository>(() => CourseRepositoryImpl(sl()));
 
   sl.registerLazySingleton(() => GetAllCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetMyEnrollmentsUseCase(sl()));
@@ -163,12 +166,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
   sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
   sl.registerLazySingleton(() => UnenrollFromCourseUseCase(sl()));
-  sl.registerFactory(
-        () => MyCoursesBloc(getMyEnrollmentsUseCase: sl()),
-  );
+  sl.registerFactory(() => MyCoursesBloc(getMyEnrollmentsUseCase: sl()));
 
   sl.registerFactory(
-        () => CourseDetailsBloc(
+    () => CourseDetailsBloc(
       getCourseByIdUseCase: sl(),
       getCourseBySlugUseCase: sl(),
       enrollInCourseUseCase: sl(),
@@ -176,18 +177,18 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-        () => CourseContentsBloc(
+    () => CourseContentsBloc(
       getCourseByIdUseCase: sl(),
       unenrollFromCourseUseCase: sl(),
     ),
   );
 
   sl.registerLazySingleton<PlacementTestRemoteDataSource>(
-        () => PlacementTestRemoteDataSourceImpl(sl()),
+    () => PlacementTestRemoteDataSourceImpl(sl()),
   );
 
   sl.registerLazySingleton<PlacementTestRepository>(
-        () => PlacementTestRepositoryImpl(sl()),
+    () => PlacementTestRepositoryImpl(sl()),
   );
 
   sl.registerLazySingleton(() => GetPlacementTestUseCase(sl()));
@@ -195,7 +196,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SkipPlacementTestUseCase(sl()));
 
   sl.registerFactory(
-        () => PlacementTestBloc(
+    () => PlacementTestBloc(
       getPlacementTestUseCase: sl(),
       submitPlacementAnswerUseCase: sl(),
       skipPlacementTestUseCase: sl(),
@@ -204,11 +205,11 @@ Future<void> init() async {
 
   // Organizations
   sl.registerLazySingleton<OrganizationRemoteDataSource>(
-        () => OrganizationRemoteDataSourceImpl(sl()),
+    () => OrganizationRemoteDataSourceImpl(sl()),
   );
 
   sl.registerLazySingleton<OrganizationRepository>(
-        () => OrganizationRepositoryImpl(sl()),
+    () => OrganizationRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => DeleteOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => GetAllOrganizationsUseCase(sl()));
@@ -216,13 +217,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => JoinOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => LeaveOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
+  sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
   sl.registerFactory(
-        () => OrganizationBloc(
-      getAllOrganizationsUseCase: sl(),
-    ),
-  );
-  sl.registerFactory(
-        () => OrganizationDetailsBloc(
+    () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),
       joinOrganizationUseCase: sl(),
       leaveOrganizationUseCase: sl(),
@@ -231,28 +228,32 @@ Future<void> init() async {
     ),
   );
   // Blocks
-  sl.registerLazySingleton<BlockRemoteDataSource>(() => BlockRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<BlockRemoteDataSource>(
+    () => BlockRemoteDataSourceImpl(sl()),
+  );
   sl.registerLazySingleton<BlockRepository>(() => BlockRepositoryImpl(sl()));
   sl.registerLazySingleton(() => GetBlockContentUseCase(sl()));
   sl.registerLazySingleton(() => SubmitBlockAnswerUseCase(sl()));
-  sl.registerFactory(() => BlockContentBloc(
-    getBlockContentUseCase: sl(),
-    submitBlockAnswerUseCase: sl(),
-  ));
+  sl.registerFactory(
+    () => BlockContentBloc(
+      getBlockContentUseCase: sl(),
+      submitBlockAnswerUseCase: sl(),
+    ),
+  );
 
   // Gamification
   sl.registerLazySingleton<GamificationRemoteDataSource>(
-        () => GamificationRemoteDataSourceImpl(api: sl()),
+    () => GamificationRemoteDataSourceImpl(api: sl()),
   );
   sl.registerLazySingleton<GamificationRepository>(
-        () => GamificationRepositoryImpl(remoteDataSource: sl()),
+    () => GamificationRepositoryImpl(remoteDataSource: sl()),
   );
   sl.registerLazySingleton(() => GetMyProgressUseCase(sl()));
   sl.registerLazySingleton(() => GetMyStreakUseCase(sl()));
   sl.registerLazySingleton(() => GetActivityUseCase(sl()));
   sl.registerLazySingleton(() => GetLeaderboardUseCase(sl()));
   sl.registerFactory(
-        () => GamificationBloc(
+    () => GamificationBloc(
       getMyProgress: sl(),
       getMyStreak: sl(),
       getActivity: sl(),
@@ -262,10 +263,8 @@ Future<void> init() async {
 
   // Home
   sl.registerFactory(
-        () => HomeBloc(
-      getAllCoursesUseCase: sl(),
-      getAllOrganizationsUseCase: sl(),
-    ),
+    () =>
+        HomeBloc(getAllCoursesUseCase: sl(), getAllOrganizationsUseCase: sl()),
   );
 
   //! External
@@ -278,9 +277,7 @@ Future<void> init() async {
   sl.registerLazySingleton<CacheHelper>(() => cacheHelper);
   sl.registerLazySingleton(() => sharedPreferences);
 
-  sl.registerSingleton(
-    ThemeCubit()..setTheme(sl<CacheHelper>().getTheme()),
-  );
+  sl.registerSingleton(ThemeCubit()..setTheme(sl<CacheHelper>().getTheme()));
 
   sl.registerLazySingleton(() => const FlutterAppAuth());
   sl.registerLazySingleton(() => DataConnectionChecker());

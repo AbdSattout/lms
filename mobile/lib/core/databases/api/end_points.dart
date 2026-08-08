@@ -12,19 +12,21 @@ class EndPoints {
   );
 
   // OAuth / OIDC Constants
-  static const String discoveryUrl = 'https://oauth.telegram.org/.well-known/openid-configuration';
+  static const String discoveryUrl =
+      'https://oauth.telegram.org/.well-known/openid-configuration';
   static const String redirectUri = 'lms://telegram';
   static const List<String> scopes = ['openid', 'profile'];
 
   // Paths
-  static const String login =
-      'auth/login/telegram';
+  static const String login = 'auth/login/telegram';
 
-  static const String profile =
-      'profile/me';
+  static const String requestEmailOtp = 'auth/login/email/request-otp';
 
-  static const String updateProfilePicture =
-      'users/me/picture';
+  static const String verifyEmailOtp = 'auth/login/email/verify-otp';
+
+  static const String profile = 'profile/me';
+
+  static const String updateProfilePicture = 'users/me/picture';
 
   // Courses
   static const String courses = 'courses';
@@ -44,7 +46,8 @@ class EndPoints {
   static String organizationBySlug(String slug) => 'organizations/$slug';
   static String organizationJoin(String slug) => 'organizations/$slug/join';
   static String organizationLeave(String slug) => 'organizations/$slug/leave';
-  static String deleteOrganizationDashboard(String slug) => 'organizations/$slug/leave';
+  static String deleteOrganizationDashboard(String slug) =>
+      'organizations/$slug/leave';
 
   static String organizationCourses(String orgSlug) =>
       'organizations/$orgSlug/courses';
@@ -52,8 +55,7 @@ class EndPoints {
   static String courseBySlug({
     required String orgSlug,
     required String courseSlug,
-  }) =>
-      'organizations/$orgSlug/courses/$courseSlug';
+  }) => 'organizations/$orgSlug/courses/$courseSlug';
   // Blocks
   static String blockContent(int blockId) => 'blocks/$blockId';
   static String submitBlockAnswer(int blockId) => 'blocks/$blockId/submit';
