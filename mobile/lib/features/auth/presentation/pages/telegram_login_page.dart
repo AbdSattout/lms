@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lms/features/home/presentation/pages/main_home_screen.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -141,13 +140,7 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
             }
 
             if (state is AuthSuccess) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      MainHomeScreen(userAuthData: state.authEntity),
-                ),
-              );
+              _otpTimer?.cancel();
             }
           },
           builder: (context, state) {

@@ -7,8 +7,6 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../../auth/presentation/pages/telegram_login_page.dart';
 import '../../../gamification/presentation/widgets/gamification_card.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -20,301 +18,313 @@ class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
   @override
-  State<ProfilePage> createState() =>
-      _ProfilePageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(  // Add this BlocListener
-        listener: (context, state) {
-          if (state is Unauthenticated) {
-            // When logout is complete, navigate to login page
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>
-                    BlocProvider(
-                      create: (_) => sl<AuthBloc>(),
-                      child: const TelegramLoginPage(),
-                    ),
-              ),
-                  (route) => false,
-            );
-          }
-        },
-    child: Scaffold(
+    return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listenWhen: (previous, current) =>
-        current is ProfileUpdated ||
+            current is ProfileUpdated ||
             current is ProfilePictureUpdated ||
             current is ProfileError,
         listener: (context, state) {
           if (state is ProfileUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('تم تحديث البيانات بنجاح'),
-              ),
+              const SnackBar(content: Text('تم تحديث البيانات بنجاح')),
             );
           }
 
           if (state is ProfilePictureUpdated) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('تم تحديث الصورة بنجاح'),
-              ),
+              const SnackBar(content: Text('تم تحديث الصورة بنجاح')),
             );
           }
 
           if (state is ProfileError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         buildWhen: (previous, current) =>
-        current is ProfileLoading ||
+            current is ProfileLoading ||
             current is ProfileLoaded ||
             (current is ProfileError && previous is! ProfileLoaded),
         builder: (context, state) {
-
           if (state is ProfileLoading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (state is ProfileError) {
-            return Center(
-              child: Text(
-                state.message,
-              ),
-            );
+            return Center(child: Text(state.message));
           }
 
           if (state is ProfileLoaded) {
             final profile = state.profile;
+            final displayName = _displayName(profile);
+            final profileImage = _profileImageProvider(profile.user.picture);
 
             return SafeArea(
               child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 24,
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 235,
-                        child: Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            Container(
-                              height: 180,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topRight,
-                                  end: Alignment.bottomLeft,
-                                  colors: [
-                                    AppColors.primary,
-                                    AppColors.primaryLight,
-                                  ],
-                                ),
-                                borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(35),
-                                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 24,
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 235,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            height: 180,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topRight,
+                                end: Alignment.bottomLeft,
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primaryLight,
+                                ],
+                              ),
+                              borderRadius: const BorderRadius.vertical(
+                                bottom: Radius.circular(35),
                               ),
                             ),
+                          ),
 
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: Container(
-                                    padding: const EdgeInsets.all(4),
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context).cardColor,                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.primary,
-                                        width: 2,
-                                      ),
+                          Positioned(
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).cardColor,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: AppColors.primary,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 55,
+                                      backgroundImage: profileImage,
                                     ),
-                                    child: Stack(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 55,
-                                          backgroundImage:
-                                          profile.user.picture.isNotEmpty
-                                              ? NetworkImage(profile.user.picture)
-                                              : const AssetImage(
-                                            'assets/images/user.png',
-                                          ) as ImageProvider,
-                                        ),
 
-                                        Positioned(
-                                          bottom: 0,
-                                          right: 0,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              _pickImage(context);
-                                            },
-                                            child: Container(
-                                              padding: const EdgeInsets.all(6),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.primary,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(
-                                                  color: Colors.white,
-                                                  width: 2,
-                                                ),
-                                              ),
-                                              child: const Icon(
-                                                Icons.camera_alt,
-                                                color: Colors.white,
-                                                size: 18,
-                                              ),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: 0,
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          _pickImage(context);
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 2,
                                             ),
                                           ),
+                                          child: const Icon(
+                                            Icons.camera_alt,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
                                         ),
-                                      ],
-                                    )
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    ),
 
-                      const SizedBox(height: 15),
+                    const SizedBox(height: 15),
 
-                      Text(
-                        profile.name,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w900,
-                          color: AppColors.dark,
-                        ),
+                    Text(
+                      displayName,
+                      style: const TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.dark,
                       ),
+                    ),
 
-                      const SizedBox(height: 6),
+                    const SizedBox(height: 6),
 
-                      Text(
-                        profile.email ?? "لم يتم إضافة البريد الإلكتروني",
-                        style: const TextStyle(
-                          color: AppColors.darkSoft,
-                        ),
+                    Text(
+                      _displayValue(
+                        profile.email,
+                        fallback: "لم يتم إضافة البريد الإلكتروني",
                       ),
+                      style: const TextStyle(color: AppColors.darkSoft),
+                    ),
 
-                      const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                      _buildInfoCard(
-                        title: "رقم الهاتف",
-                        value: profile.phone ?? "",
-                        icon: Icons.phone_outlined,
-                      ),
+                    _buildInfoCard(
+                      title: "رقم الهاتف",
+                      value: _displayValue(profile.phone, fallback: ""),
+                      icon: Icons.phone_outlined,
+                    ),
 
-                      _buildInfoCard(
-                        title: "الجامعة",
-                        value: profile.university ?? "",
-                        icon: Icons.school_outlined,
-                      ),
+                    _buildInfoCard(
+                      title: "الجامعة",
+                      value: _displayValue(profile.university, fallback: ""),
+                      icon: Icons.school_outlined,
+                    ),
 
-                      const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                      ProfileOptionTile(
-                        title: "الإعدادات الشخصية",
-                        icon: Icons.edit_outlined,
-                        onTap: () {
-                          _showEditProfileSheet(
-                            context,
-                            profile,
-                          );
-                        },
-                      ),
+                    ProfileOptionTile(
+                      title: "الإعدادات الشخصية",
+                      icon: Icons.edit_outlined,
+                      onTap: () {
+                        _showEditProfileSheet(context, profile);
+                      },
+                    ),
 
-                      ProfileOptionTile(
-                        title: "المظهر",
-                        icon: Icons.palette_outlined,
-                        onTap: () {
-                          _showThemeSheet(context);
-                        },
-                      ),
+                    ProfileOptionTile(
+                      title: "المظهر",
+                      icon: Icons.palette_outlined,
+                      onTap: () {
+                        _showThemeSheet(context);
+                      },
+                    ),
 
-                      ProfileOptionTile(
-                        title: "شهاداتي",
-                        icon: Icons.workspace_premium_outlined,
-                        onTap: () {},
-                      ),
+                    ProfileOptionTile(
+                      title: "شهاداتي",
+                      icon: Icons.workspace_premium_outlined,
+                      onTap: () {},
+                    ),
 
-                      ProfileOptionTile(
-                        title: "تسجيل الخروج",
-                        icon: Icons.logout_rounded,
-                        destructive: true,
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text(
-                                'تسجيل الخروج',
+                    ProfileOptionTile(
+                      title: "تسجيل الخروج",
+                      icon: Icons.logout_rounded,
+                      destructive: true,
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text('تسجيل الخروج'),
+                            content: const Text('هل أنت متأكد؟'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('إلغاء'),
                               ),
-                              content: const Text(
-                                'هل أنت متأكد؟',
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  context.read<AuthBloc>().add(
+                                    LogoutRequested(),
+                                  );
+                                },
+                                child: const Text('خروج'),
                               ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('إلغاء'),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    context.read<AuthBloc>().add(LogoutRequested());
-                                  },
-                                  child: const Text('خروج'),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      const GamificationCard(),
-                      const SizedBox(height: 16),
-                    ],
-                  )
-
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const GamificationCard(),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ),
             );
           }
           return const SizedBox();
         },
       ),
-    )
     );
   }
 }
+
+String _displayName(ProfileEntity profile) {
+  final candidates = [
+    profile.name,
+    profile.user.name,
+    _nameFromEmail(profile.email),
+  ];
+
+  for (final candidate in candidates) {
+    final value = candidate?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+  }
+
+  return 'مستخدم';
+}
+
+String _displayValue(String? value, {String fallback = 'غير مضاف'}) {
+  final normalized = value?.trim();
+  if (normalized == null || normalized.isEmpty) {
+    return fallback;
+  }
+
+  return normalized;
+}
+
+String? _nameFromEmail(String? email) {
+  final normalized = email?.trim();
+  if (normalized == null || normalized.isEmpty) return null;
+
+  final atIndex = normalized.indexOf('@');
+  if (atIndex <= 0) return normalized;
+
+  return normalized.substring(0, atIndex);
+}
+
+ImageProvider _profileImageProvider(String? picture) {
+  final normalized = picture?.trim();
+  final uri = normalized == null ? null : Uri.tryParse(normalized);
+  final isNetworkImage =
+      uri != null &&
+      (uri.scheme == 'http' || uri.scheme == 'https') &&
+      uri.host.isNotEmpty;
+
+  if (isNetworkImage) {
+    return NetworkImage(uri.toString());
+  }
+
+  return const AssetImage('assets/images/user.png');
+}
+
 Widget _buildInfoCard({
   required String title,
   required String value,
   required IconData icon,
 }) {
   return Container(
-    margin: const EdgeInsets.only(
-      bottom: 14,
-    ),
+    margin: const EdgeInsets.only(bottom: 14),
     padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(22),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity(0.04),
+          color: Colors.black.withValues(alpha: 0.04),
           blurRadius: 20,
           offset: const Offset(0, 6),
         ),
@@ -326,47 +336,31 @@ Widget _buildInfoCard({
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color:
-            AppColors.primary.withOpacity(
-              0.1,
-            ),
-            borderRadius:
-            BorderRadius.circular(14),
+            color: AppColors.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(14),
           ),
-          child: Icon(
-            icon,
-            color: AppColors.primary,
-          ),
+          child: Icon(icon, color: AppColors.primary),
         ),
 
         const SizedBox(width: 14),
 
         Expanded(
           child: Column(
-            crossAxisAlignment:
-            CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(
-                  color: AppColors.darkSoft,
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: AppColors.darkSoft, fontSize: 13),
               ),
 
               const SizedBox(height: 4),
 
               Text(
-                value.isEmpty
-                    ? "غير مضاف"
-                    : value,
+                value.isEmpty ? "غير مضاف" : value,
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight:
-                  FontWeight.w700,
-                  color: value.isEmpty
-                      ? Colors.grey
-                      : AppColors.dark,
+                  fontWeight: FontWeight.w700,
+                  color: value.isEmpty ? Colors.grey : AppColors.dark,
                 ),
               ),
             ],
@@ -376,22 +370,13 @@ Widget _buildInfoCard({
     ),
   );
 }
-void _showEditProfileSheet(
-    BuildContext context,
-    ProfileEntity profile,
-    ) {
-  final emailController =
-  TextEditingController(
-    text: profile.email ?? '',
-  );
 
-  final phoneController =
-  TextEditingController(
-    text: profile.phone ?? '',
-  );
+void _showEditProfileSheet(BuildContext context, ProfileEntity profile) {
+  final emailController = TextEditingController(text: profile.email ?? '');
 
-  final universityController =
-  TextEditingController(
+  final phoneController = TextEditingController(text: profile.phone ?? '');
+
+  final universityController = TextEditingController(
     text: profile.university ?? '',
   );
 
@@ -403,9 +388,7 @@ void _showEditProfileSheet(
     context: context,
     isScrollControlled: true,
     shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(
-        top: Radius.circular(24),
-      ),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
     builder: (sheetContext) {
       return Padding(
@@ -413,22 +396,14 @@ void _showEditProfileSheet(
           left: 20,
           right: 20,
           top: 24,
-          bottom:
-          MediaQuery.of(sheetContext)
-              .viewInsets
-              .bottom +
-              20,
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom + 20,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             const Text(
               "تعديل الملف الشخصي",
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -436,8 +411,8 @@ void _showEditProfileSheet(
             TextField(
               controller: emailController,
               decoration: const InputDecoration(
-                  labelText: "البريد الإلكتروني",
-                  hintText: "example@gmail.com"
+                labelText: "البريد الإلكتروني",
+                hintText: "example@gmail.com",
               ),
             ),
 
@@ -446,8 +421,8 @@ void _showEditProfileSheet(
             TextField(
               controller: phoneController,
               decoration: const InputDecoration(
-                  labelText: "رقم الهاتف",
-                  hintText: "09XXXXXXXX"
+                labelText: "رقم الهاتف",
+                hintText: "09XXXXXXXX",
               ),
             ),
 
@@ -455,9 +430,7 @@ void _showEditProfileSheet(
 
             TextField(
               controller: universityController,
-              decoration: const InputDecoration(
-                labelText: "الجامعة",
-              ),
+              decoration: const InputDecoration(labelText: "الجامعة"),
             ),
 
             const SizedBox(height: 20),
@@ -466,7 +439,6 @@ void _showEditProfileSheet(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-
                   profileBloc.add(
                     UpdateProfileEvent(
                       email: emailController.text,
@@ -475,13 +447,9 @@ void _showEditProfileSheet(
                     ),
                   );
 
-                  Navigator.pop(
-                    sheetContext,
-                  );
+                  Navigator.pop(sheetContext);
                 },
-                child: const Text(
-                  "حفظ التعديلات",
-                ),
+                child: const Text("حفظ التعديلات"),
               ),
             ),
           ],
@@ -490,15 +458,12 @@ void _showEditProfileSheet(
     },
   );
 }
-Future<void> _pickImage(
-    BuildContext context,
-    ) async {
 
+Future<void> _pickImage(BuildContext context) async {
   final profileBloc = context.read<ProfileBloc>();
 
   try {
-    final ImagePicker picker =
-    ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
     final XFile? image = await picker.pickImage(
       source: ImageSource.gallery,
@@ -508,24 +473,23 @@ Future<void> _pickImage(
     debugPrint('picker returned: ${image?.path}');
 
     if (image == null) {
-      debugPrint('No image selected — either cancelled, permission denied, or no picker available on this device/emulator.');
+      debugPrint(
+        'No image selected — either cancelled, permission denied, or no picker available on this device/emulator.',
+      );
       return;
     }
 
-    profileBloc.add(
-      UpdateProfilePictureEvent(
-        image.path,
-      ),
-    );
+    profileBloc.add(UpdateProfilePictureEvent(image.path));
   } catch (e) {
     debugPrint('Image picker failed: $e');
     if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر اختيار الصورة: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('تعذر اختيار الصورة: $e')));
     }
   }
 }
+
 void _showThemeSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
@@ -538,7 +502,6 @@ void _showThemeSheet(BuildContext context) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               ListTile(
                 leading: const Icon(Icons.light_mode),
                 title: const Text("فاتح"),
@@ -548,6 +511,7 @@ void _showThemeSheet(BuildContext context) {
                   onChanged: (value) async {
                     cubit.setTheme(value!);
                     await sl<CacheHelper>().saveTheme(value);
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   },
                 ),
@@ -562,6 +526,7 @@ void _showThemeSheet(BuildContext context) {
                   onChanged: (value) async {
                     cubit.setTheme(value!);
                     await sl<CacheHelper>().saveTheme(value);
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   },
                 ),
@@ -576,6 +541,7 @@ void _showThemeSheet(BuildContext context) {
                   onChanged: (value) async {
                     cubit.setTheme(value!);
                     await sl<CacheHelper>().saveTheme(value);
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                   },
                 ),

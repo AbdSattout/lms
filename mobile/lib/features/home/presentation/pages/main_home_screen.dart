@@ -4,10 +4,8 @@ import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
-import 'package:lms/features/home/bloc/navbar_cubit.dart';
 import 'package:lms/features/profile/presentation/pages/profile_page.dart';
 
-import '../../../courses/domain/entities/course_entity.dart';
 import '../../../courses/presentation/bloc/course_details_bloc.dart';
 import '../../../courses/presentation/bloc/course_details_event.dart';
 import '../../../courses/presentation/bloc/my_courses_bloc.dart';
@@ -15,7 +13,6 @@ import '../../../courses/presentation/bloc/my_courses_event.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
 import '../../../courses/presentation/pages/my_courses_page.dart';
 import '../../../courses/presentation/widgets/course_card.dart';
-import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_event.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
@@ -38,7 +35,6 @@ class MainHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = userAuthData.user;
-    final colors = Theme.of(context).colorScheme;
 
     return BlocProvider(
       create: (context) => NavbarCubit(),
@@ -58,11 +54,13 @@ class MainHomeScreen extends StatelessWidget {
                     child: _HomeContent(user: user),
                   ),
                   BlocProvider(
-                    create: (_) => sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
+                    create: (_) =>
+                        sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
                     child: const MyCoursesPage(),
                   ),
                   BlocProvider(
-                    create: (_) => sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
+                    create: (_) =>
+                        sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
                     child: OrganizationsPage(currentUserName: user.name),
                   ),
                   BlocProvider(
@@ -87,13 +85,15 @@ class MainHomeScreen extends StatelessWidget {
           child: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(48)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(48),
+            ),
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            snakeViewColor: AppColors.primary.withOpacity(0.10),
+            snakeViewColor: AppColors.primary.withValues(alpha: 0.10),
             height: 70,
             elevation: 10,
             selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.darkSoft.withOpacity(0.55),
+            unselectedItemColor: AppColors.darkSoft.withValues(alpha: 0.55),
             showSelectedLabels: true,
             showUnselectedLabels: false,
             currentIndex: state,
@@ -123,7 +123,7 @@ class MainHomeScreen extends StatelessWidget {
       activeIcon: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: AppColors.primary.withOpacity(0.12),
+          color: AppColors.primary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(14),
         ),
         child: ImageIcon(AssetImage(iconPath), size: 22),
@@ -132,8 +132,14 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget buildAvatar(dynamic user, {required double radius, bool isHome = false, VoidCallback? onTap}) {
-    bool hasValidImage = user.picture != null && user.picture.toString().startsWith('http');
+  static Widget buildAvatar(
+    dynamic user, {
+    required double radius,
+    bool isHome = false,
+    VoidCallback? onTap,
+  }) {
+    bool hasValidImage =
+        user.picture != null && user.picture.toString().startsWith('http');
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -150,7 +156,8 @@ class MainHomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }}
+  }
+}
 
 class _HomeContent extends StatelessWidget {
   final dynamic user;
@@ -181,17 +188,25 @@ class _HomeContent extends StatelessWidget {
                 return SliverToBoxAdapter(
                   child: Column(
                     children: [
-                      _sectionHeader(context, title: 'المنظمات', onViewAll: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BlocProvider(
-                              create: (_) => sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
-                              child: OrganizationsPage(currentUserName: user.name),
+                      _sectionHeader(
+                        context,
+                        title: 'المنظمات',
+                        onViewAll: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider(
+                                create: (_) =>
+                                    sl<OrganizationBloc>()
+                                      ..add(GetAllOrganizationsEvent()),
+                                child: OrganizationsPage(
+                                  currentUserName: user.name,
+                                ),
+                              ),
                             ),
-                          ),
-                        );
-                      }),
+                          );
+                        },
+                      ),
                       _organizationsSection(context, state),
                       const SizedBox(height: 12),
                       _sectionHeader(context, title: 'استكشف الكورسات'),
@@ -224,7 +239,11 @@ class _HomeContent extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(5),
-            child: const Icon(Icons.notifications, color: AppColors.dark, size: 30),
+            child: const Icon(
+              Icons.notifications,
+              color: AppColors.dark,
+              size: 30,
+            ),
           ),
           Row(
             children: [
@@ -255,6 +274,7 @@ class _HomeContent extends StatelessWidget {
       ),
     );
   }
+
   Widget _searchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
@@ -269,7 +289,7 @@ class _HomeContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -300,11 +320,12 @@ class _HomeContent extends StatelessWidget {
       ),
     );
   }
+
   Widget _sectionHeader(
-      BuildContext context, {
-        required String title,
-        VoidCallback? onViewAll,
-      }) {
+    BuildContext context, {
+    required String title,
+    VoidCallback? onViewAll,
+  }) {
     final colors = Theme.of(context).colorScheme;
 
     return Padding(
@@ -314,16 +335,19 @@ class _HomeContent extends StatelessWidget {
         children: [
           Text(
             title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w900,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
           ),
           if (onViewAll != null)
             GestureDetector(
               onTap: onViewAll,
               child: Text(
                 "عرض الكل",
-                style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: colors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
         ],
@@ -333,7 +357,11 @@ class _HomeContent extends StatelessWidget {
 
   Widget _organizationsSection(BuildContext context, HomeLoaded state) {
     if (state.organizationsError != null) {
-      return _retryCard(context, state.organizationsError!, () => context.read<HomeBloc>().add(GetHomeDataEvent()));
+      return _retryCard(
+        context,
+        state.organizationsError!,
+        () => context.read<HomeBloc>().add(GetHomeDataEvent()),
+      );
     }
 
     final organizations = state.organizations ?? [];
@@ -345,27 +373,35 @@ class _HomeContent extends StatelessWidget {
 
     return Column(
       children: preview
-          .map((org) => OrganizationCard(
-        organization: org,
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BlocProvider(
-                create: (_) => sl<OrganizationDetailsBloc>()..add(GetOrganizationDetailsEvent(org.slug)),
-                child: OrganizationDetailsPage(slug: org.slug),
-              ),
+          .map(
+            (org) => OrganizationCard(
+              organization: org,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider(
+                      create: (_) =>
+                          sl<OrganizationDetailsBloc>()
+                            ..add(GetOrganizationDetailsEvent(org.slug)),
+                      child: OrganizationDetailsPage(slug: org.slug),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ))
+          )
           .toList(),
     );
   }
 
   Widget _coursesSection(BuildContext context, HomeLoaded state) {
     if (state.coursesError != null) {
-      return _retryCard(context, state.coursesError!, () => context.read<HomeBloc>().add(GetHomeDataEvent()));
+      return _retryCard(
+        context,
+        state.coursesError!,
+        () => context.read<HomeBloc>().add(GetHomeDataEvent()),
+      );
     }
 
     final courses = state.courses ?? [];
@@ -383,10 +419,12 @@ class _HomeContent extends StatelessWidget {
               MaterialPageRoute(
                 builder: (_) => BlocProvider(
                   create: (_) => sl<CourseDetailsBloc>()
-                    ..add(GetCourseDetailsEvent(
-                      orgSlug: course.organization?.slug ?? '',
-                      courseSlug: course.slug,
-                    )),
+                    ..add(
+                      GetCourseDetailsEvent(
+                        orgSlug: course.organization?.slug ?? '',
+                        courseSlug: course.slug,
+                      ),
+                    ),
                   child: const CourseDetailsPage(),
                 ),
               ),
@@ -417,7 +455,12 @@ class _HomeContent extends StatelessWidget {
       ),
     );
   }
-  Widget _retryCard(BuildContext context, String message, VoidCallback onRetry) {
+
+  Widget _retryCard(
+    BuildContext context,
+    String message,
+    VoidCallback onRetry,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       child: Container(
@@ -429,7 +472,11 @@ class _HomeContent extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(message, textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: onRetry,
