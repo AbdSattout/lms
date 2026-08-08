@@ -13,16 +13,15 @@ import 'course_contents_page.dart';
 class PlacementTestPage extends StatefulWidget {
   final CourseEntity course;
 
-  const PlacementTestPage({
-    super.key,
-    required this.course,
-  });
+  const PlacementTestPage({super.key, required this.course});
 
   @override
   State<PlacementTestPage> createState() => _PlacementTestPageState();
 }
 
 class _PlacementTestPageState extends State<PlacementTestPage> {
+  static const int _heartCount = 2;
+
   int? _selectedIndex;
   bool _answered = false;
 
@@ -42,9 +41,7 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
       _answered = true;
     });
 
-    context.read<PlacementTestBloc>().add(
-      SubmitPlacementAnswerEvent(index),
-    );
+    context.read<PlacementTestBloc>().add(SubmitPlacementAnswerEvent(index));
 
     Timer(const Duration(milliseconds: 900), () {
       if (mounted) {
@@ -71,9 +68,9 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
       body: BlocConsumer<PlacementTestBloc, PlacementTestState>(
         listener: (context, state) {
           if (state is PlacementTestError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
         },
         builder: (context, state) {
@@ -88,17 +85,14 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
           }
 
           if (state is PlacementTestCompleted) {
-            return _CompletedView(
-              course: widget.course,
-              data: state.data,
-            );
+            return _CompletedView(course: widget.course, data: state.data);
           }
 
           if (state is PlacementTestInProgress) {
             final question = state.data.question;
-            if (question == null) {
-              return const Center(child: CircularProgressIndicator());
-            }
+            final heartsRemaining = state.heartsRemaining
+                .clamp(0, _heartCount)
+                .toInt();
 
             return Padding(
               padding: const EdgeInsets.all(20),
@@ -107,17 +101,22 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                 children: [
                   Row(
                     children: [
-                      for (int i = 0; i < 2; i++)
+                      for (int i = 0; i < _heartCount; i++)
                         Padding(
                           padding: const EdgeInsets.only(left: 6),
-                          child: Icon(
-                            i < state.heartsRemaining
-                                ? Icons.favorite_rounded
-                                : Icons.favorite_border_rounded,
-                            color: i < state.heartsRemaining
-                                ? const Color(0xffE0577B)
-                                : colors.onSurfaceVariant,
-                            size: 26,
+                          child: SizedBox(
+                            width: 26,
+                            height: 26,
+                            child: AnimatedOpacity(
+                              opacity: i < heartsRemaining ? 1 : 0,
+                              duration: const Duration(milliseconds: 240),
+                              curve: Curves.easeOut,
+                              child: const Icon(
+                                Icons.favorite_rounded,
+                                color: Color(0xffE0577B),
+                                size: 26,
+                              ),
+                            ),
                           ),
                         ),
                       const Spacer(),
@@ -132,103 +131,121 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                   ),
 
                   const SizedBox(height: 24),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: colors.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Theme.of(context).dividerColor),
-                    ),
-                    child: Text(
-                      question.content,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: colors.onSurface,
-                        height: 1.5,
+                  if (question == null)
+                    const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else ...[
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: colors.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      child: Text(
+                        question.content,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: colors.onSurface,
+                          height: 1.5,
+                        ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: question.options.length,
-                      itemBuilder: (context, index) {
-                        final isSelected = _selectedIndex == index;
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: question.options.length,
+                        itemBuilder: (context, index) {
+                          final isSelected = _selectedIndex == index;
 
-                        Color? tileColor;
-                        Color borderColor = Theme.of(context).dividerColor;
-                        Widget? trailingIcon;
+                          Color? tileColor;
+                          Color borderColor = Theme.of(context).dividerColor;
+                          Widget? trailingIcon;
 
-                        if (_answered && isSelected) {
-                          final correct = state.lastAnswerCorrect == true;
-                          tileColor = correct
-                              ? const Color(0xff2E7D53).withOpacity(0.12)
-                              : const Color(0xffD9534F).withOpacity(0.12);
-                          borderColor =
-                          correct ? const Color(0xff2E7D53) : const Color(0xffD9534F);
-                          trailingIcon = Icon(
-                            correct ? Icons.check_circle_rounded : Icons.cancel_rounded,
-                            color: borderColor,
-                          );
-                        }
+                          if (_answered && isSelected) {
+                            final correct = state.lastAnswerCorrect == true;
+                            tileColor = correct
+                                ? const Color(
+                                    0xff2E7D53,
+                                  ).withValues(alpha: 0.12)
+                                : const Color(
+                                    0xffD9534F,
+                                  ).withValues(alpha: 0.12);
+                            borderColor = correct
+                                ? const Color(0xff2E7D53)
+                                : const Color(0xffD9534F);
+                            trailingIcon = Icon(
+                              correct
+                                  ? Icons.check_circle_rounded
+                                  : Icons.cancel_rounded,
+                              color: borderColor,
+                            );
+                          }
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Material(
-                            color: tileColor ?? colors.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            child: InkWell(
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Material(
+                              color: tileColor ?? colors.surface,
                               borderRadius: BorderRadius.circular(16),
-                              onTap: () => _selectAnswer(index),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 14,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: borderColor, width: 1.4),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        question.options[index],
-                                        style: TextStyle(
-                                          fontSize: 14.5,
-                                          color: colors.onSurface,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => _selectAnswer(index),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 14,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: borderColor,
+                                      width: 1.4,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          question.options[index],
+                                          style: TextStyle(
+                                            fontSize: 14.5,
+                                            color: colors.onSurface,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    if (trailingIcon != null) trailingIcon,
-                                  ],
+                                      if (trailingIcon != null) trailingIcon,
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                  Align(
-                    alignment: Alignment.center,
-                    child: TextButton(
-                      onPressed: () {
-                        context.read<PlacementTestBloc>().add(
-                          SkipPlacementTestEvent(),
-                        );
-                      },
-                      child: Text(
-                        'تخطي الاختبار',
-                        style: TextStyle(color: colors.onSurfaceVariant),
+                          );
+                        },
                       ),
                     ),
-                  ),
+
+                    Align(
+                      alignment: Alignment.center,
+                      child: TextButton(
+                        onPressed: () {
+                          context.read<PlacementTestBloc>().add(
+                            SkipPlacementTestEvent(),
+                          );
+                        },
+                        child: Text(
+                          'تخطي الاختبار',
+                          style: TextStyle(color: colors.onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             );
@@ -245,10 +262,7 @@ class _CompletedView extends StatelessWidget {
   final CourseEntity course;
   final PlacementTestStateEntity data;
 
-  const _CompletedView({
-    required this.course,
-    required this.data,
-  });
+  const _CompletedView({required this.course, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -263,7 +277,7 @@ class _CompletedView extends StatelessWidget {
             width: 90,
             height: 90,
             decoration: BoxDecoration(
-              color: AppColors.mint.withOpacity(0.4),
+              color: AppColors.mint.withValues(alpha: 0.4),
               shape: BoxShape.circle,
             ),
             child: const Icon(
