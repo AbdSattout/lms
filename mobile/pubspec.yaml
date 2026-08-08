@@ -40,6 +40,7 @@ dependencies:
   shared_preferences: ^2.5.5
   dartz: ^0.10.1
   flutter_appauth: ^11.0.0
+  google_sign_in: ^7.2.0
   get_it: ^9.2.1
   flutter_bloc: ^8.1.5
   lottie: ^3.3.2

@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,6 +41,7 @@ import 'package:lms/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/login_with_google.dart';
 import '../../features/auth/domain/usecases/login_with_telegram.dart';
 import '../../features/auth/domain/usecases/request_email_otp.dart';
 import '../../features/auth/domain/usecases/verify_email_otp.dart';
@@ -86,6 +88,7 @@ Future<void> init() async {
 
   // Use cases
   sl.registerLazySingleton(() => LoginWithTelegram(repository: sl()));
+  sl.registerLazySingleton(() => LoginWithGoogle(repository: sl()));
   sl.registerLazySingleton(() => RequestEmailOtp(repository: sl()));
   sl.registerLazySingleton(() => VerifyEmailOtp(repository: sl()));
   sl.registerLazySingleton(() => CheckCachedAuth(repository: sl()));
@@ -103,6 +106,7 @@ Future<void> init() async {
   sl.registerFactory(
     () => AuthBloc(
       loginWithTelegram: sl(),
+      loginWithGoogle: sl(),
       requestEmailOtp: sl(),
       verifyEmailOtp: sl(),
       checkCachedAuth: sl(),
@@ -112,7 +116,11 @@ Future<void> init() async {
 
   // Data sources
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(appAuth: sl(), apiConsumer: sl()),
+    () => AuthRemoteDataSourceImpl(
+      appAuth: sl(),
+      googleSignIn: sl(),
+      apiConsumer: sl(),
+    ),
   );
   sl.registerLazySingleton(() => AuthLocalDataSource(cache: sl()));
 
@@ -280,5 +288,6 @@ Future<void> init() async {
   sl.registerSingleton(ThemeCubit()..setTheme(sl<CacheHelper>().getTheme()));
 
   sl.registerLazySingleton(() => const FlutterAppAuth());
+  sl.registerLazySingleton<GoogleSignIn>(() => GoogleSignIn.instance);
   sl.registerLazySingleton(() => DataConnectionChecker());
 }

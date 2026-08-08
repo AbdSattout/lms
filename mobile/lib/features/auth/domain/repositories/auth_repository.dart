@@ -4,6 +4,7 @@ import '../entities/auth_entity.dart';
 
 abstract class AuthRepository {
   Future<Either<Failure, AuthEntity>> loginWithTelegram();
+  Future<Either<Failure, AuthEntity>> loginWithGoogle();
   Future<Either<Failure, bool>> requestEmailOtp(String email);
   Future<Either<Failure, AuthEntity>> verifyEmailOtp({
     required String email,

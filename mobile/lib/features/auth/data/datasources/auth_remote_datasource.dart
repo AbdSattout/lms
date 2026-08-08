@@ -1,4 +1,5 @@
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lms/core/databases/api/end_points.dart';
 import '../../../../core/databases/api/api_consumer.dart';
 import '../../../../core/errors/error_model.dart';
@@ -7,6 +8,7 @@ import '../models/auth_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthModel> loginWithTelegram();
+  Future<AuthModel> loginWithGoogle();
   Future<void> requestEmailOtp(String email);
   Future<AuthModel> verifyEmailOtp({
     required String email,
@@ -16,9 +18,15 @@ abstract class AuthRemoteDataSource {
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final FlutterAppAuth appAuth;
+  final GoogleSignIn googleSignIn;
   final ApiConsumer apiConsumer;
+  bool _googleSignInInitialized = false;
 
-  AuthRemoteDataSourceImpl({required this.appAuth, required this.apiConsumer});
+  AuthRemoteDataSourceImpl({
+    required this.appAuth,
+    required this.googleSignIn,
+    required this.apiConsumer,
+  });
 
   @override
   Future<AuthModel> loginWithTelegram() async {
@@ -51,6 +59,43 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
+  Future<AuthModel> loginWithGoogle() async {
+    try {
+      final account = await _authenticateWithGoogle();
+      final idToken = account.authentication.idToken;
+
+      if (idToken == null || idToken.isEmpty) {
+        throw ServerException(
+          ErrorModel(
+            status: 0,
+            errorMessage: "Failed to obtain idToken from Google",
+          ),
+        );
+      }
+
+      final response = await apiConsumer.post(
+        EndPoints.googleLogin,
+        data: {"idToken": idToken},
+      );
+
+      return AuthModel.fromJson(response);
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        throw CancelException(
+          ErrorModel(status: 0, errorMessage: "Google sign-in was cancelled"),
+        );
+      }
+
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: e.description ?? "Google sign-in failed",
+        ),
+      );
+    }
+  }
+
+  @override
   Future<void> requestEmailOtp(String email) async {
     await apiConsumer.post(EndPoints.requestEmailOtp, data: {'email': email});
   }
@@ -66,5 +111,36 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     return AuthModel.fromJson(response);
+  }
+
+  Future<GoogleSignInAccount> _authenticateWithGoogle() async {
+    await _ensureGoogleSignInInitialized();
+
+    if (!googleSignIn.supportsAuthenticate()) {
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: "Google sign-in is not supported on this platform",
+        ),
+      );
+    }
+
+    return googleSignIn.authenticate();
+  }
+
+  Future<void> _ensureGoogleSignInInitialized() async {
+    if (_googleSignInInitialized) return;
+
+    if (EndPoints.googleClientId.isEmpty) {
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: "Missing GOOGLE_CLIENT_ID for Google sign-in",
+        ),
+      );
+    }
+
+    await googleSignIn.initialize(serverClientId: EndPoints.googleClientId);
+    _googleSignInInitialized = true;
   }
 }

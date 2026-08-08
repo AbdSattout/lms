@@ -153,8 +153,12 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
             final isRequestingOtp = state is EmailOtpRequestLoading;
             final isVerifyingOtp = state is EmailOtpVerifyLoading;
             final isTelegramLoading = state is AuthLoading;
+            final isGoogleLoading = state is GoogleAuthLoading;
             final isBusy =
-                isRequestingOtp || isVerifyingOtp || isTelegramLoading;
+                isRequestingOtp ||
+                isVerifyingOtp ||
+                isTelegramLoading ||
+                isGoogleLoading;
 
             return Stack(
               children: [
@@ -238,6 +242,56 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             ],
                           ),
                           const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: OutlinedButton(
+                              onPressed: isBusy
+                                  ? null
+                                  : () {
+                                      context.read<AuthBloc>().add(
+                                        LoginWithGoogleRequested(),
+                                      );
+                                    },
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.black87,
+                                side: BorderSide(
+                                  color: Colors.grey.shade400,
+                                  width: 1.3,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              ),
+                              child: isGoogleLoading
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.4,
+                                      ),
+                                    )
+                                  : const Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.g_mobiledata_rounded,
+                                          size: 30,
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'تسجيل الدخول بواسطة Google',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
                           SizedBox(
                             width: double.infinity,
                             height: 56,

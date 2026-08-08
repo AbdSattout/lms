@@ -11,6 +11,12 @@ class EndPoints {
     defaultValue: '8641099953',
   );
 
+  // Google web OAuth client ID used as the ID-token audience by the backend.
+  static const String googleClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue: '',
+  );
+
   // OAuth / OIDC Constants
   static const String discoveryUrl =
       'https://oauth.telegram.org/.well-known/openid-configuration';
@@ -19,6 +25,7 @@ class EndPoints {
 
   // Paths
   static const String login = 'auth/login/telegram';
+  static const String googleLogin = 'auth/login/google';
 
   static const String requestEmailOtp = 'auth/login/email/request-otp';
 
