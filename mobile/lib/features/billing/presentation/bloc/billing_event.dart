@@ -24,6 +24,14 @@ class BillingExternalUrlHandledEvent extends BillingEvent {
   const BillingExternalUrlHandledEvent();
 }
 
+class BillingResultDialogShownEvent extends BillingEvent {
+  const BillingResultDialogShownEvent();
+}
+
+class BillingNoticeShownEvent extends BillingEvent {
+  const BillingNoticeShownEvent();
+}
+
 class BillingCheckoutReturnedEvent extends BillingEvent {
   final bool completed;
 
