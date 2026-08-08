@@ -135,10 +135,16 @@ public class PolarClient {
                     response.path("url").asText()
             );
 
+        } catch (RestClientResponseException ex) {
+            throw new BadRequestException(
+                    "Failed to create Polar checkout session: " +
+                            polarErrorMessage(ex)
+            );
         } catch (RestClientException |
                  JsonProcessingException ex) {
             throw new BadRequestException(
-                    "Failed to create Polar checkout session"
+                    "Failed to create Polar checkout session: " +
+                            ex.getMessage()
             );
         }
     }
