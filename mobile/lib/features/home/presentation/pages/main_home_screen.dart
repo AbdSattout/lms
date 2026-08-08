@@ -93,7 +93,9 @@ class MainHomeScreen extends StatelessWidget {
             height: 70,
             elevation: 10,
             selectedItemColor: AppColors.primary,
-            unselectedItemColor: AppColors.darkSoft.withValues(alpha: 0.55),
+            unselectedItemColor: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.72),
             showSelectedLabels: true,
             showUnselectedLabels: false,
             currentIndex: state,
@@ -134,10 +136,12 @@ class MainHomeScreen extends StatelessWidget {
 
   static Widget buildAvatar(
     dynamic user, {
+    required BuildContext context,
     required double radius,
     bool isHome = false,
     VoidCallback? onTap,
   }) {
+    final colors = Theme.of(context).colorScheme;
     bool hasValidImage =
         user.picture != null && user.picture.toString().startsWith('http');
     return GestureDetector(
@@ -145,11 +149,14 @@ class MainHomeScreen extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: AppColors.border, width: isHome ? 2 : 4),
+          border: Border.all(
+            color: Theme.of(context).dividerColor,
+            width: isHome ? 2 : 4,
+          ),
         ),
         child: CircleAvatar(
           radius: radius,
-          backgroundColor: Colors.grey[200],
+          backgroundColor: colors.surfaceContainerHighest,
           backgroundImage: hasValidImage
               ? NetworkImage(user.picture)
               : const AssetImage('assets/images/user.png') as ImageProvider,
@@ -171,7 +178,7 @@ class _HomeContent extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(child: _header(context)),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
-          SliverToBoxAdapter(child: _searchBar()),
+          SliverToBoxAdapter(child: _searchBar(context)),
           const SliverToBoxAdapter(child: SizedBox(height: 28)),
           BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
@@ -227,21 +234,24 @@ class _HomeContent extends StatelessWidget {
 
   Widget _header(BuildContext context) {
     final navbarCubit = context.read<NavbarCubit>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.only(top: 24, left: 22, right: 22, bottom: 22),
-      decoration: const BoxDecoration(
-        color: AppColors.primaryLight,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(34)),
+      decoration: BoxDecoration(
+        color: isDark
+            ? AppColors.primary.withValues(alpha: 0.16)
+            : AppColors.primaryLight,
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(34)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
             padding: const EdgeInsets.all(5),
-            child: const Icon(
+            child: Icon(
               Icons.notifications,
-              color: AppColors.dark,
+              color: Theme.of(context).colorScheme.onSurface,
               size: 30,
             ),
           ),
@@ -257,6 +267,7 @@ class _HomeContent extends StatelessWidget {
               const SizedBox(width: 14),
               MainHomeScreen.buildAvatar(
                 user,
+                context: context,
                 radius: 23,
                 isHome: true,
                 onTap: () {
@@ -275,7 +286,10 @@ class _HomeContent extends StatelessWidget {
     );
   }
 
-  Widget _searchBar() {
+  Widget _searchBar(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Row(
@@ -285,24 +299,29 @@ class _HomeContent extends StatelessWidget {
             child: Container(
               height: 52,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(18),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.06),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
-              child: const TextField(
+              child: TextField(
                 textDirection: TextDirection.rtl,
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   hintText: 'ابحث عن كورس أو مسار...',
-                  prefixIcon: Icon(Icons.search_rounded),
-                  contentPadding: EdgeInsets.symmetric(vertical: 14),
+                  hintStyle: TextStyle(color: colors.onSurfaceVariant),
+                  prefixIcon: Icon(
+                    Icons.search_rounded,
+                    color: colors.onSurfaceVariant,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
                 ),
+                style: TextStyle(color: colors.onSurface),
               ),
             ),
           ),

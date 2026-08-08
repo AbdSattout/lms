@@ -472,10 +472,12 @@ class _RewardChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color(0xff2E7D53).withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(
           color: const Color(0xff2E7D53).withValues(alpha: 0.16),
@@ -483,8 +485,10 @@ class _RewardChip extends StatelessWidget {
       ),
       child: Text(
         '$label +$xp XP',
-        style: const TextStyle(
-          color: Color(0xff205E3E),
+        style: TextStyle(
+          color: colors.brightness == Brightness.dark
+              ? const Color(0xff9AE6B4)
+              : const Color(0xff205E3E),
           fontSize: 12,
           fontWeight: FontWeight.w800,
         ),

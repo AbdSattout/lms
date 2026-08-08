@@ -346,6 +346,8 @@ class _BillingStatusCard extends StatelessWidget {
     final isPremium = user.isPremium;
     final isRevoked = user.isSubscriptionRevoked;
     final subscription = user.subscription;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final useLightText = isPremium || isRevoked || isDark;
     final accent = isRevoked
         ? Colors.red
         : isPremium
@@ -360,7 +362,13 @@ class _BillingStatusCard extends StatelessWidget {
           end: Alignment.bottomLeft,
           colors: [
             accent,
-            isPremium ? const Color(0xff10B981) : AppColors.primaryLight,
+            isRevoked
+                ? const Color(0xff991B1B)
+                : isPremium
+                ? const Color(0xff10B981)
+                : isDark
+                ? AppColors.primary.withValues(alpha: 0.50)
+                : AppColors.primaryLight,
           ],
         ),
         borderRadius: BorderRadius.circular(28),
@@ -390,9 +398,7 @@ class _BillingStatusCard extends StatelessWidget {
                       : isRevoked
                       ? Icons.cancel_outlined
                       : Icons.school_outlined,
-                  color: isPremium || isRevoked
-                      ? Colors.white
-                      : AppColors.primary,
+                  color: useLightText ? Colors.white : AppColors.primary,
                   size: 30,
                 ),
               ),
@@ -404,7 +410,9 @@ class _BillingStatusCard extends StatelessWidget {
                     Text(
                       'خطتك الحالية',
                       style: TextStyle(
-                        color: isPremium ? Colors.white70 : AppColors.darkSoft,
+                        color: useLightText
+                            ? Colors.white70
+                            : AppColors.darkSoft,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -414,7 +422,7 @@ class _BillingStatusCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: isPremium ? Colors.white : AppColors.dark,
+                        color: useLightText ? Colors.white : AppColors.dark,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -436,13 +444,11 @@ class _BillingStatusCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(
-                alpha: isPremium || isRevoked ? 0.16 : 0.80,
-              ),
+              color: Colors.white.withValues(alpha: useLightText ? 0.16 : 0.80),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: Colors.white.withValues(
-                  alpha: isPremium || isRevoked ? 0.16 : 0.30,
+                  alpha: useLightText ? 0.16 : 0.30,
                 ),
               ),
             ),
@@ -454,13 +460,13 @@ class _BillingStatusCard extends StatelessWidget {
                   icon: Icons.verified_user_outlined,
                   title: 'الحالة',
                   value: _subscriptionStatus(user, subscription),
-                  isInverted: isPremium || isRevoked,
+                  isInverted: useLightText,
                 ),
                 _StatusMetric(
                   icon: Icons.event_available_rounded,
                   title: 'المدة',
                   value: _periodLabel(subscription),
-                  isInverted: isPremium || isRevoked,
+                  isInverted: useLightText,
                 ),
                 _StatusMetric(
                   icon: Icons.payments_outlined,
@@ -470,7 +476,7 @@ class _BillingStatusCard extends StatelessWidget {
                       : isPremium
                       ? 'مفعل'
                       : 'غير مفعل',
-                  isInverted: isPremium || isRevoked,
+                  isInverted: useLightText,
                 ),
               ],
             ),
@@ -481,7 +487,7 @@ class _BillingStatusCard extends StatelessWidget {
               minHeight: 3,
               borderRadius: BorderRadius.circular(99),
               backgroundColor: Colors.white.withValues(alpha: 0.20),
-              color: isPremium || isRevoked ? Colors.white : AppColors.primary,
+              color: useLightText ? Colors.white : AppColors.primary,
             ),
           ],
         ],
@@ -545,8 +551,9 @@ class _StatusMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isInverted ? Colors.white : AppColors.dark;
-    final muted = isInverted ? Colors.white70 : AppColors.darkSoft;
+    final colors = Theme.of(context).colorScheme;
+    final foreground = isInverted ? Colors.white : colors.onSurface;
+    final muted = isInverted ? Colors.white70 : colors.onSurfaceVariant;
 
     return SizedBox(
       width: 96,

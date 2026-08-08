@@ -89,6 +89,7 @@ class _ProfilePageState extends State<ProfilePage> {
             final profile = state.profile;
             final displayName = _displayName(profile);
             final profileImage = _profileImageProvider(profile.user.picture);
+            final isDark = Theme.of(context).brightness == Brightness.dark;
 
             return SafeArea(
               child: SingleChildScrollView(
@@ -112,7 +113,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                 end: Alignment.bottomLeft,
                                 colors: [
                                   AppColors.primary,
-                                  AppColors.primaryLight,
+                                  isDark
+                                      ? AppColors.primary.withValues(
+                                          alpha: 0.44,
+                                        )
+                                      : AppColors.primaryLight,
                                 ],
                               ),
                               borderRadius: const BorderRadius.vertical(
@@ -181,11 +186,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     Text(
                       displayName,
-                      style: const TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.dark,
-                      ),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontSize: 28, fontWeight: FontWeight.w900),
                     ),
 
                     const SizedBox(height: 6),
@@ -195,7 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         profile.email,
                         fallback: "لم يتم إضافة البريد الإلكتروني",
                       ),
-                      style: const TextStyle(color: AppColors.darkSoft),
+                      style: Theme.of(context).textTheme.bodyMedium,
                     ),
 
                     const SizedBox(height: 24),
@@ -225,12 +227,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     const SizedBox(height: 14),
 
                     _buildInfoCard(
+                      context: context,
                       title: "رقم الهاتف",
                       value: _displayValue(profile.phone, fallback: ""),
                       icon: Icons.phone_outlined,
                     ),
 
                     _buildInfoCard(
+                      context: context,
                       title: "الجامعة",
                       value: _displayValue(profile.university, fallback: ""),
                       icon: Icons.school_outlined,
@@ -432,16 +436,17 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
     final accountEmail = _normalized(widget.accountEmail);
     final pendingEmail = _normalized(widget.pendingEmail);
     final hasAccountEmail = _hasText(accountEmail);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
             blurRadius: 20,
             offset: const Offset(0, 6),
           ),
@@ -465,6 +470,7 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
 
   Widget _buildHeader(BuildContext context, {required bool isLinked}) {
     final statusColor = isLinked ? Colors.green : AppColors.primary;
+    final textTheme = Theme.of(context).textTheme;
 
     return Row(
       children: [
@@ -481,14 +487,13 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
           ),
         ),
         const SizedBox(width: 14),
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'بريد تسجيل الدخول',
-                style: TextStyle(
-                  color: AppColors.dark,
+                style: textTheme.titleMedium?.copyWith(
                   fontSize: 16,
                   fontWeight: FontWeight.w800,
                 ),
@@ -496,7 +501,7 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
               SizedBox(height: 3),
               Text(
                 'مختلف عن بريد الملف الشخصي',
-                style: TextStyle(color: AppColors.darkSoft, fontSize: 12),
+                style: textTheme.bodySmall?.copyWith(fontSize: 12),
               ),
             ],
           ),
@@ -540,8 +545,7 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
                 textAlign: TextAlign.left,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: AppColors.dark,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
                 ),
@@ -626,10 +630,9 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.left,
-                style: const TextStyle(
-                  color: AppColors.dark,
-                  fontWeight: FontWeight.w800,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
             ),
           ),
@@ -800,19 +803,24 @@ class _AccountEmailCardState extends State<_AccountEmailCard> {
 }
 
 Widget _buildInfoCard({
+  required BuildContext context,
   required String title,
   required String value,
   required IconData icon,
 }) {
+  final colors = Theme.of(context).colorScheme;
+  final textTheme = Theme.of(context).textTheme;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+
   return Container(
     margin: const EdgeInsets.only(bottom: 14),
     padding: const EdgeInsets.all(18),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(22),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
+          color: Colors.black.withValues(alpha: isDark ? 0.18 : 0.04),
           blurRadius: 20,
           offset: const Offset(0, 6),
         ),
@@ -836,10 +844,7 @@ Widget _buildInfoCard({
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(color: AppColors.darkSoft, fontSize: 13),
-              ),
+              Text(title, style: textTheme.bodySmall?.copyWith(fontSize: 13)),
 
               const SizedBox(height: 4),
 
@@ -848,7 +853,9 @@ Widget _buildInfoCard({
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: value.isEmpty ? Colors.grey : AppColors.dark,
+                  color: value.isEmpty
+                      ? colors.onSurfaceVariant
+                      : colors.onSurface,
                 ),
               ),
             ],
