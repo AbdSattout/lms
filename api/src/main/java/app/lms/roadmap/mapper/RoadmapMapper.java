@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -49,20 +51,51 @@ public class RoadmapMapper {
             List<Course> courses
     ) {
 
+        Map<Long, RoadmapItem> existingItemsByCourseId =
+                roadmap.getItems()
+                        .stream()
+                        .collect(
+                                Collectors.toMap(
+                                        item -> item.getCourse().getId(),
+                                        item -> item
+                                )
+                        );
+
+        Set<Long> requestedCourseIds =
+                courses.stream()
+                        .map(Course::getId)
+                        .collect(Collectors.toSet());
+
         roadmap.getItems()
-                .clear();
+                .removeIf(item ->
+                        !requestedCourseIds.contains(
+                                item.getCourse().getId()
+                        )
+                );
 
         int position = 1;
 
         for (Course course : courses) {
-            roadmap.getItems()
-                    .add(
-                            toItemEntity(
-                                    roadmap,
-                                    course,
-                                    position++
-                            )
+            RoadmapItem item =
+                    existingItemsByCourseId.get(
+                            course.getId()
                     );
+
+            if (item == null) {
+                item =
+                        toItemEntity(
+                                roadmap,
+                                course,
+                                position
+                        );
+
+                roadmap.getItems()
+                        .add(item);
+            } else {
+                item.setPosition(position);
+            }
+
+            position++;
         }
     }
 

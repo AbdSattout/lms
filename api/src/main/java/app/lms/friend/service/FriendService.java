@@ -10,6 +10,8 @@ import app.lms.friend.model.Friend;
 import app.lms.friend.model.FriendRequest;
 import app.lms.friend.repository.FriendRepository;
 import app.lms.friend.repository.FriendRequestRepository;
+import app.lms.notification.enums.NotificationType;
+import app.lms.notification.service.NotificationService;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.service.UserService;
@@ -32,6 +34,8 @@ public class FriendService {
     private final UserService userService;
     private final FriendMapper friendMapper;
     private final UserMapper userMapper;
+
+    private final NotificationService notificationService;
 
     public void sendRequest(
             Long receiverId,
@@ -74,6 +78,15 @@ public class FriendService {
                         .build();
 
         friendRequestRepository.save(request);
+
+        notificationService.create(
+                receiver,
+                NotificationType.FRIEND_REQUEST,
+                "New Friend Request",
+                sender.getName() + " sent you a friend request.",
+                "FRIEND_REQUEST",
+                request.getId()
+        );
     }
 
     public void accept(
@@ -109,6 +122,15 @@ public class FriendService {
         );
 
         friendRequestRepository.delete(request);
+
+        notificationService.create(
+                request.getSender(),
+                NotificationType.FRIEND_REQUEST_ACCEPTED,
+                "Friend Request Accepted",
+                receiver.getName() + " accepted your friend request.",
+                "USER",
+                request.getSender().getId()
+        );
 
     }
 

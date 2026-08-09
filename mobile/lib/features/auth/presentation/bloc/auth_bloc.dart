@@ -53,7 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LoginWithTelegramRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(TelegramAuthLoading());
     final result = await loginWithTelegram();
 
     result.fold(
