@@ -20,6 +20,7 @@ import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
 import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
+import '../../features/organizations/domain/usecases/accept_organization_invite_by_token_usecase.dart';
 import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
@@ -29,6 +30,7 @@ import '../../features/organizations/domain/usecases/leave_organization_usecase.
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_courses_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../features/organizations/presentation/bloc/public_organization_invite_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
@@ -283,6 +285,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
   sl.registerLazySingleton(() => GetMyOrganizationInvitesUseCase(sl()));
   sl.registerLazySingleton(() => AcceptOrganizationInviteUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptOrganizationInviteByTokenUseCase(sl()));
   sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
@@ -299,6 +302,9 @@ Future<void> init() async {
 
   sl.registerFactory(
     () => OrganizationCoursesBloc(getOrganizationCoursesUseCase: sl()),
+  );
+  sl.registerFactory(
+    () => PublicOrganizationInviteBloc(acceptInviteByTokenUseCase: sl()),
   );
 
   // Notifications

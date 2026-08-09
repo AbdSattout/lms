@@ -11,6 +11,7 @@ class MainActivity : FlutterActivity() {
     private val externalUrlChannel = "app.lms/external_url"
     private var externalUrlMethodChannel: MethodChannel? = null
     private var pendingBillingDeepLink: String? = null
+    private var pendingInviteDeepLink: String? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -31,17 +32,25 @@ class MainActivity : FlutterActivity() {
                     pendingBillingDeepLink = null
                     result.success(null)
                 }
+                "takeInitialInviteDeepLink" -> {
+                    result.success(pendingInviteDeepLink)
+                    pendingInviteDeepLink = null
+                }
+                "clearInitialInviteDeepLink" -> {
+                    pendingInviteDeepLink = null
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }
 
-        dispatchBillingDeepLink(intent)
+        dispatchAppDeepLink(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        dispatchBillingDeepLink(intent)
+        dispatchAppDeepLink(intent)
     }
 
     private fun openUrl(url: String?, result: MethodChannel.Result) {
@@ -63,6 +72,11 @@ class MainActivity : FlutterActivity() {
         }
     }
 
+    private fun dispatchAppDeepLink(intent: Intent?) {
+        dispatchBillingDeepLink(intent)
+        dispatchInviteDeepLink(intent)
+    }
+
     private fun dispatchBillingDeepLink(intent: Intent?) {
         val url = intent?.dataString ?: return
         val uri = Uri.parse(url)
@@ -82,6 +96,41 @@ class MainActivity : FlutterActivity() {
         externalUrlMethodChannel?.invokeMethod(
             "billingDeepLink",
             mapOf("url" to billingDeepLink)
+        )
+    }
+
+    private fun dispatchInviteDeepLink(intent: Intent?) {
+        val url = intent?.dataString ?: return
+        val uri = Uri.parse(url)
+        val token = when {
+            uri.scheme == "lms" && uri.host == "invite" -> {
+                uri.pathSegments.firstOrNull() ?: uri.getQueryParameter("token")
+            }
+            uri.scheme == "https" &&
+                uri.host == "lmscenter.vercel.app" &&
+                uri.pathSegments.size >= 2 &&
+                uri.pathSegments[0] == "invite" -> uri.pathSegments[1]
+            uri.scheme == "https" &&
+                uri.host == "lmscenter.vercel.app" &&
+                uri.pathSegments.size >= 3 &&
+                uri.pathSegments[0] == "mobile" &&
+                uri.pathSegments[1] == "invite" -> uri.pathSegments[2]
+            else -> return
+        }
+
+        if (token.isNullOrBlank()) return
+
+        val inviteDeepLink = Uri.Builder()
+            .scheme("lms")
+            .authority("invite")
+            .appendPath(token)
+            .build()
+            .toString()
+
+        pendingInviteDeepLink = inviteDeepLink
+        externalUrlMethodChannel?.invokeMethod(
+            "inviteDeepLink",
+            mapOf("url" to inviteDeepLink)
         )
     }
 }
