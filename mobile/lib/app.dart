@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'core/services/injection_container.dart';
 import 'core/services/firebase_messaging_service.dart';
+import 'core/services/injection_container.dart';
 import 'core/theme/app_themes.dart';
 import 'core/theme/theme_cubit.dart';
 import 'core/widgets/immersive_mode_guard.dart';
@@ -35,14 +35,11 @@ class MyApp extends StatelessWidget {
             child: ImmersiveModeGuard(
               child: MaterialApp(
                 debugShowCheckedModeBanner: false,
-                title: 'LMS Mobile',
-
+                title: 'مسار',
                 locale: const Locale('ar', 'SY'),
-
                 theme: AppThemes.light,
                 darkTheme: AppThemes.dark,
                 themeMode: mode,
-
                 home: BlocBuilder<AuthBloc, AuthState>(
                   builder: (context, state) {
                     if (state is AuthError) {

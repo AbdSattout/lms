@@ -1,3 +1,4 @@
+import '../../../courses/domain/entities/course_entity.dart';
 import '../../domain/entities/organization_entity.dart';
 import '../../domain/entities/organization_invite_entity.dart';
 import '../../domain/repositories/organization_repository.dart';
@@ -36,6 +37,11 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
   @override
   Future<void> deleteOrganization(String slug) {
     return remote.deleteOrganization(slug);
+  }
+
+  @override
+  Future<List<CourseEntity>> getOrganizationCourses(String slug) {
+    return remote.getOrganizationCourses(slug);
   }
 
   @override
