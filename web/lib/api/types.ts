@@ -172,11 +172,7 @@ export interface QuizResponse {
 }
 
 export type PostReactionType =
-  | "LIKE"
-  | "LOVE"
-  | "SUPPORT"
-  | "CELEBRATE"
-  | "INSIGHTFUL"
+  "LIKE" | "LOVE" | "SUPPORT" | "CELEBRATE" | "INSIGHTFUL"
 
 export interface PostResponse {
   id: number
@@ -303,11 +299,7 @@ export type AiTextAction =
   | "WRITE"
 
 export type AiTextTone =
-  | "PROFESSIONAL"
-  | "FRIENDLY"
-  | "SIMPLE"
-  | "ACADEMIC"
-  | "MOTIVATIONAL"
+  "PROFESSIONAL" | "FRIENDLY" | "SIMPLE" | "ACADEMIC" | "MOTIVATIONAL"
 
 export interface GenerateAiTextRequest {
   text: string
@@ -358,16 +350,9 @@ export type PageCourseMediaResponse = Page<CourseMediaResponse>
 
 export type Role = "OWNER" | "ADMIN" | "STUDENT"
 export type InviteStatus =
-  | "PENDING"
-  | "ACCEPTED"
-  | "DECLINED"
-  | "EXPIRED"
-  | "CANCELLED"
+  "PENDING" | "ACCEPTED" | "DECLINED" | "EXPIRED" | "CANCELLED"
 export type JoinRequestStatus =
-  | "PENDING"
-  | "ACCEPTED"
-  | "REJECTED"
-  | "CANCELLED"
+  "PENDING" | "ACCEPTED" | "REJECTED" | "CANCELLED"
 
 export interface OrganizationInviteResponse {
   id: number
@@ -593,10 +578,19 @@ export interface RoadmapItemResponse {
   baseEntity?: BaseEntityResponse
 }
 
+// Add title/name to the request
 export interface UpsertRoadmapRequest {
+  title?: string
   courseIds: number[]
 }
 
+// Ensure the Response type also has the title property!
+export interface RoadmapResponse {
+  id: number
+  title?: string // (Add this)
+  items: RoadmapItemResponse[] // (Keep your other existing fields like this...)
+  position?: number
+}
 export interface PracticeExamResponse {
   id: number
   title: string
