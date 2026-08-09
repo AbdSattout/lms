@@ -3,6 +3,8 @@ package app.lms.organization.organizationInvite.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.notification.enums.NotificationType;
+import app.lms.notification.service.NotificationService;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
@@ -39,6 +41,7 @@ public class OrganizationInviteService {
     private final OrganizationInviteMapper organizationInviteMapper;
     private final OrganizationInviteOverviewService organizationInviteOverviewService;
     private final OrganizationInviteEmailService organizationInviteEmailService;
+    private final NotificationService notificationService;
 
     public OrganizationInviteResponse invite(
             String slug,
@@ -93,6 +96,16 @@ public class OrganizationInviteService {
 
         OrganizationInvite savedInvite = organizationInviteRepository.save(invite);
         organizationInviteEmailService.sendPrivateInvite(savedInvite);
+
+        notificationService.create(
+                currentUser,
+                NotificationType.ORGANIZATION_INVITE,
+                "Organization Invitation",
+                "You have been invited to join " +
+                        organization.getName() + ".",
+                "ORGANIZATION",
+                organization.getId()
+        );
 
         return organizationInviteMapper.toResponse(savedInvite);
 

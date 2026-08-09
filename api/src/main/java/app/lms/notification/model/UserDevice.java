@@ -22,6 +22,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UserDevice extends BaseEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "user_id",

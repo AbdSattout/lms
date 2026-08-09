@@ -14,6 +14,8 @@ import app.lms.media.dto.UploadedFile;
 import app.lms.media.enums.FileType;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.service.MediaService;
+import app.lms.notification.enums.NotificationType;
+import app.lms.notification.service.NotificationService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.plan.service.PlanQuotaService;
@@ -51,6 +53,9 @@ public class DashboardCourseService {
 
     private final PlanQuotaService
             planQuotaService;
+
+    private final NotificationService
+            notificationService;
 
     @Transactional
     public CourseResponse create(
@@ -248,6 +253,15 @@ public class DashboardCourseService {
 
         course.setStatus(
                 CourseStatus.PUBLISHED
+        );
+
+        notificationService.notifyOrganizationStudents(
+                course.getOrganization(),
+                NotificationType.COURSE_PUBLISHED,
+                "New Course Published",
+                "A new course has been published: " + course.getTitle(),
+                "COURSE",
+                course.getId()
         );
     }
     private void validateCourseReadyForPublishing(

@@ -115,4 +115,10 @@ public interface CourseEnrollmentRepository
             List<EnrollmentStatus> statuses
     );
 
+    Page<CourseEnrollment> findAllByCourseIdAndStatus(
+            Long courseId,
+            EnrollmentStatus status,
+            Pageable pageable
+    );
+
 }

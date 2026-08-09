@@ -29,11 +29,11 @@ public class NotificationController {
     }
 
     @GetMapping("/unread-count")
-    public void getUnreadCount(
+    public long getUnreadCount(
             @AuthenticationPrincipal UserPrincipal principal
     ) {
 
-         notificationService.getUnreadCount(
+         return notificationService.getUnreadCount(
                 principal.user()
         );
     }

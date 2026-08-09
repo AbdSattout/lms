@@ -25,12 +25,22 @@ public class DeviceService {
         UserDevice device =
                 userDeviceRepository
                         .findByToken(request.token())
-                        .orElseGet(UserDevice::new);
+                        .orElse(null);
 
-        device.setUser(user);
-        device.setToken(request.token());
-        device.setActive(true);
-        device.setLastUsedAt(LocalDateTime.now());
+        if (device != null) {
+
+            device.setUser(user);
+            device.setActive(true);
+            device.setLastUsedAt(LocalDateTime.now());
+
+        } else {
+
+            device = new UserDevice();
+            device.setUser(user);
+            device.setToken(request.token());
+            device.setActive(true);
+            device.setLastUsedAt(LocalDateTime.now());
+        }
 
         userDeviceRepository.save(device);
     }
