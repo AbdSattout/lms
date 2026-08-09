@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../organizations/domain/entities/organization_invite_entity.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
@@ -381,7 +382,7 @@ class _NotificationTile extends StatelessWidget {
                     if (notification.createdAt != null) ...[
                       const SizedBox(height: 6),
                       Text(
-                        _relativeTime(notification.createdAt!),
+                        formatArabicRelativeTime(notification.createdAt!),
                         style: Theme.of(context).textTheme.labelSmall,
                       ),
                     ],
@@ -405,14 +406,6 @@ class _NotificationTile extends StatelessWidget {
       'FRIEND_REQUEST_ACCEPTED' => Icons.how_to_reg_rounded,
       _ => Icons.notifications_rounded,
     };
-  }
-
-  String _relativeTime(DateTime createdAt) {
-    final difference = DateTime.now().difference(createdAt);
-    if (difference.inMinutes < 1) return 'الآن';
-    if (difference.inHours < 1) return 'منذ ${difference.inMinutes} د';
-    if (difference.inDays < 1) return 'منذ ${difference.inHours} س';
-    return 'منذ ${difference.inDays} يوم';
   }
 }
 

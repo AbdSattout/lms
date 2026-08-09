@@ -1,4 +1,5 @@
 import '../../domain/entities/app_notification_entity.dart';
+import '../../../../core/utils/date_time_utils.dart';
 
 class AppNotificationModel extends AppNotificationEntity {
   const AppNotificationModel({
@@ -41,7 +42,6 @@ class AppNotificationModel extends AppNotificationEntity {
   }
 
   static DateTime? _readDateTime(Object? value) {
-    if (value == null) return null;
-    return DateTime.tryParse(value.toString());
+    return parseApiDateTime(value);
   }
 }
