@@ -19,7 +19,10 @@ import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
+import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
+import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
+import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
 import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
 import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
@@ -93,7 +96,20 @@ import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart
 import '../../features/gamification/presentation/bloc/gamification_bloc.dart';
 
 import 'external_url_launcher.dart';
+import 'firebase_messaging_service.dart';
 import '../theme/theme_cubit.dart';
+
+// Notifications
+import '../../features/notifications/data/datasources/notification_remote_datasource.dart';
+import '../../features/notifications/data/repositories/notification_repository_impl.dart';
+import '../../features/notifications/domain/repositories/notification_repository.dart';
+import '../../features/notifications/domain/usecases/deactivate_notification_device_usecase.dart';
+import '../../features/notifications/domain/usecases/get_notifications_usecase.dart';
+import '../../features/notifications/domain/usecases/get_unread_notification_count_usecase.dart';
+import '../../features/notifications/domain/usecases/mark_all_notifications_read_usecase.dart';
+import '../../features/notifications/domain/usecases/mark_notification_read_usecase.dart';
+import '../../features/notifications/domain/usecases/register_notification_device_usecase.dart';
+import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -265,8 +281,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => JoinOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => LeaveOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
+  sl.registerLazySingleton(() => GetMyOrganizationInvitesUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptOrganizationInviteUseCase(sl()));
+  sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
-
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
 
   sl.registerFactory(
@@ -280,10 +298,37 @@ Future<void> init() async {
   );
 
   sl.registerFactory(
-        () => OrganizationCoursesBloc(
-      getOrganizationCoursesUseCase: sl(),
+    () => OrganizationCoursesBloc(getOrganizationCoursesUseCase: sl()),
+  );
+
+  // Notifications
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetUnreadNotificationCountUseCase(sl()));
+  sl.registerLazySingleton(() => MarkNotificationReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllNotificationsReadUseCase(sl()));
+  sl.registerLazySingleton(() => RegisterNotificationDeviceUseCase(sl()));
+  sl.registerLazySingleton(() => DeactivateNotificationDeviceUseCase(sl()));
+  sl.registerFactory(
+    () => NotificationsBloc(
+      getMyOrganizationInvitesUseCase: sl(),
+      acceptOrganizationInviteUseCase: sl(),
+      declineOrganizationInviteUseCase: sl(),
+      getNotificationsUseCase: sl(),
+      getUnreadNotificationCountUseCase: sl(),
+      markNotificationReadUseCase: sl(),
+      markAllNotificationsReadUseCase: sl(),
     ),
   );
+  sl.registerLazySingleton(
+    () => FirebaseMessagingService(registerDevice: sl()),
+  );
+
   // Blocks
   sl.registerLazySingleton<BlockRemoteDataSource>(
     () => BlockRemoteDataSourceImpl(sl()),

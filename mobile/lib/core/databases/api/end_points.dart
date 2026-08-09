@@ -32,6 +32,13 @@ class EndPoints {
 
   static const String verifyEmailOtp = 'auth/login/email/verify-otp';
 
+  // Notifications
+  static const String notifications = 'notifications';
+  static const String notificationUnreadCount = 'notifications/unread-count';
+  static String notificationRead(int id) => 'notifications/$id/read';
+  static const String notificationsReadAll = 'notifications/read-all';
+  static const String devices = 'devices';
+
   static const String profile = 'profile/me';
 
   static const String currentUser = 'users/me';
@@ -67,8 +74,15 @@ class EndPoints {
   static String organizationLeave(String slug) => 'organizations/$slug/leave';
   static String deleteOrganizationDashboard(String slug) =>
       'organizations/$slug/leave';
+  static const String organizationMyInvites =
+      'organizations/invites/my-invites';
+  static String organizationInviteAccept(String slug, int inviteId) =>
+      'organizations/$slug/invites/$inviteId/accept';
+  static String organizationInviteDecline(String slug, int inviteId) =>
+      'organizations/$slug/invites/$inviteId/decline';
 
-  static String organizationCourses(String orgSlug) => 'organizations/$orgSlug/courses';
+  static String organizationCourses(String orgSlug) =>
+      'organizations/$orgSlug/courses';
 
   static String courseBySlug({
     required String orgSlug,

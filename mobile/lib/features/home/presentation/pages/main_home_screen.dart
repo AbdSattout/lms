@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
+import '../../../../core/services/firebase_messaging_service.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
@@ -21,6 +24,10 @@ import '../../../organizations/presentation/bloc/organization_details_event.dart
 import '../../../organizations/presentation/pages/organizations_page.dart';
 import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../../organizations/presentation/widgets/organization_card.dart';
+import '../../../notifications/presentation/bloc/notifications_bloc.dart';
+import '../../../notifications/presentation/bloc/notifications_event.dart';
+import '../../../notifications/presentation/bloc/notifications_state.dart';
+import '../../../notifications/presentation/pages/notifications_page.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
 import '../../bloc/home_bloc.dart';
@@ -37,42 +44,51 @@ class MainHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = userAuthData.user;
 
-    return BlocProvider(
-      create: (context) => NavbarCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => NavbarCubit()),
+        BlocProvider(
+          create: (context) =>
+              sl<NotificationsBloc>()..add(LoadNotificationsEvent()),
+        ),
+      ],
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: Scaffold(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          extendBody: true,
-          body: BlocBuilder<NavbarCubit, int>(
-            builder: (context, state) {
-              return PageView(
-                physics: const NeverScrollableScrollPhysics(),
-                controller: context.read<NavbarCubit>().controller,
-                children: [
-                  BlocProvider(
-                    create: (_) => sl<HomeBloc>()..add(GetHomeDataEvent()),
-                    child: _HomeContent(user: user),
-                  ),
-                  BlocProvider(
-                    create: (_) =>
-                        sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
-                    child: const MyCoursesPage(),
-                  ),
-                  BlocProvider(
-                    create: (_) =>
-                        sl<OrganizationBloc>()..add(GetAllOrganizationsEvent()),
-                    child: OrganizationsPage(currentUserName: user.name),
-                  ),
-                  BlocProvider(
-                    create: (_) => sl<ProfileBloc>()..add(GetProfileEvent()),
-                    child: const ProfilePage(),
-                  ),
-                ],
-              );
-            },
+        child: _NotificationRefreshListener(
+          child: Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            extendBody: true,
+            body: BlocBuilder<NavbarCubit, int>(
+              builder: (context, state) {
+                return PageView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  controller: context.read<NavbarCubit>().controller,
+                  children: [
+                    BlocProvider(
+                      create: (_) => sl<HomeBloc>()..add(GetHomeDataEvent()),
+                      child: _HomeContent(user: user),
+                    ),
+                    BlocProvider(
+                      create: (_) =>
+                          sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
+                      child: const MyCoursesPage(),
+                    ),
+                    BlocProvider(
+                      create: (_) =>
+                          sl<OrganizationBloc>()
+                            ..add(GetAllOrganizationsEvent()),
+                      child: OrganizationsPage(currentUserName: user.name),
+                    ),
+                    BlocProvider(
+                      create: (_) => sl<ProfileBloc>()..add(GetProfileEvent()),
+                      child: const ProfilePage(),
+                    ),
+                  ],
+                );
+              },
+            ),
+            bottomNavigationBar: _buildSnakeBar(),
           ),
-          bottomNavigationBar: _buildSnakeBar(),
         ),
       ),
     );
@@ -239,14 +255,7 @@ class _HomeContent extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            padding: const EdgeInsets.all(5),
-            child: Icon(
-              Icons.notifications,
-              color: Theme.of(context).colorScheme.onSurface,
-              size: 30,
-            ),
-          ),
+          const _NotificationBellButton(),
           Row(
             children: [
               Text(
@@ -498,6 +507,133 @@ class _HomeContent extends StatelessWidget {
               child: const Text('إعادة المحاولة'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NotificationRefreshListener extends StatefulWidget {
+  final Widget child;
+
+  const _NotificationRefreshListener({required this.child});
+
+  @override
+  State<_NotificationRefreshListener> createState() =>
+      _NotificationRefreshListenerState();
+}
+
+class _NotificationRefreshListenerState
+    extends State<_NotificationRefreshListener> {
+  StreamSubscription? _subscription;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _subscription ??= sl<FirebaseMessagingService>().messages.listen((_) {
+      if (!mounted) return;
+      context.read<NotificationsBloc>().add(RefreshNotificationsEvent());
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
+}
+
+class _NotificationBellButton extends StatelessWidget {
+  const _NotificationBellButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<NotificationsBloc, NotificationsState>(
+      builder: (context, state) {
+        final unreadCount = state is NotificationsLoaded
+            ? state.unreadCount
+            : 0;
+        final inviteCount = state is NotificationsLoaded
+            ? state.invites.length
+            : 0;
+        final badgeCount = unreadCount > inviteCount
+            ? unreadCount
+            : inviteCount;
+
+        return IconButton(
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider.value(
+                  value: context.read<NotificationsBloc>(),
+                  child: const NotificationsPage(),
+                ),
+              ),
+            );
+
+            if (context.mounted) {
+              context.read<NotificationsBloc>().add(
+                RefreshNotificationsEvent(),
+              );
+            }
+          },
+          icon: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Icon(
+                Icons.notifications_rounded,
+                color: Theme.of(context).colorScheme.onSurface,
+                size: 30,
+              ),
+              if (badgeCount > 0)
+                Positioned(
+                  top: -7,
+                  left: -8,
+                  child: _NotificationBadge(count: badgeCount),
+                ),
+            ],
+          ),
+          tooltip: 'الإشعارات',
+        );
+      },
+    );
+  }
+}
+
+class _NotificationBadge extends StatelessWidget {
+  final int count;
+
+  const _NotificationBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    final label = count > 99 ? '99+' : count.toString();
+
+    return Container(
+      constraints: const BoxConstraints(minWidth: 19, minHeight: 19),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: AppColors.pink,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          width: 1.5,
+        ),
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w900,
+          height: 1,
         ),
       ),
     );

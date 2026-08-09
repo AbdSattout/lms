@@ -98,7 +98,7 @@ public class OrganizationInviteService {
         organizationInviteEmailService.sendPrivateInvite(savedInvite);
 
         notificationService.create(
-                currentUser,
+                targetUser,
                 NotificationType.ORGANIZATION_INVITE,
                 "Organization Invitation",
                 "You have been invited to join " +

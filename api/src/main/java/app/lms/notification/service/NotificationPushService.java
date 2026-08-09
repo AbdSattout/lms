@@ -4,6 +4,7 @@ import app.lms.notification.model.Notification;
 import app.lms.notification.model.UserDevice;
 import app.lms.notification.repository.NotificationRepository;
 import app.lms.notification.repository.UserDeviceRepository;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
@@ -22,6 +23,10 @@ public class NotificationPushService {
     private final UserDeviceRepository userDeviceRepository;
 
     public void send(Long notificationId) {
+
+        if (FirebaseApp.getApps().isEmpty()) {
+            return;
+        }
 
         Notification notification =
                 notificationRepository

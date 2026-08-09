@@ -158,7 +158,11 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
 
   bool _isCancelMessage(String message) {
     final normalized = message.toLowerCase();
-    return normalized.contains('cancel') || normalized.contains('إلغاء');
+    return normalized.contains('cancel') ||
+        normalized.contains('إلغاء') ||
+        normalized.contains('access_denied') ||
+        normalized.contains('access denied') ||
+        normalized.contains('access-denied');
   }
 
   String _friendlyAuthErrorMessage(String message) {
@@ -200,7 +204,7 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
           builder: (context, state) {
             final isRequestingOtp = state is EmailOtpRequestLoading;
             final isVerifyingOtp = state is EmailOtpVerifyLoading;
-            final isTelegramLoading = state is AuthLoading;
+            final isTelegramLoading = state is TelegramAuthLoading;
             final isGoogleLoading = state is GoogleAuthLoading;
             final isBusy =
                 isRequestingOtp ||
