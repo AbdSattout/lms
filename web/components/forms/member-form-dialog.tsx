@@ -315,7 +315,9 @@ function PublicInviteForm({ slug, role, onBack }: AddMemberFormProps) {
         role: role,
         maxUses: maxUses,
       })
-      setInviteLink(`${window.location.origin}/invite/${result.id}`)
+      setInviteLink(
+        `${window.location.origin}/invite/${result.token ?? result.id}`
+      )
       toast.success("تم إنشاء رابط الدعوة بنجاح")
     } catch (error) {
       console.error("Failed to create public invite:", error)

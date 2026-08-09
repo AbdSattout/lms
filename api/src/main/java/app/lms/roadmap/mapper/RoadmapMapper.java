@@ -30,11 +30,15 @@ public class RoadmapMapper {
 
     public Roadmap toEntity(
             Organization organization,
+            String name,
+            String description,
             List<Course> courses
     ) {
 
         Roadmap roadmap =
                 Roadmap.builder()
+                        .name(name)
+                        .description(description)
                         .organization(organization)
                         .build();
 
@@ -144,6 +148,8 @@ public class RoadmapMapper {
 
         return new RoadmapResponse(
                 roadmap.getId(),
+                roadmap.getName(),
+                roadmap.getDescription(),
                 organizationMapper.ToResponse(
                         roadmap.getOrganization()
                 ),
