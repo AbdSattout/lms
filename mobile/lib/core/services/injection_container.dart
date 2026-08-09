@@ -20,9 +20,11 @@ import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
 import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
+import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
 import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
+import '../../features/organizations/presentation/bloc/organization_courses_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
@@ -263,7 +265,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => JoinOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => LeaveOrganizationUseCase(sl()));
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
+  sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
+
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
+
   sl.registerFactory(
     () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),
@@ -271,6 +276,12 @@ Future<void> init() async {
       leaveOrganizationUseCase: sl(),
       cancelJoinRequestUseCase: sl(),
       deleteOrganizationUseCase: sl(),
+    ),
+  );
+
+  sl.registerFactory(
+        () => OrganizationCoursesBloc(
+      getOrganizationCoursesUseCase: sl(),
     ),
   );
   // Blocks

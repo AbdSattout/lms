@@ -1,5 +1,7 @@
+import '../../../courses/domain/entities/course_entity.dart';
 import '../entities/organization_entity.dart';
 abstract class OrganizationRepository {
+  Future<List<CourseEntity>> getOrganizationCourses(String slug);
   Future<List<OrganizationEntity>> getAllOrganizations();
   Future<OrganizationEntity> getOrganizationBySlug(String slug);
   Future<void> joinOrganization(String slug);

@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
           child: ImmersiveModeGuard(
             child: MaterialApp(
               debugShowCheckedModeBanner: false,
-              title: 'LMS Mobile',
+              title: 'مسار',
 
               locale: const Locale('ar', 'SY'),
 

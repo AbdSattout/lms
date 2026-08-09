@@ -6,6 +6,7 @@ import '../../domain/entities/organization_entity.dart';
 import '../bloc/organization_details_bloc.dart';
 import '../bloc/organization_details_event.dart';
 import '../bloc/organization_details_state.dart';
+import 'organization_courses_page.dart';
 
 class OrganizationDetailsPage extends StatelessWidget {
   final String slug;
@@ -62,6 +63,7 @@ class OrganizationDetailsPage extends StatelessWidget {
             }
             if (state is OrganizationDetailsLoaded) {
               return _OrganizationDetailsContent(
+                slug:slug,
                 organization: state.organization,
                 isProcessing: state.isProcessing,
                 onJoin: () {
@@ -139,8 +141,9 @@ class _OrganizationDetailsContent extends StatelessWidget {
   final OrganizationEntity organization;
   final bool isProcessing;
   final VoidCallback onJoin, onLeave, onCancelRequest, onDelete;
-
+  final String slug;
   const _OrganizationDetailsContent({
+    required this.slug,
     required this.organization,
     required this.isProcessing,
     required this.onJoin,
@@ -402,6 +405,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         title: 'منشورات المنظمة'),
                     const SizedBox(height: 12),
                     _FeatureCard(
+                      slug: slug,
                       icon: Icons.article_outlined,
                       iconBg: colors.primary.withOpacity(0.1),
                       iconColor: colors.primary,
@@ -418,14 +422,20 @@ class _OrganizationDetailsContent extends StatelessWidget {
                         title: 'كورسات المنظمة'),
                     const SizedBox(height: 12),
                     _FeatureCard(
+                      slug: slug,
                       icon: Icons.school_rounded,
                       iconBg: const Color(0xff2E7D53).withOpacity(0.1),
                       iconColor: const Color(0xff2E7D53),
                       title: 'استعرض الكورسات المتاحة',
-                      subtitle: 'قريباً',
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('كورسات المنظمة قريباً'))),
+                      subtitle: 'سجل في كورسات المنظمة!',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => OrganizationCoursesPage(slug: slug),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -641,7 +651,7 @@ class _FeatureCard extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-
+  final String slug;
   const _FeatureCard({
     required this.icon,
     required this.iconBg,
@@ -649,6 +659,7 @@ class _FeatureCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    required this.slug,
   });
 
   @override
