@@ -1,0 +1,21 @@
+package app.lms.notification.enums;
+
+public enum NotificationType {
+
+    FRIEND_REQUEST,
+    FRIEND_REQUEST_ACCEPTED,
+
+    ORGANIZATION_INVITE,
+    ORGANIZATION_JOIN_REQUEST,
+    ORGANIZATION_JOIN_REQUEST_ACCEPTED,
+
+    COURSE_ENROLLMENT,
+    COURSE_PUBLISHED,
+
+    NEW_POST,
+    NEW_COMMENT,
+
+    REPORT_RESOLVED,
+
+    SYSTEM
+}
