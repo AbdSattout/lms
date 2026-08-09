@@ -252,7 +252,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
             _PlanCard(
               title: 'الخطة المجانية',
               subtitle: 'مناسبة لتجربة المنصة واستكشاف الميزات الأساسية.',
-              price: 'مجانا',
+              price: 'مجاناً',
               priceSuffix: '',
               icon: Icons.school_outlined,
               accentColor: AppColors.darkSoft,
@@ -260,6 +260,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
               badge: isPremium ? 'غير نشطة حاليا' : 'خطتك الحالية',
               action: _DisabledPlanButton(
                 text: isPremium ? 'غير نشطة حاليا' : 'خطتك الحالية',
+                isActiveCurrent: !isPremium,
               ),
               features: const [
                 _PlanFeature(
@@ -277,7 +278,7 @@ class _BillingPageState extends State<BillingPage> with WidgetsBindingObserver {
                 _PlanFeature(Icons.route_rounded, 'متابعة خريطة تعليمية واحدة'),
                 _PlanFeature(
                   Icons.shuffle_rounded,
-                  'اختبار عشوائي واحد لكل دورة',
+                  'اختبار عشوائي واحد لكل دورة كل 7 أيام',
                 ),
                 _PlanFeature(Icons.business_rounded, 'منظمة واحدة'),
                 _PlanFeature(Icons.library_books_rounded, '3 دورات في المنظمة'),
@@ -410,23 +411,42 @@ class _BillingResultDialogCard extends StatelessWidget {
   const _BillingResultDialogCard({required this.type, required this.onClose});
 
   bool get isSuccess => type == BillingResultDialogType.purchaseSuccess;
+  bool get isRevoked => type == BillingResultDialogType.subscriptionRevoked;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final accent = isSuccess ? Colors.green : const Color(0xffF59E0B);
+    final accent = isSuccess
+        ? Colors.green
+        : isRevoked
+        ? const Color(0xff6366F1)
+        : const Color(0xffF59E0B);
     final accentSoft = accent.withValues(alpha: 0.11);
     final icon = isSuccess
         ? Icons.check_circle_rounded
+        : isRevoked
+        ? Icons.favorite_border_rounded
         : Icons.pause_circle_filled_rounded;
-    final title = isSuccess ? 'شكرا لشرائك!' : 'لم تكتمل عملية الدفع';
+    final title = isSuccess
+        ? 'شكرا لشرائك!'
+        : isRevoked
+        ? 'نأسف لمغادرتك'
+        : 'لم تكتمل عملية الدفع';
     final body = isSuccess
         ? 'تم تفعيل الخطة المميزة على حسابك. استمتع بكل المزايا الجديدة.'
+        : isRevoked
+        ? 'تم إلغاء الاشتراك وتحديث خطتك. سنكون سعداء بعودتك إلى الخطة المميزة في أي وقت.'
         : 'تم إيقاف العملية قبل إتمام الشراء. يمكنك الاشتراك في أي وقت.';
     final badgeText = isSuccess
         ? 'الخطة المميزة مفعلة الآن'
+        : isRevoked
+        ? 'تمت العودة إلى الخطة المجانية'
         : 'لم يتم خصم أي مبلغ';
-    final buttonText = isSuccess ? 'رائع' : 'حسنا';
+    final buttonText = isSuccess
+        ? 'رائع'
+        : isRevoked
+        ? 'شكرا'
+        : 'حسنا';
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 24),
@@ -471,7 +491,7 @@ class _BillingResultDialogCard extends StatelessWidget {
                   ),
                   child: Icon(icon, color: accent, size: 44),
                 ),
-                if (isSuccess)
+                if (isSuccess || isRevoked)
                   Positioned(
                     top: -4,
                     right: -2,
@@ -526,6 +546,8 @@ class _BillingResultDialogCard extends StatelessWidget {
                   Icon(
                     isSuccess
                         ? Icons.workspace_premium_rounded
+                        : isRevoked
+                        ? Icons.check_rounded
                         : Icons.shield_outlined,
                     color: accent,
                     size: 20,
@@ -686,36 +708,54 @@ class _BillingStatusCard extends StatelessWidget {
     final isRevoked = isPremium && user.isSubscriptionRevoked;
     final subscription = user.subscription;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final useLightText = isPremium || isRevoked || isDark;
+    final colors = Theme.of(context).colorScheme;
+    final useAccentSurface = isPremium || isRevoked;
     final accent = isRevoked
         ? Colors.red
         : isPremium
         ? Colors.green
         : AppColors.primary;
+    final foreground = useAccentSurface ? Colors.white : colors.onSurface;
+    final muted = useAccentSurface
+        ? Colors.white.withValues(alpha: 0.72)
+        : colors.onSurfaceVariant;
+    final cardColor = useAccentSurface
+        ? null
+        : isDark
+        ? Theme.of(context).cardColor
+        : AppColors.primaryLight;
+    final panelColor = useAccentSurface
+        ? Colors.white.withValues(alpha: 0.14)
+        : Colors.white.withValues(alpha: isDark ? 0.06 : 0.72);
+    final panelBorderColor = useAccentSurface
+        ? Colors.white.withValues(alpha: 0.16)
+        : Colors.white.withValues(alpha: isDark ? 0.08 : 0.34);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            accent,
-            isRevoked
-                ? const Color(0xff991B1B)
-                : isPremium
-                ? const Color(0xff10B981)
-                : isDark
-                ? AppColors.primary.withValues(alpha: 0.50)
-                : AppColors.primaryLight,
-          ],
+        color: cardColor,
+        gradient: useAccentSurface
+            ? LinearGradient(
+                begin: Alignment.topRight,
+                end: Alignment.bottomLeft,
+                colors: [
+                  accent,
+                  isRevoked ? const Color(0xff991B1B) : const Color(0xff10B981),
+                ],
+              )
+            : null,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(
+          color: useAccentSurface
+              ? Colors.white.withValues(alpha: 0.12)
+              : accent.withValues(alpha: isDark ? 0.18 : 0.10),
         ),
-        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: accent.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: accent.withValues(alpha: isDark ? 0.12 : 0.14),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
@@ -725,11 +765,12 @@ class _BillingStatusCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 50,
+                height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(17),
+                  color: panelColor,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: panelBorderColor),
                 ),
                 child: Icon(
                   isPremium
@@ -737,8 +778,8 @@ class _BillingStatusCard extends StatelessWidget {
                       : isRevoked
                       ? Icons.cancel_outlined
                       : Icons.school_outlined,
-                  color: useLightText ? Colors.white : AppColors.primary,
-                  size: 30,
+                  color: useAccentSurface ? Colors.white : accent,
+                  size: 29,
                 ),
               ),
               const SizedBox(width: 14),
@@ -748,20 +789,21 @@ class _BillingStatusCard extends StatelessWidget {
                   children: [
                     Text(
                       'خطتك الحالية',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: useLightText
-                            ? Colors.white70
-                            : AppColors.darkSoft,
-                        fontWeight: FontWeight.w700,
+                        color: muted,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
                       _planName(user),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: useLightText ? Colors.white : AppColors.dark,
+                        color: foreground,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -769,13 +811,14 @@ class _BillingStatusCard extends StatelessWidget {
                   ],
                 ),
               ),
-              _StatusPill(
+              _PlanHeaderBadge(
                 text: isRevoked
                     ? 'Revoked'
                     : isPremium
                     ? 'Premium'
                     : 'Free',
-                foreground: accent,
+                accent: accent,
+                isOnAccentSurface: useAccentSurface,
               ),
             ],
           ),
@@ -783,39 +826,41 @@ class _BillingStatusCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: useLightText ? 0.16 : 0.80),
+              color: panelColor,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: Colors.white.withValues(
-                  alpha: useLightText ? 0.16 : 0.30,
-                ),
-              ),
+              border: Border.all(color: panelBorderColor),
             ),
-            child: Wrap(
-              spacing: 10,
-              runSpacing: 10,
+            child: Row(
               children: [
-                _StatusMetric(
-                  icon: Icons.verified_user_outlined,
-                  title: 'الحالة',
-                  value: _subscriptionStatus(user, subscription),
-                  isInverted: useLightText,
+                Expanded(
+                  child: _StatusMetric(
+                    icon: Icons.verified_user_outlined,
+                    title: 'الحالة',
+                    value: _subscriptionStatus(user, subscription),
+                    isInverted: useAccentSurface,
+                  ),
                 ),
-                _StatusMetric(
-                  icon: Icons.event_available_rounded,
-                  title: 'المدة',
-                  value: _periodLabel(isPremium ? subscription : null),
-                  isInverted: useLightText,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _StatusMetric(
+                    icon: Icons.event_available_rounded,
+                    title: 'المدة',
+                    value: _periodLabel(isPremium ? subscription : null),
+                    isInverted: useAccentSurface,
+                  ),
                 ),
-                _StatusMetric(
-                  icon: Icons.payments_outlined,
-                  title: 'الدفع',
-                  value: isRevoked
-                      ? 'ملغى'
-                      : isPremium
-                      ? 'مفعل'
-                      : 'غير مفعل',
-                  isInverted: useLightText,
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _StatusMetric(
+                    icon: Icons.payments_outlined,
+                    title: 'الدفع',
+                    value: isRevoked
+                        ? 'ملغى'
+                        : isPremium
+                        ? 'مفعل'
+                        : 'غير مفعل',
+                    isInverted: useAccentSurface,
+                  ),
                 ),
               ],
             ),
@@ -826,7 +871,7 @@ class _BillingStatusCard extends StatelessWidget {
               minHeight: 3,
               borderRadius: BorderRadius.circular(99),
               backgroundColor: Colors.white.withValues(alpha: 0.20),
-              color: useLightText ? Colors.white : AppColors.primary,
+              color: useAccentSurface ? Colors.white : AppColors.primary,
             ),
           ],
         ],
@@ -932,6 +977,48 @@ class _StatusMetric extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PlanHeaderBadge extends StatelessWidget {
+  final String text;
+  final Color accent;
+  final bool isOnAccentSurface;
+
+  const _PlanHeaderBadge({
+    required this.text,
+    required this.accent,
+    required this.isOnAccentSurface,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final foreground = isOnAccentSurface ? Colors.white : accent;
+    final background = isOnAccentSurface
+        ? Colors.white.withValues(alpha: 0.15)
+        : Colors.white.withValues(alpha: 0.72);
+    final borderColor = isOnAccentSurface
+        ? Colors.white.withValues(alpha: 0.20)
+        : Colors.white.withValues(alpha: 0.36);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: borderColor),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          color: foreground,
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+        ),
       ),
     );
   }
@@ -1188,26 +1275,53 @@ class _PrimaryPlanButton extends StatelessWidget {
 
 class _DisabledPlanButton extends StatelessWidget {
   final String text;
+  final bool isActiveCurrent;
 
-  const _DisabledPlanButton({required this.text});
+  const _DisabledPlanButton({required this.text, this.isActiveCurrent = false});
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isActiveCurrent
+        ? (isDark ? const Color(0xff86EFAC) : const Color(0xff238A5A))
+        : colors.onSurfaceVariant;
+
     return Container(
       height: 52,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
+        color: isActiveCurrent
+            ? accent.withValues(alpha: isDark ? 0.13 : 0.10)
+            : Theme.of(context).dividerColor.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(16),
-      ),
-      child: Text(
-        text,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: Theme.of(context).textTheme.bodyMedium?.color,
-          fontWeight: FontWeight.w900,
+        border: Border.all(
+          color: isActiveCurrent
+              ? accent.withValues(alpha: isDark ? 0.30 : 0.22)
+              : Colors.transparent,
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (isActiveCurrent) ...[
+            Icon(Icons.check_circle_rounded, color: accent, size: 20),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: Text(
+              text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: isActiveCurrent
+                    ? accent
+                    : Theme.of(context).textTheme.bodyMedium?.color,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1262,19 +1376,29 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCurrentPlan = text == 'خطتك الحالية';
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pillColor = isCurrentPlan
+        ? (isDark ? const Color(0xff86EFAC) : const Color(0xff238A5A))
+        : foreground;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.90),
+        color: isCurrentPlan
+            ? pillColor.withValues(alpha: isDark ? 0.13 : 0.10)
+            : Colors.white.withValues(alpha: 0.90),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: foreground.withValues(alpha: 0.16)),
+        border: Border.all(
+          color: pillColor.withValues(alpha: isCurrentPlan ? 0.24 : 0.16),
+        ),
       ),
       child: Text(
         text,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
-          color: foreground,
+          color: pillColor,
           fontSize: 11,
           fontWeight: FontWeight.w900,
         ),
