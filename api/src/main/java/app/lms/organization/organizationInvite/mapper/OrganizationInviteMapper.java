@@ -25,6 +25,14 @@ public class OrganizationInviteMapper {
             OrganizationInvite invite,
             OrganizationInviteOverviewResponse overview
     ) {
+        return toResponse(invite, overview, false);
+    }
+
+    public OrganizationInviteResponse toResponse(
+            OrganizationInvite invite,
+            OrganizationInviteOverviewResponse overview,
+            boolean alreadyJoined
+    ) {
         return OrganizationInviteResponse.builder()
                 .id(invite.getId())
                 .userId(invite.getUser() != null ? invite.getUser().getId() : null)
@@ -42,6 +50,7 @@ public class OrganizationInviteMapper {
                 .expiresAt(invite.getExpiresAt())
                 .maxUses(invite.getMaxUses())
                 .usedCount(invite.getUsedCount())
+                .alreadyJoined(alreadyJoined)
                 .baseEntity(BaseEntityResponse.from(invite))
                 .build();
 

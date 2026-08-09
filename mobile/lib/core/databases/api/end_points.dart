@@ -76,6 +76,8 @@ class EndPoints {
       'organizations/$slug/leave';
   static const String organizationMyInvites =
       'organizations/invites/my-invites';
+  static const String organizationInvitePreviewByToken =
+      'organizations/invites/preview';
   static const String organizationInviteAcceptByToken =
       'organizations/invites/accept';
   static String organizationInviteAccept(String slug, int inviteId) =>

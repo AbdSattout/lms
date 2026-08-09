@@ -32,5 +32,6 @@ public class OrganizationInviteResponse {
     private LocalDateTime expiresAt;
     private Integer maxUses;
     private int usedCount;
+    private boolean alreadyJoined;
     private BaseEntityResponse baseEntity;
 }

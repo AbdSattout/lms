@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "304854141630",
+    "project_id": "masar-lms",
+    "storage_bucket": "masar-lms.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:304854141630:android:638c76e5ec2359bdf16cef",
+        "android_client_info": {
+          "package_name": "app.lms"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDed8_Kscg2iu1EY4uYeq3yf_gkZGP5Fgs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -46,6 +46,16 @@ public class OrganizationInviteController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/organizations/invites/preview")
+    public ResponseEntity<OrganizationInviteResponse> previewInvite(
+            @RequestParam String token,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(
+                organizationInviteService.previewInvite(token, principal.user())
+        );
+    }
+
     @PostMapping("/organizations/invites/decline")
     public ResponseEntity<Void> declineInvite(
             @RequestParam String token,

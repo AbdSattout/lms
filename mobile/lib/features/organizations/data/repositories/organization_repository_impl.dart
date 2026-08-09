@@ -50,6 +50,11 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
   }
 
   @override
+  Future<OrganizationInviteEntity> getInvitePreviewByToken(String token) {
+    return remote.getInvitePreviewByToken(token);
+  }
+
+  @override
   Future<void> acceptInviteByToken(String token) {
     return remote.acceptInviteByToken(token);
   }
