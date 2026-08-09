@@ -139,6 +139,11 @@ public class OrganizationMapper {
                                 : null
                 )
                 .joinRequestStatus(joinRequestStatusFor(member, request))
+                .inviteId(
+                        invite != null
+                                ? invite.getId()
+                                : null
+                )
                 .inviteStatus(inviteStatusFor(invite))
                 .member(viewerMemberResponseFor(member))
                 .build();
