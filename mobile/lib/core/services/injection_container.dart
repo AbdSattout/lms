@@ -24,6 +24,7 @@ import '../../features/organizations/domain/usecases/accept_organization_invite_
 import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
+import '../../features/organizations/domain/usecases/get_organization_invite_preview_by_token_usecase.dart';
 import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
 import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
@@ -286,6 +287,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetMyOrganizationInvitesUseCase(sl()));
   sl.registerLazySingleton(() => AcceptOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => AcceptOrganizationInviteByTokenUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetOrganizationInvitePreviewByTokenUseCase(sl()),
+  );
   sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
@@ -304,7 +308,10 @@ Future<void> init() async {
     () => OrganizationCoursesBloc(getOrganizationCoursesUseCase: sl()),
   );
   sl.registerFactory(
-    () => PublicOrganizationInviteBloc(acceptInviteByTokenUseCase: sl()),
+    () => PublicOrganizationInviteBloc(
+      acceptInviteByTokenUseCase: sl(),
+      getInvitePreviewByTokenUseCase: sl(),
+    ),
   );
 
   // Notifications

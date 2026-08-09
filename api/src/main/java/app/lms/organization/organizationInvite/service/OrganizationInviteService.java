@@ -254,6 +254,42 @@ public class OrganizationInviteService {
         acceptInvite(invite, currentUser);
     }
 
+    public OrganizationInviteResponse previewInvite(
+            String token,
+            User currentUser
+    ) {
+
+        OrganizationInvite invite =
+                findInvite(token);
+
+        boolean alreadyJoined =
+                memberRepository.existsByOrganizationIdAndUserId(
+                        invite.getOrganization().getId(),
+                        currentUser.getId()
+                );
+
+        validateInvitePreviewAccess(
+                invite,
+                currentUser,
+                alreadyJoined
+        );
+
+        OrganizationInviteOverviewResponse overview =
+                organizationInviteOverviewService
+                        .buildByOrganizationId(
+                                List.of(invite)
+                        )
+                        .get(
+                                invite.getOrganization().getId()
+                        );
+
+        return organizationInviteMapper.toResponse(
+                invite,
+                overview,
+                alreadyJoined
+        );
+    }
+
     private void acceptInvite(
             OrganizationInvite invite,
             User currentUser
@@ -464,6 +500,47 @@ public class OrganizationInviteService {
             throw new ForbiddenException("This invite belongs to another user");
         }
     }
+
+    private void validateInvitePreviewAccess(
+            OrganizationInvite invite,
+            User currentUser,
+            boolean alreadyJoined
+    ) {
+
+        if (invite.getUser() != null) {
+            validateInviteOwner(
+                    invite,
+                    currentUser
+            );
+        } else {
+            validatePublicInviteRole(
+                    invite.getRole()
+            );
+        }
+
+        if (alreadyJoined) {
+            return;
+        }
+
+        if (invite.getStatus() != InviteStatus.PENDING) {
+            throw new BadRequestException("Invite is no longer valid");
+        }
+
+        if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BadRequestException("Invite expired");
+        }
+
+        if (
+                invite.getUser() == null &&
+                invite.getMaxUses() != null &&
+                invite.getUsedCount() >= invite.getMaxUses()
+        ) {
+            throw new BadRequestException(
+                    "This invite link has reached its maximum capacity"
+            );
+        }
+    }
+
     public List<OrganizationInviteResponse> getMyInvites(User user, Role role) {
         List<OrganizationInvite> invites =
                 organizationInviteRepository.findAllVisibleToUserByUserIdAndRoleAndStatus(
