@@ -152,6 +152,7 @@ public class PracticeExamMapper {
                 answer.getSourceQuestion().getId(),
                 answer.getContent(),
                 answer.getOptions(),
+                answer.getSourceQuestion().getDifficulty(),
                 BaseEntityResponse.from(
                         answer.getSourceQuestion()
                 )
