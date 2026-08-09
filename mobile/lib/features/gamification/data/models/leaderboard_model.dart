@@ -7,19 +7,21 @@ class LeaderboardEntryModel extends LeaderboardEntryEntity {
     required super.name,
     super.picture,
     required super.xp,
-    required super.levelNumber,
-    required super.levelTitle,
+    super.levelNumber,
+    super.levelTitle,
   });
 
-  factory LeaderboardEntryModel.fromJson(Map<String, dynamic> json) {
+  factory LeaderboardEntryModel.fromJson(Object? json) {
+    final map = _readMap(json);
+
     return LeaderboardEntryModel(
-      rank: json['rank'] as int,
-      userId: json['userId'] as int,
-      name: json['name'] as String,
-      picture: json['picture'] as String?,
-      xp: json['xp'] as int,
-      levelNumber: json['levelNumber'] as int,
-      levelTitle: json['levelTitle'] as String,
+      rank: _readNullableInt(map['rank']),
+      userId: _readInt(map['userId']),
+      name: _readString(map['name']),
+      picture: _readNullableString(map['picture']),
+      xp: _readInt(map['xp']),
+      levelNumber: _readNullableInt(map['levelNumber']),
+      levelTitle: _readNullableString(map['levelTitle']),
     );
   }
 }
@@ -33,17 +35,52 @@ class LeaderboardModel extends LeaderboardEntity {
     super.me,
   });
 
-  factory LeaderboardModel.fromJson(Map<String, dynamic> json) {
+  factory LeaderboardModel.fromJson(Object? json) {
+    final map = _readMap(json);
+    final leadersJson = map['leaders'];
+    final leaders = leadersJson is List
+        ? leadersJson.map(LeaderboardEntryModel.fromJson).toList()
+        : const <LeaderboardEntryModel>[];
+
     return LeaderboardModel(
-      period: json['period'] as String,
-      from: json['from'] as String?,
-      to: json['to'] as String?,
-      leaders: (json['leaders'] as List<dynamic>)
-          .map((e) => LeaderboardEntryModel.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      me: json['me'] != null
-          ? LeaderboardEntryModel.fromJson(json['me'] as Map<String, dynamic>)
-          : null,
+      period: _readString(map['period']),
+      from: _readNullableString(map['from']),
+      to: _readNullableString(map['to']),
+      leaders: leaders,
+      me: map['me'] == null ? null : LeaderboardEntryModel.fromJson(map['me']),
     );
   }
+}
+
+Map<String, dynamic> _readMap(Object? value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) {
+    return value.map((key, value) => MapEntry(key.toString(), value));
+  }
+
+  return const <String, dynamic>{};
+}
+
+int _readInt(Object? value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
+}
+
+int? _readNullableInt(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
+}
+
+String _readString(Object? value) {
+  return value?.toString().trim() ?? '';
+}
+
+String? _readNullableString(Object? value) {
+  final text = value?.toString().trim();
+  return text == null || text.isEmpty || text.toLowerCase() == 'null'
+      ? null
+      : text;
 }

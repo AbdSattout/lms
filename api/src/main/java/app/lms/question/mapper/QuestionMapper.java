@@ -49,6 +49,7 @@ public class QuestionMapper {
                 question.getId(),
                 question.getContent(),
                 question.getOptions(),
+                question.getDifficulty(),
                 BaseEntityResponse.from(question)
         );
     }

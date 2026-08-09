@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
+import '../../../../core/widgets/resilient_network_avatar.dart';
+import '../../domain/entities/leaderboard_entity.dart';
 import '../bloc/gamification_bloc.dart';
 import '../bloc/gamification_event.dart';
 import '../bloc/gamification_state.dart';
@@ -130,13 +132,13 @@ class _LeaderboardViewState extends State<_LeaderboardView>
 }
 
 class _LeaderboardContent extends StatelessWidget {
-  final dynamic leaderboard;
+  final LeaderboardEntity leaderboard;
 
   const _LeaderboardContent({required this.leaderboard});
 
   @override
   Widget build(BuildContext context) {
-    final leaders = leaderboard.leaders as List<dynamic>;
+    final leaders = leaderboard.leaders;
     final me = leaderboard.me;
 
     if (leaders.isEmpty) {
@@ -169,10 +171,14 @@ class _LeaderboardContent extends StatelessWidget {
             margin: const EdgeInsets.all(20),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.3),
               ),
             ),
             child: _LeaderboardTile(entry: me, isMe: true),
@@ -183,7 +189,7 @@ class _LeaderboardContent extends StatelessWidget {
 }
 
 class _Podium extends StatelessWidget {
-  final List<dynamic> leaders;
+  final List<LeaderboardEntryEntity> leaders;
   const _Podium({required this.leaders});
 
   @override
@@ -209,7 +215,7 @@ class _Podium extends StatelessWidget {
 }
 
 class _PodiumCard extends StatelessWidget {
-  final dynamic entry;
+  final LeaderboardEntryEntity entry;
   final int rank;
   final double height;
 
@@ -228,26 +234,20 @@ class _PodiumCard extends StatelessWidget {
       const Color(0xFFCD7F32),
     ];
 
-    final picture = entry.picture as String?;
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          CircleAvatar(
+          ResilientNetworkAvatar(
             radius: 24,
-            backgroundColor: colors.primary.withOpacity(0.1),
-            backgroundImage: picture != null && picture.isNotEmpty
-                ? NetworkImage(picture)
-                : null,
-            child: picture == null || picture.isEmpty
-                ? Icon(Icons.person, color: colors.primary)
-                : null,
+            imageUrl: entry.picture,
+            fallbackLabel: entry.name,
+            backgroundColor: colors.primary.withValues(alpha: 0.1),
           ),
           const SizedBox(height: 6),
           Text(
-            entry.name ?? '',
+            entry.name,
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -270,8 +270,8 @@ class _PodiumCard extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  medalColors[rank - 1].withOpacity(0.8),
-                  medalColors[rank - 1].withOpacity(0.3),
+                  medalColors[rank - 1].withValues(alpha: 0.8),
+                  medalColors[rank - 1].withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(
@@ -296,7 +296,7 @@ class _PodiumCard extends StatelessWidget {
 }
 
 class _LeaderboardTile extends StatelessWidget {
-  final dynamic entry;
+  final LeaderboardEntryEntity entry;
   final bool isMe;
 
   const _LeaderboardTile({required this.entry, required this.isMe});
@@ -304,18 +304,19 @@ class _LeaderboardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final picture = entry.picture as String?;
+    final rank = entry.rank;
+    final levelLabel = _levelLabel(entry);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isMe ? colors.primary.withOpacity(0.08) : colors.surface,
+        color: isMe ? colors.primary.withValues(alpha: 0.08) : colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isMe
-              ? colors.primary.withOpacity(0.3)
-              : colors.outlineVariant.withOpacity(0.5),
+              ? colors.primary.withValues(alpha: 0.3)
+              : colors.outlineVariant.withValues(alpha: 0.5),
         ),
       ),
       child: Row(
@@ -323,26 +324,22 @@ class _LeaderboardTile extends StatelessWidget {
           SizedBox(
             width: 36,
             child: Text(
-              '#${entry.rank}',
+              rank == null ? '-' : '#$rank',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
-                color: entry.rank <= 3
+                color: rank != null && rank <= 3
                     ? colors.primary
                     : colors.onSurfaceVariant,
               ),
             ),
           ),
           const SizedBox(width: 12),
-          CircleAvatar(
+          ResilientNetworkAvatar(
             radius: 20,
-            backgroundColor: colors.primary.withOpacity(0.1),
-            backgroundImage: picture != null && picture.isNotEmpty
-                ? NetworkImage(picture)
-                : null,
-            child: picture == null || picture.isEmpty
-                ? Icon(Icons.person, color: colors.primary)
-                : null,
+            imageUrl: entry.picture,
+            fallbackLabel: entry.name,
+            backgroundColor: colors.primary.withValues(alpha: 0.1),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -350,7 +347,7 @@ class _LeaderboardTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  entry.name ?? '',
+                  entry.name,
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
@@ -361,7 +358,7 @@ class _LeaderboardTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'المستوى ${entry.levelNumber} · ${entry.levelTitle}',
+                  levelLabel,
                   style: TextStyle(
                     fontSize: 11,
                     color: colors.onSurfaceVariant,
@@ -374,8 +371,8 @@ class _LeaderboardTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: isMe
-                  ? colors.primary.withOpacity(0.15)
-                  : colors.primary.withOpacity(0.1),
+                  ? colors.primary.withValues(alpha: 0.15)
+                  : colors.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -395,4 +392,23 @@ class _LeaderboardTile extends StatelessWidget {
       ),
     );
   }
+}
+
+String _levelLabel(LeaderboardEntryEntity entry) {
+  final title = entry.levelTitle?.trim();
+  final hasTitle = title != null && title.isNotEmpty;
+
+  if (entry.levelNumber == null && !hasTitle) {
+    return 'لم يبدأ بعد';
+  }
+
+  if (entry.levelNumber == null) {
+    return title!;
+  }
+
+  if (!hasTitle) {
+    return 'المستوى ${entry.levelNumber}';
+  }
+
+  return 'المستوى ${entry.levelNumber} · $title';
 }

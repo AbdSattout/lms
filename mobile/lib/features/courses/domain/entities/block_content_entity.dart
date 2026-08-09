@@ -4,11 +4,13 @@ class BlockQuestionEntity {
   final int id;
   final String content;
   final List<String> options;
+  final String difficulty;
 
   const BlockQuestionEntity({
     required this.id,
     required this.content,
     required this.options,
+    required this.difficulty,
   });
 }
 

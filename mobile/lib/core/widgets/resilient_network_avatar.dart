@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:lms/core/databases/api/end_points.dart';
 
 class ResilientNetworkAvatar extends StatefulWidget {
   final String? imageUrl;
   final double radius;
   final String? fallbackLabel;
+  final String fallbackAsset;
   final Color? backgroundColor;
   final BoxBorder? border;
   final VoidCallback? onTap;
@@ -15,6 +17,7 @@ class ResilientNetworkAvatar extends StatefulWidget {
     required this.imageUrl,
     required this.radius,
     this.fallbackLabel,
+    this.fallbackAsset = 'assets/images/user.png',
     this.backgroundColor,
     this.border,
     this.onTap,
@@ -87,9 +90,11 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
 
   Widget _networkImage(String url) {
     final requestedUrl = _retryUrl(url);
+    final headers = _imageHeaders(requestedUrl);
 
     return Image.network(
       requestedUrl,
+      headers: headers,
       key: ValueKey(requestedUrl),
       fit: BoxFit.cover,
       gaplessPlayback: true,
@@ -116,48 +121,16 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
   }
 
   Widget _fallbackImage() {
-    final colors = Theme.of(context).colorScheme;
-    final initial = _fallbackInitial(widget.fallbackLabel);
-    final foreground = colors.primary;
-    final background =
-        widget.backgroundColor ?? colors.primary.withValues(alpha: 0.10);
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            background,
-            foreground.withValues(alpha: 0.16),
-          ],
-        ),
-      ),
-      child: Center(
-        child: initial == null
-            ? Icon(
-                Icons.person_rounded,
-                color: foreground,
-                size: widget.radius * 1.05,
-              )
-            : Text(
-                initial,
-                maxLines: 1,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: foreground,
-                  fontSize: widget.radius * 0.95,
-                  fontWeight: FontWeight.w900,
-                  height: 1,
-                ),
-              ),
-      ),
+    return Image.asset(
+      widget.fallbackAsset,
+      fit: BoxFit.cover,
+      semanticLabel: widget.fallbackLabel,
     );
   }
 
   void _handleImageError(String url, String requestedUrl) {
-    NetworkImage(url).evict();
-    NetworkImage(requestedUrl).evict();
+    NetworkImage(url, headers: _imageHeaders(url)).evict();
+    NetworkImage(requestedUrl, headers: _imageHeaders(requestedUrl)).evict();
 
     if (!_hasImageError) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -170,7 +143,7 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
     _retryTimer ??= Timer(_retryDelay, () {
       _retryTimer = null;
       if (mounted && _normalizedUrl(widget.imageUrl) == url) {
-        NetworkImage(url).evict();
+        NetworkImage(url, headers: _imageHeaders(url)).evict();
         setState(() => _retryToken++);
       }
     });
@@ -182,7 +155,7 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
 
     final url = _normalizedUrl(widget.imageUrl);
     if (url != null) {
-      NetworkImage(url).evict();
+      NetworkImage(url, headers: _imageHeaders(url)).evict();
     }
 
     setState(() => _retryToken++);
@@ -198,24 +171,64 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
     return uri.replace(queryParameters: queryParameters).toString();
   }
 
-  String? _fallbackInitial(String? value) {
-    final normalized = value?.trim();
-    if (normalized == null || normalized.isEmpty) return null;
-
-    return normalized.characters.first.toUpperCase();
-  }
-
   String? _normalizedUrl(String? value) {
-    final normalized = value?.trim();
+    var normalized = value?.trim();
     if (normalized == null || normalized.isEmpty) return null;
+    if (normalized.toLowerCase() == 'null') return null;
+
+    normalized = normalized.replaceAll(r'\/', '/');
+    if (_isQuoted(normalized)) {
+      normalized = normalized.substring(1, normalized.length - 1).trim();
+    }
+
+    if (normalized.startsWith('//')) {
+      normalized = 'https:$normalized';
+    }
 
     final uri = Uri.tryParse(normalized);
-    if (uri == null ||
-        uri.host.isEmpty ||
-        (uri.scheme != 'http' && uri.scheme != 'https')) {
+    if (uri == null) return null;
+
+    if (uri.hasScheme) {
+      if (uri.host.isEmpty || (uri.scheme != 'http' && uri.scheme != 'https')) {
+        return null;
+      }
+
+      return uri.toString();
+    }
+
+    final baseUri = Uri.tryParse(EndPoints.baseUrl);
+    if (baseUri == null || baseUri.host.isEmpty) {
       return null;
     }
 
-    return uri.toString();
+    return baseUri.resolveUri(uri).toString();
+  }
+
+  bool _isQuoted(String value) {
+    return value.length >= 2 &&
+        ((value.startsWith('"') && value.endsWith('"')) ||
+            (value.startsWith("'") && value.endsWith("'")));
+  }
+
+  Map<String, String>? _imageHeaders(String url) {
+    final host = Uri.tryParse(url)?.host.toLowerCase();
+    if (host == null) return null;
+
+    final isTelegramImage =
+        host == 't.me' ||
+        host.endsWith('.t.me') ||
+        host == 'telegram.org' ||
+        host.endsWith('.telegram.org') ||
+        host == 'telegram-cdn.org' ||
+        host.endsWith('.telegram-cdn.org');
+
+    if (!isTelegramImage) return null;
+
+    return const {
+      'Accept':
+          'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 Chrome/120.0 Mobile Safari/537.36',
+    };
   }
 }
