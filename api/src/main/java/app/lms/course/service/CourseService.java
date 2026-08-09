@@ -46,6 +46,7 @@ public class CourseService {
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final CoursePlacementTestAccessService placementTestAccessService;
     private final OrganizationViewerService organizationViewerService;
+    private final CourseLearningSummaryService courseLearningSummaryService;
 
     @Value("${app.search.course-similarity-threshold:0.2}")
     private double courseSearchSimilarityThreshold;
@@ -85,7 +86,10 @@ public class CourseService {
                         course.getId(),
                         user
                 ),
-                organizationViewer
+                organizationViewer,
+                courseLearningSummaryService.summarize(
+                        course.getId()
+                )
         );
     }
 

@@ -11,6 +11,7 @@ public record OrganizationViewerResponse(
         boolean joined,
         Role role,
         JoinRequestStatus joinRequestStatus,
+        Long inviteId,
         InviteStatus inviteStatus,
         OrganizationViewerMemberResponse member
 
