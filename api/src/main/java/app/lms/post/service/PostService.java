@@ -4,6 +4,8 @@ import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
+import app.lms.notification.enums.NotificationType;
+import app.lms.notification.service.NotificationService;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.post.dto.CreatePostRequest;
@@ -27,6 +29,7 @@ public class PostService {
     private final PostResponseService postResponseService;
     private final PostAccessService postAccessService;
     private final OrganizationAccessService organizationAccessService;
+    private final NotificationService notificationService;
 
     @Transactional
     public PostResponse create(
@@ -74,10 +77,33 @@ public class PostService {
 
         postRepository.save(post);
 
+        if ( request.courseId() != null){
+            notificationService.notifyCourseMember(
+                    course,
+                    NotificationType.NEW_POST,
+                    "New Post",
+                    user.getName() +
+                            " published a new post.",
+                    "POST",
+                    post.getId()
+            );
+        }
+        else notificationService.notifyOrganizationStudents(
+                organization,
+                NotificationType.NEW_POST,
+                "New Post",
+                user.getName() +
+                        " published a new post.",
+                "POST",
+                post.getId()
+        );
+
         return postResponseService.build(
                 post,
                 user
         );
+
+
     }
 
     @Transactional
