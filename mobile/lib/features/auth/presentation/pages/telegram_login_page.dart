@@ -36,6 +36,7 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
   int _otpSecondsLeft = 0;
   int _resendSecondsLeft = 0;
   bool _otpRequested = false;
+  _AuthNoticeData? _notice;
 
   @override
   void dispose() {
@@ -53,18 +54,24 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
     final email = (resend ? _activeEmail : _emailController.text)?.trim() ?? '';
     if (email.isEmpty) return;
 
+    _clearNotice();
     _otpRequestStartedAt = DateTime.now();
     context.read<AuthBloc>().add(RequestEmailOtpRequested(email));
   }
 
   void _verifyOtp() {
     if (_otpSecondsLeft <= 0) {
-      _showSnackBar('انتهت صلاحية الرمز، أرسل رمزاً جديداً');
+      _showNotice(
+        title: 'انتهت صلاحية الرمز',
+        message: 'أرسل رمزاً جديداً ثم حاول تسجيل الدخول مرة أخرى.',
+        tone: _AuthNoticeTone.info,
+      );
       return;
     }
 
     if (!(_otpFormKey.currentState?.validate() ?? false)) return;
 
+    _clearNotice();
     final email = _activeEmail ?? _emailController.text.trim();
     context.read<AuthBloc>().add(
       VerifyEmailOtpRequested(email: email, otp: _otpController.text.trim()),
@@ -113,13 +120,56 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
       _otpSecondsLeft = 0;
       _resendSecondsLeft = 0;
       _otpController.clear();
+      _notice = null;
     });
   }
 
-  void _showSnackBar(String message, {Color? backgroundColor}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+  void _showNotice({
+    required String title,
+    required String message,
+    required _AuthNoticeTone tone,
+  }) {
+    setState(() {
+      _notice = _AuthNoticeData(title: title, message: message, tone: tone);
+    });
+  }
+
+  void _clearNotice() {
+    if (_notice == null) return;
+    setState(() => _notice = null);
+  }
+
+  _AuthNoticeData _authErrorNotice(String message) {
+    if (_isCancelMessage(message)) {
+      return const _AuthNoticeData(
+        title: 'تم إلغاء تسجيل الدخول',
+        message:
+            'لم يتم تسجيل دخولك. يمكنك المحاولة مرة أخرى عندما تكون جاهزاً.',
+        tone: _AuthNoticeTone.info,
+      );
+    }
+
+    return _AuthNoticeData(
+      title: 'تعذر تسجيل الدخول',
+      message: _friendlyAuthErrorMessage(message),
+      tone: _AuthNoticeTone.error,
     );
+  }
+
+  bool _isCancelMessage(String message) {
+    final normalized = message.toLowerCase();
+    return normalized.contains('cancel') || normalized.contains('إلغاء');
+  }
+
+  String _friendlyAuthErrorMessage(String message) {
+    final normalized = message.trim();
+    if (normalized.isEmpty ||
+        normalized.startsWith('Exception:') ||
+        normalized.contains('Instance of')) {
+      return 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى بعد قليل.';
+    }
+
+    return normalized;
   }
 
   @override
@@ -131,12 +181,16 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
-              _showSnackBar(state.message, backgroundColor: Colors.red);
+              setState(() => _notice = _authErrorNotice(state.message));
             }
 
             if (state is EmailOtpRequestSuccess) {
               _startOtpWindow(state.email);
-              _showSnackBar(state.message);
+              _showNotice(
+                title: 'تم إرسال الرمز',
+                message: state.message,
+                tone: _AuthNoticeTone.success,
+              );
             }
 
             if (state is AuthSuccess) {
@@ -196,6 +250,19 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             ),
                           ),
                           const SizedBox(height: 32),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            child: _notice == null
+                                ? const SizedBox.shrink()
+                                : Padding(
+                                    key: ValueKey(_notice),
+                                    padding: const EdgeInsets.only(bottom: 18),
+                                    child: _AuthNoticePanel(
+                                      notice: _notice!,
+                                      onDismiss: _clearNotice,
+                                    ),
+                                  ),
+                          ),
                           _EmailOtpForm(
                             emailFormKey: _emailFormKey,
                             otpFormKey: _otpFormKey,
@@ -247,6 +314,7 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             onPressed: isBusy
                                 ? null
                                 : () {
+                                    _clearNotice();
                                     context.read<AuthBloc>().add(
                                       LoginWithGoogleRequested(),
                                     );
@@ -258,6 +326,7 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             onPressed: isBusy
                                 ? null
                                 : () {
+                                    _clearNotice();
                                     context.read<AuthBloc>().add(
                                       LoginWithTelegramRequested(),
                                     );
@@ -290,6 +359,101 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
     final minutes = totalSeconds ~/ 60;
     final seconds = totalSeconds % 60;
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+}
+
+enum _AuthNoticeTone { info, success, error }
+
+class _AuthNoticeData {
+  final String title;
+  final String message;
+  final _AuthNoticeTone tone;
+
+  const _AuthNoticeData({
+    required this.title,
+    required this.message,
+    required this.tone,
+  });
+}
+
+class _AuthNoticePanel extends StatelessWidget {
+  final _AuthNoticeData notice;
+  final VoidCallback onDismiss;
+
+  const _AuthNoticePanel({required this.notice, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (notice.tone) {
+      _AuthNoticeTone.success => const Color(0xff2E7D53),
+      _AuthNoticeTone.error => const Color(0xffD9534F),
+      _AuthNoticeTone.info => Theme.of(context).colorScheme.primary,
+    };
+    final icon = switch (notice.tone) {
+      _AuthNoticeTone.success => Icons.mark_email_read_rounded,
+      _AuthNoticeTone.error => Icons.error_outline_rounded,
+      _AuthNoticeTone.info => Icons.info_outline_rounded,
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  notice.title,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  notice.message,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: onDismiss,
+            icon: const Icon(Icons.close_rounded),
+            color: color,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+            tooltip: 'إغلاق',
+          ),
+        ],
+      ),
+    );
   }
 }
 

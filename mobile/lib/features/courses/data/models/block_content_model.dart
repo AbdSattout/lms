@@ -6,14 +6,17 @@ class BlockQuestionModel extends BlockQuestionEntity {
     required super.id,
     required super.content,
     required super.options,
+    required super.difficulty,
   });
 
   factory BlockQuestionModel.fromJson(Map<String, dynamic> json) {
     return BlockQuestionModel(
       id: json['id'] ?? 0,
       content: json['content'] ?? '',
-      options:
-      (json['options'] as List? ?? []).map((o) => o.toString()).toList(),
+      difficulty: _readDifficulty(json['difficulty']),
+      options: (json['options'] as List? ?? [])
+          .map((o) => o.toString())
+          .toList(),
     );
   }
 }
@@ -34,7 +37,9 @@ class BlockContentModel extends BlockContentEntity {
       content: json['content'] ?? '',
       position: json['position'] ?? 0,
       question: json['question'] != null
-          ? BlockQuestionModel.fromJson(json['question'] as Map<String, dynamic>)
+          ? BlockQuestionModel.fromJson(
+              json['question'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -64,4 +69,13 @@ class BlockAnswerResultModel extends BlockAnswerResultEntity {
           .toList(),
     );
   }
+}
+
+String _readDifficulty(Object? value) {
+  final difficulty = value?.toString().trim().toUpperCase();
+  if (difficulty == 'EASY' || difficulty == 'MEDIUM' || difficulty == 'HARD') {
+    return difficulty!;
+  }
+
+  return 'MEDIUM';
 }

@@ -104,6 +104,7 @@ public class MobileAiRandomQuizMapper {
                                         question.getId(),
                                         question.getContent(),
                                         question.getOptions(),
+                                        question.getSourceQuestion().getDifficulty(),
                                         BaseEntityResponse.from(question)
                                 )
                         )

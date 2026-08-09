@@ -87,10 +87,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       if (e.code == GoogleSignInExceptionCode.canceled) {
         throw CancelException(
-          ErrorModel(
-            status: 0,
-            errorMessage: "Google sign-in was cancelled ($details)",
-          ),
+          ErrorModel(status: 0, errorMessage: "تم إلغاء تسجيل الدخول"),
         );
       }
 

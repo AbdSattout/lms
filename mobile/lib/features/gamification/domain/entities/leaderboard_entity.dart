@@ -1,11 +1,11 @@
 class LeaderboardEntryEntity {
-  final int rank;
+  final int? rank;
   final int userId;
   final String name;
   final String? picture;
   final int xp;
-  final int levelNumber;
-  final String levelTitle;
+  final int? levelNumber;
+  final String? levelTitle;
 
   const LeaderboardEntryEntity({
     required this.rank,
@@ -13,8 +13,8 @@ class LeaderboardEntryEntity {
     required this.name,
     this.picture,
     required this.xp,
-    required this.levelNumber,
-    required this.levelTitle,
+    this.levelNumber,
+    this.levelTitle,
   });
 }
 
