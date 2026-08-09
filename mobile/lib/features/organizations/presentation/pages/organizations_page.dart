@@ -149,7 +149,12 @@ class OrganizationsPage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                  );
+                                  ).then((_) {
+                                    if (!context.mounted) return;
+                                    context.read<OrganizationBloc>().add(
+                                      GetAllOrganizationsEvent(),
+                                    );
+                                  });
                                 },
                               );
                             }),
@@ -416,18 +421,32 @@ class _InviteLinkEntryCardBodyState extends State<_InviteLinkEntryCardBody> {
               controller: _controller,
               focusNode: _focusNode,
               textDirection: TextDirection.ltr,
-              textAlign: TextAlign.left,
+              textAlign: _hasInput ? TextAlign.left : TextAlign.right,
               keyboardType: TextInputType.url,
               textInputAction: TextInputAction.go,
               autocorrect: false,
               enableSuggestions: false,
               onChanged: _handleInputChanged,
               onSubmitted: (_) => _openInvite(),
+              style: textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0,
+              ),
               decoration: InputDecoration(
-                hintText: 'https://lmscenter.vercel.app/invite/...',
+                labelText: 'رابط الدعوة',
+                hintText: 'الصق الرابط أو الرمز',
+                hintTextDirection: TextDirection.rtl,
+                hintStyle: textTheme.bodyMedium?.copyWith(
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.62),
+                  fontWeight: FontWeight.w700,
+                ),
                 errorText: _errorText,
                 filled: true,
                 fillColor: Theme.of(context).cardColor,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 15,
+                ),
                 prefixIcon: Icon(Icons.link_rounded, color: colors.primary),
                 suffixIcon: _hasInput
                     ? IconButton(

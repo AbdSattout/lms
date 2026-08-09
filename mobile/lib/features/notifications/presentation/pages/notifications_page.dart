@@ -184,7 +184,12 @@ class _InviteCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                );
+                ).then((_) {
+                  if (!context.mounted) return;
+                  context.read<NotificationsBloc>().add(
+                    RefreshNotificationsEvent(),
+                  );
+                });
               },
         child: Container(
           padding: const EdgeInsets.all(16),

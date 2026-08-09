@@ -20,6 +20,15 @@ class CancelJoinRequestEvent extends OrganizationDetailsEvent {
   CancelJoinRequestEvent(this.slug);
 }
 
+class AcceptOrganizationDetailsInviteEvent extends OrganizationDetailsEvent {
+  final String slug;
+  final int inviteId;
+  AcceptOrganizationDetailsInviteEvent({
+    required this.slug,
+    required this.inviteId,
+  });
+}
+
 class DeleteOrganizationEvent extends OrganizationDetailsEvent {
   final String slug;
   DeleteOrganizationEvent(this.slug);
