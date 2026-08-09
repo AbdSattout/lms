@@ -51,6 +51,8 @@ public class DashboardRoadmapService {
         Roadmap roadmap =
                 roadmapMapper.toEntity(
                         organization,
+                        request.name(),
+                        request.description(),
                         orderedCourses(
                                 request.courseIds(),
                                 organization.getId()
@@ -82,6 +84,14 @@ public class DashboardRoadmapService {
                         roadmapId,
                         organization.getId()
                 );
+
+        roadmap.setName(
+                request.name()
+        );
+
+        roadmap.setDescription(
+                request.description()
+        );
 
         roadmapMapper.replaceItems(
                 roadmap,
