@@ -147,6 +147,7 @@ class MainHomeScreen extends StatelessWidget {
       onTap: onTap,
       radius: radius,
       imageUrl: user.picture?.toString(),
+      fallbackLabel: user.name?.toString(),
       backgroundColor: colors.surfaceContainerHighest,
       border: Border.all(
         color: Theme.of(context).dividerColor,

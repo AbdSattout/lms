@@ -179,8 +179,10 @@ class BillingBloc extends Bloc<BillingEvent, BillingState> {
         state.copyWith(
           user: user,
           action: BillingAction.none,
-          successMessage: 'تم إلغاء الاشتراك وتحديث خطتك.',
-          clearResultDialog: true,
+          resultDialog: const BillingResultDialog(
+            BillingResultDialogType.subscriptionRevoked,
+          ),
+          clearSuccess: true,
         ),
       );
     } catch (e) {

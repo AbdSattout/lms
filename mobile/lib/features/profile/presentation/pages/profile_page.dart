@@ -147,6 +147,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ResilientNetworkAvatar(
                                       radius: 55,
                                       imageUrl: profile.user.picture,
+                                      fallbackLabel: displayName,
                                     ),
 
                                     Positioned(
