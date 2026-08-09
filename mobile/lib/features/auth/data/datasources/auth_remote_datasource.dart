@@ -1,4 +1,5 @@
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lms/core/databases/api/end_points.dart';
 import '../../../../core/databases/api/api_consumer.dart';
@@ -17,6 +18,8 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
+  static const String _loginCancelledMessage = 'Login cancelled';
+
   final FlutterAppAuth appAuth;
   final GoogleSignIn googleSignIn;
   final ApiConsumer apiConsumer;
@@ -52,8 +55,31 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception("Failed to obtain idToken from Telegram");
       }
     } on FlutterAppAuthUserCancelledException {
-      throw CancelException(
-        ErrorModel(status: 0, errorMessage: "تم إلغاء تسجيل الدخول"),
+      throw _loginCancelledException();
+    } on FlutterAppAuthPlatformException catch (e) {
+      if (_isAuthCancellation(e)) {
+        throw _loginCancelledException();
+      }
+
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage:
+              e.platformErrorDetails.errorDescription ??
+              e.message ??
+              'Telegram sign-in failed',
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (_isAuthCancellation(e)) {
+        throw _loginCancelledException();
+      }
+
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: e.message ?? 'Telegram sign-in failed',
+        ),
       );
     }
   }
@@ -86,9 +112,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           : '${e.code.name}: $description';
 
       if (e.code == GoogleSignInExceptionCode.canceled) {
-        throw CancelException(
-          ErrorModel(status: 0, errorMessage: "تم إلغاء تسجيل الدخول"),
-        );
+        throw _loginCancelledException();
       }
 
       throw ServerException(
@@ -144,5 +168,38 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
     await googleSignIn.initialize(serverClientId: EndPoints.googleClientId);
     _googleSignInInitialized = true;
+  }
+
+  CancelException _loginCancelledException() {
+    return CancelException(
+      ErrorModel(status: 0, errorMessage: _loginCancelledMessage),
+    );
+  }
+
+  bool _isAuthCancellation(PlatformException exception) {
+    if (_looksLikeAuthCancellation(exception.code) ||
+        _looksLikeAuthCancellation(exception.message) ||
+        _looksLikeAuthCancellation(exception.details)) {
+      return true;
+    }
+
+    if (exception is! FlutterAppAuthPlatformException) return false;
+
+    final details = exception.platformErrorDetails;
+    return _looksLikeAuthCancellation(details.error) ||
+        _looksLikeAuthCancellation(details.errorDescription) ||
+        _looksLikeAuthCancellation(details.errorDebugDescription) ||
+        _looksLikeAuthCancellation(details.rootCauseDebugDescription);
+  }
+
+  bool _looksLikeAuthCancellation(Object? value) {
+    final normalized = value?.toString().toLowerCase().trim() ?? '';
+    if (normalized.isEmpty) return false;
+
+    return normalized.contains('cancel') ||
+        normalized.contains('access_denied') ||
+        normalized.contains('access denied') ||
+        normalized.contains('access-denied') ||
+        normalized.contains('user_did_cancel');
   }
 }
