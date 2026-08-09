@@ -2,6 +2,8 @@ package app.lms.organization.organizationJoinRequest.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.notification.enums.NotificationType;
+import app.lms.notification.service.NotificationService;
 import app.lms.organization.organizationJoinRequest.dto.JoinRequestResponse;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
 import app.lms.organization.enums.Role;
@@ -34,6 +36,7 @@ public class OrganizationJoinRequestService {
     private final OrganizationAccessService organizationAccessService;
     private final OrganizationJoinRequestMapper organizationJoinRequestMapper;
     private final OrganizationInviteRepository organizationInviteRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public void join(String slug, User user) {
@@ -96,6 +99,17 @@ public class OrganizationJoinRequestService {
                 .build();
 
         joinRequestRepository.save(request);
+
+        notificationService.notifyOrganizationAdmin(
+                organization,
+                NotificationType.ORGANIZATION_JOIN_REQUEST,
+                "New Join Request",
+                user.getName() +
+                        " requested to join " +
+                        organization.getName() + ".",
+                "ORGANIZATION_JOIN_REQUEST",
+                request.getId()
+        );
 
     }
 
@@ -168,6 +182,17 @@ public class OrganizationJoinRequestService {
 
         memberRepository.save(newMember);
         joinRequestRepository.save(request);
+
+        notificationService.create(
+                request.getUser(),
+                NotificationType.ORGANIZATION_JOIN_REQUEST_ACCEPTED,
+                "Join Request Accepted",
+                "Your request to join " +
+                        organization.getName() +
+                        " has been accepted.",
+                "ORGANIZATION",
+                organization.getId()
+        );
     }
 
     @Transactional
