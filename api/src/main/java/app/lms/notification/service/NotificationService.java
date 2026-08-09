@@ -75,8 +75,9 @@ public class NotificationService {
     ) {
 
         return notificationRepository
-                .findAllByUserIdOrderByCreatedAtDesc(
+                .findVisibleByUserIdOrderByCreatedAtDesc(
                         user.getId(),
+                        NotificationType.ORGANIZATION_INVITE,
                         pageable
                 )
                 .map(notificationMapper::toResponse);
@@ -86,10 +87,11 @@ public class NotificationService {
     public long getUnreadCount(
             User user
     ) {
-               return notificationRepository
-                        .countByUserIdAndReadFalse(
-                                user.getId()
-                        );
+        return notificationRepository
+                .countVisibleUnreadByUserId(
+                        user.getId(),
+                        NotificationType.ORGANIZATION_INVITE
+                );
     }
 
     public void markAsRead(

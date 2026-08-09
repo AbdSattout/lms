@@ -9,6 +9,7 @@ import app.lms.enrollment.model.CourseEnrollment;
 import app.lms.course.dto.CourseBlockMapResponse;
 import app.lms.course.dto.CourseChapterMapResponse;
 import app.lms.course.dto.CourseDetailsResponse;
+import app.lms.course.dto.CourseLearningSummary;
 import app.lms.course.dto.CourseLessonMapResponse;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.enums.CourseNodeStatus;
@@ -37,6 +38,7 @@ public class CourseMapper {
         return toResponse(
                 course,
                 null,
+                null,
                 null
         );
     }
@@ -49,6 +51,7 @@ public class CourseMapper {
         return toResponse(
                 course,
                 enrollment,
+                null,
                 null
         );
     }
@@ -57,6 +60,21 @@ public class CourseMapper {
             Course course,
             CourseEnrollment enrollment,
             OrganizationViewerResponse organizationViewer
+    ) {
+
+        return toResponse(
+                course,
+                enrollment,
+                organizationViewer,
+                null
+        );
+    }
+
+    public CourseResponse toResponse(
+            Course course,
+            CourseEnrollment enrollment,
+            OrganizationViewerResponse organizationViewer,
+            CourseLearningSummary learningSummary
     ) {
 
         return CourseResponse.builder()
@@ -72,6 +90,21 @@ public class CourseMapper {
                 )
                 .slug(course.getSlug())
                 .status(course.getStatus())
+                .level(
+                        learningSummary != null
+                                ? learningSummary.level()
+                                : null
+                )
+                .completionXp(
+                        learningSummary != null
+                                ? learningSummary.completionXp()
+                                : null
+                )
+                .chaptersCount(
+                        learningSummary != null
+                                ? learningSummary.chaptersCount()
+                                : null
+                )
                 .enrollment(
                         enrollment != null
                                 ? toEnrollmentResponse(enrollment)

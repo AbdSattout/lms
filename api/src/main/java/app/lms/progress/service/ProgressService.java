@@ -12,13 +12,13 @@ import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
+import app.lms.gamification.service.LearningXpPolicy;
 import app.lms.lesson.repository.LessonRepository;
 import app.lms.progress.dto.SubmitBlockAnswerRequest;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
 import app.lms.progress.mapper.ProgressMapper;
 import app.lms.progress.model.BlockProgress;
 import app.lms.progress.repository.BlockProgressRepository;
-import app.lms.question.enums.QuestionDifficulty;
 import app.lms.question.model.Question;
 import app.lms.quiz.repository.QuizRepository;
 import app.lms.user.model.User;
@@ -33,11 +33,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProgressService {
 
-    private static final int EASY_BLOCK_COMPLETE_XP = 10;
-    private static final int MEDIUM_BLOCK_COMPLETE_XP = 15;
-    private static final int HARD_BLOCK_COMPLETE_XP = 20;
-    private static final int LESSON_COMPLETE_XP = 30;
-    private static final int CHAPTER_COMPLETE_XP = 75;
     private static final double BLOCK_ATTEMPT_PENALTY_RATE = 0.20;
     private static final double MIN_BLOCK_XP_MULTIPLIER = 0.30;
 
@@ -167,7 +162,7 @@ public class ProgressService {
                             user,
                             XPEventType.LESSON_COMPLETE,
                             block.getLesson().getId(),
-                            LESSON_COMPLETE_XP
+                            LearningXpPolicy.LESSON_COMPLETE_XP
                     )
             );
         }
@@ -181,7 +176,7 @@ public class ProgressService {
                             block.getLesson()
                                     .getChapter()
                                     .getId(),
-                            CHAPTER_COMPLETE_XP
+                            LearningXpPolicy.CHAPTER_COMPLETE_XP
                     )
             );
         }
@@ -194,17 +189,10 @@ public class ProgressService {
             BlockProgress progress
     ) {
 
-        QuestionDifficulty difficulty =
-                question.getDifficulty() != null
-                        ? question.getDifficulty()
-                        : QuestionDifficulty.MEDIUM;
-
         int baseXp =
-                switch (difficulty) {
-            case EASY -> EASY_BLOCK_COMPLETE_XP;
-            case MEDIUM -> MEDIUM_BLOCK_COMPLETE_XP;
-            case HARD -> HARD_BLOCK_COMPLETE_XP;
-        };
+                LearningXpPolicy.maxBlockCompleteXpFor(
+                        question.getDifficulty()
+                );
 
         return applyAttemptPenalty(
                 baseXp,

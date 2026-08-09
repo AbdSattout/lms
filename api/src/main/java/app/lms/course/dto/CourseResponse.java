@@ -5,6 +5,7 @@ import app.lms.enrollment.dto.CourseEnrollmentResponse;
 import app.lms.course.enums.CourseStatus;
 import app.lms.organization.dto.OrganizationSummaryResponse;
 import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
+import app.lms.question.enums.QuestionDifficulty;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 
@@ -18,6 +19,12 @@ public record CourseResponse(
         String coverUrl,
         OrganizationSummaryResponse organization,
         CourseStatus status,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        QuestionDifficulty level,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        Integer completionXp,
+        @JsonInclude(JsonInclude.Include.NON_NULL)
+        Long chaptersCount,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         CourseEnrollmentResponse enrollment,
         @JsonInclude(JsonInclude.Include.NON_NULL)

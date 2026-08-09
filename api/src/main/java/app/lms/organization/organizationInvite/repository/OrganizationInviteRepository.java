@@ -61,9 +61,24 @@ public interface OrganizationInviteRepository
             "user",
             "invitedBy"
     })
+    @Query("""
+            select invite
+            from OrganizationInvite invite
+            where invite.organization.id = :organizationId
+            and invite.status = :status
+            and (
+                invite.user is null
+                or not exists (
+                    select member.id
+                    from OrganizationMember member
+                    where member.organization.id = invite.organization.id
+                    and member.user.id = invite.user.id
+                )
+            )
+            """)
     List<OrganizationInvite> findAllByOrganizationIdAndStatus(
-            Long organizationId,
-            InviteStatus status
+            @Param("organizationId") Long organizationId,
+            @Param("status") InviteStatus status
     );
 
     List<OrganizationInvite> findAllByOrganizationIdAndUserIdInAndStatus(
@@ -93,6 +108,12 @@ public interface OrganizationInviteRepository
             where invite.user.id = :userId
             and invite.role = :role
             and invite.status = :status
+            and not exists (
+                select member.id
+                from OrganizationMember member
+                where member.organization.id = invite.organization.id
+                and member.user.id = :userId
+            )
             and not exists (
                 select moderation.id
                 from OrganizationModeration moderation
