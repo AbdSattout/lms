@@ -1,6 +1,7 @@
 import '../../../../core/databases/api/api_consumer.dart';
 import '../../../../core/databases/api/end_points.dart';
 import '../../../../core/models/page_response.dart';
+import '../../../courses/data/models/course_model.dart';
 import '../models/organization_model.dart';
 
 abstract class OrganizationRemoteDataSource {
@@ -15,6 +16,7 @@ abstract class OrganizationRemoteDataSource {
   Future<void> cancelJoinRequest(String slug);
 
   Future<void> deleteOrganization(String slug);
+  Future<List<CourseModel>> getOrganizationCourses(String slug);
 }
 
 class OrganizationRemoteDataSourceImpl
@@ -72,5 +74,11 @@ class OrganizationRemoteDataSourceImpl
     await api.delete(
       EndPoints.deleteOrganizationDashboard(slug),
     );
+  }
+  @override
+  Future<List<CourseModel>> getOrganizationCourses(String slug) async {
+    final response = await api.get(EndPoints.organizationCourses(slug));
+    final content = response['content'] as List<dynamic>;
+    return content.map((e) => CourseModel.fromJson(e as Map<String, dynamic>)).toList();
   }
 }

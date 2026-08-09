@@ -68,8 +68,7 @@ class EndPoints {
   static String deleteOrganizationDashboard(String slug) =>
       'organizations/$slug/leave';
 
-  static String organizationCourses(String orgSlug) =>
-      'organizations/$orgSlug/courses';
+  static String organizationCourses(String orgSlug) => 'organizations/$orgSlug/courses';
 
   static String courseBySlug({
     required String orgSlug,
