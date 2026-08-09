@@ -19,18 +19,18 @@ class OrganizationDetailsPage extends StatelessWidget {
       child: Scaffold(
         body: BlocConsumer<OrganizationDetailsBloc, OrganizationDetailsState>(
           listenWhen: (previous, current) =>
-          current is OrganizationDetailsError ||
+              current is OrganizationDetailsError ||
               current is OrganizationDeleted,
           listener: (context, state) {
             if (state is OrganizationDetailsError) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
             if (state is OrganizationDeleted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('تم حذف المنظمة')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('تم حذف المنظمة')));
               Navigator.pop(context, true);
             }
           },
@@ -63,7 +63,7 @@ class OrganizationDetailsPage extends StatelessWidget {
             }
             if (state is OrganizationDetailsLoaded) {
               return _OrganizationDetailsContent(
-                slug:slug,
+                slug: slug,
                 organization: state.organization,
                 isProcessing: state.isProcessing,
                 onJoin: () {
@@ -76,7 +76,9 @@ class OrganizationDetailsPage extends StatelessWidget {
                     context: context,
                     builder: (_) => AlertDialog(
                       title: const Text('مغادرة المنظمة'),
-                      content: const Text('هل أنت متأكد من مغادرة هذه المنظمة؟'),
+                      content: const Text(
+                        'هل أنت متأكد من مغادرة هذه المنظمة؟',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
@@ -84,8 +86,10 @@ class OrganizationDetailsPage extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('مغادرة',
-                              style: TextStyle(color: Color(0xffD9534F))),
+                          child: const Text(
+                            'مغادرة',
+                            style: TextStyle(color: Color(0xffD9534F)),
+                          ),
                         ),
                       ],
                     ),
@@ -101,13 +105,22 @@ class OrganizationDetailsPage extends StatelessWidget {
                     CancelJoinRequestEvent(slug),
                   );
                 },
+                onAcceptInvite: (inviteId) {
+                  context.read<OrganizationDetailsBloc>().add(
+                    AcceptOrganizationDetailsInviteEvent(
+                      slug: slug,
+                      inviteId: inviteId,
+                    ),
+                  );
+                },
                 onDelete: () async {
                   final confirmed = await showDialog<bool>(
                     context: context,
                     builder: (_) => AlertDialog(
                       title: const Text('حذف المنظمة'),
                       content: const Text(
-                          'هذا الإجراء نهائي ولا يمكن التراجع عنه. هل أنت متأكد من حذف هذه المنظمة؟'),
+                        'هذا الإجراء نهائي ولا يمكن التراجع عنه. هل أنت متأكد من حذف هذه المنظمة؟',
+                      ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
@@ -115,8 +128,10 @@ class OrganizationDetailsPage extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('حذف',
-                              style: TextStyle(color: Color(0xffD9534F))),
+                          child: const Text(
+                            'حذف',
+                            style: TextStyle(color: Color(0xffD9534F)),
+                          ),
                         ),
                       ],
                     ),
@@ -141,6 +156,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
   final OrganizationEntity organization;
   final bool isProcessing;
   final VoidCallback onJoin, onLeave, onCancelRequest, onDelete;
+  final ValueChanged<int> onAcceptInvite;
   final String slug;
   const _OrganizationDetailsContent({
     required this.slug,
@@ -149,6 +165,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
     required this.onJoin,
     required this.onLeave,
     required this.onCancelRequest,
+    required this.onAcceptInvite,
     required this.onDelete,
   });
 
@@ -160,11 +177,18 @@ class _OrganizationDetailsContent extends StatelessWidget {
         organization.image != null && organization.image!.isNotEmpty;
     final isMember = organization.viewerJoined;
     final isOwner = organization.viewerRole == 'OWNER';
-    final isPrivate =
-        organization.visibility == OrganizationVisibility.private;
+    final isPrivate = organization.visibility == OrganizationVisibility.private;
     final isPending = organization.joinRequestStatus == 'PENDING';
-    final showsCancelRequest = isPending && !isMember && !isOwner;
-    final bottomContentPadding = showsCancelRequest ? 230.0 : 180.0;
+    final hasPendingInvite =
+        organization.inviteStatus == 'PENDING' &&
+        organization.inviteId != null &&
+        !isMember &&
+        !isOwner;
+    final showsCancelRequest =
+        isPending && !hasPendingInvite && !isMember && !isOwner;
+    final bottomContentPadding = showsCancelRequest || hasPendingInvite
+        ? 230.0
+        : 180.0;
     final visibility = switch (organization.visibility) {
       OrganizationVisibility.public => "عامة",
       OrganizationVisibility.private => "خاصة",
@@ -183,21 +207,24 @@ class _OrganizationDetailsContent extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(32)),
+                      bottom: Radius.circular(32),
+                    ),
                     child: hasImage
                         ? Image.network(
-                      organization.image!,
-                      width: double.infinity,
-                      height: 220,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _coverPlaceholder(),
-                    )
+                            organization.image!,
+                            width: double.infinity,
+                            height: 220,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _coverPlaceholder(),
+                          )
                         : _coverPlaceholder(),
                   ),
                   SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -214,9 +241,11 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     right: 16,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(.45),
+                        color: Colors.black.withValues(alpha: .45),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -261,23 +290,30 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.people_alt_rounded,
-                            size: 16, color: colors.onSurfaceVariant),
+                        Icon(
+                          Icons.people_alt_rounded,
+                          size: 16,
+                          color: colors.onSurfaceVariant,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           organization.membersCount == 1
                               ? 'عضو واحد'
                               : '${organization.membersCount} أعضاء',
                           style: TextStyle(
-                              fontSize: 13, color: colors.onSurfaceVariant),
+                            fontSize: 13,
+                            color: colors.onSurfaceVariant,
+                          ),
                         ),
                         if (isOwner) ...[
                           const SizedBox(width: 12),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: colors.primary.withOpacity(0.1),
+                              color: colors.primary.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -294,11 +330,20 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
 
+                    if (hasPendingInvite) ...[
+                      _InviteNoticeCard(
+                        isProcessing: isProcessing,
+                        onAccept: () => onAcceptInvite(organization.inviteId!),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+
                     if (organization.description != null &&
                         organization.description!.trim().isNotEmpty) ...[
                       _SectionHeader(
-                          icon: Icons.info_outline_rounded,
-                          title: 'عن المنظمة'),
+                        icon: Icons.info_outline_rounded,
+                        title: 'عن المنظمة',
+                      ),
                       const SizedBox(height: 10),
                       Container(
                         width: double.infinity,
@@ -325,7 +370,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           child: _StatCard(
                             icon: Icons.people_alt_rounded,
                             iconColor: colors.primary,
-                            iconBg: colors.primary.withOpacity(0.1),
+                            iconBg: colors.primary.withValues(alpha: 0.1),
                             label: "الأعضاء",
                             value: organization.membersCount.toString(),
                           ),
@@ -340,8 +385,8 @@ class _OrganizationDetailsContent extends StatelessWidget {
                                 ? const Color(0xffB4780F)
                                 : const Color(0xff2E7D53),
                             iconBg: isPrivate
-                                ? AppColors.peach.withOpacity(.45)
-                                : AppColors.mint.withOpacity(.45),
+                                ? AppColors.peach.withValues(alpha: .45)
+                                : AppColors.mint.withValues(alpha: .45),
                             label: "النوع",
                             value: visibility,
                           ),
@@ -358,18 +403,22 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           color: colors.surface,
                           borderRadius: BorderRadius.circular(18),
                           border: Border.all(
-                              color: Theme.of(context).dividerColor),
+                            color: Theme.of(context).dividerColor,
+                          ),
                         ),
                         child: Row(
                           children: [
                             Container(
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: colors.primary.withOpacity(0.1),
+                                color: colors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Icon(Icons.admin_panel_settings_rounded,
-                                  color: colors.primary, size: 20),
+                              child: Icon(
+                                Icons.admin_panel_settings_rounded,
+                                color: colors.primary,
+                                size: 20,
+                              ),
                             ),
                             const SizedBox(width: 14),
                             Expanded(
@@ -401,30 +450,32 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     const SizedBox(height: 28),
 
                     _SectionHeader(
-                        icon: Icons.campaign_outlined,
-                        title: 'منشورات المنظمة'),
+                      icon: Icons.campaign_outlined,
+                      title: 'منشورات المنظمة',
+                    ),
                     const SizedBox(height: 12),
                     _FeatureCard(
                       slug: slug,
                       icon: Icons.article_outlined,
-                      iconBg: colors.primary.withOpacity(0.1),
+                      iconBg: colors.primary.withValues(alpha: 0.1),
                       iconColor: colors.primary,
                       title: 'آخر المنشورات والإعلانات',
                       subtitle: 'قريباً',
                       onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('منشورات المنظمة قريباً'))),
+                        const SnackBar(content: Text('منشورات المنظمة قريباً')),
+                      ),
                     ),
                     const SizedBox(height: 28),
 
                     _SectionHeader(
-                        icon: Icons.menu_book_rounded,
-                        title: 'كورسات المنظمة'),
+                      icon: Icons.menu_book_rounded,
+                      title: 'كورسات المنظمة',
+                    ),
                     const SizedBox(height: 12),
                     _FeatureCard(
                       slug: slug,
                       icon: Icons.school_rounded,
-                      iconBg: const Color(0xff2E7D53).withOpacity(0.1),
+                      iconBg: const Color(0xff2E7D53).withValues(alpha: 0.1),
                       iconColor: const Color(0xff2E7D53),
                       title: 'استعرض الكورسات المتاحة',
                       subtitle: 'سجل في كورسات المنظمة!',
@@ -456,7 +507,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                 color: colors.surface,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.10),
+                    color: Colors.black.withValues(alpha: 0.10),
                     blurRadius: 24,
                     offset: const Offset(0, -8),
                   ),
@@ -470,8 +521,11 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     isOwner: isOwner,
                     isPrivate: isPrivate,
                     isPending: isPending,
+                    hasPendingInvite: hasPendingInvite,
                     isProcessing: isProcessing,
                     onJoin: onJoin,
+                    onAcceptInvite: () =>
+                        onAcceptInvite(organization.inviteId!),
                     onLeave: onLeave,
                     onDelete: onDelete,
                   ),
@@ -533,8 +587,10 @@ class _OrganizationDetailsContent extends StatelessWidget {
     required bool isOwner,
     required bool isPrivate,
     required bool isPending,
+    required bool hasPendingInvite,
     required bool isProcessing,
     required VoidCallback onJoin,
+    required VoidCallback onAcceptInvite,
     required VoidCallback onLeave,
     required VoidCallback onDelete,
   }) {
@@ -553,6 +609,11 @@ class _OrganizationDetailsContent extends StatelessWidget {
       icon = Icons.logout_rounded;
       backgroundColor = const Color(0xffD9534F);
       onPressed = isProcessing ? null : onLeave;
+    } else if (hasPendingInvite) {
+      label = "قبول الدعوة";
+      icon = Icons.mark_email_read_rounded;
+      backgroundColor = AppColors.primary;
+      onPressed = isProcessing ? null : onAcceptInvite;
     } else if (isPending) {
       label = "بانتظار موافقة الإدارة";
       icon = Icons.hourglass_top_rounded;
@@ -577,7 +638,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: backgroundColor,
-          disabledBackgroundColor: backgroundColor.withOpacity(0.6),
+          disabledBackgroundColor: backgroundColor.withValues(alpha: 0.6),
           elevation: 0,
           minimumSize: const Size.fromHeight(58),
           padding: const EdgeInsets.symmetric(horizontal: 18),
@@ -587,13 +648,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
         ),
         icon: isProcessing
             ? const SizedBox(
-          width: 20,
-          height: 20,
-          child: CircularProgressIndicator(
-            color: Colors.white,
-            strokeWidth: 2.4,
-          ),
-        )
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.4,
+                ),
+              )
             : Icon(icon, color: Colors.white),
         label: Text(
           label,
@@ -610,6 +671,72 @@ class _OrganizationDetailsContent extends StatelessWidget {
   }
 }
 
+class _InviteNoticeCard extends StatelessWidget {
+  final bool isProcessing;
+  final VoidCallback onAccept;
+
+  const _InviteNoticeCard({required this.isProcessing, required this.onAccept});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: colors.primary.withValues(alpha: 0.18)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              Icons.mark_email_read_rounded,
+              color: colors.primary,
+              size: 22,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'لديك دعوة لهذه المنظمة',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: colors.primary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'يمكنك قبول الدعوة والانضمام مباشرة.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    height: 1.45,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          TextButton(
+            onPressed: isProcessing ? null : onAccept,
+            child: const Text('قبول'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _SectionHeader extends StatelessWidget {
   final IconData icon;
@@ -626,7 +753,7 @@ class _SectionHeader extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: colors.primary.withOpacity(0.1),
+            color: colors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, size: 20, color: colors.primary),
@@ -675,7 +802,9 @@ class _FeatureCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colors.outlineVariant.withOpacity(0.5)),
+            border: Border.all(
+              color: colors.outlineVariant.withValues(alpha: 0.5),
+            ),
           ),
           child: Row(
             children: [
@@ -712,8 +841,11 @@ class _FeatureCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: colors.onSurfaceVariant),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: colors.onSurfaceVariant,
+              ),
             ],
           ),
         ),
@@ -759,15 +891,19 @@ class _StatCard extends StatelessWidget {
             child: Icon(icon, size: 18, color: iconColor),
           ),
           const SizedBox(height: 10),
-          Text(label,
-              style:
-              TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+          Text(
+            label,
+            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
+          ),
           const SizedBox(height: 2),
-          Text(value,
-              style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: colors.onSurface)),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: colors.onSurface,
+            ),
+          ),
         ],
       ),
     );
@@ -782,7 +918,7 @@ Widget _coverPlaceholder() {
       gradient: LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
-        colors: [AppColors.primary, AppColors.primary.withOpacity(.65)],
+        colors: [AppColors.primary, AppColors.primary.withValues(alpha: .65)],
       ),
     ),
     child: const Center(
@@ -791,14 +927,13 @@ Widget _coverPlaceholder() {
   );
 }
 
-Widget _roundIconButton(
-    {required IconData icon, required VoidCallback onTap}) {
+Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
   return GestureDetector(
     onTap: onTap,
     child: Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.85),
+        color: Colors.white.withValues(alpha: .85),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, size: 18, color: AppColors.dark),

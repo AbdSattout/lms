@@ -1,6 +1,7 @@
 package app.lms.organization.mapper;
 
 import app.lms.common.dto.BaseEntityResponse;
+import app.lms.course.repository.CourseRepository;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.OrganizationSummaryResponse;
@@ -23,6 +24,7 @@ public class OrganizationMapper {
 
     private final UserMapper userMapper;
     private final OrganizationMemberRepository memberRepository;
+    private final CourseRepository courseRepository;
 
     public OrganizationResponse ToResponse(
             Organization organization
@@ -30,6 +32,7 @@ public class OrganizationMapper {
 
         return toResponse(
                 organization,
+                null,
                 null
         );
     }
@@ -41,7 +44,21 @@ public class OrganizationMapper {
 
         return toResponse(
                 organization,
-                viewer
+                viewer,
+                null
+        );
+    }
+
+    public OrganizationResponse ToResponse(
+            Organization organization,
+            OrganizationViewerResponse viewer,
+            Long coursesCount
+    ) {
+
+        return toResponse(
+                organization,
+                viewer,
+                coursesCount
         );
     }
 
@@ -72,13 +89,15 @@ public class OrganizationMapper {
                         member,
                         request,
                         invite
-                )
+                ),
+                null
         );
     }
 
     private OrganizationResponse toResponse(
             Organization organization,
-            OrganizationViewerResponse viewer
+            OrganizationViewerResponse viewer,
+            Long coursesCount
     ) {
 
         return OrganizationResponse.builder()
@@ -94,6 +113,13 @@ public class OrganizationMapper {
                 .membersCount(memberRepository.countByOrganizationId(
                         organization.getId()
                 ))
+                .coursesCount(
+                        coursesCount != null
+                                ? coursesCount
+                                : courseRepository.countByOrganizationId(
+                                        organization.getId()
+                                )
+                )
                 .viewer(viewer)
                 .baseEntity(BaseEntityResponse.from(organization))
                 .build();
@@ -113,6 +139,11 @@ public class OrganizationMapper {
                                 : null
                 )
                 .joinRequestStatus(joinRequestStatusFor(member, request))
+                .inviteId(
+                        invite != null
+                                ? invite.getId()
+                                : null
+                )
                 .inviteStatus(inviteStatusFor(invite))
                 .member(viewerMemberResponseFor(member))
                 .build();

@@ -300,6 +300,7 @@ Future<void> init() async {
       joinOrganizationUseCase: sl(),
       leaveOrganizationUseCase: sl(),
       cancelJoinRequestUseCase: sl(),
+      acceptOrganizationInviteUseCase: sl(),
       deleteOrganizationUseCase: sl(),
     ),
   );

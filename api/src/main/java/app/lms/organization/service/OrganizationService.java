@@ -1,6 +1,7 @@
 package app.lms.organization.service;
 
 import app.lms.common.exception.ConflictException;
+import app.lms.course.repository.CourseRepository;
 import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.organization.dto.OrganizationResponse;
@@ -11,6 +12,7 @@ import app.lms.organization.model.Organization;
 import app.lms.organization.model.OrganizationMember;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
+import app.lms.organization.repository.projection.OrganizationCountProjection;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,7 @@ public class OrganizationService {
     private final OrganizationMemberAccessService organizationMemberAccessService;
     private final CourseEnrollmentRepository courseEnrollmentRepository;
     private final OrganizationViewerService organizationViewerService;
+    private final CourseRepository courseRepository;
 
     @Value("${app.search.organization-similarity-threshold:0.2}")
     private double organizationSearchSimilarityThreshold;
@@ -60,7 +63,10 @@ public class OrganizationService {
 
         return organizationMapper.ToResponse(
                 organization,
-                viewer
+                viewer,
+                courseRepository.countByOrganizationId(
+                        organization.getId()
+                )
         );
     }
 
@@ -89,11 +95,20 @@ public class OrganizationService {
                         user
                 );
 
+        Map<Long, Long> coursesCountsByOrganizationId =
+                coursesCountsByOrganizationId(
+                        organizations.getContent()
+                );
+
         return organizations.map(organization ->
                         organizationMapper.ToResponse(
                                 organization,
                                 viewersByOrganizationId.get(
                                         organization.getId()
+                                ),
+                                coursesCountsByOrganizationId.getOrDefault(
+                                        organization.getId(),
+                                        0L
                                 )
                         )
                 );
@@ -156,6 +171,32 @@ public class OrganizationService {
         }
 
         memberRepository.delete(member);
+    }
+
+    private Map<Long, Long> coursesCountsByOrganizationId(
+            List<Organization> organizations
+    ) {
+
+        List<Long> organizationIds =
+                organizations.stream()
+                        .map(Organization::getId)
+                        .toList();
+
+        if (organizationIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return courseRepository
+                .countByOrganizationIds(
+                        organizationIds
+                )
+                .stream()
+                .collect(
+                        java.util.stream.Collectors.toMap(
+                                OrganizationCountProjection::getOrganizationId,
+                                OrganizationCountProjection::getTotal
+                        )
+                );
     }
 
 }

@@ -57,6 +57,9 @@ public class DashboardCourseService {
     private final NotificationService
             notificationService;
 
+    private final CourseLearningSummaryService
+            courseLearningSummaryService;
+
     @Transactional
     public CourseResponse create(
 
@@ -481,7 +484,14 @@ public class DashboardCourseService {
                                 user
                         );
 
-        return courseMapper.toResponse(course);
+        return courseMapper.toResponse(
+                course,
+                null,
+                null,
+                courseLearningSummaryService.summarize(
+                        course.getId()
+                )
+        );
     }
 
     public List<CourseResponse> list(

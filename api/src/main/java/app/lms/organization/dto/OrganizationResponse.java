@@ -16,6 +16,7 @@ public record OrganizationResponse(
         Visibility visibility,
         String ownerName,
         Long membersCount,
+        Long coursesCount,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         OrganizationViewerResponse viewer,
         BaseEntityResponse baseEntity
