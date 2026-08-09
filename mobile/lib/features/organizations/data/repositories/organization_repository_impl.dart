@@ -1,4 +1,5 @@
 import '../../domain/entities/organization_entity.dart';
+import '../../domain/entities/organization_invite_entity.dart';
 import '../../domain/repositories/organization_repository.dart';
 import '../datasources/organization_remote_datasource.dart';
 
@@ -35,5 +36,20 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
   @override
   Future<void> deleteOrganization(String slug) {
     return remote.deleteOrganization(slug);
+  }
+
+  @override
+  Future<List<OrganizationInviteEntity>> getMyInvites() {
+    return remote.getMyInvites();
+  }
+
+  @override
+  Future<void> acceptInvite({required String slug, required int inviteId}) {
+    return remote.acceptInvite(slug: slug, inviteId: inviteId);
+  }
+
+  @override
+  Future<void> declineInvite({required String slug, required int inviteId}) {
+    return remote.declineInvite(slug: slug, inviteId: inviteId);
   }
 }
