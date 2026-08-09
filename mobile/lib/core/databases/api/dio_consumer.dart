@@ -130,6 +130,7 @@ class DioConsumer extends ApiConsumer {
   bool _isAuthFreePath(String path) {
     return const [
       EndPoints.login,
+      EndPoints.googleLogin,
       EndPoints.requestEmailOtp,
       EndPoints.verifyEmailOtp,
     ].any((authPath) => path == authPath || path.endsWith(authPath));

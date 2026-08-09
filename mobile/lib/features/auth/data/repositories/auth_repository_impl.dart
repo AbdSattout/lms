@@ -8,7 +8,7 @@ import 'package:lms/features/auth/domain/repositories/auth_repository.dart';
 import 'package:lms/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
 import '../models/auth_model.dart';
-
+import 'dart:convert';
 class AuthRepositoryImpl extends AuthRepository {
   final NetworkInfo networkInfo;
   final AuthRemoteDataSource remoteDataSource;
@@ -25,6 +25,23 @@ class AuthRepositoryImpl extends AuthRepository {
     if (await networkInfo.isConnected!) {
       try {
         final remoteAuthData = await remoteDataSource.loginWithTelegram();
+        await _cacheAuthData(remoteAuthData);
+        return Right(remoteAuthData);
+      } on ServerException catch (e) {
+        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      } catch (e) {
+        return Left(Failure(errMessage: e.toString()));
+      }
+    }
+
+    return Left(_networkFailure());
+  }
+
+  @override
+  Future<Either<Failure, AuthEntity>> loginWithGoogle() async {
+    if (await networkInfo.isConnected!) {
+      try {
+        final remoteAuthData = await remoteDataSource.loginWithGoogle();
         await _cacheAuthData(remoteAuthData);
         return Right(remoteAuthData);
       } on ServerException catch (e) {
@@ -80,11 +97,35 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<Either<Failure, AuthEntity?>> checkCachedAuth() async {
     try {
       final cachedAuth = await localDataSource.getCachedAuthData();
+      if (_isTokenExpired(cachedAuth.token)) {
+        await localDataSource.cache.removeData(key: localDataSource.key);
+        return const Right(null);
+      }
+
       return Right(cachedAuth);
     } on CacheExeption {
       return const Right(null);
     } catch (e) {
       return Left(Failure(errMessage: "Failed to check cached authentication"));
+    }
+  }
+
+  bool _isTokenExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+
+      final payload = json.decode(
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])))
+      );
+
+      final exp = payload['exp'] as int?;
+      if (exp == null) return false;
+
+      final expiryDate = DateTime.fromMillisecondsSinceEpoch(exp * 1000);
+      return DateTime.now().isAfter(expiryDate);
+    } catch (_) {
+      return false;
     }
   }
 

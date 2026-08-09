@@ -19,25 +19,30 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> _getHomeData(
-      GetHomeDataEvent event, Emitter<HomeState> emit) async {
+      GetHomeDataEvent event,
+      Emitter<HomeState> emit,
+      ) async {
     emit(HomeLoading());
 
     List<CourseEntity>? courses;
     String? coursesError;
+
     List<OrganizationEntity>? organizations;
     String? organizationsError;
 
-    try {
-      courses = await getAllCoursesUseCase();
-    } catch (e) {
-      coursesError = resolveApiErrorMessage(e);
-    }
+    await Future.wait([
+      getAllCoursesUseCase().then((result) {
+        courses = result;
+      }).catchError((e) {
+        coursesError = resolveApiErrorMessage(e);
+      }),
 
-    try {
-      organizations = await getAllOrganizationsUseCase();
-    } catch (e) {
-      organizationsError = resolveApiErrorMessage(e);
-    }
+      getAllOrganizationsUseCase().then((result) {
+        organizations = result;
+      }).catchError((e) {
+        organizationsError = resolveApiErrorMessage(e);
+      }),
+    ]);
 
     emit(HomeLoaded(
       courses: courses,

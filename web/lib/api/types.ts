@@ -646,3 +646,51 @@ export interface CheckoutSessionResponse {
 export interface CustomerPortalSessionResponse {
   customerPortalUrl: string
 }
+
+export type BanDuration = "DAY" | "WEEK" | "MONTH" | "YEAR" | "PERMANENT"
+
+export interface BanRequest {
+  reason: string
+  duration?: BanDuration
+}
+
+export interface OrganizationUserSearchResponse {
+  name?: string
+  email?: string
+  phone?: string
+  university?: string
+  user: UserResponse
+  member: boolean
+  role?: Role
+  invited: boolean
+  inviteId?: number
+  inviteStatus?: InviteStatus
+  inviteRole?: Role
+}
+
+export interface GenerateCourseFaqRequest {
+  count?: number
+  regenerate?: boolean
+}
+
+export interface CourseFaqResponse {
+  id: number
+  question: string
+  answer: string
+  position?: number
+  baseEntity?: BaseEntityResponse
+}
+
+export type CertificateGrade = "BASIC" | "GOOD" | "VERY_GOOD" | "EXCELLENT"
+
+export interface CertificateResponse {
+  certificateCode: string
+  studentName: string
+  courseName: string
+  organizationName: string
+  finalQuizScore: number
+  finalQuizTotal: number
+  finalQuizPercentage: number
+  grade: CertificateGrade
+  baseEntity?: BaseEntityResponse
+}

@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/usecases/check_cached_auth_usecase.dart';
+import '../../domain/usecases/login_with_google.dart';
 import '../../domain/usecases/login_with_telegram.dart';
 import '../../domain/usecases/logout_usecase.dart';
 import '../../domain/usecases/request_email_otp.dart';
@@ -10,6 +11,7 @@ import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final LoginWithTelegram loginWithTelegram;
+  final LoginWithGoogle loginWithGoogle;
   final RequestEmailOtp requestEmailOtp;
   final VerifyEmailOtp verifyEmailOtp;
   final CheckCachedAuth checkCachedAuth;
@@ -17,6 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   AuthBloc({
     required this.loginWithTelegram,
+    required this.loginWithGoogle,
     required this.requestEmailOtp,
     required this.verifyEmailOtp,
     required this.checkCachedAuth,
@@ -24,6 +27,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }) : super(AuthInitial()) {
     on<CheckAuthStatus>(_checkAuthStatus);
     on<LoginWithTelegramRequested>(_loginWithTelegram);
+    on<LoginWithGoogleRequested>(_loginWithGoogle);
     on<RequestEmailOtpRequested>(_requestEmailOtp);
     on<VerifyEmailOtpRequested>(_verifyEmailOtp);
     on<LogoutRequested>(_logout);
@@ -49,13 +53,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     LoginWithTelegramRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(TelegramAuthLoading());
     final result = await loginWithTelegram();
 
     result.fold(
       (failure) => emit(AuthError(failure.errMessage)),
       (authEntity) => emit(
         AuthSuccess(message: 'تم تسجيل الدخول بنجاح', authEntity: authEntity),
+      ),
+    );
+  }
+
+  Future<void> _loginWithGoogle(
+    LoginWithGoogleRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(GoogleAuthLoading());
+    final result = await loginWithGoogle();
+
+    result.fold(
+      (failure) => emit(AuthError(failure.errMessage)),
+      (authEntity) => emit(
+        AuthSuccess(
+          message: 'Google sign-in successful',
+          authEntity: authEntity,
+        ),
       ),
     );
   }

@@ -33,6 +33,7 @@ import { byCourse, byId as mediaById } from "@/lib/api/media"
 
 import {
   bySlug,
+  banUser,
   checkCourseSlugAvailability,
   checkSlugAvailability,
   courses,
@@ -43,6 +44,9 @@ import {
   leave,
   list,
   members,
+  removeMember,
+  searchUsers as organizationSearchUsers,
+  unbanUser,
 } from "@/lib/api/organizations"
 import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
@@ -69,6 +73,7 @@ import {
   updateQuestions as updatePracticeExamQuestions,
 } from "@/lib/api/practice-exams"
 import { create, me as profileMe } from "@/lib/api/profile"
+import { getByCode as getCertificateByCode } from "@/lib/api/certificates"
 
 import { getFinalQuiz, updateFinalQuizQuestions } from "@/lib/api/quizzes"
 import {
@@ -83,7 +88,7 @@ import {
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture, search as userSearch } from "@/lib/api/users"
-import { generateQuestionFromBlock, transformText } from "@/lib/api/ai"
+import { generateQuestionFromBlock, transformText, generateFaq, getFaqs } from "@/lib/api/ai"
 import {
   byOrg as postMediaByOrg,
   byId as postMediaById,
@@ -111,6 +116,7 @@ export const api = {
     me,
     picture,
     search: userSearch,
+    overview: userOverview,
   },
   profile: {
     create,
@@ -132,6 +138,10 @@ export const api = {
       checkCourseSlugAvailability,
       invites,
       leave,
+      searchUsers: organizationSearchUsers,
+      removeMember,
+      banUser,
+      unbanUser,
       members: {
         list: members.list,
         getOwners: members.owners,
@@ -145,6 +155,7 @@ export const api = {
       byId: coursesById,
       publish,
       chapters,
+      overview: courseOverview,
     },
     chapters: {
       byId: chaptersById,
@@ -213,6 +224,11 @@ export const api = {
     ai: {
       generateQuestionFromBlock,
       transformText,
+      generateFaq,
+      getFaqs,
+    },
+    certificates: {
+      getByCode: getCertificateByCode,
     },
   },
   billing: {

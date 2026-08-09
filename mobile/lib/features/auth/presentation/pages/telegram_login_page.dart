@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lms/features/home/presentation/pages/main_home_screen.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../../core/theme/app_colors.dart';
@@ -36,6 +36,7 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
   int _otpSecondsLeft = 0;
   int _resendSecondsLeft = 0;
   bool _otpRequested = false;
+  _AuthNoticeData? _notice;
 
   @override
   void dispose() {
@@ -53,18 +54,24 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
     final email = (resend ? _activeEmail : _emailController.text)?.trim() ?? '';
     if (email.isEmpty) return;
 
+    _clearNotice();
     _otpRequestStartedAt = DateTime.now();
     context.read<AuthBloc>().add(RequestEmailOtpRequested(email));
   }
 
   void _verifyOtp() {
     if (_otpSecondsLeft <= 0) {
-      _showSnackBar('انتهت صلاحية الرمز، أرسل رمزاً جديداً');
+      _showNotice(
+        title: 'انتهت صلاحية الرمز',
+        message: 'أرسل رمزاً جديداً ثم حاول تسجيل الدخول مرة أخرى.',
+        tone: _AuthNoticeTone.info,
+      );
       return;
     }
 
     if (!(_otpFormKey.currentState?.validate() ?? false)) return;
 
+    _clearNotice();
     final email = _activeEmail ?? _emailController.text.trim();
     context.read<AuthBloc>().add(
       VerifyEmailOtpRequested(email: email, otp: _otpController.text.trim()),
@@ -113,13 +120,60 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
       _otpSecondsLeft = 0;
       _resendSecondsLeft = 0;
       _otpController.clear();
+      _notice = null;
     });
   }
 
-  void _showSnackBar(String message, {Color? backgroundColor}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: backgroundColor),
+  void _showNotice({
+    required String title,
+    required String message,
+    required _AuthNoticeTone tone,
+  }) {
+    setState(() {
+      _notice = _AuthNoticeData(title: title, message: message, tone: tone);
+    });
+  }
+
+  void _clearNotice() {
+    if (_notice == null) return;
+    setState(() => _notice = null);
+  }
+
+  _AuthNoticeData _authErrorNotice(String message) {
+    if (_isCancelMessage(message)) {
+      return const _AuthNoticeData(
+        title: 'تم إلغاء تسجيل الدخول',
+        message:
+            'لم يتم تسجيل دخولك. يمكنك المحاولة مرة أخرى عندما تكون جاهزاً.',
+        tone: _AuthNoticeTone.info,
+      );
+    }
+
+    return _AuthNoticeData(
+      title: 'تعذر تسجيل الدخول',
+      message: _friendlyAuthErrorMessage(message),
+      tone: _AuthNoticeTone.error,
     );
+  }
+
+  bool _isCancelMessage(String message) {
+    final normalized = message.toLowerCase();
+    return normalized.contains('cancel') ||
+        normalized.contains('إلغاء') ||
+        normalized.contains('access_denied') ||
+        normalized.contains('access denied') ||
+        normalized.contains('access-denied');
+  }
+
+  String _friendlyAuthErrorMessage(String message) {
+    final normalized = message.trim();
+    if (normalized.isEmpty ||
+        normalized.startsWith('Exception:') ||
+        normalized.contains('Instance of')) {
+      return 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى بعد قليل.';
+    }
+
+    return normalized;
   }
 
   @override
@@ -131,30 +185,32 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
         body: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthError) {
-              _showSnackBar(state.message, backgroundColor: Colors.red);
+              setState(() => _notice = _authErrorNotice(state.message));
             }
 
             if (state is EmailOtpRequestSuccess) {
               _startOtpWindow(state.email);
-              _showSnackBar(state.message);
+              _showNotice(
+                title: 'تم إرسال الرمز',
+                message: state.message,
+                tone: _AuthNoticeTone.success,
+              );
             }
 
             if (state is AuthSuccess) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      MainHomeScreen(userAuthData: state.authEntity),
-                ),
-              );
+              _otpTimer?.cancel();
             }
           },
           builder: (context, state) {
             final isRequestingOtp = state is EmailOtpRequestLoading;
             final isVerifyingOtp = state is EmailOtpVerifyLoading;
-            final isTelegramLoading = state is AuthLoading;
+            final isTelegramLoading = state is TelegramAuthLoading;
+            final isGoogleLoading = state is GoogleAuthLoading;
             final isBusy =
-                isRequestingOtp || isVerifyingOtp || isTelegramLoading;
+                isRequestingOtp ||
+                isVerifyingOtp ||
+                isTelegramLoading ||
+                isGoogleLoading;
 
             return Stack(
               children: [
@@ -187,15 +243,30 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          const Text(
+                          Text(
                             'ادخل بريدك الإلكتروني لاستلام رمز الدخول',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 16,
-                              color: AppColors.darkSoft,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 32),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 220),
+                            child: _notice == null
+                                ? const SizedBox.shrink()
+                                : Padding(
+                                    key: ValueKey(_notice),
+                                    padding: const EdgeInsets.only(bottom: 18),
+                                    child: _AuthNoticePanel(
+                                      notice: _notice!,
+                                      onDismiss: _clearNotice,
+                                    ),
+                                  ),
+                          ),
                           _EmailOtpForm(
                             emailFormKey: _emailFormKey,
                             otpFormKey: _otpFormKey,
@@ -217,7 +288,9 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                           Row(
                             children: [
                               Expanded(
-                                child: Divider(color: Colors.grey.shade300),
+                                child: Divider(
+                                  color: Theme.of(context).dividerColor,
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.symmetric(
@@ -233,62 +306,43 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
                                 ),
                               ),
                               Expanded(
-                                child: Divider(color: Colors.grey.shade300),
+                                child: Divider(
+                                  color: Theme.of(context).dividerColor,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 56,
-                            child: OutlinedButton(
-                              onPressed: isBusy
-                                  ? null
-                                  : () {
-                                      context.read<AuthBloc>().add(
-                                        LoginWithTelegramRequested(),
-                                      );
-                                    },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Theme.of(context).primaryColor,
-                                side: BorderSide(
-                                  color: Theme.of(context).primaryColor,
-                                  width: 1.3,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                ),
-                              ),
-                              child: isTelegramLoading
-                                  ? const SizedBox(
-                                      width: 22,
-                                      height: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2.4,
-                                      ),
-                                    )
-                                  : const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.telegram_rounded, size: 26),
-                                        SizedBox(width: 10),
-                                        Text(
-                                          'الدخول بواسطة تيليجرام',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                            ),
+                          _GoogleAuthButton(
+                            isLoading: isGoogleLoading,
+                            onPressed: isBusy
+                                ? null
+                                : () {
+                                    _clearNotice();
+                                    context.read<AuthBloc>().add(
+                                      LoginWithGoogleRequested(),
+                                    );
+                                  },
+                          ),
+                          const SizedBox(height: 12),
+                          _TelegramAuthButton(
+                            isLoading: isTelegramLoading,
+                            onPressed: isBusy
+                                ? null
+                                : () {
+                                    _clearNotice();
+                                    context.read<AuthBloc>().add(
+                                      LoginWithTelegramRequested(),
+                                    );
+                                  },
                           ),
                           const SizedBox(height: 18),
-                          const Text(
+                          Text(
                             'دخول آمن ومشفر 100%',
                             style: TextStyle(
-                              color: AppColors.darkSoft,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontSize: 12,
                             ),
                           ),
@@ -309,6 +363,101 @@ class _TelegramLoginPageState extends State<TelegramLoginPage> {
     final minutes = totalSeconds ~/ 60;
     final seconds = totalSeconds % 60;
     return '$minutes:${seconds.toString().padLeft(2, '0')}';
+  }
+}
+
+enum _AuthNoticeTone { info, success, error }
+
+class _AuthNoticeData {
+  final String title;
+  final String message;
+  final _AuthNoticeTone tone;
+
+  const _AuthNoticeData({
+    required this.title,
+    required this.message,
+    required this.tone,
+  });
+}
+
+class _AuthNoticePanel extends StatelessWidget {
+  final _AuthNoticeData notice;
+  final VoidCallback onDismiss;
+
+  const _AuthNoticePanel({required this.notice, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (notice.tone) {
+      _AuthNoticeTone.success => const Color(0xff2E7D53),
+      _AuthNoticeTone.error => const Color(0xffD9534F),
+      _AuthNoticeTone.info => Theme.of(context).colorScheme.primary,
+    };
+    final icon = switch (notice.tone) {
+      _AuthNoticeTone.success => Icons.mark_email_read_rounded,
+      _AuthNoticeTone.error => Icons.error_outline_rounded,
+      _AuthNoticeTone.info => Icons.info_outline_rounded,
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.22)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 20),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  notice.title,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  notice.message,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: onDismiss,
+            icon: const Icon(Icons.close_rounded),
+            color: color,
+            visualDensity: VisualDensity.compact,
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+            tooltip: 'إغلاق',
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -508,6 +657,256 @@ class _EmailOtpForm extends StatelessWidget {
 
     return null;
   }
+}
+
+class _GoogleAuthButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const _GoogleAuthButton({required this.isLoading, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEnabled = onPressed != null;
+    final colors = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: isEnabled
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.10),
+                  blurRadius: 16,
+                  offset: const Offset(0, 7),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : const [],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.disabled)) {
+                return colors.surfaceContainerHighest;
+              }
+
+              return Colors.white;
+            }),
+            foregroundColor: const WidgetStatePropertyAll(Color(0xFF15191C)),
+            overlayColor: WidgetStatePropertyAll(
+              Colors.black.withValues(alpha: 0.04),
+            ),
+            side: WidgetStateProperty.resolveWith((states) {
+              return BorderSide(
+                color: states.contains(WidgetState.disabled)
+                    ? Theme.of(context).dividerColor
+                    : const Color(0xFFD6DEE2),
+                width: 1.35,
+              );
+            }),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 20),
+            ),
+          ),
+          child: isLoading
+              ? const SizedBox(
+                  width: 21,
+                  height: 21,
+                  child: CircularProgressIndicator(
+                    color: Color(0xFF15191C),
+                    strokeWidth: 2.3,
+                  ),
+                )
+              : const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _GoogleLogo(size: 20),
+                    SizedBox(width: 11),
+                    Text(
+                      'تسجيل الدخول عبر جوجل',
+                      style: TextStyle(
+                        color: Color(0xFF15191C),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        height: 1.1,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TelegramAuthButton extends StatelessWidget {
+  final bool isLoading;
+  final VoidCallback? onPressed;
+
+  const _TelegramAuthButton({required this.isLoading, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+    final isEnabled = onPressed != null;
+    final colors = Theme.of(context).colorScheme;
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: isEnabled
+            ? [
+                BoxShadow(
+                  color: primaryColor.withValues(alpha: 0.10),
+                  blurRadius: 16,
+                  offset: const Offset(0, 7),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 5,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : const [],
+      ),
+      child: SizedBox(
+        width: double.infinity,
+        height: 56,
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.resolveWith((states) {
+              if (states.contains(WidgetState.disabled)) {
+                return colors.surfaceContainerHighest;
+              }
+
+              return Colors.white;
+            }),
+            foregroundColor: WidgetStatePropertyAll(primaryColor),
+            overlayColor: WidgetStatePropertyAll(
+              primaryColor.withValues(alpha: 0.06),
+            ),
+            side: WidgetStateProperty.resolveWith((states) {
+              return BorderSide(
+                color: states.contains(WidgetState.disabled)
+                    ? Theme.of(context).dividerColor
+                    : primaryColor.withValues(alpha: 0.72),
+                width: 1.35,
+              );
+            }),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            ),
+            padding: const WidgetStatePropertyAll(
+              EdgeInsets.symmetric(horizontal: 20),
+            ),
+          ),
+          child: isLoading
+              ? SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(
+                    color: primaryColor,
+                    strokeWidth: 2.4,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.telegram_rounded, color: primaryColor, size: 25),
+                    const SizedBox(width: 11),
+                    Flexible(
+                      child: Text(
+                        'الدخول بواسطة تيليجرام',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GoogleLogo extends StatelessWidget {
+  final double size;
+
+  const _GoogleLogo({required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomPaint(
+      size: Size.square(size),
+      painter: const _GoogleLogoPainter(),
+    );
+  }
+}
+
+class _GoogleLogoPainter extends CustomPainter {
+  const _GoogleLogoPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final strokeWidth = size.width * 0.18;
+    final rect = Rect.fromLTWH(
+      strokeWidth / 2,
+      strokeWidth / 2,
+      size.width - strokeWidth,
+      size.height - strokeWidth,
+    );
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
+
+    double degrees(double value) => value * math.pi / 180;
+
+    paint.color = const Color(0xFFEA4335);
+    canvas.drawArc(rect, degrees(215), degrees(95), false, paint);
+
+    paint.color = const Color(0xFFFBBC05);
+    canvas.drawArc(rect, degrees(150), degrees(65), false, paint);
+
+    paint.color = const Color(0xFF34A853);
+    canvas.drawArc(rect, degrees(45), degrees(105), false, paint);
+
+    paint.color = const Color(0xFF4285F4);
+    canvas.drawArc(rect, degrees(-25), degrees(70), false, paint);
+
+    paint
+      ..strokeCap = StrokeCap.butt
+      ..color = const Color(0xFF4285F4);
+    canvas.drawLine(
+      Offset(size.width * 0.53, size.height * 0.50),
+      Offset(size.width * 0.92, size.height * 0.50),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GoogleLogoPainter oldDelegate) => false;
 }
 
 class _PrimaryAuthButton extends StatelessWidget {

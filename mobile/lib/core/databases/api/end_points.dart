@@ -11,6 +11,13 @@ class EndPoints {
     defaultValue: '8641099953',
   );
 
+  // Google web OAuth client ID used as the ID-token audience by the backend.
+  static const String googleClientId = String.fromEnvironment(
+    'GOOGLE_CLIENT_ID',
+    defaultValue:
+        '326110699388-969maarsvt92vapdsn67b60cj3ou56q5.apps.googleusercontent.com',
+  );
+
   // OAuth / OIDC Constants
   static const String discoveryUrl =
       'https://oauth.telegram.org/.well-known/openid-configuration';
@@ -19,14 +26,33 @@ class EndPoints {
 
   // Paths
   static const String login = 'auth/login/telegram';
+  static const String googleLogin = 'auth/login/google';
 
   static const String requestEmailOtp = 'auth/login/email/request-otp';
 
   static const String verifyEmailOtp = 'auth/login/email/verify-otp';
 
+  // Notifications
+  static const String notifications = 'notifications';
+  static const String notificationUnreadCount = 'notifications/unread-count';
+  static String notificationRead(int id) => 'notifications/$id/read';
+  static const String notificationsReadAll = 'notifications/read-all';
+  static const String devices = 'devices';
+
   static const String profile = 'profile/me';
 
+  static const String currentUser = 'users/me';
+
   static const String updateProfilePicture = 'users/me/picture';
+
+  static const String requestAccountEmailOtp = 'users/me/email/request-otp';
+
+  static const String verifyAccountEmailOtp = 'users/me/email/verify-otp';
+
+  // Billing
+  static const String billingCheckout = 'billing/checkout';
+  static const String billingPortal = 'billing/portal';
+  static const String billingRevoke = 'billing/revoke';
 
   // Courses
   static const String courses = 'courses';
@@ -48,6 +74,12 @@ class EndPoints {
   static String organizationLeave(String slug) => 'organizations/$slug/leave';
   static String deleteOrganizationDashboard(String slug) =>
       'organizations/$slug/leave';
+  static const String organizationMyInvites =
+      'organizations/invites/my-invites';
+  static String organizationInviteAccept(String slug, int inviteId) =>
+      'organizations/$slug/invites/$inviteId/accept';
+  static String organizationInviteDecline(String slug, int inviteId) =>
+      'organizations/$slug/invites/$inviteId/decline';
 
   static String organizationCourses(String orgSlug) =>
       'organizations/$orgSlug/courses';

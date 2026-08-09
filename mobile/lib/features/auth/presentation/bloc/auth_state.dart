@@ -6,6 +6,10 @@ class AuthInitial extends AuthState {}
 
 class AuthLoading extends AuthState {}
 
+class TelegramAuthLoading extends AuthState {}
+
+class GoogleAuthLoading extends AuthState {}
+
 class EmailOtpRequestLoading extends AuthState {}
 
 class EmailOtpVerifyLoading extends AuthState {}

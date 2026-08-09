@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'core/services/firebase_messaging_service.dart';
 import 'core/services/injection_container.dart';
 import 'core/theme/app_themes.dart';
 import 'core/theme/theme_cubit.dart';
+import 'core/widgets/immersive_mode_guard.dart';
 
 import 'features/auth/presentation/bloc/auth_bloc.dart';
 import 'features/auth/presentation/bloc/auth_state.dart';
@@ -20,40 +24,44 @@ class MyApp extends StatelessWidget {
     return BlocBuilder<ThemeCubit, ThemeMode>(
       bloc: sl<ThemeCubit>(),
       builder: (context, mode) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'LMS Mobile',
+        return BlocProvider.value(
+          value: authBloc,
+          child: BlocListener<AuthBloc, AuthState>(
+            listenWhen: (previous, current) =>
+                current is Authenticated || current is AuthSuccess,
+            listener: (context, state) {
+              unawaited(sl<FirebaseMessagingService>().initialize());
+            },
+            child: ImmersiveModeGuard(
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: 'مسار',
+                locale: const Locale('ar', 'SY'),
+                theme: AppThemes.light,
+                darkTheme: AppThemes.dark,
+                themeMode: mode,
+                home: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state is AuthError) {
+                      debugPrint("Current auth error: ${state.message}");
+                    } else {
+                      debugPrint("Current auth state: ${state.runtimeType}");
+                    }
 
-          locale: const Locale('ar', 'SY'),
-
-          theme: AppThemes.light,
-          darkTheme: AppThemes.dark,
-          themeMode: mode,
-
-          home: BlocProvider.value(
-            value: authBloc,
-            child: BlocBuilder<AuthBloc, AuthState>(
-              builder: (context, state) {
-                print("Current auth state: $state");
-
-                if (state is AuthInitial || state is AuthLoading) {
-                  return const Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                } else if (state is Authenticated) {
-                  return MainHomeScreen(
-                    userAuthData: state.authEntity,
-                  );
-                } else if (state is AuthSuccess) {
-                  return MainHomeScreen(
-                    userAuthData: state.authEntity,
-                  );
-                } else {
-                  return const TelegramLoginPage();
-                }
-              },
+                    if (state is AuthInitial || state is AuthLoading) {
+                      return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      );
+                    } else if (state is Authenticated) {
+                      return MainHomeScreen(userAuthData: state.authEntity);
+                    } else if (state is AuthSuccess) {
+                      return MainHomeScreen(userAuthData: state.authEntity);
+                    } else {
+                      return const TelegramLoginPage();
+                    }
+                  },
+                ),
+              ),
             ),
           ),
         );

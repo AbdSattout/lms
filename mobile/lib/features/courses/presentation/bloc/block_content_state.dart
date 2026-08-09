@@ -8,11 +8,15 @@ class BlockContentLoaded extends BlockContentState {
   final BlockContentEntity block;
   final bool isSubmitting;
   final bool? lastAnswerCorrect;
+  final int? submittedAnswerIndex;
+  final BlockAnswerResultEntity? answerResult;
 
   BlockContentLoaded({
     required this.block,
     this.isSubmitting = false,
     this.lastAnswerCorrect,
+    this.submittedAnswerIndex,
+    this.answerResult,
   });
 }
 

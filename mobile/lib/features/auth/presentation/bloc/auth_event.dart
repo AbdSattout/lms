@@ -2,6 +2,8 @@ abstract class AuthEvent {}
 
 class LoginWithTelegramRequested extends AuthEvent {}
 
+class LoginWithGoogleRequested extends AuthEvent {}
+
 class RequestEmailOtpRequested extends AuthEvent {
   final String email;
 

@@ -67,10 +67,7 @@ class _ProfileSummary extends StatelessWidget {
   final dynamic progress;
   final dynamic streak;
 
-  const _ProfileSummary({
-    required this.progress,
-    required this.streak,
-  });
+  const _ProfileSummary({required this.progress, required this.streak});
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +92,11 @@ class _ProfileSummary extends StatelessWidget {
                     ),
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  child: const Icon(Icons.emoji_events_rounded,
-                      color: Colors.white, size: 22),
+                  child: const Icon(
+                    Icons.emoji_events_rounded,
+                    color: Colors.white,
+                    size: 22,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -104,7 +104,9 @@ class _ProfileSummary extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isEnglish ? 'Level ${progress.levelNumber}' : 'المستوى ${progress.levelNumber}',
+                        isEnglish
+                            ? 'Level ${progress.levelNumber}'
+                            : 'المستوى ${progress.levelNumber}',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
@@ -123,9 +125,12 @@ class _ProfileSummary extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
+                    color: AppColors.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Text(
@@ -163,7 +168,10 @@ class _ProfileSummary extends StatelessWidget {
                       isEnglish
                           ? '${progress.xpToNextLevel} XP to next level'
                           : '${progress.xpToNextLevel} XP للمستوى التالي',
-                      style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
                     Text(
                       '${progress.progressPercentage.toInt()}%',
@@ -291,9 +299,7 @@ BoxDecoration _cardDecoration(BuildContext context) {
   return BoxDecoration(
     color: Theme.of(context).colorScheme.surface,
     borderRadius: BorderRadius.circular(24),
-    border: Border.all(
-      color: Theme.of(context).dividerColor.withOpacity(0.5),
-    ),
+    border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.5)),
     boxShadow: [
       BoxShadow(
         color: Colors.black.withOpacity(0.04),

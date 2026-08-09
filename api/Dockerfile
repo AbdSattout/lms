@@ -1,14 +1,16 @@
-# Build stage
-FROM eclipse-temurin:26-jdk-alpine AS builder
-
+# ---------- Build stage ----------
+FROM maven:3.9-eclipse-temurin-26 AS build
 WORKDIR /app
-COPY . .
-RUN ./mvnw package -DskipTests
-
-# Run stage
-FROM eclipse-temurin:26-jdk-alpine AS runner
-
+COPY pom.xml .
+RUN mvn -B dependency:go-offline
+COPY src ./src
+RUN mvn -B clean package -DskipTests
+# ---------- Runtime stage ----------
+FROM eclipse-temurin:26-jre
 WORKDIR /app
-COPY --from=builder /app/target/*.jar app.jar
-
-CMD ["java", "-XX:MaxRAMPercentage=50", "-jar", "app.jar"]
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+RUN groupadd -r spring && useradd -r -g spring spring
+USER spring
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["sh", "-c", "${JAVA_HOME}/bin/java -Xmx512m -Xss512k -XX:+UseSerialGC -Dserver.port=${PORT} -jar app.jar"]

@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
     ],
   },
   experimental: {
+    turbopackRustReactCompiler: true,
     instantInsights: {
       validationLevel: "manual-warning",
     },

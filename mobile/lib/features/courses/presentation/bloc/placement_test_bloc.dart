@@ -10,6 +10,7 @@ import 'placement_test_state.dart';
 class PlacementTestBloc extends Bloc<PlacementTestEvent, PlacementTestState> {
   static const int _maxHearts = 2;
   static const Duration _heartLossDelay = Duration(milliseconds: 650);
+  static const Duration _correctAnswerDelay = Duration(milliseconds: 550);
 
   final GetPlacementTestUseCase getPlacementTestUseCase;
   final SubmitPlacementAnswerUseCase submitPlacementAnswerUseCase;
@@ -60,8 +61,21 @@ class PlacementTestBloc extends Bloc<PlacementTestEvent, PlacementTestState> {
   ) async {
     if (_courseId == null) return;
 
+    final current = state;
+    if (current is! PlacementTestInProgress || current.isSubmitting) return;
+
     try {
       final previousHearts = _heartsRemaining;
+
+      emit(
+        PlacementTestInProgress(
+          data: current.data,
+          heartsRemaining: previousHearts,
+          submittedAnswerIndex: event.answerIndex,
+          isSubmitting: true,
+        ),
+      );
+
       final result = await submitPlacementAnswerUseCase(
         courseId: _courseId!,
         answerIndex: event.answerIndex,
@@ -82,6 +96,7 @@ class PlacementTestBloc extends Bloc<PlacementTestEvent, PlacementTestState> {
             data: result,
             heartsRemaining: _heartsRemaining,
             lastAnswerCorrect: result.correct,
+            submittedAnswerIndex: event.answerIndex,
           ),
         );
 
@@ -104,6 +119,16 @@ class PlacementTestBloc extends Bloc<PlacementTestEvent, PlacementTestState> {
       }
 
       if (result.completed) {
+        emit(
+          PlacementTestInProgress(
+            data: current.data,
+            heartsRemaining: _heartsRemaining,
+            lastAnswerCorrect: true,
+            submittedAnswerIndex: event.answerIndex,
+          ),
+        );
+        await Future<void>.delayed(_correctAnswerDelay);
+        if (emit.isDone) return;
         emit(PlacementTestCompleted(result));
         return;
       }
@@ -116,9 +141,20 @@ class PlacementTestBloc extends Bloc<PlacementTestEvent, PlacementTestState> {
 
       emit(
         PlacementTestInProgress(
+          data: current.data,
+          heartsRemaining: _heartsRemaining,
+          lastAnswerCorrect: true,
+          submittedAnswerIndex: event.answerIndex,
+        ),
+      );
+
+      await Future<void>.delayed(_correctAnswerDelay);
+      if (emit.isDone) return;
+
+      emit(
+        PlacementTestInProgress(
           data: result,
           heartsRemaining: _heartsRemaining,
-          lastAnswerCorrect: result.correct,
         ),
       );
     } catch (e) {

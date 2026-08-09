@@ -3,6 +3,7 @@ package app.lms.billing.client;
 import app.lms.billing.config.PolarProperties;
 import app.lms.billing.dto.CheckoutSessionResponse;
 import app.lms.billing.dto.CustomerPortalSessionResponse;
+import app.lms.billing.enums.CheckoutClient;
 import app.lms.common.exception.BadRequestException;
 import app.lms.user.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -32,7 +33,22 @@ public class PolarClient {
             User user
     ) {
 
+        return createPremiumCheckout(
+                user,
+                CheckoutClient.DEFAULT
+        );
+    }
+
+    public CheckoutSessionResponse createPremiumCheckout(
+            User user,
+            CheckoutClient client
+    ) {
+
         validateCheckoutConfiguration();
+        CheckoutClient safeClient =
+                CheckoutClient.orDefault(
+                        client
+                );
 
         Map<String, Object> requestBody =
                 new LinkedHashMap<>();
@@ -79,12 +95,12 @@ public class PolarClient {
         putIfPresent(
                 requestBody,
                 "success_url",
-                polarProperties.getCheckoutSuccessUrl()
+                checkoutSuccessUrl(safeClient)
         );
         putIfPresent(
                 requestBody,
                 "return_url",
-                polarProperties.getCheckoutReturnUrl()
+                checkoutReturnUrl(safeClient)
         );
 
         try {
@@ -119,10 +135,16 @@ public class PolarClient {
                     response.path("url").asText()
             );
 
+        } catch (RestClientResponseException ex) {
+            throw new BadRequestException(
+                    "Failed to create Polar checkout session: " +
+                            polarErrorMessage(ex)
+            );
         } catch (RestClientException |
                  JsonProcessingException ex) {
             throw new BadRequestException(
-                    "Failed to create Polar checkout session"
+                    "Failed to create Polar checkout session: " +
+                            ex.getMessage()
             );
         }
     }
@@ -284,6 +306,50 @@ public class PolarClient {
                     "Polar premium product ID is not configured"
             );
         }
+    }
+
+    private String checkoutSuccessUrl(
+            CheckoutClient client
+    ) {
+
+        if (client == CheckoutClient.MOBILE) {
+            return firstPresent(
+                    polarProperties.getMobileCheckoutSuccessUrl(),
+                    polarProperties.getCheckoutSuccessUrl()
+            );
+        }
+
+        return firstPresent(
+                polarProperties.getWebCheckoutSuccessUrl(),
+                polarProperties.getCheckoutSuccessUrl()
+        );
+    }
+
+    private String checkoutReturnUrl(
+            CheckoutClient client
+    ) {
+
+        if (client == CheckoutClient.MOBILE) {
+            return firstPresent(
+                    polarProperties.getMobileCheckoutReturnUrl(),
+                    polarProperties.getCheckoutReturnUrl()
+            );
+        }
+
+        return firstPresent(
+                polarProperties.getWebCheckoutReturnUrl(),
+                polarProperties.getCheckoutReturnUrl()
+        );
+    }
+
+    private String firstPresent(
+            String preferred,
+            String fallback
+    ) {
+
+        return StringUtils.hasText(preferred)
+                ? preferred
+                : fallback;
     }
 
     private void validateAccessToken() {

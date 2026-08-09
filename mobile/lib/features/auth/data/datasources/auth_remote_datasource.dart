@@ -1,4 +1,6 @@
 import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:lms/core/databases/api/end_points.dart';
 import '../../../../core/databases/api/api_consumer.dart';
 import '../../../../core/errors/error_model.dart';
@@ -7,6 +9,7 @@ import '../models/auth_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthModel> loginWithTelegram();
+  Future<AuthModel> loginWithGoogle();
   Future<void> requestEmailOtp(String email);
   Future<AuthModel> verifyEmailOtp({
     required String email,
@@ -15,10 +18,18 @@ abstract class AuthRemoteDataSource {
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
-  final FlutterAppAuth appAuth;
-  final ApiConsumer apiConsumer;
+  static const String _loginCancelledMessage = 'Login cancelled';
 
-  AuthRemoteDataSourceImpl({required this.appAuth, required this.apiConsumer});
+  final FlutterAppAuth appAuth;
+  final GoogleSignIn googleSignIn;
+  final ApiConsumer apiConsumer;
+  bool _googleSignInInitialized = false;
+
+  AuthRemoteDataSourceImpl({
+    required this.appAuth,
+    required this.googleSignIn,
+    required this.apiConsumer,
+  });
 
   @override
   Future<AuthModel> loginWithTelegram() async {
@@ -44,8 +55,68 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception("Failed to obtain idToken from Telegram");
       }
     } on FlutterAppAuthUserCancelledException {
-      throw CancelException(
-        ErrorModel(status: 0, errorMessage: "تم إلغاء تسجيل الدخول"),
+      throw _loginCancelledException();
+    } on FlutterAppAuthPlatformException catch (e) {
+      if (_isAuthCancellation(e)) {
+        throw _loginCancelledException();
+      }
+
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage:
+              e.platformErrorDetails.errorDescription ??
+              e.message ??
+              'Telegram sign-in failed',
+        ),
+      );
+    } on PlatformException catch (e) {
+      if (_isAuthCancellation(e)) {
+        throw _loginCancelledException();
+      }
+
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: e.message ?? 'Telegram sign-in failed',
+        ),
+      );
+    }
+  }
+
+  @override
+  Future<AuthModel> loginWithGoogle() async {
+    try {
+      final account = await _authenticateWithGoogle();
+      final idToken = account.authentication.idToken;
+
+      if (idToken == null || idToken.isEmpty) {
+        throw ServerException(
+          ErrorModel(
+            status: 0,
+            errorMessage: "Failed to obtain idToken from Google",
+          ),
+        );
+      }
+
+      final response = await apiConsumer.post(
+        EndPoints.googleLogin,
+        data: {"idToken": idToken},
+      );
+
+      return AuthModel.fromJson(response);
+    } on GoogleSignInException catch (e) {
+      final description = e.description?.trim();
+      final details = description == null || description.isEmpty
+          ? e.code.name
+          : '${e.code.name}: $description';
+
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        throw _loginCancelledException();
+      }
+
+      throw ServerException(
+        ErrorModel(status: 0, errorMessage: "Google sign-in failed ($details)"),
       );
     }
   }
@@ -66,5 +137,69 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     );
 
     return AuthModel.fromJson(response);
+  }
+
+  Future<GoogleSignInAccount> _authenticateWithGoogle() async {
+    await _ensureGoogleSignInInitialized();
+
+    if (!googleSignIn.supportsAuthenticate()) {
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: "Google sign-in is not supported on this platform",
+        ),
+      );
+    }
+
+    return googleSignIn.authenticate();
+  }
+
+  Future<void> _ensureGoogleSignInInitialized() async {
+    if (_googleSignInInitialized) return;
+
+    if (EndPoints.googleClientId.isEmpty) {
+      throw ServerException(
+        ErrorModel(
+          status: 0,
+          errorMessage: "Missing GOOGLE_CLIENT_ID for Google sign-in",
+        ),
+      );
+    }
+
+    await googleSignIn.initialize(serverClientId: EndPoints.googleClientId);
+    _googleSignInInitialized = true;
+  }
+
+  CancelException _loginCancelledException() {
+    return CancelException(
+      ErrorModel(status: 0, errorMessage: _loginCancelledMessage),
+    );
+  }
+
+  bool _isAuthCancellation(PlatformException exception) {
+    if (_looksLikeAuthCancellation(exception.code) ||
+        _looksLikeAuthCancellation(exception.message) ||
+        _looksLikeAuthCancellation(exception.details)) {
+      return true;
+    }
+
+    if (exception is! FlutterAppAuthPlatformException) return false;
+
+    final details = exception.platformErrorDetails;
+    return _looksLikeAuthCancellation(details.error) ||
+        _looksLikeAuthCancellation(details.errorDescription) ||
+        _looksLikeAuthCancellation(details.errorDebugDescription) ||
+        _looksLikeAuthCancellation(details.rootCauseDebugDescription);
+  }
+
+  bool _looksLikeAuthCancellation(Object? value) {
+    final normalized = value?.toString().toLowerCase().trim() ?? '';
+    if (normalized.isEmpty) return false;
+
+    return normalized.contains('cancel') ||
+        normalized.contains('access_denied') ||
+        normalized.contains('access denied') ||
+        normalized.contains('access-denied') ||
+        normalized.contains('user_did_cancel');
   }
 }

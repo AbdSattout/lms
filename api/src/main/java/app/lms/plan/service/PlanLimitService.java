@@ -197,7 +197,8 @@ public class PlanLimitService {
             case AI_QUIZ -> "Weekly AI quiz limit reached";
             case COURSE_ENROLLMENT -> "Weekly course enrollment limit reached";
             case AI_TOOL -> "Daily AI tools limit reached";
-            case RANDOM_QUIZ -> "Random quiz limit reached";
+            case RANDOM_QUIZ ->
+                    "Random quiz limit reached for this course. Free users can create 1 random quiz per course every 7 days";
         };
     }
 

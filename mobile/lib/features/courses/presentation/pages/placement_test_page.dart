@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -8,7 +7,6 @@ import '../../domain/entities/placement_test_entity.dart';
 import '../bloc/placement_test_bloc.dart';
 import '../bloc/placement_test_event.dart';
 import '../bloc/placement_test_state.dart';
-import 'course_contents_page.dart';
 
 class PlacementTestPage extends StatefulWidget {
   final CourseEntity course;
@@ -22,35 +20,12 @@ class PlacementTestPage extends StatefulWidget {
 class _PlacementTestPageState extends State<PlacementTestPage> {
   static const int _heartCount = 2;
 
-  int? _selectedIndex;
-  bool _answered = false;
-
   @override
   void initState() {
     super.initState();
     context.read<PlacementTestBloc>().add(
       StartPlacementTestEvent(widget.course.id),
     );
-  }
-
-  void _selectAnswer(int index) {
-    if (_answered) return;
-
-    setState(() {
-      _selectedIndex = index;
-      _answered = true;
-    });
-
-    context.read<PlacementTestBloc>().add(SubmitPlacementAnswerEvent(index));
-
-    Timer(const Duration(milliseconds: 900), () {
-      if (mounted) {
-        setState(() {
-          _selectedIndex = null;
-          _answered = false;
-        });
-      }
-    });
   }
 
   @override
@@ -85,7 +60,7 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
           }
 
           if (state is PlacementTestCompleted) {
-            return _CompletedView(course: widget.course, data: state.data);
+            return _CompletedView(data: state.data);
           }
 
           if (state is PlacementTestInProgress) {
@@ -163,13 +138,17 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                       child: ListView.builder(
                         itemCount: question.options.length,
                         itemBuilder: (context, index) {
-                          final isSelected = _selectedIndex == index;
+                          final isSubmitted =
+                              state.submittedAnswerIndex == index;
+                          final isChecking = state.isSubmitting && isSubmitted;
+                          final hasFeedback =
+                              state.lastAnswerCorrect != null && isSubmitted;
 
                           Color? tileColor;
                           Color borderColor = Theme.of(context).dividerColor;
                           Widget? trailingIcon;
 
-                          if (_answered && isSelected) {
+                          if (hasFeedback) {
                             final correct = state.lastAnswerCorrect == true;
                             tileColor = correct
                                 ? const Color(
@@ -189,6 +168,25 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                             );
                           }
 
+                          if (isChecking) {
+                            tileColor = colors.primary.withValues(alpha: 0.08);
+                            borderColor = colors.primary;
+                            trailingIcon = SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.2,
+                                color: colors.primary,
+                              ),
+                            );
+                          }
+
+                          final disabled =
+                              state.isSubmitting ||
+                              state.data.completed ||
+                              state.lastAnswerCorrect == true ||
+                              (state.lastAnswerCorrect == false && isSubmitted);
+
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: Material(
@@ -196,7 +194,13 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                               borderRadius: BorderRadius.circular(16),
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(16),
-                                onTap: () => _selectAnswer(index),
+                                onTap: disabled
+                                    ? null
+                                    : () {
+                                        context.read<PlacementTestBloc>().add(
+                                          SubmitPlacementAnswerEvent(index),
+                                        );
+                                      },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -234,11 +238,16 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                     Align(
                       alignment: Alignment.center,
                       child: TextButton(
-                        onPressed: () {
-                          context.read<PlacementTestBloc>().add(
-                            SkipPlacementTestEvent(),
-                          );
-                        },
+                        onPressed:
+                            state.isSubmitting ||
+                                state.data.completed ||
+                                state.lastAnswerCorrect == true
+                            ? null
+                            : () {
+                                context.read<PlacementTestBloc>().add(
+                                  SkipPlacementTestEvent(),
+                                );
+                              },
                         child: Text(
                           'تخطي الاختبار',
                           style: TextStyle(color: colors.onSurfaceVariant),
@@ -259,10 +268,9 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
 }
 
 class _CompletedView extends StatelessWidget {
-  final CourseEntity course;
   final PlacementTestStateEntity data;
 
-  const _CompletedView({required this.course, required this.data});
+  const _CompletedView({required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -318,36 +326,7 @@ class _CompletedView extends StatelessWidget {
                 ),
               ),
               onPressed: () {
-                final updatedEnrollment = CourseEnrollmentDetailsEntity(
-                  id: course.enrollment?.id ?? 0,
-                  courseId: course.id,
-                  courseTitle: course.title,
-                  enrolledAt: course.enrollment?.enrolledAt,
-                  status: course.enrollment?.status ?? 'ACTIVE',
-                  placementTestCompleted: true,
-                  progressPercentage: data.progressPercentage,
-                  currentChapterId: data.startChapterId,
-                  currentLessonId: data.startLessonId,
-                  currentBlockId: data.startBlockId,
-                );
-
-                final updatedCourse = CourseEntity(
-                  id: course.id,
-                  title: course.title,
-                  slug: course.slug,
-                  description: course.description,
-                  coverUrl: course.coverUrl,
-                  organizationName: course.organizationName,
-                  status: course.status,
-                  enrollment: updatedEnrollment,
-                );
-
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CourseContentsPage(course: updatedCourse),
-                  ),
-                );
+                Navigator.pop(context, true);
               },
               child: const Text(
                 'ابدأ التعلم',

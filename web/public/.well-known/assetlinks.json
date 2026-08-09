@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.lms",
+      "sha256_cert_fingerprints": [
+        "CB:CB:81:D2:1A:27:05:8A:5D:43:81:64:E5:C3:8E:38:4E:2F:AD:9F:5D:CF:39:EE:0E:80:98:2D:67:E1:8A:97"
+      ]
+    }
+  }
+]
