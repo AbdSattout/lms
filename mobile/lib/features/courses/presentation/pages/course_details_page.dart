@@ -22,50 +22,37 @@ class CourseDetailsPage extends StatelessWidget {
       child: Scaffold(
         body: BlocConsumer<CourseDetailsBloc, CourseDetailsState>(
           listenWhen: (previous, current) =>
-              current is CourseEnrollSuccess || current is CourseDetailsError,
+          current is CourseEnrollSuccess ||
+              (current is CourseDetailsError && previous is CourseDetailsLoading),
           listener: (context, state) {
             if (state is CourseEnrollSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
-                ),
+                SnackBar(content: Text('تم تسجيلك في "${state.result.courseTitle}"')),
               );
             }
-
             if (state is CourseDetailsError) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(state.message)),
+              );
             }
           },
           buildWhen: (previous, current) =>
-              current is CourseDetailsLoading ||
+          current is CourseDetailsLoading ||
               current is CourseDetailsLoaded ||
-              (current is CourseDetailsError &&
-                  previous is! CourseDetailsLoaded),
+              (current is CourseDetailsError && previous is! CourseDetailsLoaded),
           builder: (context, state) {
-            if (state is CourseDetailsLoading ||
-                state is CourseDetailsInitial) {
+            if (state is CourseDetailsLoading || state is CourseDetailsInitial) {
               return const Center(child: CircularProgressIndicator());
             }
-
             if (state is CourseDetailsError) {
-              return Center(
-                child: Text(state.message, textAlign: TextAlign.center),
-              );
+              return Center(child: Text(state.message, textAlign: TextAlign.center));
             }
-
             if (state is CourseDetailsLoaded) {
               return _CourseDetailsContent(
                 course: state.course,
-                onEnroll: () {
-                  context.read<CourseDetailsBloc>().add(
-                    EnrollEvent(state.course.id),
-                  );
-                },
+                onEnroll: () => context.read<CourseDetailsBloc>().add(EnrollEvent(state.course.id)),
               );
             }
-
             return const SizedBox();
           },
         ),
@@ -83,77 +70,57 @@ class _CourseDetailsContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final isEnrolled = course.enrollment != null;
     final viewerJoined = course.organization?.viewerJoined;
     final viewerRole = course.organization?.viewerRole;
     final isOwner = viewerRole == 'OWNER';
-    final isBlockedByMembership =
-        !isEnrolled && viewerJoined == false && !isOwner;
+    final isBlockedByMembership = !isEnrolled && viewerJoined == false && !isOwner;
     final progressPercentage = course.enrollment?.progressPercentage ?? 0;
     final isCompleted = course.isCompleted;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
+
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 130),
+          padding: const EdgeInsets.only(bottom: 100),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // ── Cover + Title ──
               Stack(
                 children: [
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                      bottom: Radius.circular(28),
-                    ),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
                     child: hasCover
-                        ? Image.network(
-                            course.coverUrl!,
-                            height: 220,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => _coverPlaceholder(),
-                          )
+                        ? Image.network(course.coverUrl!, height: 240, width: double.infinity, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _coverPlaceholder())
                         : _coverPlaceholder(),
                   ),
-
                   SafeArea(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _roundIconButton(
-                            icon: Icons.arrow_back_ios_new_rounded,
-                            onTap: () => Navigator.maybePop(context),
-                          ),
+                          _roundIconButton(icon: Icons.arrow_back_ios_new_rounded, onTap: () => Navigator.maybePop(context)),
                         ],
                       ),
                     ),
                   ),
-
                   if (course.organizationDisplayName != null)
                     Positioned(
                       bottom: 16,
                       right: 16,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          course.organizationDisplayName!,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(color: Colors.black.withOpacity(0.5), borderRadius: BorderRadius.circular(12)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.apartment_rounded, size: 14, color: Colors.white),
+                            const SizedBox(width: 6),
+                            Text(course.organizationDisplayName!, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+                          ],
                         ),
                       ),
                     ),
@@ -165,90 +132,68 @@ class _CourseDetailsContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      course.title,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w900,
-                        color: colors.onSurface,
-                        height: 1.3,
-                      ),
-                    ),
+                    // ── Title ──
+                    Text(course.title, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: colors.onSurface, height: 1.3)),
+                    const SizedBox(height: 16),
 
-                    const SizedBox(height: 20),
-
-                    if (course.description != null &&
-                        course.description!.isNotEmpty) ...[
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.info_outline_rounded,
-                            size: 18,
-                            color: AppColors.primary,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'عن هذا الكورس',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800,
-                              color: colors.onSurface,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
+                    // ── Progress (if enrolled) ──
+                    if (isEnrolled) ...[
                       Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(18),
                         decoration: BoxDecoration(
-                          color: colors.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(16),
+                          color: colors.primary.withOpacity(0.06),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: colors.primary.withOpacity(0.15)),
                         ),
-                        child: Text(
-                          course.description!,
-                          style: TextStyle(
-                            fontSize: 13.5,
-                            color: colors.onSurfaceVariant,
-                            height: 1.6,
-                          ),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(isCompleted ? 'مكتمل 🎉' : 'قيد التقدم', style: TextStyle(fontWeight: FontWeight.w700, color: colors.primary, fontSize: 14)),
+                                Text('${progressPercentage.toStringAsFixed(0)}%', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, color: colors.primary)),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(6),
+                              child: LinearProgressIndicator(value: progressPercentage / 100, minHeight: 8, backgroundColor: colors.surfaceContainerHighest, valueColor: AlwaysStoppedAnimation(colors.primary)),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 20),
                     ],
 
+                    // ── Description ──
+                    if (course.description != null && course.description!.isNotEmpty) ...[
+                      _SectionHeader(icon: Icons.info_outline_rounded, title: 'عن هذا الكورس'),
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(16)),
+                        child: Text(course.description!, style: TextStyle(fontSize: 13.5, color: colors.onSurfaceVariant, height: 1.7)),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+
+                    // ── Stats ──
                     Row(
                       children: [
-                        if (isEnrolled)
-                          Expanded(
-                            child: _StatCard(
-                              icon: isCompleted
-                                  ? Icons.emoji_events_rounded
-                                  : Icons.trending_up_rounded,
-                              iconColor: isCompleted
-                                  ? const Color(0xff2E7D53)
-                                  : const Color(0xffB4780F),
-                              iconBg: isCompleted
-                                  ? AppColors.mint.withOpacity(0.5)
-                                  : AppColors.peach.withOpacity(0.5),
-                              label: 'التقدم',
-                              value: isCompleted
-                                  ? 'مكتمل'
-                                  : '${progressPercentage.toStringAsFixed(0)}٪',
-                            ),
-                          ),
-                        if (isEnrolled) const SizedBox(width: 12),
-                        Expanded(
-                          child: _StatCard(
-                            icon: Icons.apartment_rounded,
-                            iconColor: AppColors.primary,
-                            iconBg: AppColors.primary.withValues(alpha: 0.12),
-                            label: 'المنظمة',
-                            value: course.organizationDisplayName ?? '—',
-                          ),
-                        ),
+                        Expanded(child: _StatCard(icon: Icons.people_alt_rounded, iconColor: colors.primary, iconBg: colors.primary.withOpacity(0.1), label: 'المنظمة', value: course.organizationDisplayName ?? '—')),
+                        const SizedBox(width: 12),
+                        Expanded(child: _StatCard(icon: Icons.speed_rounded, iconColor: const Color(0xffB4780F), iconBg: const Color(0xffB4780F).withOpacity(0.1), label: 'المستوى', value: 'قريباً')),
                       ],
                     ),
+                    const SizedBox(height: 28),
+
+                    // ── Community Section ──
+                    _SectionHeader(icon: Icons.groups_rounded, title: 'مجتمع الكورس'),
+                    const SizedBox(height: 12),
+                    _FeatureCard(icon: Icons.forum_outlined, iconBg: colors.primary.withOpacity(0.1), iconColor: colors.primary, title: 'منشورات الكورس', subtitle: 'مناقشات وإعلانات', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('منشورات الكورس قريباً')))),
+                    const SizedBox(height: 10),
+                    _FeatureCard(icon: Icons.chat_bubble_outline_rounded, iconBg: const Color(0xff2E7D53).withOpacity(0.1), iconColor: const Color(0xff2E7D53), title: 'محادثة المجموعة', subtitle: 'تواصل مع زملائك', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('محادثة المجموعة قريباً')))),
                   ],
                 ),
               ),
@@ -256,95 +201,39 @@ class _CourseDetailsContent extends StatelessWidget {
           ),
         ),
 
+        // ── Bottom CTA ──
         Positioned(
-          left: 20,
-          right: 20,
-          bottom: 1,
+          left: 0,
+          right: 0,
+          bottom: 0,
           child: SafeArea(
             top: false,
-            child: Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton.icon(
-                    onPressed: isOwner
-                        ? () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'أنت مالك المنظمة، لا يمكنك التسجيل في كورساتها',
-                                ),
-                              ),
-                            );
-                          }
-                        : isBlockedByMembership
-                        ? () => _showMembershipRequiredDialog(context, course)
-                        : isEnrolled
-                        ? () async {
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    CourseContentsPage(course: course),
-                              ),
-                            );
-                            if (context.mounted) {
-                              context.read<CourseDetailsBloc>().add(
-                                GetCourseDetailsEvent(
-                                  orgSlug: course.organization?.slug ?? '',
-                                  courseSlug: course.slug,
-                                ),
-                              );
-                            }
-                          }
-                        : onEnroll,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isOwner
-                          ? colors.surfaceContainerHighest
-                          : AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      elevation: isOwner ? 0 : 4,
-                    ),
-                    icon: Icon(
-                      isOwner
-                          ? Icons.admin_panel_settings_rounded
-                          : isEnrolled
-                          ? Icons.play_circle_fill_rounded
-                          : Icons.rocket_launch_rounded,
-                      color: isOwner ? colors.onSurfaceVariant : Colors.white,
-                    ),
-                    label: Text(
-                      isOwner
-                          ? 'أنت مالك المنظمة'
-                          : isEnrolled
-                          ? 'متابعة'
-                          : 'سجّل الآن',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: isOwner ? colors.onSurfaceVariant : Colors.white,
-                      ),
-                    ),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+              decoration: BoxDecoration(color: colors.surface, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, -4))]),
+              child: SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton.icon(
+                  onPressed: isOwner
+                      ? () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('أنت مالك المنظمة، لا يمكنك التسجيل في كورساتها')))
+                      : isBlockedByMembership
+                      ? () => _showMembershipRequiredDialog(context, course)
+                      : isEnrolled
+                      ? () async {
+                    await Navigator.push(context, MaterialPageRoute(builder: (_) => CourseContentsPage(course: course)));
+                    if (context.mounted) context.read<CourseDetailsBloc>().add(GetCourseDetailsEvent(orgSlug: course.organization?.slug ?? '', courseSlug: course.slug));
+                  }
+                      : onEnroll,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isOwner ? colors.surfaceContainerHighest : colors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    elevation: 0,
                   ),
+                  icon: Icon(isOwner ? Icons.admin_panel_settings_rounded : isEnrolled ? Icons.play_circle_fill_rounded : Icons.rocket_launch_rounded, color: isOwner ? colors.onSurfaceVariant : Colors.white),
+                  label: Text(isOwner ? 'أنت مالك المنظمة' : isEnrolled ? 'متابعة التعلم' : 'سجّل الآن', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: isOwner ? colors.onSurfaceVariant : Colors.white)),
                 ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  height: 46,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('منشورات الكورس قريباً')),
-                      );
-                    },
-                    icon: const Icon(Icons.forum_outlined, size: 18),
-                    label: const Text('منشورات الكورس'),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -354,109 +243,108 @@ class _CourseDetailsContent extends StatelessWidget {
 
   Widget _coverPlaceholder() {
     return Container(
-      height: 220,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [AppColors.primary, AppColors.primary.withOpacity(0.6)],
-        ),
-      ),
-      child: const Center(
-        child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 56),
-      ),
+      height: 240, width: double.infinity,
+      decoration: BoxDecoration(gradient: LinearGradient(colors: [AppColors.primary, AppColors.primary.withOpacity(0.6)], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+      child: const Center(child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 56)),
     );
   }
 
-  Widget _roundIconButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) {
+  Widget _roundIconButton({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.85),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 18, color: AppColors.dark),
-      ),
+      child: Container(padding: const EdgeInsets.all(10), decoration: BoxDecoration(color: Colors.white.withOpacity(0.85), shape: BoxShape.circle), child: Icon(icon, size: 18, color: AppColors.dark)),
     );
   }
 
-  void _showMembershipRequiredDialog(
-    BuildContext context,
-    CourseEntity course,
-  ) {
+  void _showMembershipRequiredDialog(BuildContext context, CourseEntity course) {
     showDialog(
       context: context,
       builder: (dialogContext) => Directionality(
         textDirection: TextDirection.rtl,
         child: AlertDialog(
           title: const Text('يجب الانضمام إلى المنظمة أولاً'),
-          content: Text(
-            course.organizationDisplayName != null
-                ? 'التسجيل في هذا الكورس يتطلب أن تكون عضواً في "${course.organizationDisplayName}".'
-                : 'التسجيل في هذا الكورس يتطلب عضوية المنظمة المالكة له.',
-          ),
+          content: Text(course.organizationDisplayName != null ? 'التسجيل في هذا الكورس يتطلب أن تكون عضواً في "${course.organizationDisplayName}".' : 'التسجيل في هذا الكورس يتطلب عضوية المنظمة المالكة له.'),
           actions: [
             Row(
               children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(dialogContext),
-                    child: const Text('إلغاء'),
-                  ),
-                ),
+                Expanded(child: OutlinedButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('إلغاء'))),
                 const SizedBox(width: 10),
                 if (course.organization != null)
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () async {
                         Navigator.pop(dialogContext);
-
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BlocProvider(
-                              create: (_) => sl<OrganizationDetailsBloc>()
-                                ..add(
-                                  GetOrganizationDetailsEvent(
-                                    course.organization!.slug,
-                                  ),
-                                ),
-                              child: OrganizationDetailsPage(
-                                slug: course.organization!.slug,
-                              ),
-                            ),
-                          ),
-                        );
-
-                        if (context.mounted) {
-                          context.read<CourseDetailsBloc>().add(
-                            GetCourseDetailsEvent(
-                              orgSlug: course.organization!.slug,
-                              courseSlug: course.slug,
-                            ),
-                          );
-                        }
+                        await Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(create: (_) => sl<OrganizationDetailsBloc>()..add(GetOrganizationDetailsEvent(course.organization!.slug)), child: OrganizationDetailsPage(slug: course.organization!.slug))));
+                        if (context.mounted) context.read<CourseDetailsBloc>().add(GetCourseDetailsEvent(orgSlug: course.organization!.slug, courseSlug: course.slug));
                       },
                       icon: const Icon(Icons.apartment_rounded, size: 18),
                       label: const Text('عرض المنظمة'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
                     ),
                   ),
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  const _SectionHeader({required this.icon, required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        Container(width: 36, height: 36, decoration: BoxDecoration(color: colors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Icon(icon, size: 18, color: colors.primary)),
+        const SizedBox(width: 10),
+        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: colors.onSurface)),
+      ],
+    );
+  }
+}
+
+class _FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final Color iconBg;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _FeatureCard({required this.icon, required this.iconBg, required this.iconColor, required this.title, required this.subtitle, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: colors.outlineVariant.withOpacity(0.5))),
+          child: Row(
+            children: [
+              Container(width: 44, height: 44, decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)), child: Icon(icon, size: 22, color: iconColor)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: colors.onSurface)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+                ]),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colors.onSurfaceVariant),
+            ],
+          ),
         ),
       ),
     );
@@ -469,53 +357,21 @@ class _StatCard extends StatelessWidget {
   final Color iconBg;
   final String label;
   final String value;
-
-  const _StatCard({
-    required this.icon,
-    required this.iconColor,
-    required this.iconBg,
-    required this.label,
-    required this.value,
-  });
+  const _StatCard({required this.icon, required this.iconColor, required this.iconBg, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Theme.of(context).dividerColor),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconBg,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(icon, size: 18, color: iconColor),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            label,
-            style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: colors.onSurface,
-            ),
-          ),
-        ],
-      ),
+      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: Theme.of(context).dividerColor)),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: iconBg, borderRadius: BorderRadius.circular(12)), child: Icon(icon, size: 18, color: iconColor)),
+        const SizedBox(height: 10),
+        Text(label, style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+        const SizedBox(height: 2),
+        Text(value, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
+      ]),
     );
   }
 }
