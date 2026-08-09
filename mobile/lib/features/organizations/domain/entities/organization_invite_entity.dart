@@ -49,6 +49,7 @@ class OrganizationInviteEntity {
   final DateTime? expiresAt;
   final int? maxUses;
   final int usedCount;
+  final bool alreadyJoined;
 
   const OrganizationInviteEntity({
     required this.id,
@@ -63,6 +64,7 @@ class OrganizationInviteEntity {
     this.expiresAt,
     this.maxUses,
     this.usedCount = 0,
+    this.alreadyJoined = false,
   });
 
   bool get isPending => status.toUpperCase() == 'PENDING';
