@@ -32,6 +32,7 @@ async function RoadmapEditorSection({
 
     return (
       <RoadmapEditor
+        key={roadmap.id}
         orgSlug={slug}
         roadmap={roadmap}
         isNew={false}

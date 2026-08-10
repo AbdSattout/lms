@@ -36,7 +36,6 @@ export function CourseNode({ data, id }: NodeProps<CourseNode>) {
         colorClass
       )}
     >
-      {/* Explicit mapped High zIndex overlapping captures mapping perfectly cleanly seamlessly dragging connects implicitly accurately safely hit bounding perfectly correctly!  */}
       <Handle
         type="target"
         position={Position.Top}
@@ -76,11 +75,10 @@ export function CourseNode({ data, id }: NodeProps<CourseNode>) {
           {label}
         </span>
         <span className="rounded-full bg-primary/10 px-2 py-[2px] text-[11px] font-bold text-primary">
-          Step #{pos + 1}
+          خطوة #{pos + 1}
         </span>
       </div>
 
-      {/* Target hits safely bounds properly gracefully explicit completely efficiently efficiently resolving logic gracefully gracefully matched exactly matching matching dynamically */}
       <Handle
         type="source"
         position={Position.Bottom}

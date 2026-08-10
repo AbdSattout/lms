@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { CommentSection } from "@/components/posts/comment-section"
 import type { CommentResponse, PostResponse } from "@/lib/api/types"
-import { formatDistanceToNow } from "date-fns"
-import { ar } from "date-fns/locale"
 import { MessageCircle, MoreHorizontal, Pencil, Trash2, X } from "lucide-react"
 import { ReactionPicker } from "@/components/posts/reaction-picker"
 import {
@@ -26,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation"
+import { ClientTimeAgo } from "../client-time-ago"
 
 interface PostDetailProps {
   post: PostResponse
@@ -60,13 +59,6 @@ export function PostDetail({
       .map((n) => n[0])
       .join("")
       .slice(0, 2) ?? "؟"
-  const timeAgo = post.baseEntity?.createdAt
-    ? formatDistanceToNow(new Date(post.baseEntity.createdAt), {
-        addSuffix: true,
-        locale: ar,
-      })
-    : ""
-
   function handleSubmitComment() {
     if (!newComment.trim()) return
 
@@ -154,7 +146,11 @@ export function PostDetail({
                 {post.author?.name ?? "مستخدم"}
               </span>
               <div className="flex items-center gap-2 text-[13px] leading-none font-medium text-muted-foreground">
-                <span suppressHydrationWarning>{timeAgo}</span>
+                <span>
+                  {post.baseEntity?.createdAt ? (
+                    <ClientTimeAgo date={post.baseEntity.createdAt} />
+                  ) : null}
+                </span>
                 {post.courseId && (
                   <>
                     <span className="text-[10px]">●</span>

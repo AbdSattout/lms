@@ -5,11 +5,16 @@ import { api } from "@/lib/api"
 import { revalidatePath } from "next/cache"
 export async function createRoadmap(
   orgSlug: string,
-  title: string,
+  name: string,
+  description: string,
   courseIds: number[]
 ) {
   try {
-    await api.dashboard.roadmap.create.post(orgSlug, { title, courseIds })
+    await api.dashboard.roadmap.create.post(orgSlug, {
+      name,
+      description,
+      courseIds,
+    })
     revalidatePath(`/${orgSlug}/roadmaps`)
     return { success: true }
   } catch (error) {
@@ -23,12 +28,15 @@ export async function createRoadmap(
 export async function updateRoadmap(
   orgSlug: string,
   roadmapId: number,
-  title: string,
+  name: string,
+  description: string,
   courseIds: number[]
 ) {
   try {
     await api.dashboard.roadmap.byId.patch(orgSlug, roadmapId, {
-      title,
+      name,
+      description,
+
       courseIds,
     })
     revalidatePath(`/${orgSlug}/roadmaps`)

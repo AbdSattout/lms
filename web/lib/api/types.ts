@@ -574,21 +574,22 @@ export interface RoadmapResponse {
 export interface RoadmapItemResponse {
   id: number
   position: number
+  description?: string
   course: CourseResponse
   baseEntity?: BaseEntityResponse
 }
 
-// Add title/name to the request
 export interface UpsertRoadmapRequest {
-  title?: string
+  name?: string
+  description?: string
   courseIds: number[]
 }
 
-// Ensure the Response type also has the title property!
 export interface RoadmapResponse {
   id: number
-  title?: string // (Add this)
-  items: RoadmapItemResponse[] // (Keep your other existing fields like this...)
+  name?: string
+  description?: string
+  items: RoadmapItemResponse[]
   position?: number
 }
 export interface PracticeExamResponse {
