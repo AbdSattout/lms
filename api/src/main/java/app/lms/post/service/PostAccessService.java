@@ -69,6 +69,11 @@ public class PostAccessService {
             return;
         }
 
+        organizationMemberAccessService.getMember(
+                post.getOrganization().getId(),
+                user.getId()
+        );
+
         courseEnrollmentAccessService.validateEnrolled(
                 post.getCourse().getId(),
                 user

@@ -6,8 +6,8 @@ class LoadOrganizationPosts extends PostsEvent {
 }
 
 class LoadCoursePosts extends PostsEvent {
-  final String courseSlug;
-  LoadCoursePosts(this.courseSlug);
+  final int courseId;
+  LoadCoursePosts(this.courseId);
 }
 
 class RefreshPosts extends PostsEvent {}

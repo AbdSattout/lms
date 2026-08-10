@@ -4,6 +4,7 @@ import app.lms.organization.repository.projection.OrganizationCountProjection;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.course.enums.CourseStatus;
 import app.lms.enrollment.enums.EnrollmentStatus;
+import app.lms.roadmap.enums.RoadmapStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,8 +22,20 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
             Long organizationId
     );
 
+    Optional<Roadmap> findByIdAndOrganizationIdAndStatus(
+            Long roadmapId,
+            Long organizationId,
+            RoadmapStatus status
+    );
+
     Page<Roadmap> findAllByOrganizationIdOrderByCreatedAtDesc(
             Long organizationId,
+            Pageable pageable
+    );
+
+    Page<Roadmap> findAllByOrganizationIdAndStatusOrderByCreatedAtDesc(
+            Long organizationId,
+            RoadmapStatus status,
             Pageable pageable
     );
 
@@ -52,6 +65,7 @@ public interface RoadmapRepository extends JpaRepository<Roadmap, Long> {
                     or ban.expiresAt > CURRENT_TIMESTAMP
                 )
             )
+            and roadmap.status = app.lms.roadmap.enums.RoadmapStatus.PUBLISHED
             order by roadmap.createdAt desc
             """)
     Page<Roadmap> findAllVisibleToUserOrderByCreatedAtDesc(

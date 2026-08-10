@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 
 import '../../firebase_options.dart';
 import '../../features/notifications/domain/usecases/register_notification_device_usecase.dart';
+import 'foreground_notification_service.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -14,6 +15,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class FirebaseMessagingService {
   final RegisterNotificationDeviceUseCase registerDevice;
+  final ForegroundNotificationService foregroundNotificationService;
 
   final _messageController = StreamController<RemoteMessage>.broadcast();
 
@@ -22,7 +24,10 @@ class FirebaseMessagingService {
   StreamSubscription<RemoteMessage>? _openedMessageSubscription;
   bool _initialized = false;
 
-  FirebaseMessagingService({required this.registerDevice});
+  FirebaseMessagingService({
+    required this.registerDevice,
+    required this.foregroundNotificationService,
+  });
 
   Stream<RemoteMessage> get messages => _messageController.stream;
 
@@ -59,6 +64,11 @@ class FirebaseMessagingService {
       final messaging = FirebaseMessaging.instance;
 
       await messaging.requestPermission(alert: true, badge: true, sound: true);
+      await messaging.setForegroundNotificationPresentationOptions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
       await _registerCurrentToken(messaging);
 
@@ -67,7 +77,7 @@ class FirebaseMessagingService {
       );
 
       _foregroundMessageSubscription ??= FirebaseMessaging.onMessage.listen(
-        _messageController.add,
+        _handleForegroundMessage,
       );
 
       _openedMessageSubscription ??= FirebaseMessaging.onMessageOpenedApp
@@ -97,6 +107,11 @@ class FirebaseMessagingService {
     } catch (e) {
       debugPrint('Failed to register notification device token. $e');
     }
+  }
+
+  void _handleForegroundMessage(RemoteMessage message) {
+    _messageController.add(message);
+    unawaited(foregroundNotificationService.show(message));
   }
 
   Future<void> dispose() async {

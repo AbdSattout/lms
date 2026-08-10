@@ -526,18 +526,26 @@ class _NotificationRefreshListener extends StatefulWidget {
 class _NotificationRefreshListenerState
     extends State<_NotificationRefreshListener> {
   StreamSubscription? _subscription;
+  Timer? _delayedRefresh;
+  late NotificationsBloc _notificationsBloc;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _notificationsBloc = context.read<NotificationsBloc>();
     _subscription ??= sl<FirebaseMessagingService>().messages.listen((_) {
-      if (!mounted) return;
-      context.read<NotificationsBloc>().add(RefreshNotificationsEvent());
+      _refreshNotifications();
+      _delayedRefresh?.cancel();
+      _delayedRefresh = Timer(
+        const Duration(milliseconds: 1200),
+        _refreshNotifications,
+      );
     });
   }
 
   @override
   void dispose() {
+    _delayedRefresh?.cancel();
     _subscription?.cancel();
     super.dispose();
   }
@@ -545,6 +553,11 @@ class _NotificationRefreshListenerState
   @override
   Widget build(BuildContext context) {
     return widget.child;
+  }
+
+  void _refreshNotifications() {
+    if (!mounted) return;
+    _notificationsBloc.add(RefreshNotificationsEvent());
   }
 }
 
@@ -555,6 +568,9 @@ class _NotificationBellButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<NotificationsBloc, NotificationsState>(
       builder: (context, state) {
+        final theme = Theme.of(context);
+        final colors = theme.colorScheme;
+        final isDark = theme.brightness == Brightness.dark;
         final unreadCount = state is NotificationsLoaded
             ? state.unreadCount
             : 0;
@@ -564,42 +580,69 @@ class _NotificationBellButton extends StatelessWidget {
         final badgeCount = unreadCount > inviteCount
             ? unreadCount
             : inviteCount;
+        final hasBadge = badgeCount > 0;
+        final activeColor = isDark ? AppColors.primaryLight : colors.primary;
+        final backgroundColor = hasBadge
+            ? activeColor.withValues(alpha: isDark ? 0.16 : 0.10)
+            : colors.surface.withValues(alpha: isDark ? 0.72 : 0.88);
+        final borderColor = hasBadge
+            ? activeColor.withValues(alpha: isDark ? 0.30 : 0.22)
+            : colors.outlineVariant.withValues(alpha: isDark ? 0.28 : 0.45);
+        final iconColor = hasBadge ? activeColor : colors.onSurfaceVariant;
 
-        return IconButton(
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BlocProvider.value(
-                  value: context.read<NotificationsBloc>(),
-                  child: const NotificationsPage(),
+        return Tooltip(
+          message: 'الإشعارات',
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<NotificationsBloc>(),
+                      child: const NotificationsPage(),
+                    ),
+                  ),
+                );
+
+                if (context.mounted) {
+                  context.read<NotificationsBloc>().add(
+                    RefreshNotificationsEvent(),
+                  );
+                }
+              },
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: backgroundColor,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Icon(
+                        hasBadge
+                            ? Icons.notifications_active_rounded
+                            : Icons.notifications_rounded,
+                        color: iconColor,
+                        size: 24,
+                      ),
+                    ),
+                    if (badgeCount > 0)
+                      Positioned(
+                        top: 4,
+                        left: 4,
+                        child: _NotificationBadge(count: badgeCount),
+                      ),
+                  ],
                 ),
               ),
-            );
-
-            if (context.mounted) {
-              context.read<NotificationsBloc>().add(
-                RefreshNotificationsEvent(),
-              );
-            }
-          },
-          icon: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Icon(
-                Icons.notifications_rounded,
-                color: Theme.of(context).colorScheme.onSurface,
-                size: 30,
-              ),
-              if (badgeCount > 0)
-                Positioned(
-                  top: -7,
-                  left: -8,
-                  child: _NotificationBadge(count: badgeCount),
-                ),
-            ],
+            ),
           ),
-          tooltip: 'الإشعارات',
         );
       },
     );
@@ -614,26 +657,34 @@ class _NotificationBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = count > 99 ? '99+' : count.toString();
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      constraints: const BoxConstraints(minWidth: 19, minHeight: 19),
+      height: 20,
+      constraints: const BoxConstraints(minWidth: 20),
       padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
-        color: AppColors.pink,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: Theme.of(context).scaffoldBackgroundColor,
-          width: 1.5,
-        ),
+        color: colors.primary,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: colors.surface, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.36 : 0.14),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       alignment: Alignment.center,
       child: Text(
         label,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 10,
+          fontSize: 11,
           fontWeight: FontWeight.w900,
           height: 1,
+          letterSpacing: 0,
         ),
       ),
     );
