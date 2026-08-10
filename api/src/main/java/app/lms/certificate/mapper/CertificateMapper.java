@@ -3,26 +3,53 @@ package app.lms.certificate.mapper;
 import app.lms.certificate.dto.CertificateResponse;
 import app.lms.certificate.model.Certificate;
 import app.lms.common.dto.BaseEntityResponse;
+import app.lms.organization.mapper.OrganizationMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class CertificateMapper {
+
+    private final OrganizationMapper organizationMapper;
 
     public CertificateResponse toResponse(
             Certificate certificate
     ) {
 
         return CertificateResponse.builder()
-                .certificateCode(certificate.getCode())
-                .studentName(certificate.getUser().getName())
-                .courseName(certificate.getCourse().getTitle())
-                .organizationName(certificate.getCourse().getOrganization().getName())
-                .finalQuizScore(certificate.getFinalQuizScore())
-                .finalQuizTotal(certificate.getFinalQuizTotal())
-                .finalQuizPercentage(certificate.getFinalQuizPercentage())
-                .grade(certificate.getGrade())
-                .baseEntity(BaseEntityResponse.from(certificate))
+                .certificateCode(
+                        certificate.getCode()
+                )
+                .studentName(
+                        certificate.getUser().getName()
+                )
+                .courseName(
+                        certificate.getCourse().getTitle()
+                )
+                .organization(
+                        organizationMapper.toSummaryResponse(
+                                certificate.getCourse()
+                                        .getOrganization()
+                        )
+                )
+                .finalQuizScore(
+                        certificate.getFinalQuizScore()
+                )
+                .finalQuizTotal(
+                        certificate.getFinalQuizTotal()
+                )
+                .finalQuizPercentage(
+                        certificate.getFinalQuizPercentage()
+                )
+                .grade(
+                        certificate.getGrade()
+                )
+                .baseEntity(
+                        BaseEntityResponse.from(
+                                certificate
+                        )
+                )
                 .build();
     }
-
 }

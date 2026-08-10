@@ -67,10 +67,27 @@ public class PostController {
     }
 
     @GetMapping("/organizations/{slug}/posts/{postId}")
-    public ResponseEntity<PostResponse> getById(
+    public ResponseEntity<PostResponse> getOrganizationPostById(
 
             @PathVariable
             String slug,
+
+            @PathVariablepos
+            Long postId,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                postService.getById(slug,postId,principal.user())
+        );
+    }
+    @GetMapping("/courses/{courseId}/posts/{postId}")
+    public ResponseEntity<PostResponse> getCoursePostById(
+
+            @PathVariable
+            Long courseId,
 
             @PathVariable
             Long postId,
@@ -80,7 +97,11 @@ public class PostController {
     ) {
 
         return ResponseEntity.ok(
-                postService.getById(slug,postId,principal.user())
+                postService.getCoursePostById(
+                        courseId,
+                        postId,
+                        principal.user()
+                )
         );
     }
 
