@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../posts/presentation/pages/organization_posts_page.dart';
 import '../../domain/entities/organization_entity.dart';
 import '../bloc/organization_details_bloc.dart';
 import '../bloc/organization_details_event.dart';
@@ -202,7 +203,6 @@ class _OrganizationDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Cover Image ──
               Stack(
                 children: [
                   ClipRRect(
@@ -456,14 +456,14 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     const SizedBox(height: 12),
                     _FeatureCard(
                       slug: slug,
-                      icon: Icons.article_outlined,
-                      iconBg: colors.primary.withValues(alpha: 0.1),
+                      icon: Icons.campaign_outlined,
+                      iconBg: colors.primary.withOpacity(0.1),
                       iconColor: colors.primary,
-                      title: 'آخر المنشورات والإعلانات',
-                      subtitle: 'قريباً',
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('منشورات المنظمة قريباً')),
-                      ),
+                      title: ' المنشورات والإعلانات',
+                      subtitle: 'تفاعل مع منشورات المنظمة!',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
+                      },
                     ),
                     const SizedBox(height: 28),
 
@@ -556,11 +556,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     height: 48,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('منشورات المنظمة قريباً'),
-                          ),
-                        );
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
                       },
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),

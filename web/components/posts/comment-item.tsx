@@ -10,6 +10,7 @@ import { CornerDownLeft, Trash2 } from "lucide-react"
 import { useState, useTransition } from "react"
 import { ar } from "date-fns/locale"
 import { toast } from "sonner"
+import { ClientTimeAgo } from "../client-time-ago"
 
 interface CommentItemProps {
   comment: CommentResponse
@@ -35,13 +36,6 @@ export function CommentItem({
       .map((n) => n[0])
       .join("")
       .slice(0, 2) ?? "؟"
-  const timeAgo = comment.baseEntity?.createdAt
-    ? formatDistanceToNow(new Date(comment.baseEntity.createdAt), {
-        addSuffix: true,
-        locale: ar,
-      })
-    : ""
-
   function handleDelete() {
     startDelete(async () => {
       try {
@@ -98,11 +92,10 @@ export function CommentItem({
           <span className="text-[14px] font-bold text-foreground">
             {comment.author?.name ?? "مشارك"}
           </span>
-          <span
-            suppressHydrationWarning
-            className="mt-0.5 text-[12.5px] font-medium text-muted-foreground"
-          >
-            {timeAgo}
+          <span className="mt-0.5 text-[12.5px] font-medium text-muted-foreground">
+            {comment.baseEntity?.createdAt ? (
+              <ClientTimeAgo date={comment.baseEntity.createdAt} />
+            ) : null}
           </span>
         </div>
 

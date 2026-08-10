@@ -4,8 +4,6 @@ import type { Route } from "next"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useTransition } from "react"
-import { formatDistanceToNow } from "date-fns"
-import { ar } from "date-fns/locale"
 import { toast } from "sonner"
 import { MessageCircle, MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { ReactionPicker } from "@/components/posts/reaction-picker"
@@ -28,6 +26,7 @@ import {
 
 import type { PostResponse } from "@/lib/api/types"
 import { deletePost, likePost, unlikePost } from "@/lib/actions/post"
+import { ClientTimeAgo } from "../client-time-ago"
 
 interface PostCardProps {
   post: PostResponse
@@ -95,12 +94,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
       .map((n) => n[0])
       .join("")
       .slice(0, 2) ?? "؟"
-  const timeAgo = post.baseEntity?.createdAt
-    ? formatDistanceToNow(new Date(post.baseEntity.createdAt), {
-        addSuffix: true,
-        locale: ar,
-      })
-    : ""
 
   const thumbnailMatch = post.content?.match(/<img[^>]+src=["']([^"']+)["']/i)
   const thumbnail = thumbnailMatch?.[1] ?? null
@@ -120,11 +113,10 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
                   {post.author?.name ?? "مستخدم مجهول"}
                 </span>
 
-                <div
-                  suppressHydrationWarning
-                  className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12.5px] leading-none font-medium text-muted-foreground"
-                >
-                  <span>{timeAgo}</span>
+                <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12.5px] leading-none font-medium text-muted-foreground">
+                  {post.baseEntity?.createdAt ? (
+                    <ClientTimeAgo date={post.baseEntity.createdAt} />
+                  ) : null}
                   {post.courseId && (
                     <>
                       <span className="mx-1 text-[10px] text-primary/40">
@@ -168,25 +160,27 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
             )}
           </div>
 
-          <Link
-            href={`/${orgSlug}/posts/${post.id}` as Route}
-            className="group relative mt-2 block cursor-pointer outline-none"
-          >
-            <h3 className="mb-2 text-[19px] leading-relaxed font-bold transition-colors group-hover:text-primary">
-              {post.title}
-            </h3>
+          <div className="group relative mt-2">
+            <Link
+              href={`/${orgSlug}/posts/${post.id}` as Route}
+              className="block cursor-pointer outline-none"
+            >
+              <h3 className="mb-2 text-[19px] leading-relaxed font-bold transition-colors group-hover:text-primary">
+                {post.title}
+              </h3>
 
-            {thumbnail && (
-              <div className="relative z-20 mt-3 h-56 w-full overflow-hidden rounded-xl border border-border/50 group-hover:opacity-95">
-                <Image
-                  src={thumbnail}
-                  alt=""
-                  fill
-                  className="object-cover transition-transform group-hover:scale-[1.01]"
-                  sizes="(max-width: 768px) 100vw, 600px"
-                />
-              </div>
-            )}
+              {thumbnail && (
+                <div className="relative z-20 mt-3 h-56 w-full overflow-hidden rounded-xl border border-border/50 group-hover:opacity-95">
+                  <Image
+                    src={thumbnail}
+                    alt=""
+                    fill
+                    className="object-cover transition-transform group-hover:scale-[1.01]"
+                    sizes="(max-width: 768px) 100vw, 600px"
+                  />
+                </div>
+              )}
+            </Link>
 
             {post.content && (
               <div
@@ -195,7 +189,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
             )}
-          </Link>
+          </div>
         </div>
 
         <div className="relative z-20 mt-auto flex flex-wrap items-center gap-6 rounded-b-xl border-t border-border/40 bg-muted/20 px-5 py-3 shadow-inner">
@@ -245,7 +239,6 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
               disabled={isDeleting}
               onClick={handleDelete}
             >
-              {" "}
               {isDeleting ? "الرجاء الإنتظار..." : "متابعة التنفيذ"}{" "}
             </Button>
           </div>

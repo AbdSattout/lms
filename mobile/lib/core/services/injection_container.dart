@@ -114,6 +114,20 @@ import '../../features/notifications/domain/usecases/mark_notification_read_usec
 import '../../features/notifications/domain/usecases/register_notification_device_usecase.dart';
 import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
 
+// Posts
+import '../../features/posts/data/datasources/posts_remote_datasource.dart';
+import '../../features/posts/data/repositories/posts_repository_impl.dart';
+import '../../features/posts/domain/repositories/posts_repository.dart';
+import '../../features/posts/domain/usecases/get_organization_posts_usecase.dart';
+import '../../features/posts/domain/usecases/get_course_posts_usecase.dart';
+import '../../features/posts/domain/usecases/get_comments_usecase.dart';
+import '../../features/posts/domain/usecases/add_comment_usecase.dart';
+import '../../features/posts/domain/usecases/delete_comment_usecase.dart';
+import '../../features/posts/domain/usecases/like_comment_usecase.dart';
+import '../../features/posts/domain/usecases/unlike_comment_usecase.dart';
+import '../../features/posts/domain/usecases/react_to_post_usecase.dart';
+import '../../features/posts/presentation/bloc/posts_bloc.dart';
+import '../../features/posts/presentation/bloc/post_details_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -377,6 +391,19 @@ Future<void> init() async {
     ),
   );
 
+  // Posts
+  sl.registerLazySingleton<PostsRemoteDataSource>(() => PostsRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<PostsRepository>(() => PostsRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetOrganizationPostsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCoursePostsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCommentsUseCase(sl()));
+  sl.registerLazySingleton(() => AddCommentUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteCommentUseCase(sl()));
+  sl.registerLazySingleton(() => LikeCommentUseCase(sl()));
+  sl.registerLazySingleton(() => UnlikeCommentUseCase(sl()));
+  sl.registerLazySingleton(() => ReactToPostUseCase(sl()));
+  sl.registerFactory(() => PostsBloc(getOrganizationPosts: sl(), getCoursePosts: sl()));
+  sl.registerFactory(() => PostDetailsBloc(getComments: sl(), addComment: sl(), deleteComment: sl(), likeComment: sl(), unlikeComment: sl(), reactToPost: sl()));
   // Home
   sl.registerFactory(
     () =>

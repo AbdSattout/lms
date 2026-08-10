@@ -18,6 +18,7 @@ import {
   GraduationCap,
   ImageIcon,
   LayoutDashboardIcon,
+  Map,
   Settings,
   SquarePen,
 } from "lucide-react"
@@ -57,6 +58,11 @@ export function AppSidebar({
       title: "الاعدادات",
       url: `/${orgSlug}/settings` as Route,
       icon: <Settings />,
+    },
+    {
+      title: "المسارات",
+      url: `/${orgSlug}/roadmaps` as Route,
+      icon: <Map />,
     },
   ]
 

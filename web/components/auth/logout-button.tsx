@@ -2,10 +2,22 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-
 import { Button } from "@/components/ui/button"
 
-export function LogoutButton() {
+interface LogoutButtonProps {
+  children?: React.ReactNode
+  variant?:
+    "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"
+  size?: "default" | "sm" | "lg" | "icon"
+  className?: string
+}
+
+export function LogoutButton({
+  children,
+  variant = "outline",
+  size = "default",
+  className,
+}: LogoutButtonProps) {
   const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -22,8 +34,14 @@ export function LogoutButton() {
   }
 
   return (
-    <Button variant="outline" onClick={handleLogout} disabled={isSubmitting}>
-      {isSubmitting ? "جاري تسجيل الخروج..." : "تسجيل الخروج"}
+    <Button
+      variant={variant}
+      size={size}
+      className={className}
+      onClick={handleLogout}
+      disabled={isSubmitting}
+    >
+      {children || (isSubmitting ? "جاري تسجيل الخروج..." : "تسجيل الخروج")}
     </Button>
   )
 }

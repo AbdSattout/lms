@@ -5,6 +5,7 @@ import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
+import '../../../posts/presentation/pages/course_posts_page.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
@@ -87,7 +88,6 @@ class _CourseDetailsContent extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Cover + Title ──
               Stack(
                 children: [
                   ClipRRect(
@@ -132,11 +132,9 @@ class _CourseDetailsContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Title ──
                     Text(course.title, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: colors.onSurface, height: 1.3)),
                     const SizedBox(height: 16),
 
-                    // ── Progress (if enrolled) ──
                     if (isEnrolled) ...[
                       Container(
                         padding: const EdgeInsets.all(18),
@@ -165,7 +163,6 @@ class _CourseDetailsContent extends StatelessWidget {
                       const SizedBox(height: 20),
                     ],
 
-                    // ── Description ──
                     if (course.description != null && course.description!.isNotEmpty) ...[
                       _SectionHeader(icon: Icons.info_outline_rounded, title: 'عن هذا الكورس'),
                       const SizedBox(height: 10),
@@ -178,7 +175,7 @@ class _CourseDetailsContent extends StatelessWidget {
                       const SizedBox(height: 24),
                     ],
 
-                    // ── Stats ──
+
                     Row(
                       children: [
                         Expanded(child: _StatCard(icon: Icons.people_alt_rounded, iconColor: colors.primary, iconBg: colors.primary.withOpacity(0.1), label: 'المنظمة', value: course.organizationDisplayName ?? '—')),
@@ -188,10 +185,10 @@ class _CourseDetailsContent extends StatelessWidget {
                     ),
                     const SizedBox(height: 28),
 
-                    // ── Community Section ──
                     _SectionHeader(icon: Icons.groups_rounded, title: 'مجتمع الكورس'),
                     const SizedBox(height: 12),
-                    _FeatureCard(icon: Icons.forum_outlined, iconBg: colors.primary.withOpacity(0.1), iconColor: colors.primary, title: 'منشورات الكورس', subtitle: 'مناقشات وإعلانات', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('منشورات الكورس قريباً')))),
+                    _FeatureCard(icon: Icons.forum_outlined, iconBg: colors.primary.withOpacity(0.1), iconColor: colors.primary, title: 'منشورات الكورس', subtitle: 'مناقشات وإعلانات', onTap: () =>   Navigator.push(context, MaterialPageRoute(builder: (_) => CoursePostsPage(courseSlug: course.slug))),
+                    ),
                     const SizedBox(height: 10),
                     _FeatureCard(icon: Icons.chat_bubble_outline_rounded, iconBg: const Color(0xff2E7D53).withOpacity(0.1), iconColor: const Color(0xff2E7D53), title: 'محادثة المجموعة', subtitle: 'تواصل مع زملائك', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('محادثة المجموعة قريباً')))),
                   ],
@@ -201,7 +198,7 @@ class _CourseDetailsContent extends StatelessWidget {
           ),
         ),
 
-        // ── Bottom CTA ──
+
         Positioned(
           left: 0,
           right: 0,

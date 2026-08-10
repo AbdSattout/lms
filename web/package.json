@@ -33,6 +33,7 @@
     "@tiptap/react": "^3.27.3",
     "@tiptap/starter-kit": "^3.27.3",
     "@wrksz/themes": "^0.9.3",
+    "@xyflow/react": "^12.11.2",
     "better-auth": "^1.6.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
