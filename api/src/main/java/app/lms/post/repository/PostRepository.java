@@ -12,8 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-public interface PostRepository
-        extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findByCourseId(
             long courseId,
@@ -28,6 +27,11 @@ public interface PostRepository
     Optional<Post> findByIdAndOrganizationId(
             Long id,
             Long organizationId
+    );
+
+    Optional<Post> findByIdAndCourseId(
+            Long id,
+            Long courseId
     );
 
     void deleteByOrganizationId(
