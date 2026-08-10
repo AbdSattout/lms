@@ -15,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Configuration
-@Lazy(false)
+@Lazy(value = true)
 @Slf4j
 public class FirebaseConfig {
 
