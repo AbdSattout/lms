@@ -8,9 +8,7 @@ import { api } from "@/lib/api"
 import { notFound } from "next/navigation"
 
 interface SettingsPageProps {
-  params: Promise<{
-    slug: string
-  }>
+  params: Promise<{ slug: string }>
 }
 
 export default async function SettingsPage({ params }: SettingsPageProps) {
@@ -25,9 +23,9 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6" dir="rtl">
+    <>
       <BreadcrumbTrail items={[{ label: "الإعدادات" }]} />
-      <h1 className="text-2xl font-bold">الإعدادات</h1>
+      <h1 className="mb-6 text-2xl font-bold">الإعدادات</h1>
 
       <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-4">
@@ -75,6 +73,6 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
           </div>
         </section>
       </div>
-    </div>
+    </>
   )
 }
