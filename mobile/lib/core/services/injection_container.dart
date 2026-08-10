@@ -99,6 +99,7 @@ import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart
 import '../../features/gamification/presentation/bloc/gamification_bloc.dart';
 
 import 'external_url_launcher.dart';
+import 'foreground_notification_service.dart';
 import 'firebase_messaging_service.dart';
 import '../theme/theme_cubit.dart';
 
@@ -128,6 +129,7 @@ import '../../features/posts/domain/usecases/unlike_comment_usecase.dart';
 import '../../features/posts/domain/usecases/react_to_post_usecase.dart';
 import '../../features/posts/presentation/bloc/posts_bloc.dart';
 import '../../features/posts/presentation/bloc/post_details_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -353,8 +355,12 @@ Future<void> init() async {
       markAllNotificationsReadUseCase: sl(),
     ),
   );
+  sl.registerLazySingleton(() => ForegroundNotificationService());
   sl.registerLazySingleton(
-    () => FirebaseMessagingService(registerDevice: sl()),
+    () => FirebaseMessagingService(
+      registerDevice: sl(),
+      foregroundNotificationService: sl(),
+    ),
   );
 
   // Blocks
@@ -392,8 +398,12 @@ Future<void> init() async {
   );
 
   // Posts
-  sl.registerLazySingleton<PostsRemoteDataSource>(() => PostsRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<PostsRepository>(() => PostsRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<PostsRemoteDataSource>(
+    () => PostsRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<PostsRepository>(
+    () => PostsRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetOrganizationPostsUseCase(sl()));
   sl.registerLazySingleton(() => GetCoursePostsUseCase(sl()));
   sl.registerLazySingleton(() => GetCommentsUseCase(sl()));
@@ -402,8 +412,19 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LikeCommentUseCase(sl()));
   sl.registerLazySingleton(() => UnlikeCommentUseCase(sl()));
   sl.registerLazySingleton(() => ReactToPostUseCase(sl()));
-  sl.registerFactory(() => PostsBloc(getOrganizationPosts: sl(), getCoursePosts: sl()));
-  sl.registerFactory(() => PostDetailsBloc(getComments: sl(), addComment: sl(), deleteComment: sl(), likeComment: sl(), unlikeComment: sl(), reactToPost: sl()));
+  sl.registerFactory(
+    () => PostsBloc(getOrganizationPosts: sl(), getCoursePosts: sl()),
+  );
+  sl.registerFactory(
+    () => PostDetailsBloc(
+      getComments: sl(),
+      addComment: sl(),
+      deleteComment: sl(),
+      likeComment: sl(),
+      unlikeComment: sl(),
+      reactToPost: sl(),
+    ),
+  );
   // Home
   sl.registerFactory(
     () =>

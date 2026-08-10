@@ -32,6 +32,7 @@ class _MyAppState extends State<MyApp> {
   StreamSubscription<Uri>? _inviteDeepLinkSubscription;
   String? _pendingInviteToken;
   bool _showInviteLogin = false;
+  bool _messagingInitializedForSession = false;
 
   @override
   void initState() {
@@ -60,7 +61,7 @@ class _MyAppState extends State<MyApp> {
             listenWhen: (previous, current) =>
                 current is Authenticated || current is AuthSuccess,
             listener: (context, state) {
-              unawaited(sl<FirebaseMessagingService>().initialize());
+              _syncMessagingForAuthState(state);
             },
             child: ImmersiveModeGuard(
               child: MaterialApp(
@@ -77,6 +78,7 @@ class _MyAppState extends State<MyApp> {
                     } else {
                       debugPrint("Current auth state: ${state.runtimeType}");
                     }
+                    _syncMessagingForAuthState(state);
 
                     final inviteToken = _pendingInviteToken;
                     if (inviteToken != null) {
@@ -177,5 +179,17 @@ class _MyAppState extends State<MyApp> {
     if (state is Authenticated) return state.authEntity;
     if (state is AuthSuccess) return state.authEntity;
     return null;
+  }
+
+  void _syncMessagingForAuthState(AuthState state) {
+    final authenticated = _authEntityFromState(state) != null;
+    if (!authenticated) {
+      _messagingInitializedForSession = false;
+      return;
+    }
+
+    if (_messagingInitializedForSession) return;
+    _messagingInitializedForSession = true;
+    unawaited(sl<FirebaseMessagingService>().initialize());
   }
 }

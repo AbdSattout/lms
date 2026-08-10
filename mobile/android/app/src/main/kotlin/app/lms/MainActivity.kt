@@ -1,7 +1,15 @@
 package app.lms
 
+import android.Manifest
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.net.Uri
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -9,7 +17,10 @@ import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
     private val externalUrlChannel = "app.lms/external_url"
+    private val foregroundNotificationsChannel = "app.lms/foreground_notifications"
+    private val foregroundNotificationChannelId = "lms_foreground_notifications"
     private var externalUrlMethodChannel: MethodChannel? = null
+    private var foregroundNotificationsMethodChannel: MethodChannel? = null
     private var pendingBillingDeepLink: String? = null
     private var pendingInviteDeepLink: String? = null
 
@@ -44,6 +55,23 @@ class MainActivity : FlutterActivity() {
             }
         }
 
+        foregroundNotificationsMethodChannel = MethodChannel(
+            flutterEngine.dartExecutor.binaryMessenger,
+            foregroundNotificationsChannel
+        )
+
+        foregroundNotificationsMethodChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "showNotification" -> showForegroundNotification(
+                    call.argument("title"),
+                    call.argument("body"),
+                    call.argument("notificationId"),
+                    result
+                )
+                else -> result.notImplemented()
+            }
+        }
+
         dispatchAppDeepLink(intent)
     }
 
@@ -70,6 +98,120 @@ class MainActivity : FlutterActivity() {
         } catch (error: Exception) {
             result.error("open_url_failed", error.message, null)
         }
+    }
+
+    private fun showForegroundNotification(
+        title: String?,
+        body: String?,
+        notificationId: Int?,
+        result: MethodChannel.Result
+    ) {
+        if (title.isNullOrBlank() && body.isNullOrBlank()) {
+            result.success(false)
+            return
+        }
+
+        if (
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
+            result.success(false)
+            return
+        }
+
+        try {
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            ensureForegroundNotificationChannel(notificationManager)
+
+            val launchIntent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            }
+            val pendingIntent = launchIntent?.let {
+                PendingIntent.getActivity(
+                    this,
+                    0,
+                    it,
+                    PendingIntent.FLAG_UPDATE_CURRENT or immutablePendingIntentFlag()
+                )
+            }
+            val appLabel = applicationInfo.loadLabel(packageManager)?.toString() ?: "LMS"
+            val notificationTitle = title?.takeIf { it.isNotBlank() } ?: appLabel
+            val notificationBody = body?.takeIf { it.isNotBlank() } ?: notificationTitle
+            val notificationIcon = applicationInfo.icon.takeIf { it != 0 }
+                ?: resources.getIdentifier("ic_launcher", "mipmap", packageName)
+
+            @Suppress("DEPRECATION")
+            val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(this, foregroundNotificationChannelId)
+            } else {
+                Notification.Builder(this)
+            }
+
+            @Suppress("DEPRECATION")
+            builder
+                .setSmallIcon(notificationIcon)
+                .setContentTitle(notificationTitle)
+                .setContentText(notificationBody)
+                .setStyle(Notification.BigTextStyle().bigText(notificationBody))
+                .setAutoCancel(true)
+                .setShowWhen(true)
+                .setWhen(System.currentTimeMillis())
+
+            if (pendingIntent != null) {
+                builder.setContentIntent(pendingIntent)
+            }
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                @Suppress("DEPRECATION")
+                builder.setPriority(Notification.PRIORITY_HIGH)
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                builder.setCategory(Notification.CATEGORY_MESSAGE)
+            }
+
+            notificationManager.notify(
+                notificationId ?: nextNotificationId(),
+                builder.build()
+            )
+            result.success(true)
+        } catch (error: Exception) {
+            result.error("notification_failed", error.message, null)
+        }
+    }
+
+    private fun ensureForegroundNotificationChannel(notificationManager: NotificationManager) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+
+        val existingChannel = notificationManager.getNotificationChannel(
+            foregroundNotificationChannelId
+        )
+        if (existingChannel != null) return
+
+        val channel = NotificationChannel(
+            foregroundNotificationChannelId,
+            "LMS notifications",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Notifications shown while LMS is open"
+            enableVibration(true)
+        }
+
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun immutablePendingIntentFlag(): Int {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.FLAG_IMMUTABLE
+        } else {
+            0
+        }
+    }
+
+    private fun nextNotificationId(): Int {
+        return (System.currentTimeMillis() % Int.MAX_VALUE).toInt()
     }
 
     private fun dispatchAppDeepLink(intent: Intent?) {
