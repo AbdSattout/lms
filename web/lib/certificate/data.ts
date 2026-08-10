@@ -12,7 +12,11 @@ export const CERTIFICATE_TAG = "certificate"
 export const SAFE_CODE_PATTERN = /^[A-Za-z0-9-]+$/
 
 export function isCertificateNotFound(err: unknown) {
-  return err instanceof BackendError && err.status === 404
+  return (
+    err instanceof BackendError &&
+    // 404: not found. 400: the backend reports unknown/invalid codes.
+    (err.status === 404 || err.status === 400)
+  )
 }
 
 /**
