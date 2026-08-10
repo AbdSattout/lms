@@ -150,6 +150,7 @@ public class RoadmapMapper {
                 roadmap.getId(),
                 roadmap.getName(),
                 roadmap.getDescription(),
+                roadmap.getStatus(),
                 organizationMapper.ToResponse(
                         roadmap.getOrganization()
                 ),

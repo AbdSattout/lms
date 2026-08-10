@@ -8,15 +8,15 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationPushService {
 
     private final NotificationRepository notificationRepository;
@@ -25,6 +25,10 @@ public class NotificationPushService {
     public void send(Long notificationId) {
 
         if (FirebaseApp.getApps().isEmpty()) {
+            log.warn(
+                    "Skipping push notification {} because Firebase is not initialized.",
+                    notificationId
+            );
             return;
         }
 
@@ -34,6 +38,10 @@ public class NotificationPushService {
                         .orElse(null);
 
         if (notification == null) {
+            log.warn(
+                    "Skipping push notification {} because it was not found.",
+                    notificationId
+            );
             return;
         }
 
@@ -42,6 +50,23 @@ public class NotificationPushService {
                         .findAllByUserIdAndActiveTrue(
                                 notification.getUser().getId()
                         );
+
+        log.info(
+                "Preparing push notification. notificationId={}, userId={}, type={}, activeDeviceCount={}",
+                notification.getId(),
+                notification.getUser().getId(),
+                notification.getType(),
+                devices.size()
+        );
+
+        if (devices.isEmpty()) {
+            log.warn(
+                    "No active devices found for push notification. notificationId={}, userId={}",
+                    notification.getId(),
+                    notification.getUser().getId()
+            );
+            return;
+        }
 
         for (UserDevice device : devices) {
 
@@ -101,16 +126,54 @@ public class NotificationPushService {
                     .getInstance()
                     .send(message);
 
+            log.info(
+                    "Firebase push sent. notificationId={}, deviceId={}, token={}",
+                    notification.getId(),
+                    device.getId(),
+                    maskToken(device.getToken())
+            );
+
         } catch (FirebaseMessagingException e) {
 
-            System.err.println(
-                    "Failed to send notification to device: "
-                            + device.getId()
+            log.error(
+                    "Firebase push failed. notificationId={}, deviceId={}, token={}, messagingErrorCode={}, message={}",
+                    notification.getId(),
+                    device.getId(),
+                    maskToken(device.getToken()),
+                    e.getMessagingErrorCode(),
+                    e.getMessage(),
+                    e
             );
+        } catch (RuntimeException e) {
 
-            System.err.println(
-                    e.getMessage()
+            log.error(
+                    "Firebase push failed unexpectedly. notificationId={}, deviceId={}, token={}, message={}",
+                    notification.getId(),
+                    device.getId(),
+                    maskToken(device.getToken()),
+                    e.getMessage(),
+                    e
             );
         }
+    }
+
+    private String maskToken(
+            String token
+    ) {
+
+        if (token == null || token.isBlank()) {
+            return "blank";
+        }
+
+        if (token.length() <= 12) {
+            return "length-" + token.length();
+        }
+
+        return token.substring(0, 6)
+                + "..."
+                + token.substring(token.length() - 4)
+                + " (length="
+                + token.length()
+                + ")";
     }
 }
