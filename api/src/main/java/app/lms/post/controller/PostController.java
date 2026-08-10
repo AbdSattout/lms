@@ -72,7 +72,7 @@ public class PostController {
             @PathVariable
             String slug,
 
-            @PathVariablepos
+            @PathVariable
             Long postId,
 
             @AuthenticationPrincipal
