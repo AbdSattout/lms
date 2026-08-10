@@ -31,6 +31,7 @@ class OrganizationModel extends OrganizationEntity {
     super.viewerJoined,
     super.viewerRole,
     super.joinRequestStatus,
+    super.inviteId,
     super.inviteStatus,
     super.member,
   });
@@ -50,12 +51,20 @@ class OrganizationModel extends OrganizationEntity {
       viewerJoined: viewer?['joined'] ?? false,
       viewerRole: viewer?['role'],
       joinRequestStatus: viewer?['joinRequestStatus'],
+      inviteId: _readNullableInt(viewer?['inviteId']),
       inviteStatus: viewer?['inviteStatus'],
       member: viewer?['member'] != null
           ? OrganizationMemberModel.fromJson(
-        viewer!['member'] as Map<String, dynamic>,
-      )
+              viewer!['member'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
+}
+
+int? _readNullableInt(Object? value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  return int.tryParse(value.toString());
 }

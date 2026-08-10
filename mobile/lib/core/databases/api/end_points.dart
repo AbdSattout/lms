@@ -76,6 +76,10 @@ class EndPoints {
       'organizations/$slug/leave';
   static const String organizationMyInvites =
       'organizations/invites/my-invites';
+  static const String organizationInvitePreviewByToken =
+      'organizations/invites/preview';
+  static const String organizationInviteAcceptByToken =
+      'organizations/invites/accept';
   static String organizationInviteAccept(String slug, int inviteId) =>
       'organizations/$slug/invites/$inviteId/accept';
   static String organizationInviteDecline(String slug, int inviteId) =>
@@ -97,4 +101,12 @@ class EndPoints {
   static const String gamificationStreak = 'gamification/streak';
   static const String gamificationActivity = 'gamification/activity';
   static const String gamificationScoreboard = 'gamification/scoreboard';
+
+  // Posts
+  static String organizationPosts(String orgSlug) => 'organizations/$orgSlug/posts';
+  static String coursePosts(String courseSlug) => 'courses/$courseSlug/posts';
+  static String postComments(int postId) => 'posts/$postId/comments';
+  static String deleteComment(int postId, int commentId) => 'posts/$postId/comments/$commentId';
+  static String commentLikes(int commentId) => 'comments/$commentId/likes';
+  static String postLikes(int postId) => 'posts/$postId/likes';
 }

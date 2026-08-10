@@ -10,6 +10,10 @@ public record RoadmapResponse(
 
         Long id,
 
+        String name,
+
+        String description,
+
         OrganizationResponse organization,
 
         List<RoadmapItemResponse> items,

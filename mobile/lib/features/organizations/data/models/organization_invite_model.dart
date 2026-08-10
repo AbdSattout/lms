@@ -66,6 +66,7 @@ class OrganizationInviteModel extends OrganizationInviteEntity {
     super.expiresAt,
     super.maxUses,
     super.usedCount,
+    super.alreadyJoined,
   });
 
   factory OrganizationInviteModel.fromJson(Map<String, dynamic> json) {
@@ -90,6 +91,7 @@ class OrganizationInviteModel extends OrganizationInviteEntity {
       expiresAt: _readDateTime(json['expiresAt']),
       maxUses: _readNullableInt(json['maxUses']),
       usedCount: _readInt(json['usedCount']),
+      alreadyJoined: _readBool(json['alreadyJoined'] ?? json['viewerJoined']),
     );
   }
 }
@@ -110,4 +112,9 @@ int? _readNullableInt(Object? value) {
 DateTime? _readDateTime(Object? value) {
   if (value == null) return null;
   return DateTime.tryParse(value.toString());
+}
+
+bool _readBool(Object? value) {
+  if (value is bool) return value;
+  return value?.toString().toLowerCase() == 'true';
 }

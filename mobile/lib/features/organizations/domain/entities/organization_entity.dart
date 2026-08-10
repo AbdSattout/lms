@@ -2,6 +2,7 @@ enum OrganizationVisibility {
   public,
   private,
   unknown;
+
   static OrganizationVisibility fromApi(String? value) {
     switch (value) {
       case 'PUBLIC':
@@ -41,6 +42,7 @@ class OrganizationEntity {
   final bool viewerJoined;
   final String? viewerRole;
   final String? joinRequestStatus;
+  final int? inviteId;
   final String? inviteStatus;
   final OrganizationMemberEntity? member;
 
@@ -56,6 +58,7 @@ class OrganizationEntity {
     this.viewerJoined = false,
     this.viewerRole,
     this.joinRequestStatus,
+    this.inviteId,
     this.inviteStatus,
     this.member,
   });

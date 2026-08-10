@@ -22,6 +22,10 @@ abstract class OrganizationRemoteDataSource {
 
   Future<List<OrganizationInviteModel>> getMyInvites();
 
+  Future<OrganizationInviteModel> getInvitePreviewByToken(String token);
+
+  Future<void> acceptInviteByToken(String token);
+
   Future<void> acceptInvite({required String slug, required int inviteId});
 
   Future<void> declineInvite({required String slug, required int inviteId});
@@ -90,6 +94,24 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
     return (response as List? ?? [])
         .map((json) => OrganizationInviteModel.fromJson(json))
         .toList();
+  }
+
+  @override
+  Future<OrganizationInviteModel> getInvitePreviewByToken(String token) async {
+    final response = await api.get(
+      EndPoints.organizationInvitePreviewByToken,
+      queryParameters: {'token': token},
+    );
+
+    return OrganizationInviteModel.fromJson(response);
+  }
+
+  @override
+  Future<void> acceptInviteByToken(String token) async {
+    await api.post(
+      EndPoints.organizationInviteAcceptByToken,
+      queryParameters: {'token': token},
+    );
   }
 
   @override

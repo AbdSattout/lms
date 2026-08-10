@@ -11,6 +11,8 @@ abstract class OrganizationRepository {
   Future<void> cancelJoinRequest(String slug);
   Future<void> deleteOrganization(String slug);
   Future<List<OrganizationInviteEntity>> getMyInvites();
+  Future<OrganizationInviteEntity> getInvitePreviewByToken(String token);
+  Future<void> acceptInviteByToken(String token);
   Future<void> acceptInvite({required String slug, required int inviteId});
   Future<void> declineInvite({required String slug, required int inviteId});
 }

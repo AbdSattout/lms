@@ -12,6 +12,7 @@ import app.lms.enrollment.service.CourseEnrollmentService;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
+import app.lms.gamification.service.LearningXpPolicy;
 import app.lms.gamification.service.UserActivityService;
 import app.lms.progress.repository.BlockProgressRepository;
 import app.lms.quiz.dto.*;
@@ -31,9 +32,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MobileFinalQuizService {
-
-    private static final int FINAL_QUIZ_COMPLETE_XP = 100;
-    private static final int COURSE_COMPLETE_XP = 200;
 
     private final FinalQuizAttemptRepository finalQuizAttemptRepository;
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
@@ -197,7 +195,7 @@ public class MobileFinalQuizService {
 
         int earnedFinalQuizXp =
                 calculateEarnedXp(
-                        FINAL_QUIZ_COMPLETE_XP,
+                        LearningXpPolicy.FINAL_QUIZ_COMPLETE_XP,
                         gradingResult
                 );
 
@@ -219,7 +217,7 @@ public class MobileFinalQuizService {
                         user,
                         XPEventType.COURSE_COMPLETE,
                         courseId,
-                        COURSE_COMPLETE_XP
+                        LearningXpPolicy.COURSE_COMPLETE_XP
                 )
         );
 

@@ -20,15 +20,18 @@ import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
 import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
+import '../../features/organizations/domain/usecases/accept_organization_invite_by_token_usecase.dart';
 import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
+import '../../features/organizations/domain/usecases/get_organization_invite_preview_by_token_usecase.dart';
 import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
 import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
 import '../../features/organizations/presentation/bloc/organization_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_courses_bloc.dart';
 import '../../features/organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../features/organizations/presentation/bloc/public_organization_invite_bloc.dart';
 import '../../features/profile/data/datasources/profile_remote_datasource.dart';
 import '../../features/profile/data/repositories/profile_repository_impl.dart';
 import '../../features/profile/domain/repositories/profile_repository.dart';
@@ -111,6 +114,20 @@ import '../../features/notifications/domain/usecases/mark_notification_read_usec
 import '../../features/notifications/domain/usecases/register_notification_device_usecase.dart';
 import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
 
+// Posts
+import '../../features/posts/data/datasources/posts_remote_datasource.dart';
+import '../../features/posts/data/repositories/posts_repository_impl.dart';
+import '../../features/posts/domain/repositories/posts_repository.dart';
+import '../../features/posts/domain/usecases/get_organization_posts_usecase.dart';
+import '../../features/posts/domain/usecases/get_course_posts_usecase.dart';
+import '../../features/posts/domain/usecases/get_comments_usecase.dart';
+import '../../features/posts/domain/usecases/add_comment_usecase.dart';
+import '../../features/posts/domain/usecases/delete_comment_usecase.dart';
+import '../../features/posts/domain/usecases/like_comment_usecase.dart';
+import '../../features/posts/domain/usecases/unlike_comment_usecase.dart';
+import '../../features/posts/domain/usecases/react_to_post_usecase.dart';
+import '../../features/posts/presentation/bloc/posts_bloc.dart';
+import '../../features/posts/presentation/bloc/post_details_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -283,6 +300,10 @@ Future<void> init() async {
   sl.registerLazySingleton(() => CancelJoinRequestUseCase(sl()));
   sl.registerLazySingleton(() => GetMyOrganizationInvitesUseCase(sl()));
   sl.registerLazySingleton(() => AcceptOrganizationInviteUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptOrganizationInviteByTokenUseCase(sl()));
+  sl.registerLazySingleton(
+    () => GetOrganizationInvitePreviewByTokenUseCase(sl()),
+  );
   sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
@@ -293,12 +314,19 @@ Future<void> init() async {
       joinOrganizationUseCase: sl(),
       leaveOrganizationUseCase: sl(),
       cancelJoinRequestUseCase: sl(),
+      acceptOrganizationInviteUseCase: sl(),
       deleteOrganizationUseCase: sl(),
     ),
   );
 
   sl.registerFactory(
     () => OrganizationCoursesBloc(getOrganizationCoursesUseCase: sl()),
+  );
+  sl.registerFactory(
+    () => PublicOrganizationInviteBloc(
+      acceptInviteByTokenUseCase: sl(),
+      getInvitePreviewByTokenUseCase: sl(),
+    ),
   );
 
   // Notifications
@@ -363,6 +391,19 @@ Future<void> init() async {
     ),
   );
 
+  // Posts
+  sl.registerLazySingleton<PostsRemoteDataSource>(() => PostsRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<PostsRepository>(() => PostsRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetOrganizationPostsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCoursePostsUseCase(sl()));
+  sl.registerLazySingleton(() => GetCommentsUseCase(sl()));
+  sl.registerLazySingleton(() => AddCommentUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteCommentUseCase(sl()));
+  sl.registerLazySingleton(() => LikeCommentUseCase(sl()));
+  sl.registerLazySingleton(() => UnlikeCommentUseCase(sl()));
+  sl.registerLazySingleton(() => ReactToPostUseCase(sl()));
+  sl.registerFactory(() => PostsBloc(getOrganizationPosts: sl(), getCoursePosts: sl()));
+  sl.registerFactory(() => PostDetailsBloc(getComments: sl(), addComment: sl(), deleteComment: sl(), likeComment: sl(), unlikeComment: sl(), reactToPost: sl()));
   // Home
   sl.registerFactory(
     () =>
