@@ -18,6 +18,7 @@ import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
@@ -59,10 +61,24 @@ public class NotificationService {
 
         notificationRepository.save(notification);
 
+        log.info(
+                "Notification created. notificationId={}, userId={}, type={}, referenceType={}, referenceId={}",
+                notification.getId(),
+                user.getId(),
+                type,
+                referenceType,
+                referenceId
+        );
+
         applicationEventPublisher.publishEvent(
                 new NotificationCreatedEvent(
                         notification.getId()
                 )
+        );
+
+        log.info(
+                "Notification push event published. notificationId={}",
+                notification.getId()
         );
 
         return notificationMapper.toResponse(notification);

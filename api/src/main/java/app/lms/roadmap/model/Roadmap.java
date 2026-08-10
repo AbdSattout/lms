@@ -2,6 +2,7 @@ package app.lms.roadmap.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.organization.model.Organization;
+import app.lms.roadmap.enums.RoadmapStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,6 +27,11 @@ public class Roadmap extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'DRAFT'")
+    @Builder.Default
+    private RoadmapStatus status = RoadmapStatus.DRAFT;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", nullable = false)

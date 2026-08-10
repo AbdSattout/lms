@@ -36,6 +36,7 @@ public interface RoadmapFollowerRepository
             select follower
             from RoadmapFollower follower
             where follower.user.id = :userId
+            and follower.roadmap.status = app.lms.roadmap.enums.RoadmapStatus.PUBLISHED
             and not exists (
                 select moderation.id
                 from OrganizationModeration moderation
@@ -69,6 +70,7 @@ public interface RoadmapFollowerRepository
             select count(follower)
             from RoadmapFollower follower
             where follower.user.id = :userId
+            and follower.roadmap.status = app.lms.roadmap.enums.RoadmapStatus.PUBLISHED
             and not exists (
                 select moderation.id
                 from OrganizationModeration moderation
@@ -110,6 +112,7 @@ public interface RoadmapFollowerRepository
             from RoadmapFollower follower
             where follower.user.id = :userId
             and follower.status = :status
+            and follower.roadmap.status = app.lms.roadmap.enums.RoadmapStatus.PUBLISHED
             and not exists (
                 select moderation.id
                 from OrganizationModeration moderation

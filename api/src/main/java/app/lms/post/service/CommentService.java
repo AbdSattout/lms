@@ -130,11 +130,6 @@ public class CommentService {
 
         Post post = postService.findPostById(postId);
 
-        postAccessService.validateMember(
-                post.getOrganization(),
-                user
-        );
-
         postAccessService.validateCourseAccess(
                 post,
                 user

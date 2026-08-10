@@ -2,12 +2,14 @@ package app.lms.roadmap.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.roadmap.dto.RoadmapResponse;
 import app.lms.roadmap.dto.UpsertRoadmapRequest;
+import app.lms.roadmap.enums.RoadmapStatus;
 import app.lms.roadmap.mapper.RoadmapMapper;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.roadmap.repository.RoadmapFollowerRepository;
@@ -85,6 +87,16 @@ public class DashboardRoadmapService {
                         organization.getId()
                 );
 
+        List<Course> courses =
+                orderedCourses(
+                        request.courseIds(),
+                        organization.getId()
+                );
+
+        if (roadmap.getStatus() == RoadmapStatus.PUBLISHED) {
+            validateCoursesPublished(courses);
+        }
+
         roadmap.setName(
                 request.name()
         );
@@ -95,10 +107,7 @@ public class DashboardRoadmapService {
 
         roadmapMapper.replaceItems(
                 roadmap,
-                orderedCourses(
-                        request.courseIds(),
-                        organization.getId()
-                )
+                courses
         );
 
         return roadmapMapper.toResponse(roadmap);
@@ -175,6 +184,65 @@ public class DashboardRoadmapService {
         roadmapRepository.delete(roadmap);
     }
 
+    @Transactional
+    public RoadmapResponse publish(
+            String organizationSlug,
+            Long roadmapId,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
+                        );
+
+        Roadmap roadmap =
+                getByIdAndOrganizationId(
+                        roadmapId,
+                        organization.getId()
+                );
+
+        validateNotPublished(roadmap);
+        validateRoadmapReadyForPublishing(roadmap);
+
+        roadmap.setStatus(
+                RoadmapStatus.PUBLISHED
+        );
+
+        return roadmapMapper.toResponse(roadmap);
+    }
+
+    @Transactional
+    public RoadmapResponse moveToDraft(
+            String organizationSlug,
+            Long roadmapId,
+            User user
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                organizationSlug,
+                                user
+                        );
+
+        Roadmap roadmap =
+                getByIdAndOrganizationId(
+                        roadmapId,
+                        organization.getId()
+                );
+
+        validateNotDraft(roadmap);
+
+        roadmap.setStatus(
+                RoadmapStatus.DRAFT
+        );
+
+        return roadmapMapper.toResponse(roadmap);
+    }
+
     private Roadmap getByIdAndOrganizationId(
             Long roadmapId,
             Long organizationId
@@ -190,6 +258,64 @@ public class DashboardRoadmapService {
                                 "Roadmap not found"
                         )
                 );
+    }
+
+    private void validateRoadmapReadyForPublishing(
+            Roadmap roadmap
+    ) {
+
+        if (roadmap.getItems().isEmpty()) {
+            throw new ConflictException(
+                    "Roadmap must have at least one course before publishing"
+            );
+        }
+
+        validateCoursesPublished(
+                roadmap.getItems()
+                        .stream()
+                        .map(item -> item.getCourse())
+                        .toList()
+        );
+    }
+
+    private void validateCoursesPublished(
+            List<Course> courses
+    ) {
+
+        boolean hasDraftCourse =
+                courses.stream()
+                        .anyMatch(course ->
+                                course.getStatus()
+                                        != CourseStatus.PUBLISHED
+                        );
+
+        if (hasDraftCourse) {
+            throw new ConflictException(
+                    "All roadmap courses must be published before publishing roadmap"
+            );
+        }
+    }
+
+    private void validateNotPublished(
+            Roadmap roadmap
+    ) {
+
+        if (roadmap.getStatus() == RoadmapStatus.PUBLISHED) {
+            throw new ConflictException(
+                    "Roadmap already published"
+            );
+        }
+    }
+
+    private void validateNotDraft(
+            Roadmap roadmap
+    ) {
+
+        if (roadmap.getStatus() == RoadmapStatus.DRAFT) {
+            throw new ConflictException(
+                    "Roadmap already draft"
+            );
+        }
     }
 
     private List<Course> orderedCourses(

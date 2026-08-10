@@ -12,6 +12,7 @@ import app.lms.organization.service.OrganizationAccessService;
 import app.lms.plan.service.PlanQuotaService;
 import app.lms.roadmap.dto.RoadmapResponse;
 import app.lms.roadmap.enums.RoadmapFollowStatus;
+import app.lms.roadmap.enums.RoadmapStatus;
 import app.lms.roadmap.mapper.RoadmapMapper;
 import app.lms.roadmap.model.Roadmap;
 import app.lms.roadmap.model.RoadmapFollower;
@@ -80,8 +81,9 @@ public class MobileRoadmapService {
         );
 
         return roadmapRepository
-                .findAllByOrganizationIdOrderByCreatedAtDesc(
+                .findAllByOrganizationIdAndStatusOrderByCreatedAtDesc(
                         organization.getId(),
+                        RoadmapStatus.PUBLISHED,
                         pageable
                 )
                 .map(roadmap ->
@@ -111,7 +113,7 @@ public class MobileRoadmapService {
         );
 
         Roadmap roadmap =
-                getByIdAndOrganizationId(
+                getPublishedByIdAndOrganizationId(
                         roadmapId,
                         organization.getId()
                 );
@@ -141,7 +143,7 @@ public class MobileRoadmapService {
         );
 
         Roadmap roadmap =
-                getByIdAndOrganizationId(
+                getPublishedByIdAndOrganizationId(
                         roadmapId,
                         organization.getId()
                 );
@@ -206,7 +208,7 @@ public class MobileRoadmapService {
         );
 
         Roadmap roadmap =
-                getByIdAndOrganizationId(
+                getPublishedByIdAndOrganizationId(
                         roadmapId,
                         organization.getId()
                 );
@@ -308,15 +310,16 @@ public class MobileRoadmapService {
                 .toList();
     }
 
-    private Roadmap getByIdAndOrganizationId(
+    private Roadmap getPublishedByIdAndOrganizationId(
             Long roadmapId,
             Long organizationId
     ) {
 
         return roadmapRepository
-                .findByIdAndOrganizationId(
+                .findByIdAndOrganizationIdAndStatus(
                         roadmapId,
-                        organizationId
+                        organizationId,
+                        RoadmapStatus.PUBLISHED
                 )
                 .orElseThrow(() ->
                         new NotFoundException(

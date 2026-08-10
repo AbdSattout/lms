@@ -95,6 +95,38 @@ public class DashboardRoadmapController {
         );
     }
 
+    @PostMapping("/{roadmapId}/publish")
+    public ResponseEntity<RoadmapResponse> publish(
+            @PathVariable String slug,
+            @PathVariable Long roadmapId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                roadmapService.publish(
+                        slug,
+                        roadmapId,
+                        principal.user()
+                )
+        );
+    }
+
+    @PostMapping("/{roadmapId}/draft")
+    public ResponseEntity<RoadmapResponse> moveToDraft(
+            @PathVariable String slug,
+            @PathVariable Long roadmapId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                roadmapService.moveToDraft(
+                        slug,
+                        roadmapId,
+                        principal.user()
+                )
+        );
+    }
+
     @DeleteMapping("/{roadmapId}")
     public ResponseEntity<Void> delete(
             @PathVariable String slug,
