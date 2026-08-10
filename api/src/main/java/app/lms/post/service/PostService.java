@@ -154,6 +154,36 @@ public class PostService {
         return postRepository.findById(postId)
                 .orElseThrow( () -> new NotFoundException( "Post not found" ) );
     }
+    public PostResponse getCoursePostById(
+            Long courseId,
+            Long postId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService
+                        .getEnrolledCourse(
+                                courseId,
+                                user
+                        );
+
+        Post post =
+                postRepository
+                        .findByIdAndCourseId(
+                                postId,
+                                course.getId()
+                        )
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Post not found"
+                                )
+                        );
+
+        return postResponseService.build(
+                post,
+                user
+        );
+    }
 
     public Page<PostResponse> getOrganizationPosts(
             String slug,
