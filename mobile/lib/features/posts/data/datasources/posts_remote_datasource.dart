@@ -12,7 +12,7 @@ abstract class PostsRemoteDataSource {
     String content, {
     int? parentCommentId,
   });
-  Future<void> deleteComment(int postId, int commentId);
+  Future<void> deleteComment(int commentId);
   Future<void> likeComment(int commentId);
   Future<void> unlikeComment(int commentId);
   Future<void> reactToPost(int postId, String reactionType);
@@ -57,8 +57,8 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
   }
 
   @override
-  Future<void> deleteComment(int postId, int commentId) async {
-    await api.delete(EndPoints.deleteComment(postId, commentId));
+  Future<void> deleteComment(int commentId) async {
+    await api.delete(EndPoints.deleteComment(commentId));
   }
 
   @override

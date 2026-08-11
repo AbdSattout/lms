@@ -107,8 +107,7 @@ class EndPoints {
       'organizations/$orgSlug/posts';
   static String coursePosts(String courseSlug) => 'courses/$courseSlug/posts';
   static String postComments(int postId) => 'posts/$postId/comments';
-  static String deleteComment(int postId, int commentId) =>
-      'posts/$postId/comments/$commentId';
+  static String deleteComment(int commentId) => 'comments/$commentId';
   static String commentLikes(int commentId) => 'comments/$commentId/likes';
   static String postLikes(int postId) => 'posts/$postId/likes';
 }
