@@ -13,4 +13,4 @@ ENV PATH="${JAVA_HOME}/bin:${PATH}"
 RUN groupadd -r spring && useradd -r -g spring spring
 USER spring
 COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["sh", "-c", "${JAVA_HOME}/bin/java -Xms128m -Xmx240m -XX:MaxMetaspaceSize=100m -XX:TieredStopAtLevel=1 -Xss256k -XX:+UseSerialGC -XX:CICompilerCount=1 -Dserver.port=${PORT} -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "${JAVA_HOME}/bin/java -Xms128m -Xmx220m -XX:MaxMetaspaceSize=160m -XX:TieredStopAtLevel=1 -Xss256k -XX:+UseSerialGC -XX:CICompilerCount=1 -Dserver.port=${PORT} -jar app.jar"]
