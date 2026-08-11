@@ -104,7 +104,7 @@ export const MediaNode = Node.create({
       return src.match(/^::media\s+\S+$/m)?.index ?? -1
     },
     tokenize(src) {
-      const match = src.match(/^::media\s+(\S+)$/)
+      const match = src.match(/^::media\s+(\S+)/)
       if (!match) return undefined
       return {
         type: "media",
