@@ -5,7 +5,7 @@ import '../models/comment_model.dart';
 
 abstract class PostsRemoteDataSource {
   Future<PaginatedPostsModel> getOrganizationPosts(String orgSlug);
-  Future<PaginatedPostsModel> getCoursePosts(String courseSlug);
+  Future<PaginatedPostsModel> getCoursePosts(int courseId);
   Future<List<CommentModel>> getComments(int postId);
   Future<CommentModel> addComment(
     int postId,
@@ -30,8 +30,8 @@ class PostsRemoteDataSourceImpl implements PostsRemoteDataSource {
   }
 
   @override
-  Future<PaginatedPostsModel> getCoursePosts(String courseSlug) async {
-    final response = await api.get(EndPoints.coursePosts(courseSlug));
+  Future<PaginatedPostsModel> getCoursePosts(int courseId) async {
+    final response = await api.get(EndPoints.coursePosts(courseId));
     return PaginatedPostsModel.fromJson(response);
   }
 

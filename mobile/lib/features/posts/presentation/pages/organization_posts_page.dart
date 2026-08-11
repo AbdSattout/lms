@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
+import '../../domain/entities/post_entity.dart';
 import '../bloc/posts_bloc.dart';
 import '../bloc/posts_event.dart';
 import '../bloc/posts_state.dart';
@@ -61,11 +62,23 @@ class OrganizationPostsPage extends StatelessWidget {
                       final post = state.posts[index];
                       return PostCard(
                         post: post,
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailsPage(post: post)));
+                        onTap: () async {
+                          final updatedPost = await Navigator.push<PostEntity>(
+                            context,
+                            MaterialPageRoute(builder: (_) => PostDetailsPage(post: post)),
+                          );
+                          if (updatedPost != null && context.mounted) {
+                            context.read<PostsBloc>().add(UpdatePostInList(updatedPost));
+                          }
                         },
-                        onCommentTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => PostDetailsPage(post: post, openComments: true)));
+                        onCommentTap: () async {
+                          final updatedPost = await Navigator.push<PostEntity>(
+                            context,
+                            MaterialPageRoute(builder: (_) => PostDetailsPage(post: post, openComments: true)),
+                          );
+                          if (updatedPost != null && context.mounted) {
+                            context.read<PostsBloc>().add(UpdatePostInList(updatedPost));
+                          }
                         },
                       );
                     },

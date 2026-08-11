@@ -736,7 +736,7 @@ class _SectionHeader extends StatelessWidget {
                   ),
                   const SizedBox(width: 3),
                   Icon(
-                    Icons.arrow_back_ios_rounded,
+                    Icons.arrow_forward_ios_rounded,
                     size: 12,
                     color: colors.primary,
                   ),
@@ -945,7 +945,7 @@ class _FeaturedCourseCard extends StatelessWidget {
                             BorderRadius.circular(14),
                           ),
                           child: Icon(
-                            Icons.arrow_back_rounded,
+                            Icons.arrow_forward_rounded,
                             color: colors.primary,
                           ),
                         ),
@@ -1087,7 +1087,7 @@ class _HomeOrganizationCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.arrow_back_rounded,
+                        Icons.arrow_forward_rounded,
                         size: 15,
                         color: colors.primary,
                       ),
