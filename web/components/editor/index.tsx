@@ -64,6 +64,7 @@ const MainToolbarContent = ({
   aiError,
   onClearAiError,
   orgSlug,
+  organizationId,
   course,
 }: {
   onLinkClick: () => void
@@ -74,6 +75,7 @@ const MainToolbarContent = ({
   aiError?: string | null
   onClearAiError?: () => void
   orgSlug?: string
+  organizationId?: number
   course?: import("@/lib/api/types").CourseResponse
 }) => {
   const { editor } = useTiptapEditor()
@@ -91,7 +93,11 @@ const MainToolbarContent = ({
           error={aiError}
           onClearError={onClearAiError}
         />
-        <MediaButton orgSlug={orgSlug} course={course} />
+        <MediaButton
+          orgSlug={orgSlug}
+          organizationId={organizationId}
+          course={course}
+        />
       </ToolbarGroup>
       <ToolbarSeparator />
 
@@ -166,13 +172,20 @@ const MobileToolbarContent = ({
 )
 
 interface EditorProps {
-  onChange?: (html: string) => void // 🔥 Renamed from markdown to html logically
+  onChange?: (markdown: string) => void
   content?: string
   orgSlug?: string
+  organizationId?: number
   course?: import("@/lib/api/types").CourseResponse
 }
 
-export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
+export function Editor({
+  onChange,
+  content,
+  orgSlug,
+  organizationId,
+  course,
+}: EditorProps) {
   const isMobile = useIsBreakpoint()
   const [showLink, setShowLink] = useState(false)
   const [showMath, setShowMath] = useState(false)
@@ -202,6 +215,7 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
     immediatelyRender: false,
     textDirection: "auto",
     content: content,
+    contentType: "markdown",
     autofocus: true,
     editorProps: {
       attributes: {
@@ -214,8 +228,7 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
     },
     extensions: editorExtensions,
     onUpdate: ({ editor }) => {
-      // 🔥 Changed to return Proper HTML formats
-      onChange?.(editor.getHTML())
+      onChange?.(editor.getMarkdown())
     },
   })
 
@@ -251,6 +264,7 @@ export function Editor({ onChange, content, orgSlug, course }: EditorProps) {
               aiError={error}
               onClearAiError={clearError}
               orgSlug={orgSlug}
+              organizationId={organizationId}
               course={course}
             />
           ) : (

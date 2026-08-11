@@ -101,10 +101,10 @@ export const MediaNode = Node.create({
     name: "media",
     level: "block",
     start(src) {
-      return src.match(/^::media\s+\S+\n::/m)?.index ?? -1
+      return src.match(/^::media\s+\S+$/m)?.index ?? -1
     },
     tokenize(src) {
-      const match = src.match(/^::media\s+(\S+)\n::/)
+      const match = src.match(/^::media\s+(\S+)/)
       if (!match) return undefined
       return {
         type: "media",
@@ -120,6 +120,6 @@ export const MediaNode = Node.create({
     const path = courseId
       ? `${organizationId}/${courseId}/${mediaId}`
       : `${organizationId}/${mediaId}`
-    return `::media ${path}\n::`
+    return `::media ${path}`
   },
 })

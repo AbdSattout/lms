@@ -10,14 +10,15 @@ import { Editor } from "@/components/editor"
 import { Input } from "@/components/ui/input"
 import { updatePost } from "@/lib/actions/post"
 
-import type { PostResponse } from "@/lib/api/types"
+import type { CourseResponse, PostResponse } from "@/lib/api/types"
 
 interface Props {
   orgSlug: string
   post: PostResponse
+  course?: CourseResponse
 }
 
-export function EditPostForm({ orgSlug, post }: Props) {
+export function EditPostForm({ orgSlug, post, course }: Props) {
   const router = useRouter()
 
   const [title, setTitle] = useState(post.title || "")
@@ -97,7 +98,13 @@ export function EditPostForm({ orgSlug, post }: Props) {
         <div className="flex flex-col gap-3 text-start">
           <label className="text-sm font-bold">المحتوى</label>
           <div className="min-h-75 overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-            <Editor content={content} onChange={setContent} />
+            <Editor
+              content={content}
+              onChange={setContent}
+              orgSlug={orgSlug}
+              organizationId={post.organizationId}
+              course={course}
+            />
           </div>
         </div>
 
