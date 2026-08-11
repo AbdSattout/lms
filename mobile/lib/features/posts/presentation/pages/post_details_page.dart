@@ -214,9 +214,6 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 }
 
-// ============================================================
-// POST HEADER
-// ============================================================
 
 class _PostHeader extends StatelessWidget {
   final PostEntity post;
@@ -231,7 +228,6 @@ class _PostHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Author row
         Row(
           children: [
             CircleAvatar(
@@ -300,10 +296,6 @@ class _PostHeader extends StatelessWidget {
     }
   }
 }
-
-// ============================================================
-// POST REACTION BAR
-// ============================================================
 
 class _PostReactionBar extends StatelessWidget {
   final PostEntity post;
