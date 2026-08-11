@@ -14,6 +14,7 @@ class PostModel extends PostEntity {
     required super.commentCount,
     required super.likeCount,
     required super.reactionCounts,
+    super.viewerReaction,
     super.createdAt,
     super.updatedAt,
   });
@@ -30,6 +31,7 @@ class PostModel extends PostEntity {
       commentCount: json['commentCount'] as int? ?? 0,
       likeCount: json['likeCount'] as int? ?? 0,
       reactionCounts: ReactionCountsModel.fromJson(json['reactionCounts'] as Map<String, dynamic>? ?? {}),
+      viewerReaction: json['viewerReaction'] as String?,
       createdAt: baseEntity?['createdAt'] as String?,
       updatedAt: baseEntity?['updatedAt'] as String?,
     );
@@ -39,6 +41,7 @@ class PostModel extends PostEntity {
     ReactionCountsEntity? reactionCounts,
     int? commentCount,
     int? likeCount,
+    String? viewerReaction,
   }) {
     return PostModel(
       id: id,
@@ -50,6 +53,7 @@ class PostModel extends PostEntity {
       commentCount: commentCount ?? this.commentCount,
       likeCount: likeCount ?? this.likeCount,
       reactionCounts: reactionCounts ?? this.reactionCounts,
+      viewerReaction: viewerReaction ?? this.viewerReaction,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

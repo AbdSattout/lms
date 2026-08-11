@@ -37,8 +37,8 @@ class PostsRepositoryImpl implements PostsRepository {
   }
 
   @override
-  Future<void> deleteComment(int postId, int commentId) async {
-    await remoteDataSource.deleteComment(postId, commentId);
+  Future<void> deleteComment(int commentId) async {
+    await remoteDataSource.deleteComment(commentId);
   }
 
   @override
