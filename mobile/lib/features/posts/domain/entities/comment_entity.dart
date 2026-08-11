@@ -8,6 +8,7 @@ class CommentEntity {
   final int? parentCommentId;
   final int likeCount;
   final ReactionCountsEntity reactionCounts;
+  final String? viewerReaction;
   final String? createdAt;
   final String? updatedAt;
 
@@ -18,9 +19,11 @@ class CommentEntity {
     this.parentCommentId,
     required this.likeCount,
     required this.reactionCounts,
+    this.viewerReaction,
     this.createdAt,
     this.updatedAt,
   });
 
   bool get isReply => parentCommentId != null;
+  bool get hasLiked => viewerReaction != null;
 }

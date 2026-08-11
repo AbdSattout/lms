@@ -10,7 +10,7 @@ abstract class PostsRepository {
     String content, {
     int? parentCommentId,
   });
-  Future<void> deleteComment(int postId, int commentId);
+  Future<void> deleteComment(int commentId);
   Future<void> likeComment(int commentId);
   Future<void> unlikeComment(int commentId);
   Future<void> reactToPost(int postId, String reactionType);

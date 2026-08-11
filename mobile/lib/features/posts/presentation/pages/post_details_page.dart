@@ -35,11 +35,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   @override
   void initState() {
     super.initState();
-
     if (widget.openComments) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _scrollToComments();
-      });
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToComments());
     }
   }
 
@@ -76,16 +73,21 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   void _sendComment(BuildContext context) {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
-
     _hasChanges = true;
+    context.read<PostDetailsBloc>().add(AddCommentRequested(
+      postId: widget.post.id,
+      content: text,
+      parentCommentId: _replyingToCommentId,
+    ));
+  }
 
-    context.read<PostDetailsBloc>().add(
-      AddCommentRequested(
-        postId: widget.post.id,
-        content: text,
-        parentCommentId: _replyingToCommentId,
-      ),
-    );
+  void _goBack(BuildContext context) {
+    final bloc = context.read<PostDetailsBloc>();
+    if (_hasChanges && bloc.currentPost != null) {
+      Navigator.pop(context, bloc.currentPost);
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -95,18 +97,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
         ..add(LoadComments(postId: widget.post.id, post: widget.post)),
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: PopScope(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop) return;
-            final bloc = context.read<PostDetailsBloc>();
-            if (_hasChanges && bloc.currentPost != null) {
-              Navigator.pop(context, bloc.currentPost);
-            } else {
-              Navigator.pop(context);
-            }
-          },
-          child: Scaffold(
+        child: Scaffold(
             appBar: AppBar(
               title: const Text('تفاصيل المنشور'),
               leading: IconButton(
@@ -121,92 +112,87 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 },
               ),
             ),
-            body: BlocConsumer<PostDetailsBloc, PostDetailsState>(
-              listener: (context, state) {
-                if (state is PostDetailsError) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(state.message)),
-                  );
-                }
+          body: BlocConsumer<PostDetailsBloc, PostDetailsState>(
+            listener: (context, state) {
+              if (state is PostDetailsError) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(state.message)),
+                );
+              }
+              if (state is CommentAdded) {
+                _commentController.clear();
+                _cancelReply();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('تم إضافة التعليق')),
+                );
+              }
+              if (state is CommentDeleted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('تم حذف التعليق')),
+                );
+              }
+            },
+            builder: (context, state) {
+              final comments = _getCommentsFromState(state);
+              final currentPost = _getPostFromState(state) ?? widget.post;
+              final isLoadingComments = state is CommentsLoading || state is PostDetailsInitial;
 
-                if (state is CommentAdded) {
-                  _commentController.clear();
-                  _cancelReply();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة التعليق')),
-                  );
-                }
-
-                if (state is CommentDeleted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم حذف التعليق')),
-                  );
-                }
-              },
-              builder: (context, state) {
-                final comments = _getCommentsFromState(state);
-                final currentPost = _getPostFromState(state) ?? widget.post;
-
-                final isLoadingComments =
-                    state is CommentsLoading || state is PostDetailsInitial;
-
-                return Stack(
-                  children: [
-                    RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<PostDetailsBloc>().add(
-                          LoadComments(postId: currentPost.id, post: currentPost),
-                        );
-                      },
-                      child: SingleChildScrollView(
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildAuthorHeader(context, currentPost),
-                            const SizedBox(height: 16),
-                            if (currentPost.title.isNotEmpty) ...[
-                              Text(
-                                currentPost.title,
-                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: Theme.of(context).colorScheme.onSurface,
-                                  height: 1.3,
-                                ),
+              return Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<PostDetailsBloc>().add(
+                        LoadComments(postId: currentPost.id, post: currentPost),
+                      );
+                    },
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildAuthorHeader(context, currentPost),
+                          const SizedBox(height: 16),
+                          if (currentPost.title.isNotEmpty) ...[
+                            Text(
+                              currentPost.title,
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: Theme.of(context).colorScheme.onSurface,
+                                height: 1.3,
                               ),
-                              const SizedBox(height: 14),
-                            ],
-                            MarkdownContentView(content: currentPost.content),
-                            const SizedBox(height: 20),
-                            _buildReactionBar(context, currentPost),
-                            const SizedBox(height: 20),
-                            Divider(color: Theme.of(context).colorScheme.outlineVariant),
-                            const SizedBox(height: 20),
-                            _buildCommentsHeader(context, currentPost, comments),
-                            const SizedBox(height: 16),
-                            if (isLoadingComments)
-                              _buildCommentsLoading(context)
-                            else if (state is PostDetailsError && comments == null)
-                              _buildCommentsError(context)
-                            else
-                              _buildCommentsList(context, comments ?? const [], currentPost),
-                            const SizedBox(height: 30),
+                            ),
+                            const SizedBox(height: 14),
                           ],
-                        ),
+                          MarkdownContentView(content: currentPost.content),
+                          const SizedBox(height: 20),
+                          _buildReactionBar(context, currentPost),
+                          const SizedBox(height: 20),
+                          Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                          const SizedBox(height: 20),
+                          _buildCommentsHeader(context, currentPost, comments),
+                          const SizedBox(height: 16),
+                          if (isLoadingComments)
+                            _buildCommentsLoading(context)
+                          else if (state is PostDetailsError && comments == null)
+                            _buildCommentsError(context, currentPost)
+                          else
+                            _buildCommentsList(context, comments ?? const [], currentPost),
+                          const SizedBox(height: 30),
+                        ],
                       ),
                     ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: _buildCommentInput(context),
-                    ),
-                  ],
-                );
-              },
-            ),
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: _buildCommentInput(context),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),
@@ -230,48 +216,26 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   Widget _buildAuthorHeader(BuildContext context, PostEntity post) {
     final colors = Theme.of(context).colorScheme;
     final hasPicture = post.author.picture != null && post.author.picture!.trim().isNotEmpty;
-
     return Row(children: [
-      CircleAvatar(
-        radius: 24,
-        backgroundColor: AppColors.primaryLight,
-        backgroundImage: hasPicture ? NetworkImage(post.author.picture!) : null,
-        child: !hasPicture ? Icon(Icons.person_rounded, color: colors.primary) : null,
-      ),
+      CircleAvatar(radius: 24, backgroundColor: AppColors.primaryLight, backgroundImage: hasPicture ? NetworkImage(post.author.picture!) : null, child: !hasPicture ? Icon(Icons.person_rounded, color: colors.primary) : null),
       const SizedBox(width: 12),
-      Expanded(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(post.author.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
-          const SizedBox(height: 3),
-          Text('منشور', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
-        ]),
-      ),
+      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(post.author.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: colors.onSurface)),
+        const SizedBox(height: 3),
+        Text('منشور', style: TextStyle(fontSize: 12, color: colors.onSurfaceVariant)),
+      ])),
     ]);
   }
 
   Widget _buildReactionBar(BuildContext context, PostEntity post) {
     final reactions = post.reactionCounts;
+    final viewerReaction = post.viewerReaction;
     return Wrap(spacing: 8, runSpacing: 8, children: [
-      _ReactionButton(emoji: '👍', label: 'إعجاب', count: reactions.like, onTap: () {
-        _hasChanges = true;
-        context.read<PostDetailsBloc>().add(ReactToPostRequested(postId: post.id, reactionType: 'LIKE'));
-      }),
-      _ReactionButton(emoji: '❤️', label: 'حب', count: reactions.love, onTap: () {
-        _hasChanges = true;
-        context.read<PostDetailsBloc>().add(ReactToPostRequested(postId: post.id, reactionType: 'LOVE'));
-      }),
-      _ReactionButton(emoji: '🤝', label: 'دعم', count: reactions.support, onTap: () {
-        _hasChanges = true;
-        context.read<PostDetailsBloc>().add(ReactToPostRequested(postId: post.id, reactionType: 'SUPPORT'));
-      }),
-      _ReactionButton(emoji: '🎉', label: 'احتفال', count: reactions.celebrate, onTap: () {
-        _hasChanges = true;
-        context.read<PostDetailsBloc>().add(ReactToPostRequested(postId: post.id, reactionType: 'CELEBRATE'));
-      }),
-      _ReactionButton(emoji: '💡', label: 'مفيد', count: reactions.insightful, onTap: () {
-        _hasChanges = true;
-        context.read<PostDetailsBloc>().add(ReactToPostRequested(postId: post.id, reactionType: 'INSIGHTFUL'));
-      }),
+      _ReactionButton(emoji: '👍', label: 'إعجاب', count: reactions.like, isActive: viewerReaction == 'LIKE', onTap: () { _hasChanges = true; context.read<PostDetailsBloc>().add(TogglePostReaction(postId: post.id, reactionType: 'LIKE')); }),
+      _ReactionButton(emoji: '❤️', label: 'حب', count: reactions.love, isActive: viewerReaction == 'LOVE', onTap: () { _hasChanges = true; context.read<PostDetailsBloc>().add(TogglePostReaction(postId: post.id, reactionType: 'LOVE')); }),
+      _ReactionButton(emoji: '🤝', label: 'دعم', count: reactions.support, isActive: viewerReaction == 'SUPPORT', onTap: () { _hasChanges = true; context.read<PostDetailsBloc>().add(TogglePostReaction(postId: post.id, reactionType: 'SUPPORT')); }),
+      _ReactionButton(emoji: '🎉', label: 'احتفال', count: reactions.celebrate, isActive: viewerReaction == 'CELEBRATE', onTap: () { _hasChanges = true; context.read<PostDetailsBloc>().add(TogglePostReaction(postId: post.id, reactionType: 'CELEBRATE')); }),
+      _ReactionButton(emoji: '💡', label: 'مفيد', count: reactions.insightful, isActive: viewerReaction == 'INSIGHTFUL', onTap: () { _hasChanges = true; context.read<PostDetailsBloc>().add(TogglePostReaction(postId: post.id, reactionType: 'INSIGHTFUL')); }),
     ]);
   }
 
@@ -288,24 +252,21 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   }
 
   Widget _buildCommentsLoading(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Center(child: Column(children: [
-      CircularProgressIndicator(color: colors.primary),
+      CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
       const SizedBox(height: 12),
-      Text('جاري تحميل التعليقات...', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
+      Text('جاري تحميل التعليقات...', style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurfaceVariant)),
     ])));
   }
 
-  Widget _buildCommentsError(BuildContext context) {
+  Widget _buildCommentsError(BuildContext context, PostEntity post) {
     final colors = Theme.of(context).colorScheme;
     return Padding(padding: const EdgeInsets.symmetric(vertical: 30), child: Center(child: Column(children: [
       Icon(Icons.error_outline_rounded, size: 42, color: colors.error),
       const SizedBox(height: 10),
       Text('تعذر تحميل التعليقات', style: TextStyle(fontWeight: FontWeight.w700, color: colors.onSurface)),
       const SizedBox(height: 12),
-      OutlinedButton(onPressed: () {
-        context.read<PostDetailsBloc>().add(LoadComments(postId: widget.post.id, post: widget.post));
-      }, child: const Text('إعادة المحاولة')),
+      OutlinedButton(onPressed: () => context.read<PostDetailsBloc>().add(LoadComments(postId: post.id, post: post)), child: const Text('إعادة المحاولة')),
     ])));
   }
 
@@ -319,8 +280,20 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       children: topLevel.map((comment) {
         final commentReplies = replies.where((r) => r.parentCommentId == comment.id).toList();
         return Column(children: [
-          _CommentTile(comment: comment, onReply: () => _startReply(comment), onDelete: () => _confirmDeleteComment(context, post.id, comment.id), onLike: () => context.read<PostDetailsBloc>().add(LikeCommentRequested(comment.id)), onUnlike: () => context.read<PostDetailsBloc>().add(UnlikeCommentRequested(comment.id))),
-          ...commentReplies.map((reply) => _CommentTile(comment: reply, onReply: () => _startReply(reply), onDelete: () => _confirmDeleteComment(context, post.id, reply.id), onLike: () => context.read<PostDetailsBloc>().add(LikeCommentRequested(reply.id)), onUnlike: () => context.read<PostDetailsBloc>().add(UnlikeCommentRequested(reply.id)))),
+          _CommentTile(
+            comment: comment,
+            isOwn: comment.author.id == post.author.id,
+            onReply: () => _startReply(comment),
+            onToggleLike: () => context.read<PostDetailsBloc>().add(ToggleCommentLike(comment.id)),
+            onDelete: comment.author.id == post.author.id ? () => _confirmDeleteComment(context, comment.id) : null,
+          ),
+          ...commentReplies.map((reply) => _CommentTile(
+            comment: reply,
+            isOwn: reply.author.id == post.author.id,
+            onReply: () => _startReply(reply),
+            onToggleLike: () => context.read<PostDetailsBloc>().add(ToggleCommentLike(reply.id)),
+            onDelete: reply.author.id == post.author.id ? () => _confirmDeleteComment(context, reply.id) : null,
+          )),
         ]);
       }).toList(),
     );
@@ -358,7 +331,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     ]))));
   }
 
-  Future<void> _confirmDeleteComment(BuildContext context, int postId, int commentId) async {
+  Future<void> _confirmDeleteComment(BuildContext context, int commentId) async {
     final confirmed = await showDialog<bool>(context: context, builder: (dialogContext) {
       return Directionality(textDirection: TextDirection.rtl, child: AlertDialog(
         title: const Text('حذف التعليق'),
@@ -371,7 +344,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     });
     if (!mounted || confirmed != true) return;
     _hasChanges = true;
-    context.read<PostDetailsBloc>().add(DeleteCommentRequested(postId: postId, commentId: commentId));
+    context.read<PostDetailsBloc>().add(DeleteCommentRequested(commentId: commentId));
   }
 }
 
@@ -379,34 +352,42 @@ class _ReactionButton extends StatelessWidget {
   final String emoji;
   final String label;
   final int count;
+  final bool isActive;
   final VoidCallback onTap;
-  const _ReactionButton({required this.emoji, required this.label, required this.count, required this.onTap});
+
+  const _ReactionButton({required this.emoji, required this.label, required this.count, required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Material(color: Colors.transparent, child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(22), child: Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7), decoration: BoxDecoration(color: colors.surfaceContainerHighest.withOpacity(.5), borderRadius: BorderRadius.circular(22), border: Border.all(color: colors.outlineVariant.withOpacity(.35))), child: Row(mainAxisSize: MainAxisSize.min, children: [
-      Text(emoji, style: const TextStyle(fontSize: 16)),
-      const SizedBox(width: 5),
-      Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant)),
-      if (count > 0) ...[const SizedBox(width: 5), Text('$count', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: colors.onSurface))],
-    ]))));
+    return Material(color: Colors.transparent, child: InkWell(onTap: onTap, borderRadius: BorderRadius.circular(22), child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+      decoration: BoxDecoration(color: isActive ? colors.primary.withOpacity(0.12) : colors.surfaceContainerHighest.withOpacity(.5), borderRadius: BorderRadius.circular(22), border: Border.all(color: isActive ? colors.primary.withOpacity(0.4) : colors.outlineVariant.withOpacity(.35))),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        Text(emoji, style: const TextStyle(fontSize: 16)),
+        const SizedBox(width: 5),
+        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isActive ? colors.primary : colors.onSurfaceVariant)),
+        if (count > 0) ...[const SizedBox(width: 5), Text('$count', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: isActive ? colors.primary : colors.onSurface))],
+      ]),
+    )));
   }
 }
 
 class _CommentTile extends StatelessWidget {
   final CommentEntity comment;
+  final bool isOwn;
   final VoidCallback onReply;
-  final VoidCallback onDelete;
-  final VoidCallback onLike;
-  final VoidCallback onUnlike;
-  const _CommentTile({required this.comment, required this.onReply, required this.onDelete, required this.onLike, required this.onUnlike});
+  final VoidCallback onToggleLike;
+  final VoidCallback? onDelete;
+
+  const _CommentTile({required this.comment, required this.isOwn, required this.onReply, required this.onToggleLike, this.onDelete});
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final hasPicture = comment.author.picture != null && comment.author.picture!.trim().isNotEmpty;
     final isReply = comment.isReply;
+    final hasLiked = comment.viewerReaction != null;
 
     return Padding(
       padding: EdgeInsets.only(bottom: 12, right: isReply ? 36 : 0),
@@ -421,12 +402,11 @@ class _CommentTile extends StatelessWidget {
           Row(children: [
             GestureDetector(onTap: onReply, child: Text('رد', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: colors.primary))),
             const SizedBox(width: 18),
-            GestureDetector(onTap: onLike, child: Row(mainAxisSize: MainAxisSize.min, children: [
-              Icon(Icons.favorite_border_rounded, size: 15, color: colors.onSurfaceVariant),
+            GestureDetector(onTap: onToggleLike, child: Row(mainAxisSize: MainAxisSize.min, children: [
+              Icon(hasLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 15, color: hasLiked ? Colors.red : colors.onSurfaceVariant),
               if (comment.likeCount > 0) ...[const SizedBox(width: 4), Text('${comment.likeCount}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant))],
             ])),
-            const Spacer(),
-            GestureDetector(onTap: onDelete, child: Icon(Icons.delete_outline_rounded, size: 16, color: colors.onSurfaceVariant)),
+            if (onDelete != null) ...[const Spacer(), GestureDetector(onTap: onDelete, child: Icon(Icons.delete_outline_rounded, size: 16, color: colors.onSurfaceVariant))],
           ]),
         ]))),
       ]),

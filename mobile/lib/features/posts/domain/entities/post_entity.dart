@@ -11,6 +11,7 @@ class PostEntity {
   final int commentCount;
   final int likeCount;
   final ReactionCountsEntity reactionCounts;
+  final String? viewerReaction;
   final String? createdAt;
   final String? updatedAt;
 
@@ -24,6 +25,7 @@ class PostEntity {
     required this.commentCount,
     required this.likeCount,
     required this.reactionCounts,
+    this.viewerReaction,
     this.createdAt,
     this.updatedAt,
   });
