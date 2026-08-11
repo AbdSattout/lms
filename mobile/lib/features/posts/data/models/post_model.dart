@@ -1,4 +1,5 @@
 import '../../domain/entities/post_entity.dart';
+import '../../domain/entities/reaction_counts_entity.dart';
 import 'post_author_model.dart';
 import 'reaction_counts_model.dart';
 
@@ -31,6 +32,26 @@ class PostModel extends PostEntity {
       reactionCounts: ReactionCountsModel.fromJson(json['reactionCounts'] as Map<String, dynamic>? ?? {}),
       createdAt: baseEntity?['createdAt'] as String?,
       updatedAt: baseEntity?['updatedAt'] as String?,
+    );
+  }
+
+  PostModel copyWith({
+    ReactionCountsEntity? reactionCounts,
+    int? commentCount,
+    int? likeCount,
+  }) {
+    return PostModel(
+      id: id,
+      title: title,
+      content: content,
+      author: author,
+      organizationId: organizationId,
+      courseId: courseId,
+      commentCount: commentCount ?? this.commentCount,
+      likeCount: likeCount ?? this.likeCount,
+      reactionCounts: reactionCounts ?? this.reactionCounts,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
     );
   }
 }

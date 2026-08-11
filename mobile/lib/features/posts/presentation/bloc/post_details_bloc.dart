@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../data/models/post_model.dart';
+import '../../data/models/reaction_counts_model.dart';
 import '../../domain/entities/comment_entity.dart';
 import '../../domain/entities/post_entity.dart';
 import '../../domain/usecases/get_comments_usecase.dart';
@@ -40,23 +42,18 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
     on<ReactToPostRequested>(_onReactToPost);
   }
 
+  PostEntity? get currentPost => _currentPost;
+
   Future<void> _onLoadComments(
       LoadComments event,
       Emitter<PostDetailsState> emit,
       ) async {
     _currentPost = event.post;
-
     emit(CommentsLoading());
 
     try {
       _comments = await getComments(event.postId);
-
-      emit(
-        CommentsLoaded(
-          comments: _comments,
-          post: _currentPost!,
-        ),
-      );
+      emit(CommentsLoaded(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
@@ -67,20 +64,17 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       Emitter<PostDetailsState> emit,
       ) async {
     try {
-      await addComment(
-        event.postId,
-        event.content,
-        parentCommentId: event.parentCommentId,
-      );
-
+      await addComment(event.postId, event.content, parentCommentId: event.parentCommentId);
       _comments = await getComments(event.postId);
 
-      emit(
-        CommentAdded(
-          comments: _comments,
-          post: _currentPost!,
-        ),
-      );
+      // Update comment count on the post
+      if (_currentPost is PostModel) {
+        _currentPost = (_currentPost as PostModel).copyWith(
+          commentCount: _currentPost!.commentCount + 1,
+        );
+      }
+
+      emit(CommentAdded(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
@@ -91,19 +85,16 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       Emitter<PostDetailsState> emit,
       ) async {
     try {
-      await deleteComment(
-        event.postId,
-        event.commentId,
-      );
-
+      await deleteComment(event.postId, event.commentId);
       _comments = await getComments(event.postId);
 
-      emit(
-        CommentDeleted(
-          comments: _comments,
-          post: _currentPost!,
-        ),
-      );
+      if (_currentPost is PostModel) {
+        _currentPost = (_currentPost as PostModel).copyWith(
+          commentCount: (_currentPost!.commentCount - 1).clamp(0, 999999),
+        );
+      }
+
+      emit(CommentDeleted(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
@@ -115,15 +106,8 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       ) async {
     try {
       await likeComment(event.commentId);
-
       _comments = await getComments(_currentPost!.id);
-
-      emit(
-        CommentsLoaded(
-          comments: _comments,
-          post: _currentPost!,
-        ),
-      );
+      emit(CommentsLoaded(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
@@ -135,15 +119,8 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       ) async {
     try {
       await unlikeComment(event.commentId);
-
       _comments = await getComments(_currentPost!.id);
-
-      emit(
-        CommentsLoaded(
-          comments: _comments,
-          post: _currentPost!,
-        ),
-      );
+      emit(CommentsLoaded(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
@@ -154,12 +131,25 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       Emitter<PostDetailsState> emit,
       ) async {
     try {
-      await reactToPost(
-        event.postId,
-        event.reactionType,
+      await reactToPost(event.postId, event.reactionType);
+
+      // Refresh comments to keep them visible
+      _comments = await getComments(_currentPost!.id);
+
+      // Update reaction counts locally
+      final updatedReactions = ReactionCountsModel(
+        like: _currentPost!.reactionCounts.like + (event.reactionType == 'LIKE' ? 1 : 0),
+        love: _currentPost!.reactionCounts.love + (event.reactionType == 'LOVE' ? 1 : 0),
+        support: _currentPost!.reactionCounts.support + (event.reactionType == 'SUPPORT' ? 1 : 0),
+        celebrate: _currentPost!.reactionCounts.celebrate + (event.reactionType == 'CELEBRATE' ? 1 : 0),
+        insightful: _currentPost!.reactionCounts.insightful + (event.reactionType == 'INSIGHTFUL' ? 1 : 0),
       );
-      // waiting for the backend nigger to provide a GET post-by-id endpoint,
-      // fetch the updated post here.
+
+      if (_currentPost is PostModel) {
+        _currentPost = (_currentPost as PostModel).copyWith(reactionCounts: updatedReactions);
+      }
+
+      emit(CommentsLoaded(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
