@@ -80,24 +80,15 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
       parentCommentId: _replyingToCommentId,
     ));
   }
-
-  void _goBack(BuildContext context) {
-    final bloc = context.read<PostDetailsBloc>();
-    if (_hasChanges && bloc.currentPost != null) {
-      Navigator.pop(context, bloc.currentPost);
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PostDetailsBloc>(
       create: (_) => sl<PostDetailsBloc>()
         ..add(LoadComments(postId: widget.post.id, post: widget.post)),
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
+      child: Builder(
+        builder: (context) => Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
             appBar: AppBar(
               title: const Text('تفاصيل المنشور'),
               leading: IconButton(
@@ -112,87 +103,88 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                 },
               ),
             ),
-          body: BlocConsumer<PostDetailsBloc, PostDetailsState>(
-            listener: (context, state) {
-              if (state is PostDetailsError) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
-                );
-              }
-              if (state is CommentAdded) {
-                _commentController.clear();
-                _cancelReply();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تم إضافة التعليق')),
-                );
-              }
-              if (state is CommentDeleted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('تم حذف التعليق')),
-                );
-              }
-            },
-            builder: (context, state) {
-              final comments = _getCommentsFromState(state);
-              final currentPost = _getPostFromState(state) ?? widget.post;
-              final isLoadingComments = state is CommentsLoading || state is PostDetailsInitial;
+            body: BlocConsumer<PostDetailsBloc, PostDetailsState>(
+              listener: (context, state) {
+                if (state is PostDetailsError) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message)),
+                  );
+                }
+                if (state is CommentAdded) {
+                  _commentController.clear();
+                  _cancelReply();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم إضافة التعليق')),
+                  );
+                }
+                if (state is CommentDeleted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('تم حذف التعليق')),
+                  );
+                }
+              },
+              builder: (context, state) {
+                final comments = _getCommentsFromState(state);
+                final currentPost = _getPostFromState(state) ?? widget.post;
+                final isLoadingComments = state is CommentsLoading || state is PostDetailsInitial;
 
-              return Stack(
-                children: [
-                  RefreshIndicator(
-                    onRefresh: () async {
-                      context.read<PostDetailsBloc>().add(
-                        LoadComments(postId: currentPost.id, post: currentPost),
-                      );
-                    },
-                    child: SingleChildScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildAuthorHeader(context, currentPost),
-                          const SizedBox(height: 16),
-                          if (currentPost.title.isNotEmpty) ...[
-                            Text(
-                              currentPost.title,
-                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: Theme.of(context).colorScheme.onSurface,
-                                height: 1.3,
+                return Stack(
+                  children: [
+                    RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<PostDetailsBloc>().add(
+                          LoadComments(postId: currentPost.id, post: currentPost),
+                        );
+                      },
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 110),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildAuthorHeader(context, currentPost),
+                            const SizedBox(height: 16),
+                            if (currentPost.title.isNotEmpty) ...[
+                              Text(
+                                currentPost.title,
+                                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                  height: 1.3,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 14),
+                              const SizedBox(height: 14),
+                            ],
+                            MarkdownContentView(content: currentPost.content),
+                            const SizedBox(height: 20),
+                            _buildReactionBar(context, currentPost),
+                            const SizedBox(height: 20),
+                            Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                            const SizedBox(height: 20),
+                            _buildCommentsHeader(context, currentPost, comments),
+                            const SizedBox(height: 16),
+                            if (isLoadingComments)
+                              _buildCommentsLoading(context)
+                            else if (state is PostDetailsError && comments == null)
+                              _buildCommentsError(context, currentPost)
+                            else
+                              _buildCommentsList(context, comments ?? const [], currentPost),
+                            const SizedBox(height: 30),
                           ],
-                          MarkdownContentView(content: currentPost.content),
-                          const SizedBox(height: 20),
-                          _buildReactionBar(context, currentPost),
-                          const SizedBox(height: 20),
-                          Divider(color: Theme.of(context).colorScheme.outlineVariant),
-                          const SizedBox(height: 20),
-                          _buildCommentsHeader(context, currentPost, comments),
-                          const SizedBox(height: 16),
-                          if (isLoadingComments)
-                            _buildCommentsLoading(context)
-                          else if (state is PostDetailsError && comments == null)
-                            _buildCommentsError(context, currentPost)
-                          else
-                            _buildCommentsList(context, comments ?? const [], currentPost),
-                          const SizedBox(height: 30),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    child: _buildCommentInput(context),
-                  ),
-                ],
-              );
-            },
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: _buildCommentInput(context),
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
@@ -406,7 +398,8 @@ class _CommentTile extends StatelessWidget {
               Icon(hasLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded, size: 15, color: hasLiked ? Colors.red : colors.onSurfaceVariant),
               if (comment.likeCount > 0) ...[const SizedBox(width: 4), Text('${comment.likeCount}', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant))],
             ])),
-            if (onDelete != null) ...[const Spacer(), GestureDetector(onTap: onDelete, child: Icon(Icons.delete_outline_rounded, size: 16, color: colors.onSurfaceVariant))],
+            //TODO uhhh i will fix this later
+            //if (onDelete != null) ...[const Spacer(), GestureDetector(onTap: onDelete, child: Icon(Icons.delete_outline_rounded, size: 16, color: colors.onSurfaceVariant))],
           ]),
         ]))),
       ]),

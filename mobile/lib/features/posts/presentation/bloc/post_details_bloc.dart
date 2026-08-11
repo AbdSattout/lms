@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/api_error_resolver.dart';
 import '../../data/models/post_model.dart';
+import '../../data/models/reaction_counts_model.dart';
 import '../../domain/entities/comment_entity.dart';
 import '../../domain/entities/post_entity.dart';
 import '../../domain/usecases/get_comments_usecase.dart';
@@ -96,20 +97,70 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
     try {
       await reactToPost(event.postId, event.reactionType);
       _comments = await getComments(_currentPost!.id);
+
+      // Determine new viewerReaction
       String? newViewerReaction;
-      if (_currentPost?.viewerReaction == event.reactionType) {
+      final oldReaction = _currentPost?.viewerReaction;
+      final isRemoving = oldReaction == event.reactionType;
+
+      if (isRemoving) {
         newViewerReaction = null;
       } else {
         newViewerReaction = event.reactionType;
       }
+
+      // Build updated reaction counts
+      final oldCounts = _currentPost!.reactionCounts;
+      ReactionCountsModel newCounts = ReactionCountsModel(
+        like: oldCounts.like,
+        love: oldCounts.love,
+        support: oldCounts.support,
+        celebrate: oldCounts.celebrate,
+        insightful: oldCounts.insightful,
+      );
+
+      // Decrement old reaction if switching
+      if (oldReaction != null) {
+        newCounts = _decrementReaction(newCounts, oldReaction);
+      }
+
+      // Increment new reaction if adding (not removing same)
+      if (!isRemoving) {
+        newCounts = _incrementReaction(newCounts, event.reactionType);
+      }
+
       if (_currentPost is PostModel) {
         _currentPost = (_currentPost as PostModel).copyWith(
           viewerReaction: newViewerReaction,
+          reactionCounts: newCounts,
         );
       }
+
       emit(CommentsLoaded(comments: _comments, post: _currentPost!));
     } catch (e) {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
+    }
+  }
+
+  ReactionCountsModel _incrementReaction(ReactionCountsModel counts, String type) {
+    switch (type) {
+      case 'LIKE': return ReactionCountsModel(like: counts.like + 1, love: counts.love, support: counts.support, celebrate: counts.celebrate, insightful: counts.insightful);
+      case 'LOVE': return ReactionCountsModel(like: counts.like, love: counts.love + 1, support: counts.support, celebrate: counts.celebrate, insightful: counts.insightful);
+      case 'SUPPORT': return ReactionCountsModel(like: counts.like, love: counts.love, support: counts.support + 1, celebrate: counts.celebrate, insightful: counts.insightful);
+      case 'CELEBRATE': return ReactionCountsModel(like: counts.like, love: counts.love, support: counts.support, celebrate: counts.celebrate + 1, insightful: counts.insightful);
+      case 'INSIGHTFUL': return ReactionCountsModel(like: counts.like, love: counts.love, support: counts.support, celebrate: counts.celebrate, insightful: counts.insightful + 1);
+      default: return counts;
+    }
+  }
+
+  ReactionCountsModel _decrementReaction(ReactionCountsModel counts, String type) {
+    switch (type) {
+      case 'LIKE': return ReactionCountsModel(like: (counts.like - 1).clamp(0, 999999), love: counts.love, support: counts.support, celebrate: counts.celebrate, insightful: counts.insightful);
+      case 'LOVE': return ReactionCountsModel(like: counts.like, love: (counts.love - 1).clamp(0, 999999), support: counts.support, celebrate: counts.celebrate, insightful: counts.insightful);
+      case 'SUPPORT': return ReactionCountsModel(like: counts.like, love: counts.love, support: (counts.support - 1).clamp(0, 999999), celebrate: counts.celebrate, insightful: counts.insightful);
+      case 'CELEBRATE': return ReactionCountsModel(like: counts.like, love: counts.love, support: counts.support, celebrate: (counts.celebrate - 1).clamp(0, 999999), insightful: counts.insightful);
+      case 'INSIGHTFUL': return ReactionCountsModel(like: counts.like, love: counts.love, support: counts.support, celebrate: counts.celebrate, insightful: (counts.insightful - 1).clamp(0, 999999));
+      default: return counts;
     }
   }
 }

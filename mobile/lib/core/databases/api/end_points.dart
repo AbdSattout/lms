@@ -2,7 +2,7 @@ class EndPoints {
   // Base API URL for the backend
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://lms.koyeb.app/',
+    defaultValue: 'https://masarapi.up.railway.app/',
   );
 
   // Telegram Client ID
@@ -105,7 +105,7 @@ class EndPoints {
   // Posts
   static String organizationPosts(String orgSlug) =>
       'organizations/$orgSlug/posts';
-  static String coursePosts(String courseSlug) => 'courses/$courseSlug/posts';
+  static String coursePosts(int courseId) => 'courses/$courseId/posts';
   static String postComments(int postId) => 'posts/$postId/comments';
   static String deleteComment(int commentId) => 'comments/$commentId';
   static String commentLikes(int commentId) => 'comments/$commentId/likes';

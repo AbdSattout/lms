@@ -10,23 +10,23 @@ import '../widgets/post_card.dart';
 import 'post_details_page.dart';
 
 class CoursePostsPage extends StatelessWidget {
-  final String courseSlug;
-  const CoursePostsPage({super.key, required this.courseSlug});
+  final int courseId;
+  const CoursePostsPage({super.key, required this.courseId});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
-        if (courseSlug.isEmpty) {
+        if (courseId.isNaN) {
           return sl<PostsBloc>();
         }
-        return sl<PostsBloc>()..add(LoadCoursePosts(courseSlug));
+        return sl<PostsBloc>()..add(LoadCoursePosts(courseId));
       },
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
           appBar: AppBar(title: const Text('منشورات الكورس')),
-          body: courseSlug.isEmpty
+          body: courseId.isNaN
               ? Center(
             child: Text(
               'معرف الكورس غير متوفر',
@@ -47,7 +47,7 @@ class CoursePostsPage extends StatelessWidget {
                       const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: () {
-                          context.read<PostsBloc>().add(LoadCoursePosts(courseSlug));
+                          context.read<PostsBloc>().add(LoadCoursePosts(courseId));
                         },
                         child: const Text('إعادة المحاولة'),
                       ),

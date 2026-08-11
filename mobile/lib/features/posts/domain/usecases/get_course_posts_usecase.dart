@@ -4,5 +4,5 @@ import '../repositories/posts_repository.dart';
 class GetCoursePostsUseCase {
   final PostsRepository repository;
   GetCoursePostsUseCase(this.repository);
-  Future<PaginatedPostsEntity> call(String courseSlug) => repository.getCoursePosts(courseSlug);
+  Future<PaginatedPostsEntity> call(int courseId) => repository.getCoursePosts(courseId);
 }
