@@ -110,4 +110,11 @@ class EndPoints {
   static String deleteComment(int commentId) => 'comments/$commentId';
   static String commentLikes(int commentId) => 'comments/$commentId/likes';
   static String postLikes(int postId) => 'posts/$postId/likes';
+
+  // Media
+  static String courseMedia(String orgId, String courseId, String mediaId) =>
+      'mobile/organizations/$orgId/courses/$courseId/media/$mediaId';
+
+  static String postMedia(String orgId, String mediaId) =>
+      'mobile/organizations/$orgId/post-media/$mediaId';
 }
