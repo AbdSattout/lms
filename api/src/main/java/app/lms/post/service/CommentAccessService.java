@@ -33,6 +33,15 @@ public class CommentAccessService {
         Comment comment =
                 getById(commentId);
 
+        boolean isCommentOwner =
+                comment.getAuthor()
+                        .getId()
+                        .equals(user.getId());
+
+        if (isCommentOwner) {
+            return comment;
+        }
+
         postAccessService.validateEditable(
                 comment.getPost(),
                 user

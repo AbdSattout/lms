@@ -70,7 +70,7 @@ public class OrganizationService {
         );
     }
 
-    public Page<OrganizationResponse> getAll(
+    public Page<OrganizationResponse>   getAll(
             String q,
             User user,
             Pageable pageable

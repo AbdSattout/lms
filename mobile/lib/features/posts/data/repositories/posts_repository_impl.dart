@@ -14,8 +14,8 @@ class PostsRepositoryImpl implements PostsRepository {
   }
 
   @override
-  Future<PaginatedPostsEntity> getCoursePosts(int courseId) async {
-    return await remoteDataSource.getCoursePosts(courseId);
+  Future<PaginatedPostsEntity> getCoursePosts(String courseSlug) async {
+    return await remoteDataSource.getCoursePosts(courseSlug);
   }
 
   @override
@@ -37,8 +37,8 @@ class PostsRepositoryImpl implements PostsRepository {
   }
 
   @override
-  Future<void> deleteComment(int postId, int commentId) async {
-    await remoteDataSource.deleteComment(postId, commentId);
+  Future<void> deleteComment(int commentId) async {
+    await remoteDataSource.deleteComment(commentId);
   }
 
   @override
