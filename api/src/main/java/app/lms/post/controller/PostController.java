@@ -104,7 +104,6 @@ public class PostController {
                 )
         );
     }
-
     @PatchMapping("/posts/{postId}")
     public ResponseEntity<PostResponse> update(
 
