@@ -105,7 +105,7 @@ class EndPoints {
   // Posts
   static String organizationPosts(String orgSlug) =>
       'organizations/$orgSlug/posts';
-  static String coursePosts(int courseId) => 'courses/$courseId/posts';
+  static String coursePosts(String courseSlug) => 'courses/$courseSlug/posts';
   static String postComments(int postId) => 'posts/$postId/comments';
   static String deleteComment(int postId, int commentId) =>
       'posts/$postId/comments/$commentId';

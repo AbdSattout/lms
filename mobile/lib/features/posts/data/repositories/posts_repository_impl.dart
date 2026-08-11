@@ -14,8 +14,8 @@ class PostsRepositoryImpl implements PostsRepository {
   }
 
   @override
-  Future<PaginatedPostsEntity> getCoursePosts(int courseId) async {
-    return await remoteDataSource.getCoursePosts(courseId);
+  Future<PaginatedPostsEntity> getCoursePosts(String courseSlug) async {
+    return await remoteDataSource.getCoursePosts(courseSlug);
   }
 
   @override

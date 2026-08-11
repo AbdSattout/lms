@@ -3,7 +3,7 @@ import '../entities/comment_entity.dart';
 
 abstract class PostsRepository {
   Future<PaginatedPostsEntity> getOrganizationPosts(String orgSlug);
-  Future<PaginatedPostsEntity> getCoursePosts(int courseId);
+  Future<PaginatedPostsEntity> getCoursePosts(String courseSlug);
   Future<List<CommentEntity>> getComments(int postId);
   Future<CommentEntity> addComment(
     int postId,

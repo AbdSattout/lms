@@ -1,3 +1,5 @@
+import '../../domain/entities/post_entity.dart';
+
 abstract class PostsEvent {}
 
 class LoadOrganizationPosts extends PostsEvent {
@@ -6,8 +8,13 @@ class LoadOrganizationPosts extends PostsEvent {
 }
 
 class LoadCoursePosts extends PostsEvent {
-  final int courseId;
-  LoadCoursePosts(this.courseId);
+  final String courseSlug;
+  LoadCoursePosts(this.courseSlug);
 }
 
 class RefreshPosts extends PostsEvent {}
+
+class UpdatePostInList extends PostsEvent {
+  final PostEntity updatedPost;
+  UpdatePostInList(this.updatedPost);
+}
