@@ -24,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
+import { TiptapRenderer } from "@/components/editor/renderer"
+
 import type { PostResponse } from "@/lib/api/types"
 import { deletePost, likePost, unlikePost } from "@/lib/actions/post"
 import { ClientTimeAgo } from "../client-time-ago"
@@ -95,7 +97,7 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
       .join("")
       .slice(0, 2) ?? "؟"
 
-  const thumbnailMatch = post.content?.match(/<img[^>]+src=["']([^"']+)["']/i)
+  const thumbnailMatch = post.content?.match(/!\[.*?\]\((.*?)\)/)
   const thumbnail = thumbnailMatch?.[1] ?? null
 
   return (
@@ -183,10 +185,9 @@ export function PostCard({ post, orgSlug, onDeleted }: PostCardProps) {
             </Link>
 
             {post.content && (
-              <div
+              <TiptapRenderer
+                content={post.content}
                 className="prose prose-sm dark:prose-invert mt-1 mb-4 line-clamp-3 max-w-none text-[15px] leading-[1.6] text-muted-foreground"
-                dir="rtl"
-                dangerouslySetInnerHTML={{ __html: post.content }}
               />
             )}
           </div>

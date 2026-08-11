@@ -172,7 +172,7 @@ const MobileToolbarContent = ({
 )
 
 interface EditorProps {
-  onChange?: (html: string) => void // 🔥 Renamed from markdown to html logically
+  onChange?: (markdown: string) => void
   content?: string
   orgSlug?: string
   organizationId?: number
@@ -215,6 +215,7 @@ export function Editor({
     immediatelyRender: false,
     textDirection: "auto",
     content: content,
+    contentType: "markdown",
     autofocus: true,
     editorProps: {
       attributes: {
@@ -227,8 +228,7 @@ export function Editor({
     },
     extensions: editorExtensions,
     onUpdate: ({ editor }) => {
-      // 🔥 Changed to return Proper HTML formats
-      onChange?.(editor.getHTML())
+      onChange?.(editor.getMarkdown())
     },
   })
 
