@@ -13,9 +13,10 @@ export default async function CreatePostPage({
 }) {
   const { slug } = await params
 
-  const courses = await api.dashboard.organizations.courses
-    .get(slug)
-    .catch(() => [])
+  const [courses, org] = await Promise.all([
+    api.dashboard.organizations.courses.get(slug).catch(() => []),
+    api.dashboard.organizations.bySlug.get(slug).catch(() => null),
+  ])
 
   return (
     <>
@@ -34,7 +35,11 @@ export default async function CreatePostPage({
           </div>
         }
       >
-        <CreatePostForm orgSlug={slug} courses={courses} />
+        <CreatePostForm
+          orgSlug={slug}
+          organizationId={org?.id}
+          courses={courses}
+        />
       </Suspense>
     </>
   )
