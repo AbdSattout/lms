@@ -4,6 +4,7 @@ import { notFound } from "next/navigation"
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
 import { Skeleton } from "@/components/ui/skeleton"
 import { EditPostForm } from "@/components/forms/edit-post-form"
+import { api } from "@/lib/api"
 import { getPostById } from "@/lib/actions/post"
 
 async function EditPostData({
@@ -18,7 +19,14 @@ async function EditPostData({
   if (!post) {
     notFound()
   }
-  return <EditPostForm orgSlug={slug} post={post} />
+
+  const course = post.courseId
+    ? (
+        await api.dashboard.organizations.courses.get(slug).catch(() => [])
+      ).find((c) => c.id === post.courseId)
+    : undefined
+
+  return <EditPostForm orgSlug={slug} post={post} course={course} />
 }
 
 export default async function EditPostPage({

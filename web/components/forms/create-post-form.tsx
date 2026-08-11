@@ -21,10 +21,15 @@ import type { CourseResponse } from "@/lib/api/types"
 
 interface CreatePostFormProps {
   orgSlug: string
+  organizationId?: number
   courses?: CourseResponse[]
 }
 
-export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
+export function CreatePostForm({
+  orgSlug,
+  organizationId,
+  courses = [],
+}: CreatePostFormProps) {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
@@ -132,7 +137,13 @@ export function CreatePostForm({ orgSlug, courses = [] }: CreatePostFormProps) {
             المحتوى
           </label>
           <div className="min-h-[300px] overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-            <Editor onChange={setContent} content={content} />
+            <Editor
+              onChange={setContent}
+              content={content}
+              orgSlug={orgSlug}
+              organizationId={organizationId}
+              course={selectedCourse ?? undefined}
+            />
           </div>
         </div>
 

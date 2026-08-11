@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { TiptapRenderer } from "@/components/editor/renderer"
 import { CommentSection } from "@/components/posts/comment-section"
 import type { CommentResponse, PostResponse } from "@/lib/api/types"
 import { MessageCircle, MoreHorizontal, Pencil, Trash2, X } from "lucide-react"
@@ -197,10 +198,9 @@ export function PostDetail({
             {post.title}
           </h1>
           {post.content && (
-            <div
+            <TiptapRenderer
+              content={post.content}
               className="prose prose-neutral dark:prose-invert max-w-none text-[15.5px] leading-relaxed whitespace-pre-wrap"
-              dir="rtl"
-              dangerouslySetInnerHTML={{ __html: post.content }}
             />
           )}
         </div>
