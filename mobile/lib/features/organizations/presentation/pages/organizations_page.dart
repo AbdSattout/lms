@@ -79,90 +79,93 @@ class OrganizationsPage extends StatelessWidget {
             }
 
             if (state is OrganizationLoaded) {
-              return Column(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.only(
-                      top: 28,
-                      left: 22,
-                      right: 22,
-                      bottom: 24,
-                    ),
-                    decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.08),
-                      borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(34),
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.only(
+                        top: 28,
+                        left: 22,
+                        right: 22,
+                        bottom: 24,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.08),
+                        borderRadius: const BorderRadius.vertical(
+                          bottom: Radius.circular(34),
+                        ),
+                      ),
+                      child: Text(
+                        'المنظمات',
+                        style: textTheme.displayLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: colors.primary,
+                        ),
                       ),
                     ),
-                    child: Text(
-                      'المنظمات',
-                      style: textTheme.displayLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: colors.primary,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<OrganizationBloc>().add(
-                          GetAllOrganizationsEvent(),
-                        );
-                      },
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.only(top: 18, bottom: 100),
-                        children: [
-                          const _InviteLinkEntryCard(),
-                          if (state.organizations.isEmpty) ...[
-                            const SizedBox(height: 34),
-                            _EmptyOrganizationsState(
-                              color: colors.primary,
-                              textStyle: textTheme.bodyLarge?.copyWith(
-                                color: colors.onSurfaceVariant,
+                    Expanded(
+                      child: RefreshIndicator(
+                        onRefresh: () async {
+                          context.read<OrganizationBloc>().add(
+                            GetAllOrganizationsEvent(),
+                          );
+                        },
+                        child: ListView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.only(top: 18, bottom: 100),
+                          children: [
+                            const _InviteLinkEntryCard(),
+                            if (state.organizations.isEmpty) ...[
+                              const SizedBox(height: 34),
+                              _EmptyOrganizationsState(
+                                color: colors.primary,
+                                textStyle: textTheme.bodyLarge?.copyWith(
+                                  color: colors.onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                          ] else
-                            ...state.organizations.map((organization) {
-                              final isOwnedByMe =
-                                  currentUserName != null &&
-                                  organization.ownerName != null &&
-                                  organization.ownerName == currentUserName;
+                            ] else
+                              ...state.organizations.map((organization) {
+                                final isOwnedByMe =
+                                    currentUserName != null &&
+                                    organization.ownerName != null &&
+                                    organization.ownerName == currentUserName;
 
-                              return OrganizationCard(
-                                organization: organization,
-                                isOwnedByMe: isOwnedByMe,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => BlocProvider(
-                                        create: (_) =>
-                                            sl<OrganizationDetailsBloc>()..add(
-                                              GetOrganizationDetailsEvent(
-                                                organization.slug,
+                                return OrganizationCard(
+                                  organization: organization,
+                                  isOwnedByMe: isOwnedByMe,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => BlocProvider(
+                                          create: (_) =>
+                                              sl<OrganizationDetailsBloc>()..add(
+                                                GetOrganizationDetailsEvent(
+                                                  organization.slug,
+                                                ),
                                               ),
-                                            ),
-                                        child: OrganizationDetailsPage(
-                                          slug: organization.slug,
+                                          child: OrganizationDetailsPage(
+                                            slug: organization.slug,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ).then((_) {
-                                    if (!context.mounted) return;
-                                    context.read<OrganizationBloc>().add(
-                                      GetAllOrganizationsEvent(),
-                                    );
-                                  });
-                                },
-                              );
-                            }),
-                        ],
+                                    ).then((_) {
+                                      if (!context.mounted) return;
+                                      context.read<OrganizationBloc>().add(
+                                        GetAllOrganizationsEvent(),
+                                      );
+                                    });
+                                  },
+                                );
+                              }),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             }
 
