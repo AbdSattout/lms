@@ -28,6 +28,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   late final ExternalUrlLauncher _externalUrlLauncher;
   StreamSubscription<Uri>? _inviteDeepLinkSubscription;
   String? _pendingInviteToken;
@@ -64,7 +65,7 @@ class _MyAppState extends State<MyApp> {
               _syncMessagingForAuthState(state);
 
               if (state is Unauthenticated) {
-                Navigator.of(context).pushAndRemoveUntil(
+                _navigatorKey.currentState?.pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const TelegramLoginPage()),
                       (route) => false,
                 );
@@ -72,9 +73,16 @@ class _MyAppState extends State<MyApp> {
             },
             child: ImmersiveModeGuard(
               child: MaterialApp(
+                navigatorKey: _navigatorKey,
                 debugShowCheckedModeBanner: false,
                 title: 'مسار',
                 locale: const Locale('ar', 'SY'),
+                builder: (context, child) {
+                  return Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: child ?? const SizedBox.shrink(),
+                  );
+                },
                 theme: AppThemes.light,
                 darkTheme: AppThemes.dark,
                 themeMode: mode,
@@ -114,17 +122,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _readInitialInviteDeepLink() async {
-    final uri = await _externalUrlLauncher.takeInitialInviteDeepLink();
-    if (uri != null && mounted) {
-      _handleInviteDeepLink(uri);
-    }
+    try {
+      final uri = await _externalUrlLauncher.takeInitialInviteDeepLink();
+      if (uri != null && mounted) {
+        _handleInviteDeepLink(uri);
+      }
+    } catch (_) {}
   }
 
   void _handleInviteDeepLink(Uri uri) {
     final token = ExternalUrlLauncher.inviteTokenFromUri(uri);
     if (token == null) return;
 
-    unawaited(_externalUrlLauncher.clearInitialInviteDeepLink());
+    unawaited(_clearInitialInviteDeepLink());
     if (!mounted) return;
 
     setState(() {
@@ -133,8 +143,14 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  Future<void> _clearInitialInviteDeepLink() async {
+    try {
+      await _externalUrlLauncher.clearInitialInviteDeepLink();
+    } catch (_) {}
+  }
+
   void _clearPendingInvite() {
-    unawaited(_externalUrlLauncher.clearInitialInviteDeepLink());
+    unawaited(_clearInitialInviteDeepLink());
     if (!mounted) return;
 
     setState(() {

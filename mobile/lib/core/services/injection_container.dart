@@ -330,6 +330,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
+
   sl.registerFactory(
     () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),

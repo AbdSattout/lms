@@ -13,23 +13,21 @@ import java.util.Map;
 @Component
 public class CommentMapper {
 
-    public CommentResponse toResponse(
-            Comment comment
-    ) {
-
+    public CommentResponse toResponse(Comment comment) {
         return toResponse(
                 comment,
                 0L,
                 Map.of(),
-                null
+                null,
+                false
         );
     }
-
     public CommentResponse toResponse(
             Comment comment,
             Long likeCount,
             Map<ReactionType, Long> reactionCounts,
-            ReactionType viewerReaction
+            ReactionType viewerReaction,
+            Boolean viewerComment
     ) {
 
         return new CommentResponse(
@@ -53,6 +51,8 @@ public class CommentMapper {
                 ),
 
                 viewerReaction,
+
+                viewerComment,
 
                 BaseEntityResponse.from(comment)
         );
