@@ -1,5 +1,5 @@
 abstract class RoadmapEvent {}
-
+class LoadMyRoadmaps extends RoadmapEvent {}
 class LoadOrganizationRoadmaps extends RoadmapEvent {
   final String slug;
   LoadOrganizationRoadmaps(this.slug);

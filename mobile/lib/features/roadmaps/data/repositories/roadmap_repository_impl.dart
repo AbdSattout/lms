@@ -26,4 +26,8 @@ class RoadmapRepositoryImpl implements RoadmapRepository {
   Future<void> unfollowRoadmap(String slug, int roadmapId) async {
     await remoteDataSource.unfollowRoadmap(slug, roadmapId);
   }
+  @override
+  Future<List<RoadmapEntity>> getMyRoadmaps() async {
+    return await remoteDataSource.getMyRoadmaps();
+  }
 }

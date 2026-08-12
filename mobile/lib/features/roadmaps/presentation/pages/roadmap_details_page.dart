@@ -78,7 +78,6 @@ class _RoadmapDetailsContent extends StatelessWidget {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Header
         Text(roadmap.name, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: colors.onSurface)),
         const SizedBox(height: 8),
         if (roadmap.organization != null)
@@ -98,11 +97,9 @@ class _RoadmapDetailsContent extends StatelessWidget {
           const SizedBox(height: 20),
         ],
 
-        // Follow CTA
         _buildFollowCTA(context, isMember: isMember, isFollowing: isFollowing, isProcessing: isProcessing),
         const SizedBox(height: 28),
 
-        // Courses
         Row(children: [
           Container(width: 36, height: 36, decoration: BoxDecoration(color: colors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.menu_book_rounded, size: 18, color: colors.primary)),
           const SizedBox(width: 10),
@@ -112,7 +109,6 @@ class _RoadmapDetailsContent extends StatelessWidget {
         ]),
         const SizedBox(height: 16),
 
-        // Course list
         ...items.map((item) => _RoadmapCourseTile(
           position: item.position,
           course: item.course,
@@ -199,7 +195,6 @@ class _RoadmapCourseTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(children: [
-            // Position badge
             Container(
               width: 44, height: 44,
               decoration: BoxDecoration(
@@ -213,7 +208,6 @@ class _RoadmapCourseTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Course cover
             Container(
               width: 56, height: 56,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: AppColors.primaryLight),

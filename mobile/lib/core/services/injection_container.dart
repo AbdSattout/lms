@@ -43,6 +43,7 @@ import '../../features/profile/domain/usecases/update_profile_picture_usecase.da
 import '../../features/profile/domain/usecases/update_profile_usecase.dart';
 import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/roadmaps/domain/usecases/get_my_roadmaps_usecase.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
 import '../databases/api/dio_consumer.dart';
@@ -329,16 +330,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
   sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
-  sl.registerLazySingleton<AuthBloc>(
-        () => AuthBloc(
-      loginWithTelegram: sl(),
-      loginWithGoogle: sl(),
-      requestEmailOtp: sl(),
-      verifyEmailOtp: sl(),
-      checkCachedAuth: sl(),
-      logout: sl(),
-    ),
-  );
   sl.registerFactory(
     () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),
@@ -462,11 +453,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetRoadmapDetailsUseCase(sl()));
   sl.registerLazySingleton(() => FollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
+  sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
+
   sl.registerFactory(() => RoadmapBloc(
     getOrganizationRoadmaps: sl(),
     getRoadmapDetails: sl(),
     followRoadmap: sl(),
     unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
   ));
   // Home
   sl.registerFactory(

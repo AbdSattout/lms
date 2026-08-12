@@ -43,7 +43,6 @@ class MainHomeScreen extends StatelessWidget {
     super.key,
     required this.userAuthData,
   });
-
   @override
   Widget build(BuildContext context) {
     final user = userAuthData.user;

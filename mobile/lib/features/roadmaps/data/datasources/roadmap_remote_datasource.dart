@@ -7,6 +7,7 @@ abstract class RoadmapRemoteDataSource {
   Future<RoadmapModel> getRoadmapDetails(String slug, int roadmapId);
   Future<RoadmapModel> followRoadmap(String slug, int roadmapId);
   Future<void> unfollowRoadmap(String slug, int roadmapId);
+  Future<List<RoadmapModel>> getMyRoadmaps();
 }
 
 class RoadmapRemoteDataSourceImpl implements RoadmapRemoteDataSource {
@@ -38,5 +39,13 @@ class RoadmapRemoteDataSourceImpl implements RoadmapRemoteDataSource {
   @override
   Future<void> unfollowRoadmap(String slug, int roadmapId) async {
     await api.delete(EndPoints.followRoadmap(slug, roadmapId));
+  }
+  @override
+  Future<List<RoadmapModel>> getMyRoadmaps() async {
+    final response = await api.get(EndPoints.myRoadmaps);
+    final content = (response['content'] as List<dynamic>?) ?? [];
+    return content
+        .map((e) => RoadmapModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 }

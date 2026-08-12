@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../domain/usecases/get_my_roadmaps_usecase.dart';
 import '../../domain/usecases/get_organization_roadmaps_usecase.dart';
 import '../../domain/usecases/get_roadmap_details_usecase.dart';
 import '../../domain/usecases/follow_roadmap_usecase.dart';
@@ -12,17 +13,33 @@ class RoadmapBloc extends Bloc<RoadmapEvent, RoadmapState> {
   final GetRoadmapDetailsUseCase getRoadmapDetails;
   final FollowRoadmapUseCase followRoadmap;
   final UnfollowRoadmapUseCase unfollowRoadmap;
+  final GetMyRoadmapsUseCase getMyRoadmaps;
 
   RoadmapBloc({
     required this.getOrganizationRoadmaps,
     required this.getRoadmapDetails,
     required this.followRoadmap,
     required this.unfollowRoadmap,
+    required this.getMyRoadmaps,
   }) : super(RoadmapInitial()) {
     on<LoadOrganizationRoadmaps>(_onLoadOrganizationRoadmaps);
     on<LoadRoadmapDetails>(_onLoadRoadmapDetails);
     on<FollowRoadmapRequested>(_onFollow);
     on<UnfollowRoadmapRequested>(_onUnfollow);
+    on<LoadMyRoadmaps>(_onLoadMyRoadmaps);
+  }
+
+  Future<void> _onLoadMyRoadmaps(
+      LoadMyRoadmaps event,
+      Emitter<RoadmapState> emit,
+      ) async {
+    try {
+      emit(RoadmapLoading());
+      final roadmaps = await getMyRoadmaps();
+      emit(RoadmapsLoaded(roadmaps));
+    } catch (e) {
+      emit(RoadmapError(resolveApiErrorMessage(e)));
+    }
   }
 
   Future<void> _onLoadOrganizationRoadmaps(
