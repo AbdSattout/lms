@@ -237,4 +237,15 @@ public class FriendService {
                 });
     }
 
+    public void validateIsFriends(Long user1Id ,Long user2Id){
+        boolean isFriend = friendRepository.existsByUser1IdAndUser2Id(
+                user1Id,
+                user2Id
+        );
+
+        if (!isFriend){
+            throw new IllegalStateException("you are not friend");
+        }
+    }
+
 }

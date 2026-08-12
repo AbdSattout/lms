@@ -121,4 +121,10 @@ public interface CourseEnrollmentRepository
             Pageable pageable
     );
 
+    boolean existsByCourseIdAndUserIdAndStatus(
+            Long courseId,
+            Long userId,
+            EnrollmentStatus status
+    );
+
 }
