@@ -68,12 +68,22 @@ public class CommentResponseService {
                                 Map.of()
                         );
 
+        boolean viewerComment =
+                context.viewerId() != null
+                        &&
+                        comment.getAuthor()
+                                .getId()
+                                .equals(
+                                        context.viewerId()
+                                );
+
         return commentMapper.toResponse(
                 comment,
                 totalReactions(reactionCounts),
                 reactionCounts,
                 context.viewerReactionsByCommentId()
-                        .get(comment.getId())
+                        .get(comment.getId()),
+                viewerComment
         );
     }
 
@@ -81,6 +91,11 @@ public class CommentResponseService {
             List<Comment> comments,
             User user
     ) {
+
+        Long viewerId =
+                user != null
+                        ? user.getId()
+                        : null;
 
         List<Long> commentIds =
                 comments.stream()
@@ -90,7 +105,8 @@ public class CommentResponseService {
         if (commentIds.isEmpty()) {
             return new CommentReactionContext(
                     Map.of(),
-                    Map.of()
+                    Map.of(),
+                    viewerId
             );
         }
 
@@ -99,7 +115,8 @@ public class CommentResponseService {
                 viewerReactionsByCommentId(
                         commentIds,
                         user
-                )
+                ),
+                viewerId
         );
     }
 
@@ -166,6 +183,8 @@ public class CommentResponseService {
 
     private record CommentReactionContext(
             Map<Long, Map<ReactionType, Long>> reactionCountsByCommentId,
-            Map<Long, ReactionType> viewerReactionsByCommentId
-    ) {}
+            Map<Long, ReactionType> viewerReactionsByCommentId,
+            Long viewerId
+    ) {
+    }
 }

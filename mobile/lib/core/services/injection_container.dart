@@ -6,6 +6,7 @@ import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/courses/data/datasources/block_remote_datasource.dart';
 import '../../features/courses/data/repositories/block_repository_impl.dart';
 import '../../features/courses/domain/repositories/block_repository.dart';
@@ -42,6 +43,7 @@ import '../../features/profile/domain/usecases/update_profile_picture_usecase.da
 import '../../features/profile/domain/usecases/update_profile_usecase.dart';
 import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/roadmaps/domain/usecases/get_my_roadmaps_usecase.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
 import '../databases/api/dio_consumer.dart';
@@ -130,6 +132,16 @@ import '../../features/posts/domain/usecases/react_to_post_usecase.dart';
 import '../../features/posts/presentation/bloc/posts_bloc.dart';
 import '../../features/posts/presentation/bloc/post_details_bloc.dart';
 
+// Roadmaps
+import '../../features/roadmaps/data/datasources/roadmap_remote_datasource.dart';
+import '../../features/roadmaps/data/repositories/roadmap_repository_impl.dart';
+import '../../features/roadmaps/domain/repositories/roadmap_repository.dart';
+import '../../features/roadmaps/domain/usecases/get_organization_roadmaps_usecase.dart';
+import '../../features/roadmaps/domain/usecases/get_roadmap_details_usecase.dart';
+import '../../features/roadmaps/domain/usecases/follow_roadmap_usecase.dart';
+import '../../features/roadmaps/domain/usecases/unfollow_roadmap_usecase.dart';
+import '../../features/roadmaps/presentation/bloc/roadmap_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -152,7 +164,7 @@ Future<void> init() async {
     ),
   );
 
-  sl.registerFactory(
+  sl.registerLazySingleton(
     () => AuthBloc(
       loginWithTelegram: sl(),
       loginWithGoogle: sl(),
@@ -197,7 +209,16 @@ Future<void> init() async {
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   sl.registerLazySingleton<ApiConsumer>(
-    () => DioConsumer(dio: sl(), authLocalDataSource: sl()),
+        () {
+      final consumer = DioConsumer(
+        dio: sl(),
+        authLocalDataSource: sl(),
+      );
+      consumer.onTokenInvalid = () {
+        sl<AuthBloc>().add(LogoutRequested());
+      };
+      return consumer;
+    },
   );
 
   sl.registerLazySingleton(
@@ -425,6 +446,23 @@ Future<void> init() async {
       reactToPost: sl(),
     ),
   );
+
+  //Roadmaps
+  sl.registerLazySingleton<RoadmapRemoteDataSource>(() => RoadmapRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<RoadmapRepository>(() => RoadmapRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetOrganizationRoadmapsUseCase(sl()));
+  sl.registerLazySingleton(() => GetRoadmapDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => FollowRoadmapUseCase(sl()));
+  sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
+  sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
+
+  sl.registerFactory(() => RoadmapBloc(
+    getOrganizationRoadmaps: sl(),
+    getRoadmapDetails: sl(),
+    followRoadmap: sl(),
+    unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
+  ));
   // Home
   sl.registerFactory(
     () =>

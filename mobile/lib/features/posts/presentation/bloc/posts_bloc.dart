@@ -10,7 +10,7 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
   final GetCoursePostsUseCase getCoursePosts;
 
   String? _lastOrgSlug;
-  String? _lastCourseSlug;
+  int? _lastCourseId;
   bool _isOrgContext = false;
 
   PostsBloc({
@@ -45,8 +45,8 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
     try {
       emit(PostsLoading());
       _isOrgContext = false;
-      _lastCourseSlug = event.courseSlug;
-      final result = await getCoursePosts(event.courseSlug);
+      _lastCourseId = event.courseId;
+      final result = await getCoursePosts(event.courseId);
       emit(PostsLoaded(posts: result.content, isLastPage: result.last));
     } catch (e) {
       emit(PostsError(resolveApiErrorMessage(e)));
@@ -59,8 +59,8 @@ class PostsBloc extends Bloc<PostsEvent, PostsState> {
       ) async {
     if (_isOrgContext && _lastOrgSlug != null) {
       add(LoadOrganizationPosts(_lastOrgSlug!));
-    } else if (_lastCourseSlug != null) {
-      add(LoadCoursePosts(_lastCourseSlug!));
+    } else if (_lastCourseId != null) {
+      add(LoadCoursePosts(_lastCourseId!));
     }
   }
 

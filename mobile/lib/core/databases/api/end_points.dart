@@ -2,7 +2,7 @@ class EndPoints {
   // Base API URL for the backend
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'https://lms.koyeb.app/',
+    defaultValue: 'https://masarapi.up.railway.app/',
   );
 
   // Telegram Client ID
@@ -105,9 +105,23 @@ class EndPoints {
   // Posts
   static String organizationPosts(String orgSlug) =>
       'organizations/$orgSlug/posts';
-  static String coursePosts(String courseSlug) => 'courses/$courseSlug/posts';
+  static String coursePosts(int courseId) => 'courses/$courseId/posts';
   static String postComments(int postId) => 'posts/$postId/comments';
   static String deleteComment(int commentId) => 'comments/$commentId';
   static String commentLikes(int commentId) => 'comments/$commentId/likes';
   static String postLikes(int postId) => 'posts/$postId/likes';
+
+  // Media
+  static String courseMedia(String orgId, String courseId, String mediaId) =>
+      'mobile/organizations/$orgId/courses/$courseId/media/$mediaId';
+
+  static String postMedia(String orgId, String mediaId) =>
+      'mobile/organizations/$orgId/post-media/$mediaId';
+
+  // Roadmaps
+  static const String allRoadmaps = 'mobile/roadmaps';
+  static String organizationRoadmaps(String slug) => 'mobile/organizations/$slug/roadmaps';
+  static String roadmapDetails(String slug, int roadmapId) => 'mobile/organizations/$slug/roadmaps/$roadmapId';
+  static String followRoadmap(String slug, int roadmapId) => 'mobile/organizations/$slug/roadmaps/$roadmapId/follow';
+  static const String myRoadmaps = 'mobile/roadmaps/following';
 }

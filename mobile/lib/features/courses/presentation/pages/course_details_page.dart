@@ -187,7 +187,7 @@ class _CourseDetailsContent extends StatelessWidget {
 
                     _SectionHeader(icon: Icons.groups_rounded, title: 'مجتمع الكورس'),
                     const SizedBox(height: 12),
-                    _FeatureCard(icon: Icons.forum_outlined, iconBg: colors.primary.withOpacity(0.1), iconColor: colors.primary, title: 'منشورات الكورس', subtitle: 'مناقشات وإعلانات', onTap: () =>   Navigator.push(context, MaterialPageRoute(builder: (_) => CoursePostsPage(courseSlug: course.slug))),
+                    _FeatureCard(icon: Icons.forum_outlined, iconBg: colors.primary.withOpacity(0.1), iconColor: colors.primary, title: 'منشورات الكورس', subtitle: 'مناقشات وإعلانات', onTap: () =>   Navigator.push(context, MaterialPageRoute(builder: (_) => CoursePostsPage(courseId: course.id))),
                     ),
                     const SizedBox(height: 10),
                     _FeatureCard(icon: Icons.chat_bubble_outline_rounded, iconBg: const Color(0xff2E7D53).withOpacity(0.1), iconColor: const Color(0xff2E7D53), title: 'محادثة المجموعة', subtitle: 'تواصل مع زملائك', onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('محادثة المجموعة قريباً')))),

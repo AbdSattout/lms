@@ -1,5 +1,6 @@
 package app.lms.course.service;
 
+import app.lms.chat.service.ConversationService;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.course.dto.CourseResponse;
@@ -59,6 +60,9 @@ public class DashboardCourseService {
 
     private final CourseLearningSummaryService
             courseLearningSummaryService;
+
+    private final ConversationService
+            conversationService;
 
     @Transactional
     public CourseResponse create(
@@ -257,6 +261,9 @@ public class DashboardCourseService {
         course.setStatus(
                 CourseStatus.PUBLISHED
         );
+
+        conversationService
+                .getOrCreateCourseConversation(course);
 
         notificationService.notifyOrganizationStudents(
                 course.getOrganization(),
