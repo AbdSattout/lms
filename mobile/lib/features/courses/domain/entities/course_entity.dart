@@ -66,6 +66,7 @@ class ChapterEntity {
     this.lessons = const [],
   });
 }
+
 class CourseOrganizationRef {
   final int id;
   final String name;
@@ -151,6 +152,9 @@ class CourseEntity {
   final CourseOrganizationRef? organization;
 
   final String? status;
+  final String? level;
+  final int? completionXp;
+  final int? chaptersCount;
   final CourseEnrollmentDetailsEntity? enrollment;
   final List<ChapterEntity> chapters;
   final CourseProgressSnapshotEntity? progressSnapshot;
@@ -164,6 +168,9 @@ class CourseEntity {
     this.organizationName,
     this.organization,
     this.status,
+    this.level,
+    this.completionXp,
+    this.chaptersCount,
     this.enrollment,
     this.chapters = const [],
     this.progressSnapshot,

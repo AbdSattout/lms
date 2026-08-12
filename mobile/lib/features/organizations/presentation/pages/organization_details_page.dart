@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../posts/presentation/pages/organization_posts_page.dart';
+import '../../../roadmaps/presentation/pages/organization_roadmaps_page.dart';
 import '../../domain/entities/organization_entity.dart';
 import '../bloc/organization_details_bloc.dart';
 import '../bloc/organization_details_event.dart';
@@ -463,6 +464,18 @@ class _OrganizationDetailsContent extends StatelessWidget {
                       subtitle: 'تفاعل مع منشورات المنظمة!',
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _FeatureCard(
+                      slug: slug,
+                      icon: Icons.map_outlined,
+                      iconBg: colors.primary.withOpacity(0.1),
+                      iconColor: colors.primary,
+                      title: 'المسارات التعليمية',
+                      subtitle: 'استعرض مسارات التعلم',
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationRoadmapsPage(slug: slug)));
                       },
                     ),
                     const SizedBox(height: 28),

@@ -117,4 +117,11 @@ class EndPoints {
 
   static String postMedia(String orgId, String mediaId) =>
       'mobile/organizations/$orgId/post-media/$mediaId';
+
+  // Roadmaps
+  static const String allRoadmaps = 'mobile/roadmaps';
+  static String organizationRoadmaps(String slug) => 'mobile/organizations/$slug/roadmaps';
+  static String roadmapDetails(String slug, int roadmapId) => 'mobile/organizations/$slug/roadmaps/$roadmapId';
+  static String followRoadmap(String slug, int roadmapId) => 'mobile/organizations/$slug/roadmaps/$roadmapId/follow';
+  static const String myRoadmaps = 'mobile/roadmaps/following';
 }

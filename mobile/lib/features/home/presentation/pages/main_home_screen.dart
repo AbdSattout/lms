@@ -43,7 +43,6 @@ class MainHomeScreen extends StatelessWidget {
     super.key,
     required this.userAuthData,
   });
-
   @override
   Widget build(BuildContext context) {
     final user = userAuthData.user;
@@ -1382,7 +1381,7 @@ class _HomeCourseCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 3),
                               Icon(
-                                Icons.arrow_back_rounded,
+                                Icons.arrow_forward_rounded,
                                 size: 14,
                                 color: colors.primary,
                               ),

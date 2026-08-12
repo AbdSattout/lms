@@ -1,52 +1,12 @@
-import 'package:data_connection_checker_tv/data_connection_checker.dart';
+import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
-import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-// Import Auth Feature
-import 'package:lms/features/auth/data/datasources/auth_local_datasource.dart';
-import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
-//Courses Feature
-import 'package:lms/features/courses/data/datasources/course_remote_datasource.dart';
-import 'package:lms/features/courses/data/datasources/placement_test_remote_datasource.dart';
-import 'package:lms/features/courses/data/repositories/course_repository_impl.dart';
-import 'package:lms/features/courses/data/repositories/placement_test_repository_impl.dart';
-import 'package:lms/features/courses/domain/repositories/course_repository.dart';
-import 'package:lms/features/courses/domain/repositories/placement_test_repository.dart';
-import 'package:lms/features/courses/domain/usecases/get_my_enrollments_usecase.dart';
-import 'package:lms/features/courses/domain/usecases/get_placement_test_usecase.dart';
-import 'package:lms/features/courses/domain/usecases/skip_placement_test_usecase.dart';
-import 'package:lms/features/courses/domain/usecases/submit_placement_answer_usecase.dart';
-import 'package:lms/features/courses/presentation/bloc/course_contents_bloc.dart';
-import 'package:lms/features/courses/presentation/bloc/course_details_bloc.dart';
-import 'package:lms/features/courses/presentation/bloc/my_courses_bloc.dart';
-import 'package:lms/features/courses/presentation/bloc/placement_test_bloc.dart';
-//Organization Feature
-import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
-import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
-import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
-import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
-import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
+import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/auth/data/repositories/auth_repository_impl.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
-import '../../features/auth/domain/usecases/check_cached_auth_usecase.dart'; // ADD THIS
-import '../../features/auth/domain/usecases/login_with_google.dart';
-import '../../features/auth/domain/usecases/login_with_telegram.dart';
-import '../../features/auth/domain/usecases/logout_usecase.dart'; // ADD THIS
-import '../../features/auth/domain/usecases/request_email_otp.dart';
-import '../../features/auth/domain/usecases/verify_email_otp.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
-import '../../features/billing/data/datasources/billing_remote_datasource.dart';
-import '../../features/billing/data/repositories/billing_repository_impl.dart';
-import '../../features/billing/domain/repositories/billing_repository.dart';
-import '../../features/billing/domain/usecases/create_checkout_session_usecase.dart';
-import '../../features/billing/domain/usecases/create_portal_session_usecase.dart';
-import '../../features/billing/domain/usecases/get_billing_user_usecase.dart';
-import '../../features/billing/domain/usecases/revoke_subscription_usecase.dart';
-import '../../features/billing/presentation/bloc/billing_bloc.dart';
 import '../../features/courses/data/datasources/block_remote_datasource.dart';
 import '../../features/courses/data/repositories/block_repository_impl.dart';
 import '../../features/courses/domain/repositories/block_repository.dart';
@@ -58,16 +18,93 @@ import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
+import '../../features/home/bloc/home_bloc.dart';
+import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
+import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
+import '../../features/organizations/domain/usecases/accept_organization_invite_by_token_usecase.dart';
+import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
+import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
+import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
+import '../../features/organizations/domain/usecases/get_organization_invite_preview_by_token_usecase.dart';
+import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
+import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
+import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
+import '../../features/organizations/presentation/bloc/organization_bloc.dart';
+import '../../features/organizations/presentation/bloc/organization_courses_bloc.dart';
+import '../../features/organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../features/organizations/presentation/bloc/public_organization_invite_bloc.dart';
+import '../../features/profile/data/datasources/profile_remote_datasource.dart';
+import '../../features/profile/data/repositories/profile_repository_impl.dart';
+import '../../features/profile/domain/repositories/profile_repository.dart';
+import '../../features/profile/domain/usecases/get_current_account_email_usecase.dart';
+import '../../features/profile/domain/usecases/get_profile_usecase.dart';
+import '../../features/profile/domain/usecases/request_account_email_otp_usecase.dart';
+import '../../features/profile/domain/usecases/update_profile_picture_usecase.dart';
+import '../../features/profile/domain/usecases/update_profile_usecase.dart';
+import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
+import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/roadmaps/domain/usecases/get_my_roadmaps_usecase.dart';
+import '../connection/network_info.dart';
+import '../databases/api/api_consumer.dart';
+import '../databases/api/dio_consumer.dart';
+import '../databases/cache/cache_helper.dart';
+
+// Import Auth Feature
+import 'package:lms/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:lms/features/auth/data/datasources/auth_remote_datasource.dart';
+import '../../features/auth/data/repositories/auth_repository_impl.dart';
+import '../../features/auth/domain/repositories/auth_repository.dart';
+import '../../features/auth/domain/usecases/login_with_google.dart';
+import '../../features/auth/domain/usecases/login_with_telegram.dart';
+import '../../features/auth/domain/usecases/request_email_otp.dart';
+import '../../features/auth/domain/usecases/verify_email_otp.dart';
+import '../../features/auth/domain/usecases/check_cached_auth_usecase.dart'; // ADD THIS
+import '../../features/auth/domain/usecases/logout_usecase.dart'; // ADD THIS
+import '../../features/billing/data/datasources/billing_remote_datasource.dart';
+import '../../features/billing/data/repositories/billing_repository_impl.dart';
+import '../../features/billing/domain/repositories/billing_repository.dart';
+import '../../features/billing/domain/usecases/create_checkout_session_usecase.dart';
+import '../../features/billing/domain/usecases/create_portal_session_usecase.dart';
+import '../../features/billing/domain/usecases/get_billing_user_usecase.dart';
+import '../../features/billing/domain/usecases/revoke_subscription_usecase.dart';
+import '../../features/billing/presentation/bloc/billing_bloc.dart';
+//Courses Feature
+import 'package:lms/features/courses/data/datasources/course_remote_datasource.dart';
+import 'package:lms/features/courses/data/repositories/course_repository_impl.dart';
+import 'package:lms/features/courses/domain/repositories/course_repository.dart';
+import 'package:lms/features/courses/domain/usecases/get_my_enrollments_usecase.dart';
+import 'package:lms/features/courses/presentation/bloc/my_courses_bloc.dart';
+import 'package:lms/features/courses/presentation/bloc/course_details_bloc.dart';
+import 'package:lms/features/courses/presentation/bloc/course_contents_bloc.dart';
+import 'package:lms/features/courses/data/datasources/placement_test_remote_datasource.dart';
+import 'package:lms/features/courses/data/repositories/placement_test_repository_impl.dart';
+import 'package:lms/features/courses/domain/repositories/placement_test_repository.dart';
+import 'package:lms/features/courses/domain/usecases/get_placement_test_usecase.dart';
+import 'package:lms/features/courses/domain/usecases/submit_placement_answer_usecase.dart';
+import 'package:lms/features/courses/domain/usecases/skip_placement_test_usecase.dart';
+import 'package:lms/features/courses/presentation/bloc/placement_test_bloc.dart';
+//Organization Feature
+import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
+import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
+import 'package:lms/features/organizations/domain/repositories/organization_repository.dart';
+import 'package:lms/features/organizations/domain/usecases/get_all_organizations_usecase.dart';
+import 'package:lms/features/organizations/domain/usecases/get_organization_by_slug_usecase.dart';
+
 // Gamification
 import '../../features/gamification/data/datasources/gamification_remote_datasource.dart';
 import '../../features/gamification/data/repositories/gamification_repository_impl.dart';
 import '../../features/gamification/domain/repositories/gamification_repository.dart';
-import '../../features/gamification/domain/usecases/get_activity_usecase.dart';
-import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart';
 import '../../features/gamification/domain/usecases/get_my_progress_usecase.dart';
 import '../../features/gamification/domain/usecases/get_my_streak_usecase.dart';
+import '../../features/gamification/domain/usecases/get_activity_usecase.dart';
+import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart';
 import '../../features/gamification/presentation/bloc/gamification_bloc.dart';
-import '../../features/home/bloc/home_bloc.dart';
+
+import 'external_url_launcher.dart';
+import 'foreground_notification_service.dart';
+import 'firebase_messaging_service.dart';
+import '../theme/theme_cubit.dart';
+
 // Notifications
 import '../../features/notifications/data/datasources/notification_remote_datasource.dart';
 import '../../features/notifications/data/repositories/notification_repository_impl.dart';
@@ -79,52 +116,31 @@ import '../../features/notifications/domain/usecases/mark_all_notifications_read
 import '../../features/notifications/domain/usecases/mark_notification_read_usecase.dart';
 import '../../features/notifications/domain/usecases/register_notification_device_usecase.dart';
 import '../../features/notifications/presentation/bloc/notifications_bloc.dart';
-import '../../features/organizations/domain/usecases/accept_organization_invite_by_token_usecase.dart';
-import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
-import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
-import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
-import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
-import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
-import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
-import '../../features/organizations/domain/usecases/get_organization_invite_preview_by_token_usecase.dart';
-import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
-import '../../features/organizations/domain/usecases/leave_organization_usecase.dart';
-import '../../features/organizations/presentation/bloc/organization_bloc.dart';
-import '../../features/organizations/presentation/bloc/organization_courses_bloc.dart';
-import '../../features/organizations/presentation/bloc/organization_details_bloc.dart';
-import '../../features/organizations/presentation/bloc/public_organization_invite_bloc.dart';
+
 // Posts
 import '../../features/posts/data/datasources/posts_remote_datasource.dart';
 import '../../features/posts/data/repositories/posts_repository_impl.dart';
 import '../../features/posts/domain/repositories/posts_repository.dart';
+import '../../features/posts/domain/usecases/get_organization_posts_usecase.dart';
+import '../../features/posts/domain/usecases/get_course_posts_usecase.dart';
+import '../../features/posts/domain/usecases/get_comments_usecase.dart';
 import '../../features/posts/domain/usecases/add_comment_usecase.dart';
 import '../../features/posts/domain/usecases/delete_comment_usecase.dart';
-import '../../features/posts/domain/usecases/get_comments_usecase.dart';
-import '../../features/posts/domain/usecases/get_course_posts_usecase.dart';
-import '../../features/posts/domain/usecases/get_organization_posts_usecase.dart';
 import '../../features/posts/domain/usecases/like_comment_usecase.dart';
-import '../../features/posts/domain/usecases/react_to_post_usecase.dart';
 import '../../features/posts/domain/usecases/unlike_comment_usecase.dart';
-import '../../features/posts/presentation/bloc/post_details_bloc.dart';
+import '../../features/posts/domain/usecases/react_to_post_usecase.dart';
 import '../../features/posts/presentation/bloc/posts_bloc.dart';
-import '../../features/profile/data/datasources/profile_remote_datasource.dart';
-import '../../features/profile/data/repositories/profile_repository_impl.dart';
-import '../../features/profile/domain/repositories/profile_repository.dart';
-import '../../features/profile/domain/usecases/get_current_account_email_usecase.dart';
-import '../../features/profile/domain/usecases/get_profile_usecase.dart';
-import '../../features/profile/domain/usecases/request_account_email_otp_usecase.dart';
-import '../../features/profile/domain/usecases/update_profile_picture_usecase.dart';
-import '../../features/profile/domain/usecases/update_profile_usecase.dart';
-import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
-import '../../features/profile/presentation/bloc/profile_bloc.dart';
-import '../connection/network_info.dart';
-import '../databases/api/api_consumer.dart';
-import '../databases/api/dio_consumer.dart';
-import '../databases/cache/cache_helper.dart';
-import '../theme/theme_cubit.dart';
-import 'external_url_launcher.dart';
-import 'firebase_messaging_service.dart';
-import 'foreground_notification_service.dart';
+import '../../features/posts/presentation/bloc/post_details_bloc.dart';
+
+// Roadmaps
+import '../../features/roadmaps/data/datasources/roadmap_remote_datasource.dart';
+import '../../features/roadmaps/data/repositories/roadmap_repository_impl.dart';
+import '../../features/roadmaps/domain/repositories/roadmap_repository.dart';
+import '../../features/roadmaps/domain/usecases/get_organization_roadmaps_usecase.dart';
+import '../../features/roadmaps/domain/usecases/get_roadmap_details_usecase.dart';
+import '../../features/roadmaps/domain/usecases/follow_roadmap_usecase.dart';
+import '../../features/roadmaps/domain/usecases/unfollow_roadmap_usecase.dart';
+import '../../features/roadmaps/presentation/bloc/roadmap_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -192,13 +208,18 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(() {
-    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
-    consumer.onTokenInvalid = () {
-      sl<AuthBloc>().add(LogoutRequested());
-    };
-    return consumer;
-  });
+  sl.registerLazySingleton<ApiConsumer>(
+        () {
+      final consumer = DioConsumer(
+        dio: sl(),
+        authLocalDataSource: sl(),
+      );
+      consumer.onTokenInvalid = () {
+        sl<AuthBloc>().add(LogoutRequested());
+      };
+      return consumer;
+    },
+  );
 
   sl.registerLazySingleton(
     () => Dio(
@@ -425,6 +446,23 @@ Future<void> init() async {
       reactToPost: sl(),
     ),
   );
+
+  //Roadmaps
+  sl.registerLazySingleton<RoadmapRemoteDataSource>(() => RoadmapRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<RoadmapRepository>(() => RoadmapRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetOrganizationRoadmapsUseCase(sl()));
+  sl.registerLazySingleton(() => GetRoadmapDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => FollowRoadmapUseCase(sl()));
+  sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
+  sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
+
+  sl.registerFactory(() => RoadmapBloc(
+    getOrganizationRoadmaps: sl(),
+    getRoadmapDetails: sl(),
+    followRoadmap: sl(),
+    unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
+  ));
   // Home
   sl.registerFactory(
     () =>
