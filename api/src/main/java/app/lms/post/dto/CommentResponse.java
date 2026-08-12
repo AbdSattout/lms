@@ -23,6 +23,8 @@ public record CommentResponse(
         @JsonInclude(JsonInclude.Include.NON_NULL)
         ReactionType viewerReaction,
 
+        Boolean viewerComment,
+
         BaseEntityResponse baseEntity
 
 ) {
