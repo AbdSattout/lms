@@ -6,6 +6,7 @@ import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/courses/data/datasources/block_remote_datasource.dart';
 import '../../features/courses/data/repositories/block_repository_impl.dart';
 import '../../features/courses/domain/repositories/block_repository.dart';
@@ -197,7 +198,16 @@ Future<void> init() async {
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   sl.registerLazySingleton<ApiConsumer>(
-    () => DioConsumer(dio: sl(), authLocalDataSource: sl()),
+        () {
+      final consumer = DioConsumer(
+        dio: sl(),
+        authLocalDataSource: sl(),
+      );
+      consumer.onTokenInvalid = () {
+        sl<AuthBloc>().add(LogoutRequested());
+      };
+      return consumer;
+    },
   );
 
   sl.registerLazySingleton(
