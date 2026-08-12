@@ -77,6 +77,12 @@ class _MyAppState extends State<MyApp> {
                 debugShowCheckedModeBanner: false,
                 title: 'مسار',
                 locale: const Locale('ar', 'SY'),
+                builder: (context, child) {
+                  return Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: child ?? const SizedBox.shrink(),
+                  );
+                },
                 theme: AppThemes.light,
                 darkTheme: AppThemes.dark,
                 themeMode: mode,
