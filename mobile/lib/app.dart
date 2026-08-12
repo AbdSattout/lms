@@ -59,9 +59,16 @@ class _MyAppState extends State<MyApp> {
           value: widget.authBloc,
           child: BlocListener<AuthBloc, AuthState>(
             listenWhen: (previous, current) =>
-                current is Authenticated || current is AuthSuccess,
+            current is Authenticated || current is AuthSuccess || current is Unauthenticated,
             listener: (context, state) {
               _syncMessagingForAuthState(state);
+
+              if (state is Unauthenticated) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const TelegramLoginPage()),
+                      (route) => false,
+                );
+              }
             },
             child: ImmersiveModeGuard(
               child: MaterialApp(
