@@ -4,12 +4,17 @@ import 'package:lms/core/databases/api/end_points.dart';
 import 'package:lms/core/errors/exceptions.dart';
 
 import '../../../features/auth/data/datasources/auth_local_datasource.dart';
-
 class DioConsumer extends ApiConsumer {
   final Dio dio;
   final AuthLocalDataSource authLocalDataSource;
 
-  DioConsumer({required this.dio, required this.authLocalDataSource}) {
+  void Function()? onTokenInvalid;
+
+  DioConsumer({
+    required this.dio,
+    required this.authLocalDataSource,
+    this.onTokenInvalid,
+  }) {
     dio.options.baseUrl = EndPoints.baseUrl;
 
     dio.interceptors.add(
@@ -23,11 +28,20 @@ class DioConsumer extends ApiConsumer {
           try {
             final auth = await authLocalDataSource.getCachedAuthData();
             options.headers['Authorization'] = 'Bearer ${auth.token}';
-          } catch (_) {
-            // Unauthenticated requests outside the auth flow continue without a token.
-          }
+          } catch (_) {}
 
           handler.next(options);
+        },
+        onError: (error, handler) async {
+          if (error.response?.statusCode == 401) {
+            try {
+              await authLocalDataSource.cache.removeData(
+                key: authLocalDataSource.key,
+              );
+            } catch (_) {}
+            onTokenInvalid?.call();
+          }
+          handler.next(error);
         },
       ),
     );
