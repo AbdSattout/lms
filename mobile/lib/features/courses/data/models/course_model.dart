@@ -65,6 +65,7 @@ class ChapterModel extends ChapterEntity {
     );
   }
 }
+
 class CourseOrganizationRefModel extends CourseOrganizationRef {
   const CourseOrganizationRefModel({
     required super.id,
@@ -118,8 +119,7 @@ class CourseProgressSnapshotModel extends CourseProgressSnapshotEntity {
       currentChapterId: json['currentChapterId'],
       currentLessonId: json['currentLessonId'],
       currentBlockId: json['currentBlockId'],
-      progressPercentage:
-      (json['progressPercentage'] as num?)?.toDouble() ?? 0,
+      progressPercentage: (json['progressPercentage'] as num?)?.toDouble() ?? 0,
       completed: json['completed'] ?? false,
       completedAt: json['completedAt'] != null
           ? DateTime.tryParse(json['completedAt'])
@@ -152,8 +152,7 @@ class CourseEnrollmentDetailsModel extends CourseEnrollmentDetailsEntity {
           : null,
       status: json['status'] ?? '',
       placementTestCompleted: json['placementTestCompleted'] ?? false,
-      progressPercentage:
-      (json['progressPercentage'] as num?)?.toDouble() ?? 0,
+      progressPercentage: (json['progressPercentage'] as num?)?.toDouble() ?? 0,
       currentChapterId: json['currentChapterId'],
       currentLessonId: json['currentLessonId'],
       currentBlockId: json['currentBlockId'],
@@ -171,6 +170,9 @@ class CourseModel extends CourseEntity {
     super.organizationName,
     super.organization,
     super.status,
+    super.level,
+    super.completionXp,
+    super.chaptersCount,
     super.enrollment,
     super.chapters,
     super.progressSnapshot,
@@ -190,6 +192,9 @@ class CourseModel extends CourseEntity {
       )
           : null,
       status: json['status'],
+      level: json['level'] as String?,
+      completionXp: json['completionXp'] as int?,
+      chaptersCount: json['chaptersCount'] as int?,
       enrollment: json['enrollment'] != null
           ? CourseEnrollmentDetailsModel.fromJson(
         json['enrollment'] as Map<String, dynamic>,
@@ -247,8 +252,7 @@ class EnrollActionResultModel extends EnrollActionResultEntity {
     return EnrollActionResultModel(
       courseId: json['courseId'] ?? 0,
       courseTitle: json['courseTitle'] ?? '',
-      enrolledAt:
-      DateTime.tryParse(json['enrolledAt'] ?? '') ?? DateTime.now(),
+      enrolledAt: DateTime.tryParse(json['enrolledAt'] ?? '') ?? DateTime.now(),
       rewards: (json['rewards'] as List? ?? [])
           .map((r) => RewardModel.fromJson(r as Map<String, dynamic>))
           .toList(),
