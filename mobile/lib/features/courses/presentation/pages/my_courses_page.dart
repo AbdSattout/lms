@@ -72,6 +72,7 @@ class MyCoursesPage extends StatelessWidget {
           ],
         ),
       ),
+
     );
   }
 }
@@ -125,7 +126,7 @@ class _CoursesTab extends StatelessWidget {
           return RefreshIndicator(
             onRefresh: () async => context.read<MyCoursesBloc>().add(GetMyEnrollmentsEvent()),
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.only(top: 12, bottom: 100),
               itemCount: state.courses.length,
               itemBuilder: (context, index) {
                 final course = state.courses[index];
