@@ -15,6 +15,11 @@ class OrganizationRepositoryImpl implements OrganizationRepository {
   }
 
   @override
+  Future<List<OrganizationEntity>> getMyOrganizations() async {
+    return await remote.getMyOrganizations();
+  }
+
+  @override
   Future<OrganizationEntity> getOrganizationBySlug(String slug) {
     return remote.getOrganizationBySlug(slug);
   }

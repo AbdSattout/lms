@@ -69,6 +69,7 @@ class EndPoints {
 
   // Organizations
   static const String organizations = 'organizations';
+  static const String myOrganizations = 'organizations/me';
   static String organizationBySlug(String slug) => 'organizations/$slug';
   static String organizationJoin(String slug) => 'organizations/$slug/join';
   static String organizationLeave(String slug) => 'organizations/$slug/leave';
@@ -92,6 +93,7 @@ class EndPoints {
     required String orgSlug,
     required String courseSlug,
   }) => 'organizations/$orgSlug/courses/$courseSlug';
+
   // Blocks
   static String blockContent(int blockId) => 'blocks/$blockId';
   static String submitBlockAnswer(int blockId) => 'blocks/$blockId/submit';
