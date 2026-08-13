@@ -344,13 +344,8 @@ export const removeMember = defineApiRoute({
 })
 
 export const banUser = defineApiRoute({
-  post: (
-    slug: string,
-    userId: number,
-    request: BanRequest,
-    options?: BackendFetchOptions
-  ) =>
-    backend<void>(`/dashboard/organizations/${slug}/users/${userId}/ban`, {
+  post: (userId: number, request: BanRequest, options?: BackendFetchOptions) =>
+    backend<void>(`/admin/moderation/users/${userId}/ban`, {
       method: "POST",
       body: request,
       ...options,
@@ -358,9 +353,18 @@ export const banUser = defineApiRoute({
 })
 
 export const unbanUser = defineApiRoute({
-  delete: (slug: string, userId: number, options?: BackendFetchOptions) =>
-    backend<void>(`/dashboard/organizations/${slug}/users/${userId}/ban`, {
+  delete: (userId: number, options?: BackendFetchOptions) =>
+    backend<void>(`/admin/moderation/users/${userId}/ban`, {
       method: "DELETE",
+      ...options,
+    }),
+})
+
+export const adminBanOrg = defineApiRoute({
+  post: (orgId: number, request: BanRequest, options?: BackendFetchOptions) =>
+    backend<void>(`/admin/moderation/organizations/${orgId}/ban`, {
+      method: "POST",
+      body: request,
       ...options,
     }),
 })

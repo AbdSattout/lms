@@ -22,7 +22,7 @@ const RESEND_COOLDOWN_SECONDS = 60
 const MAX_ATTEMPTS = 5
 const REQUEST_TIMEOUT_MS = 20_000
 
-type Step = "email" | "code"
+type Step = "email" | "code" | "admin"
 
 async function postJson(url: string, body: unknown) {
   const controller = new AbortController()
@@ -58,12 +58,17 @@ export function LoginForm({
   const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
   const [code, setCode] = useState("")
+  const [password, setPassword] = useState("")
   const [attempts, setAttempts] = useState(0)
   const [resendIn, setResendIn] = useState(0)
   const [isSending, setIsSending] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isAdminLoggingIn, setIsAdminLoggingIn] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const lastAutoSubmittedCodeRef = useRef("")
+
+  const [clickCount, setClickCount] = useState(0)
+  const clickTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const isEmailValid = /\S+@\S+\.\S+/.test(email)
 
@@ -80,12 +85,87 @@ export function LoginForm({
   const resetToEmailStep = () => {
     setStep("email")
     setCode("")
+    setPassword("")
     setAttempts(0)
     setResendIn(0)
     setError(null)
+    setClickCount(0)
     lastAutoSubmittedCodeRef.current = ""
   }
 
+  const handleAdminClick = () => {
+    setClickCount((prev) => {
+      const newCount = prev + 1
+
+      if (newCount === 5) {
+        setClickCount(0)
+        setStep("admin")
+        setEmail("")
+        setPassword("")
+        setError(null)
+        toast.info("تم تفعيل وضع تسجيل دخول المشرف", {
+          description: "أدخل بريد المشرف وكلمة المرور",
+        })
+        return 0
+      }
+
+      if (clickTimerRef.current) {
+        clearTimeout(clickTimerRef.current)
+      }
+
+      clickTimerRef.current = setTimeout(() => {
+        setClickCount(0)
+      }, 3000)
+
+      return newCount
+    })
+  }
+
+  const handleAdminLogin = async () => {
+    if (!isEmailValid || !password || isAdminLoggingIn) {
+      return
+    }
+
+    try {
+      setIsAdminLoggingIn(true)
+      setError(null)
+
+      console.log("Sending admin login request:", {
+        email: email.trim(),
+        password: password,
+      })
+
+      const response = await postJson("/api/auth/admin", {
+        email: email.trim(),
+        password: password,
+      })
+
+      console.log("Admin login response status:", response.status)
+
+      const data = await response.json()
+      console.log("Admin login response data:", data)
+
+      if (!response.ok) {
+        throw new Error(
+          data.message ||
+            (response.status === 401
+              ? "بيانات المشرف غير صحيحة"
+              : "حدث خطأ ما، حاول مرة أخرى.")
+        )
+      }
+
+      console.log("Admin login successful:", data)
+      toast.success("تم تسجيل دخول المشرف بنجاح")
+      router.replace("/admin")
+    } catch (error) {
+      console.error("Admin login error:", error)
+      setError(
+        error instanceof Error ? error.message : "حدث خطأ ما، حاول مرة أخرى."
+      )
+    } finally {
+      setIsAdminLoggingIn(false)
+    }
+  }
   const handleSendCode = async () => {
     if (!isEmailValid || isSending) {
       return
@@ -100,8 +180,6 @@ export function LoginForm({
       })
 
       if (response.status === 429) {
-        // A code was already sent recently - tell the user before switching
-        // to the code step (a valid OTP for this email already exists).
         toast.info("تم إرسال رمز التحقق مسبقًا، تحقق من بريدك الإلكتروني.")
         setCode("")
         setAttempts(0)
@@ -183,6 +261,15 @@ export function LoginForm({
     }
   }, [code, isVerifying])
 
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (clickTimerRef.current) {
+        clearTimeout(clickTimerRef.current)
+      }
+    }
+  }, [])
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <form
@@ -191,6 +278,8 @@ export function LoginForm({
 
           if (step === "code") {
             void handleVerify()
+          } else if (step === "admin") {
+            void handleAdminLogin()
           } else {
             void handleSendCode()
           }
@@ -198,7 +287,13 @@ export function LoginForm({
       >
         <FieldGroup className="gap-4">
           <div className="flex flex-col items-center gap-2 text-center">
-            <span className="font-heading text-4xl">مسار</span>
+            <span
+              className="font-heading text-4xl"
+              onClick={handleAdminClick}
+              title={clickCount > 0 ? `${clickCount}/5` : undefined}
+            >
+              مسار
+            </span>
             <FieldDescription>
               {step === "code" ? (
                 <>
@@ -207,6 +302,8 @@ export function LoginForm({
                     {email.trim()}
                   </span>
                 </>
+              ) : step === "admin" ? (
+                "تسجيل دخول المشرف - أدخل بيانات المشرف"
               ) : (
                 "أدخل بريدك الإلكتروني وسنرسل إليك رمز تحقق"
               )}
@@ -269,6 +366,63 @@ export function LoginForm({
                 </div>
               </Field>
             </>
+          ) : step === "admin" ? (
+            <>
+              <Field data-invalid={!!error}>
+                <FieldLabel htmlFor="admin-email">بريد المشرف</FieldLabel>
+                <Input
+                  id="admin-email"
+                  autoFocus
+                  type="email"
+                  autoComplete="email"
+                  dir="ltr"
+                  className="text-left"
+                  placeholder="admin@example.com"
+                  aria-invalid={!!error}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                />
+              </Field>
+
+              <Field data-invalid={!!error}>
+                <FieldLabel htmlFor="admin-password">كلمة المرور</FieldLabel>
+                <Input
+                  id="admin-password"
+                  type="password"
+                  autoComplete="current-password"
+                  dir="ltr"
+                  className="text-left"
+                  placeholder="••••••••"
+                  aria-invalid={!!error}
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+                {error ? <FieldError>{error}</FieldError> : null}
+              </Field>
+
+              <Field>
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={!isEmailValid || !password || isAdminLoggingIn}
+                >
+                  {isAdminLoggingIn
+                    ? "جاري تسجيل الدخول..."
+                    : "تسجيل دخول المشرف"}
+                </Button>
+                <div className="flex justify-center">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="px-2"
+                    onClick={resetToEmailStep}
+                  >
+                    العودة لتسجيل الدخول العادي
+                  </Button>
+                </div>
+              </Field>
+            </>
           ) : (
             <>
               <Field data-invalid={!!error}>
@@ -300,12 +454,16 @@ export function LoginForm({
             </>
           )}
 
-          <FieldSeparator>أو</FieldSeparator>
+          {step !== "admin" && (
+            <>
+              <FieldSeparator>أو</FieldSeparator>
 
-          <Field className="grid gap-4 sm:grid-cols-2">
-            <LoginButton provider="telegram" />
-            <LoginButton provider="google" />
-          </Field>
+              <Field className="grid gap-4 sm:grid-cols-2">
+                <LoginButton provider="telegram" />
+                <LoginButton provider="google" />
+              </Field>
+            </>
+          )}
         </FieldGroup>
       </form>
     </div>

@@ -5,6 +5,7 @@ import {
   loginWithGoogle,
   loginWithTelegram,
   requestEmailOtp,
+  loginAdmin,
 } from "@/lib/api/auth"
 import {
   byId as blocksById,
@@ -88,7 +89,12 @@ import {
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture, search as userSearch } from "@/lib/api/users"
-import { generateQuestionFromBlock, transformText, generateFaq, getFaqs } from "@/lib/api/ai"
+import {
+  generateQuestionFromBlock,
+  transformText,
+  generateFaq,
+  getFaqs,
+} from "@/lib/api/ai"
 import {
   byOrg as postMediaByOrg,
   byId as postMediaById,
@@ -104,6 +110,7 @@ export const api = {
     loginWithGoogle,
     requestEmailOtp,
     loginWithEmailOtp,
+    loginAdmin,
   },
   organizations: {
     list,
