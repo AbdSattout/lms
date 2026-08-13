@@ -140,7 +140,7 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                                       onPressed: () {
                                         Navigator.push(context, MaterialPageRoute(builder: (_) => BlocProvider(create: (_) => sl<BlockContentBloc>(), child: LessonContentPage(initialBlockId: progressSnapshot.currentBlockId ?? 0))));
                                       },
-                                      icon: const Icon(Icons.play_arrow_rounded, size: 18),
+                                      icon: const Icon(Icons.arrow_circle_left_sharp, size: 18),
                                       label: const Text('استمر', style: TextStyle(fontWeight: FontWeight.w700)),
                                       style: TextButton.styleFrom(foregroundColor: colors.primary, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
                                     ),
