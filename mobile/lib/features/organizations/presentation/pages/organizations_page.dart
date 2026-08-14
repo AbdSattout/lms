@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import '../../../../core/services/external_url_launcher.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -19,11 +18,35 @@ import '../widgets/organization_card.dart';
 import 'organization_details_page.dart';
 import 'public_organization_invite_page.dart';
 
-class OrganizationsPage extends StatelessWidget {
+class OrganizationsPage extends StatefulWidget {
   final String? currentUserName;
+  final bool showOnlyMine;
+  const OrganizationsPage({super.key, this.currentUserName,this.showOnlyMine=false});
 
-  const OrganizationsPage({super.key, this.currentUserName});
+  @override
+  State<OrganizationsPage> createState() => _OrganizationsPageState();
+}
 
+class _OrganizationsPageState extends State<OrganizationsPage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (widget.showOnlyMine) {
+        context.read<OrganizationBloc>().add(GetMyOrganizationsEvent());
+      } else {
+        context.read<OrganizationBloc>().add(GetAllOrganizationsEvent());
+      }
+    });
+  }
+  void _refresh() {
+    if (widget.showOnlyMine) {
+      context.read<OrganizationBloc>().add(GetMyOrganizationsEvent());
+    } else {
+      context.read<OrganizationBloc>().add(GetAllOrganizationsEvent());
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -65,11 +88,7 @@ class OrganizationsPage extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () {
-                          context.read<OrganizationBloc>().add(
-                            GetAllOrganizationsEvent(),
-                          );
-                        },
+                        onPressed: _refresh,
                         child: const Text('إعادة المحاولة'),
                       ),
                     ],
@@ -97,26 +116,32 @@ class OrganizationsPage extends StatelessWidget {
                           bottom: Radius.circular(34),
                         ),
                       ),
-                      child: Text(
-                        'المنظمات',
-                        style: textTheme.displayLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
-                          color: colors.primary,
-                        ),
+                      child: Row(
+                        children: [
+                          if (!widget.showOnlyMine)
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                              color: colors.primary,
+                              onPressed: () => Navigator.pop(context),
+                            ),
+                          Text(
+                            widget.showOnlyMine ? 'منظماتي' : 'المنظمات',
+                            style: textTheme.displayLarge?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Expanded(
                       child: RefreshIndicator(
-                        onRefresh: () async {
-                          context.read<OrganizationBloc>().add(
-                            GetAllOrganizationsEvent(),
-                          );
-                        },
+                        onRefresh: () async => _refresh(),
                         child: ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           padding: const EdgeInsets.only(top: 18, bottom: 100),
                           children: [
-                            const _InviteLinkEntryCard(),
+                            _InviteLinkEntryCard(onAccepted:_refresh),
                             if (state.organizations.isEmpty) ...[
                               const SizedBox(height: 34),
                               _EmptyOrganizationsState(
@@ -128,9 +153,9 @@ class OrganizationsPage extends StatelessWidget {
                             ] else
                               ...state.organizations.map((organization) {
                                 final isOwnedByMe =
-                                    currentUserName != null &&
+                                    widget.currentUserName != null &&
                                     organization.ownerName != null &&
-                                    organization.ownerName == currentUserName;
+                                    organization.ownerName == widget.currentUserName;
 
                                 return OrganizationCard(
                                   organization: organization,
@@ -153,9 +178,7 @@ class OrganizationsPage extends StatelessWidget {
                                       ),
                                     ).then((_) {
                                       if (!context.mounted) return;
-                                      context.read<OrganizationBloc>().add(
-                                        GetAllOrganizationsEvent(),
-                                      );
+                                      _refresh();
                                     });
                                   },
                                 );
@@ -178,20 +201,21 @@ class OrganizationsPage extends StatelessWidget {
 }
 
 class _InviteLinkEntryCard extends StatelessWidget {
-  const _InviteLinkEntryCard();
 
+  final VoidCallback onAccepted;
+  const _InviteLinkEntryCard({required this.onAccepted});
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<PublicOrganizationInviteBloc>(),
-      child: const _InviteLinkEntryCardBody(),
+      child: _InviteLinkEntryCardBody(onAccepted: onAccepted),
     );
   }
 }
 
 class _InviteLinkEntryCardBody extends StatefulWidget {
-  const _InviteLinkEntryCardBody();
-
+  final VoidCallback onAccepted;
+  const _InviteLinkEntryCardBody({required this.onAccepted});
   @override
   State<_InviteLinkEntryCardBody> createState() =>
       _InviteLinkEntryCardBodyState();
@@ -304,19 +328,16 @@ class _InviteLinkEntryCardBodyState extends State<_InviteLinkEntryCardBody> {
           ),
         )
         .then((accepted) {
-          if (!mounted || accepted != true) return;
-
-          _controller.clear();
-          setState(() {
-            _hasInput = false;
-            _currentToken = null;
-            _normalizedUrl = null;
-          });
-          context.read<PublicOrganizationInviteBloc>().add(
-            ResetPublicOrganizationInviteEvent(),
-          );
-          context.read<OrganizationBloc>().add(GetAllOrganizationsEvent());
-        });
+      if (!mounted || accepted != true) return;
+      _controller.clear();
+      setState(() {
+        _hasInput = false;
+        _currentToken = null;
+        _normalizedUrl = null;
+      });
+      context.read<PublicOrganizationInviteBloc>().add(ResetPublicOrganizationInviteEvent());
+      widget.onAccepted();
+    });
   }
 
   void _clearInput() {

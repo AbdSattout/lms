@@ -25,6 +25,7 @@ import '../../features/organizations/domain/usecases/accept_organization_invite_
 import '../../features/organizations/domain/usecases/delete_organization_usecase.dart';
 import '../../features/organizations/domain/usecases/decline_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/get_my_organization_invites_usecase.dart';
+import '../../features/organizations/domain/usecases/get_my_organizations_usecase.dart';
 import '../../features/organizations/domain/usecases/get_organization_invite_preview_by_token_usecase.dart';
 import '../../features/organizations/domain/usecases/get_organization_courses_usecase.dart';
 import '../../features/organizations/domain/usecases/join_organization_usecase.dart';
@@ -329,8 +330,13 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => DeclineOrganizationInviteUseCase(sl()));
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
-  sl.registerFactory(() => OrganizationBloc(getAllOrganizationsUseCase: sl()));
-
+  sl.registerLazySingleton(() => GetMyOrganizationsUseCase(sl()));
+  sl.registerFactory(
+        () => OrganizationBloc(
+      getAllOrganizationsUseCase: sl(),
+      getMyOrganizationsUseCase: sl(),
+    ),
+  );
   sl.registerFactory(
     () => OrganizationDetailsBloc(
       getOrganizationBySlugUseCase: sl(),
