@@ -1,31 +1,30 @@
 package app.lms.email.service;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClient;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class EmailDeliveryService {
 
-    private final JavaMailSender mailSender;
-
-    @Value("${spring.mail.host:}")
-    private String mailHost;
+    @Value("${app.email.api-token:}")
+    private String apiToken;
 
     @Value("${app.email-otp.from:}")
     private String fromEmail;
 
-    public boolean isConfigured() {
+    private final RestClient restClient = RestClient.builder()
+            .baseUrl("https://resend.com")
+            .build();
 
-        return StringUtils.hasText(mailHost);
+    public boolean isConfigured() {
+        return StringUtils.hasText(apiToken) && StringUtils.hasText(fromEmail);
     }
 
     public void sendHtml(
@@ -33,35 +32,30 @@ public class EmailDeliveryService {
             String subject,
             String plainText,
             String html
-    ) throws MessagingException {
+    ) {
 
         if (!isConfigured()) {
-            throw new IllegalStateException(
-                    "Email is not configured"
-            );
+            throw new IllegalStateException("Email API is not configured");
         }
 
-        MimeMessage message =
-                mailSender.createMimeMessage();
-
-        MimeMessageHelper helper =
-                new MimeMessageHelper(
-                        message,
-                        true,
-                        StandardCharsets.UTF_8.name()
-                );
-
-        if (StringUtils.hasText(fromEmail)) {
-            helper.setFrom(fromEmail);
-        }
-
-        helper.setTo(to);
-        helper.setSubject(subject);
-        helper.setText(
-                plainText,
-                html
+        Map<String, Object> payload = Map.of(
+                "from", fromEmail,
+                "to", new String[]{to},
+                "subject", subject,
+                "text", plainText,
+                "html", html
         );
 
-        mailSender.send(message);
+        try {
+            restClient.post()
+                    .uri("/emails")
+                    .header("Authorization", "Bearer " + apiToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(payload)
+                    .retrieve()
+                    .toBodilessEntity();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to deliver email via HTTP API on Railway", e);
+        }
     }
 }
