@@ -13,18 +13,18 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EmailDeliveryService {
 
-    @Value("${app.email.api-token:}")
-    private String apiToken;
+    @Value("${app.email.api-key:}")
+    private String apiKey;
 
     @Value("${app.email-otp.from:}")
     private String fromEmail;
 
     private final RestClient restClient = RestClient.builder()
-            .baseUrl("https://resend.com")
+            .baseUrl("https://api.resend.com")
             .build();
 
     public boolean isConfigured() {
-        return StringUtils.hasText(apiToken) && StringUtils.hasText(fromEmail);
+        return StringUtils.hasText(apiKey) && StringUtils.hasText(fromEmail);
     }
 
     public void sendHtml(
@@ -35,7 +35,7 @@ public class EmailDeliveryService {
     ) {
 
         if (!isConfigured()) {
-            throw new IllegalStateException("Email API is not configured");
+            throw new IllegalStateException("Resend Email HTTPS API is not configured");
         }
 
         Map<String, Object> payload = Map.of(
@@ -49,13 +49,13 @@ public class EmailDeliveryService {
         try {
             restClient.post()
                     .uri("/emails")
-                    .header("Authorization", "Bearer " + apiToken)
+                    .header("Authorization", "Bearer " + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payload)
                     .retrieve()
                     .toBodilessEntity();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to deliver email via HTTP API on Railway", e);
+            throw new RuntimeException("Failed to deliver email via Resend HTTPS API on Railway", e);
         }
     }
 }
