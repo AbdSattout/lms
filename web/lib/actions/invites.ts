@@ -17,17 +17,22 @@ export async function getMyPendingInvitesAction(): Promise<
     return []
   }
 }
-
-export async function acceptInviteAction(token: string): Promise<{
+export async function acceptInviteAction(
+  slug: string,
+  inviteId: number
+): Promise<{
   success: boolean
   error?: string
 }> {
   try {
-    await api.dashboard.organizations.invites.accept.post(token)
+    await api.dashboard.organizations.invites.accept.post(slug, inviteId)
+
     revalidatePath("/")
+
     return { success: true }
   } catch (error) {
     console.error("Failed to accept invite:", error)
+
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to accept invite",
@@ -35,16 +40,22 @@ export async function acceptInviteAction(token: string): Promise<{
   }
 }
 
-export async function declineInviteAction(token: string): Promise<{
+export async function declineInviteAction(
+  slug: string,
+  inviteId: number
+): Promise<{
   success: boolean
   error?: string
 }> {
   try {
-    await api.dashboard.organizations.invites.decline.post(token)
+    await api.dashboard.organizations.invites.decline.post(slug, inviteId)
+
     revalidatePath("/")
+
     return { success: true }
   } catch (error) {
     console.error("Failed to decline invite:", error)
+
     return {
       success: false,
       error:

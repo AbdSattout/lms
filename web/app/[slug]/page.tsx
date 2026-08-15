@@ -20,6 +20,7 @@ export default async function OverviewPage({
       api.profile.me.get(),
     ])
   const ownerId = overviewData.owner.id
+  console.log("overviewData", overviewData)
   return (
     <div className="flex flex-col gap-6" dir="rtl">
       <BreadcrumbTrail items={[{ label: "نظرة عامة" }]} />
