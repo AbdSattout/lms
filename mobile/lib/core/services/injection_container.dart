@@ -44,6 +44,11 @@ import '../../features/profile/domain/usecases/update_profile_picture_usecase.da
 import '../../features/profile/domain/usecases/update_profile_usecase.dart';
 import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
 import '../../features/profile/presentation/bloc/profile_bloc.dart';
+import '../../features/recommendations/data/datasources/recommendation_remote_datasource.dart';
+import '../../features/recommendations/data/repositories/recommendation_repository_impl.dart';
+import '../../features/recommendations/domain/repositories/recommendation_repository.dart';
+import '../../features/recommendations/domain/usecases/get_recommended_courses_usecase.dart';
+import '../../features/recommendations/domain/usecases/get_recommended_organizations_usecase.dart';
 import '../../features/roadmaps/domain/usecases/get_my_roadmaps_usecase.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
@@ -209,18 +214,13 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(
-        () {
-      final consumer = DioConsumer(
-        dio: sl(),
-        authLocalDataSource: sl(),
-      );
-      consumer.onTokenInvalid = () {
-        sl<AuthBloc>().add(LogoutRequested());
-      };
-      return consumer;
-    },
-  );
+  sl.registerLazySingleton<ApiConsumer>(() {
+    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
+    consumer.onTokenInvalid = () {
+      sl<AuthBloc>().add(LogoutRequested());
+    };
+    return consumer;
+  });
 
   sl.registerLazySingleton(
     () => Dio(
@@ -332,7 +332,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetOrganizationCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetMyOrganizationsUseCase(sl()));
   sl.registerFactory(
-        () => OrganizationBloc(
+    () => OrganizationBloc(
       getAllOrganizationsUseCase: sl(),
       getMyOrganizationsUseCase: sl(),
     ),
@@ -357,6 +357,16 @@ Future<void> init() async {
       getInvitePreviewByTokenUseCase: sl(),
     ),
   );
+
+  // Recommendations
+  sl.registerLazySingleton<RecommendationRemoteDataSource>(
+    () => RecommendationRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<RecommendationRepository>(
+    () => RecommendationRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetRecommendedCoursesUseCase(sl()));
+  sl.registerLazySingleton(() => GetRecommendedOrganizationsUseCase(sl()));
 
   // Notifications
   sl.registerLazySingleton<NotificationRemoteDataSource>(
@@ -454,25 +464,33 @@ Future<void> init() async {
   );
 
   //Roadmaps
-  sl.registerLazySingleton<RoadmapRemoteDataSource>(() => RoadmapRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<RoadmapRepository>(() => RoadmapRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<RoadmapRemoteDataSource>(
+    () => RoadmapRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<RoadmapRepository>(
+    () => RoadmapRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetOrganizationRoadmapsUseCase(sl()));
   sl.registerLazySingleton(() => GetRoadmapDetailsUseCase(sl()));
   sl.registerLazySingleton(() => FollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
 
-  sl.registerFactory(() => RoadmapBloc(
-    getOrganizationRoadmaps: sl(),
-    getRoadmapDetails: sl(),
-    followRoadmap: sl(),
-    unfollowRoadmap: sl(),
-    getMyRoadmaps: sl(),
-  ));
+  sl.registerFactory(
+    () => RoadmapBloc(
+      getOrganizationRoadmaps: sl(),
+      getRoadmapDetails: sl(),
+      followRoadmap: sl(),
+      unfollowRoadmap: sl(),
+      getMyRoadmaps: sl(),
+    ),
+  );
   // Home
   sl.registerFactory(
-    () =>
-        HomeBloc(getAllCoursesUseCase: sl(), getAllOrganizationsUseCase: sl()),
+    () => HomeBloc(
+      getRecommendedCoursesUseCase: sl(),
+      getRecommendedOrganizationsUseCase: sl(),
+    ),
   );
 
   //! External
