@@ -6,6 +6,7 @@ import app.lms.admin.repository.AdminRepository;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.ForbiddenException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.organization.OrganizationBan.model.OrganizationModeration;
 import app.lms.organization.OrganizationBan.repository.OrganizationModerationRepository;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationRepository;
@@ -65,6 +66,17 @@ public class AdminModerationAccessService {
             );
         }
 
+    }
+
+    public void validateSuperAdmin(
+            Admin admin
+    ) {
+
+        if (admin.getRole() != AdminRole.SUPER_ADMIN) {
+            throw new ForbiddenException(
+                    "Access denied"
+            );
+        }
     }
 
     public Organization getOrganization(
@@ -127,6 +139,21 @@ public class AdminModerationAccessService {
             );
         }
 
+    }
+
+    public OrganizationModeration getOrganizationModerationBan(
+            Organization organization
+    ) {
+
+        return organizationModerationRepository
+                .findByOrganizationId(
+                        organization.getId()
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Ban not found"
+                        )
+                );
     }
 
 }

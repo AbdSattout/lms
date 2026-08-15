@@ -5,11 +5,9 @@ import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
 import app.lms.organization.organizationInvite.model.OrganizationInvite;
 import app.lms.user.model.User;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -84,9 +82,7 @@ public class OrganizationInviteEmailService {
                     )
             );
 
-        } catch (MailException |
-                 MessagingException |
-                 IllegalStateException ex) {
+        } catch (RuntimeException ex) {
             log.warn(
                     "Failed to send organization invite email. inviteId={}, userId={}",
                     invite.getId(),

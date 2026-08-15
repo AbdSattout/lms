@@ -2,6 +2,7 @@ package app.lms.post.service;
 
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
 import app.lms.notification.enums.NotificationType;
@@ -51,7 +52,7 @@ public class PostService {
 
             course =
                     courseAccessService
-                            .getEditableCourse(
+                            .getManageableCourse(
                                     request.courseId(),
                                     user
                             );
@@ -61,6 +62,12 @@ public class PostService {
 
                 throw new ConflictException(
                         "Course does not belong to organization"
+                );
+            }
+
+            if (course.getStatus() != CourseStatus.PUBLISHED) {
+                throw new ConflictException(
+                        "Course must be published to create posts"
                 );
             }
         }

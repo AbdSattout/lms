@@ -20,6 +20,11 @@ public interface CourseRepository
             Long organizationId
     );
 
+    Page<Course> findAllByOrganizationId(
+            Long organizationId,
+            Pageable pageable
+    );
+
     Page<Course> findAllByOrganizationIdAndStatus(
             Long organizationId,
             CourseStatus status,

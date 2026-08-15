@@ -1,10 +1,14 @@
 package app.lms.admin.controller;
 
+import app.lms.admin.dto.BannedOrganizationResponse;
+import app.lms.admin.dto.BannedUserResponse;
 import app.lms.admin.security.AdminPrincipal;
 import app.lms.admin.service.AdminModerationService;
 import app.lms.moderation.dto.BanRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +19,24 @@ import org.springframework.web.bind.annotation.*;
 public class AdminModerationController {
 
     private final AdminModerationService moderationService;
+
+    @GetMapping("/users/banned")
+    public ResponseEntity<Page<BannedUserResponse>> getBannedUsers(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                moderationService.getBannedUsers(
+                        admin.getId(),
+                        pageable
+                )
+        );
+    }
 
 
     @PostMapping("/users/{userId}/ban")
@@ -62,6 +84,24 @@ public class AdminModerationController {
                 .build();
     }
 
+    @GetMapping("/organizations/banned")
+    public ResponseEntity<Page<BannedOrganizationResponse>> getBannedOrganizations(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                moderationService.getBannedOrganizations(
+                        admin.getId(),
+                        pageable
+                )
+        );
+    }
+
     @PostMapping("/organizations/{organizationId}/ban")
     public ResponseEntity<Void> banOrganization(
 
@@ -84,6 +124,26 @@ public class AdminModerationController {
         );
 
         return ResponseEntity.ok()
+                .build();
+    }
+
+    @DeleteMapping("/organizations/{organizationId}/ban")
+    public ResponseEntity<Void> unbanOrganization(
+
+            @PathVariable
+            Long organizationId,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        moderationService.unbanOrganization(
+                organizationId,
+                admin.getId()
+        );
+
+        return ResponseEntity.noContent()
                 .build();
     }
 
