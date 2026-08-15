@@ -46,9 +46,29 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   @override
   Future<int> getUnreadCount() async {
     final response = await api.get(EndPoints.notificationUnreadCount);
-    if (response is int) return response;
-    if (response is num) return response.toInt();
-    return int.tryParse(response?.toString() ?? '') ?? 0;
+    return _readCount(response) ?? 0;
+  }
+
+  int? _readCount(Object? value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    if (value is Map) {
+      for (final key in const [
+        'unreadCount',
+        'count',
+        'total',
+        'totalElements',
+        'value',
+      ]) {
+        if (!value.containsKey(key)) continue;
+        return _readCount(value[key]) ?? 0;
+      }
+
+      return _readCount(value['data']);
+    }
+
+    return null;
   }
 
   @override

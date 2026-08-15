@@ -20,7 +20,6 @@ import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
-import '../../../organizations/presentation/bloc/organization_event.dart';
 import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../../organizations/presentation/pages/organizations_page.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
@@ -73,9 +72,7 @@ class MainHomeScreen extends StatelessWidget {
                       child: const MyCoursesPage(),
                     ),
                     BlocProvider(
-                      create: (_) =>
-                          sl<OrganizationBloc>()
-                            ..add(GetAllOrganizationsEvent()),
+                      create: (_) => sl<OrganizationBloc>(),
                       child: OrganizationsPage(
                         currentUserName: user.name,
                         showOnlyMine: true,
@@ -1351,13 +1348,15 @@ class _NotificationRefreshListenerState
 
     _notificationsBloc = context.read();
 
-    _subscription ??= sl<FirebaseMessagingService>().messages.listen((_) {
-      _refreshNotifications();
+    final firebaseMessagingService = sl<FirebaseMessagingService>();
+    _subscription ??= firebaseMessagingService.foregroundMessages.listen((_) {
+      _notificationsBloc.add(NotificationReceivedEvent());
+      _refreshNotifications(keepHigherUnreadCount: true);
 
       _delayedRefresh?.cancel();
       _delayedRefresh = Timer(
         const Duration(milliseconds: 1200),
-        _refreshNotifications,
+        () => _refreshNotifications(keepHigherUnreadCount: true),
       );
     });
   }
@@ -1374,10 +1373,12 @@ class _NotificationRefreshListenerState
     return widget.child;
   }
 
-  void _refreshNotifications() {
+  void _refreshNotifications({bool keepHigherUnreadCount = false}) {
     if (!mounted) return;
 
-    _notificationsBloc.add(RefreshNotificationsEvent());
+    _notificationsBloc.add(
+      RefreshNotificationsEvent(keepHigherUnreadCount: keepHigherUnreadCount),
+    );
   }
 }
 
@@ -1425,11 +1426,14 @@ class _NotificationBellButton extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(15),
               onTap: () async {
+                final notificationsBloc = context.read<NotificationsBloc>()
+                  ..add(RefreshNotificationsEvent());
+
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => BlocProvider.value(
-                      value: context.read<NotificationsBloc>(),
+                      value: notificationsBloc,
                       child: const NotificationsPage(),
                     ),
                   ),

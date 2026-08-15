@@ -18,6 +18,8 @@ class FirebaseMessagingService {
   final ForegroundNotificationService foregroundNotificationService;
 
   final _messageController = StreamController<RemoteMessage>.broadcast();
+  final _foregroundMessageController =
+      StreamController<RemoteMessage>.broadcast();
 
   StreamSubscription<String>? _tokenRefreshSubscription;
   StreamSubscription<RemoteMessage>? _foregroundMessageSubscription;
@@ -30,6 +32,8 @@ class FirebaseMessagingService {
   });
 
   Stream<RemoteMessage> get messages => _messageController.stream;
+  Stream<RemoteMessage> get foregroundMessages =>
+      _foregroundMessageController.stream;
 
   static Future<bool> ensureFirebaseInitialized() async {
     if (Firebase.apps.isNotEmpty) return true;
@@ -110,6 +114,7 @@ class FirebaseMessagingService {
   }
 
   void _handleForegroundMessage(RemoteMessage message) {
+    _foregroundMessageController.add(message);
     _messageController.add(message);
     unawaited(foregroundNotificationService.show(message));
   }
@@ -118,6 +123,7 @@ class FirebaseMessagingService {
     await _tokenRefreshSubscription?.cancel();
     await _foregroundMessageSubscription?.cancel();
     await _openedMessageSubscription?.cancel();
+    await _foregroundMessageController.close();
     await _messageController.close();
   }
 }
