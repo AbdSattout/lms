@@ -1,6 +1,8 @@
 package app.lms.common.exception;
 
 import app.lms.ai.common.exception.AiServiceException;
+import app.lms.chat.exception.ChatAccessDeniedException;
+import app.lms.chat.exception.ChatMutedException;
 import app.lms.media.exception.ImageDeleteException;
 import app.lms.media.exception.ImageUploadException;
 import app.lms.plan.exception.PlanLimitExceededException;
@@ -247,6 +249,45 @@ public class GlobalExceptionHandler {
                                 "error", ex.getMessage()
                         )
                 );
+    }
+
+    @ExceptionHandler(ChatAccessDeniedException.class)
+    public ResponseEntity<?> handleChatAccessDeniedException(
+            ChatAccessDeniedException ex
+    ) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(
+                        Map.of(
+                                "status", 403,
+                                "error", ex.getMessage()
+                        )
+                );
+    }
+
+    @ExceptionHandler(ChatMutedException.class)
+    public ResponseEntity<?> handleChatMutedException(
+            ChatMutedException ex
+    ) {
+
+        Map<String, Object> body =
+                new HashMap<>();
+
+        body.put(
+                "status",
+                403
+        );
+        body.put(
+                "error",
+                ex.getMessage()
+        );
+        body.put(
+                "mutedUntil",
+                ex.getMutedUntil()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(body);
     }
 
     @ExceptionHandler(

@@ -3,12 +3,24 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, User, BookOpen, FileText, Map } from "lucide-react"
+import {
+  Users,
+  User,
+  BookOpen,
+  FileText,
+  Map,
+  UserX,
+  HardDrive,
+  Crown,
+  Infinity,
+} from "lucide-react"
 import { MembersDialog } from "../members-dialog"
 import type { OrganizationOverviewResponse } from "@/lib/api/types"
 import { Route } from "next"
 import { CoursesOverviewDialog } from "../forms/course-overview-form"
 import { OwnerDialog } from "../forms/owner-form-dialog"
+import { formatBytes } from "@/lib/utils/format-bytes"
+import { BannedUsersDialog } from "../forms/banned-users-dialog"
 
 interface OrgOverviewCardProps {
   slug: string
@@ -31,10 +43,14 @@ export function OrgOverviewCard({
   >(null)
   const [showOwnerDialog, setShowOwnerDialog] = useState(false)
   const [showCoursesDialog, setShowCoursesDialog] = useState(false)
+  const [showBannedDialog, setShowBannedDialog] = useState(false)
+
+  const isPremium = overviewData.ownerPlan.premium ?? false
 
   return (
     <div className="w-full space-y-6">
       <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Owner Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowOwnerDialog(true)}
@@ -52,6 +68,7 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
+        {/* Admins Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("admins")}
@@ -67,6 +84,7 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
+        {/* Students Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("students")}
@@ -82,6 +100,25 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
+        {/* Banned Students Card */}
+        <Card
+          className="cursor-pointer transition-all duration-200 hover:border-destructive/50 hover:shadow-lg active:scale-[0.98]"
+          onClick={() => setShowBannedDialog(true)}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-semibold text-foreground">
+              الطلاب المحظورين
+            </CardTitle>
+            <UserX className="h-5 w-5 text-destructive" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-destructive">
+              {overviewData.bannedUsersCount}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Courses Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowCoursesDialog(true)}
@@ -103,6 +140,7 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
+        {/* Posts Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => router.push(`/${slug}/posts` as Route)}
@@ -118,6 +156,7 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
+        {/* Roadmaps Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => router.push(`/${slug}/roadmaps` as Route)}
@@ -134,6 +173,65 @@ export function OrgOverviewCard({
             </div>
           </CardContent>
         </Card>
+
+        {/* Storage Card - Only visible to owner */}
+        {isOwner && (
+          <Card
+            className={`relative transition-all duration-200 ${
+              isPremium
+                ? "border-2 border-amber-400/50 bg-gradient-to-br from-amber-50/50 to-transparent shadow-lg shadow-amber-100/50"
+                : "opacity-75"
+            }`}
+          >
+            {isPremium && (
+              <div className="absolute -top-2 left-1/2 -translate-x-1/2 transform">
+                <div className="rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 p-1 shadow-lg">
+                  <Crown className="h-4 w-4 text-white" />
+                </div>
+              </div>
+            )}
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-semibold text-foreground">
+                التخزين
+              </CardTitle>
+              <HardDrive
+                className={`h-5 w-5 ${isPremium ? "text-amber-500" : "text-muted-foreground"}`}
+              />
+            </CardHeader>
+            <CardContent>
+              {isPremium ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Infinity className="h-6 w-6 text-amber-500" />
+                    <span className="text-lg font-bold text-foreground">
+                      مساحة غير محدودة
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    مستخدم: {formatBytes(overviewData.storage.usedBytes)}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <div className="text-lg font-bold text-foreground">
+                    {formatBytes(overviewData.storage.usedBytes)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    من {formatBytes(overviewData.storage.totalBytes ?? 0)}
+                  </p>
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{
+                        width: `${overviewData.storage.usagePercentage ?? 0}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <MembersDialog
@@ -145,6 +243,12 @@ export function OrgOverviewCard({
         slug={slug}
         ownerId={overviewData.owner.id}
         isOwner={isOwner}
+      />
+
+      <BannedUsersDialog
+        open={showBannedDialog}
+        onOpenChange={setShowBannedDialog}
+        slug={slug}
       />
 
       <OwnerDialog
