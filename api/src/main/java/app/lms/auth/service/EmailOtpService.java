@@ -3,6 +3,7 @@ package app.lms.auth.service;
 import app.lms.common.exception.BadRequestException;
 import app.lms.email.service.EmailDeliveryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.Locale;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailOtpService {
 
     private static final String KEY_PREFIX =
@@ -145,6 +147,12 @@ public class EmailOtpService {
             );
 
         } catch (RuntimeException ex) {
+            log.warn(
+                    "Failed to send email OTP. purpose={}, email={}",
+                    purpose.name(),
+                    normalizedEmail,
+                    ex
+            );
             clearOtp(
                     purpose,
                     normalizedEmail

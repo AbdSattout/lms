@@ -9,14 +9,20 @@ import app.lms.chat.model.ConversationMember;
 import app.lms.chat.repository.ConversationMemberRepository;
 import app.lms.chat.repository.ConversationRepository;
 import app.lms.course.model.Course;
+import app.lms.course.service.CourseAccessService;
+import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.friend.service.FriendService;
+import app.lms.organization.enums.Role;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +39,8 @@ public class ConversationService {
     private final ConversationMapper conversationMapper;
 
     private final FriendService friendService;
+
+    private final CourseAccessService courseAccessService;
 
     @Transactional
     public Conversation getOrCreateDirectConversation(
@@ -171,6 +179,49 @@ public class ConversationService {
         return conversationMapper
                 .toResponse(conversation);
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ConversationResponse> listConversations(
+            Pageable pageable,
+            User currentUser
+    ) {
+
+        return conversationRepository
+                .findAccessibleByUserId(
+                        currentUser.getId(),
+                        ConversationType.DIRECT,
+                        ConversationType.COURSE,
+                        EnrollmentStatus.ACTIVE,
+                        List.of(
+                                Role.OWNER,
+                                Role.ADMIN
+                        ),
+                        pageable
+                )
+                .map(conversationMapper::toResponse);
+    }
+
+    @Transactional
+    public ConversationResponse courseConversation(
+            Long courseId,
+            User currentUser
+    ) {
+
+        Course course =
+                courseAccessService.getEnrolledCourse(
+                        courseId,
+                        currentUser
+                );
+
+        Conversation conversation =
+                getOrCreateCourseConversation(
+                        course
+                );
+
+        return conversationMapper.toResponse(
+                conversation
+        );
     }
 
     @Transactional
