@@ -3,7 +3,7 @@ package app.lms.chat.dto;
 
 import app.lms.chat.enums.ConversationType;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record ConversationResponse(
 
@@ -19,7 +19,7 @@ public record ConversationResponse(
 
         String lastMessagePreview,
 
-        LocalDateTime lastMessageAt
+        Instant lastMessageAt
 
 ) {
 }

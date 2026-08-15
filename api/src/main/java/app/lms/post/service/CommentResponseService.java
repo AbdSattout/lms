@@ -10,6 +10,7 @@ import app.lms.post.repository.LikeRepository;
 import app.lms.post.repository.ReactionCountProjection;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -54,6 +55,25 @@ public class CommentResponseService {
                         )
                 )
                 .toList();
+    }
+
+    public Page<CommentResponse> buildPage(
+            Page<Comment> comments,
+            User user
+    ) {
+
+        CommentReactionContext context =
+                reactionContext(
+                        comments.getContent(),
+                        user
+                );
+
+        return comments.map(comment ->
+                build(
+                        comment,
+                        context
+                )
+        );
     }
 
     private CommentResponse build(

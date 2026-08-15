@@ -25,6 +25,19 @@ public interface OrganizationBanRepository
             @Param("userId") Long userId
     );
 
+    @Query("""
+            select count(ban)
+            from OrganizationBan ban
+            where ban.organization.id = :organizationId
+            and (
+                ban.expiresAt is null
+                or ban.expiresAt > CURRENT_TIMESTAMP
+            )
+            """)
+    long countActiveByOrganizationId(
+            @Param("organizationId") Long organizationId
+    );
+
     Optional<OrganizationBan> findByOrganizationIdAndUserId(
             Long organizationId,
             Long userId

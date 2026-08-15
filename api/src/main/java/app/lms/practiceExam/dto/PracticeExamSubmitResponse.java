@@ -1,5 +1,6 @@
 package app.lms.practiceExam.dto;
 
+import app.lms.badge.dto.UserBadgeResponse;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.gamification.dto.GamificationAwardResponse;
 
@@ -15,6 +16,7 @@ public record PracticeExamSubmitResponse(
         LocalDateTime submittedAt,
         List<PracticeExamQuestionResultResponse> results,
         List<GamificationAwardResponse> rewards,
+        List<UserBadgeResponse> badges,
         BaseEntityResponse baseEntity
 ) {
 }

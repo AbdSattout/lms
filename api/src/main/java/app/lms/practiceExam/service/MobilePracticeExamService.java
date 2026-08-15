@@ -1,5 +1,7 @@
 package app.lms.practiceExam.service;
 
+import app.lms.badge.dto.UserBadgeResponse;
+import app.lms.badge.service.UserBadgeService;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.common.quiz.dto.QuizGradingResult;
@@ -38,6 +40,7 @@ public class MobilePracticeExamService {
     private final QuizGradingService quizGradingService;
     private final GamificationService gamificationService;
     private final UserActivityService userActivityService;
+    private final UserBadgeService userBadgeService;
 
     @Transactional
     public PracticeExamPublicResponse getPracticeExam(
@@ -192,11 +195,15 @@ public class MobilePracticeExamService {
             );
         }
 
+        List<UserBadgeResponse> badges =
+                userBadgeService.awardEarnedBadges(user);
+
         return practiceExamMapper.toSubmitResponse(
                 attempt,
                 reward != null && reward.awarded()
                         ? List.of(reward)
-                        : List.of()
+                        : List.of(),
+                badges
         );
     }
 

@@ -1,6 +1,9 @@
 package app.lms.quiz.service;
 
+import app.lms.badge.dto.UserBadgeResponse;
+import app.lms.badge.service.UserBadgeService;
 import app.lms.block.repository.BlockRepository;
+import app.lms.certificate.dto.CertificateResponse;
 import app.lms.certificate.service.CertificateService;
 import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.ForbiddenException;
@@ -44,6 +47,7 @@ public class MobileFinalQuizService {
     private final UserActivityService userActivityService;
     private final CertificateService certificateService;
     private final CourseEnrollmentService courseEnrollmentService;
+    private final UserBadgeService userBadgeService;
 
     @Transactional
     public FinalQuizResponse getFinalQuiz(
@@ -182,13 +186,14 @@ public class MobileFinalQuizService {
 
         courseEnrollmentService.completeEnrollment(enrollment);
 
-        certificateService.issueCertificate(
+        CertificateResponse certificate =
+                certificateService.issueCertificate(
 
-                quiz.getCourse(),
-                user,
-                attempt.getScore(),
-                attempt.getTotal()
-        );
+                        quiz.getCourse(),
+                        user,
+                        attempt.getScore(),
+                        attempt.getTotal()
+                );
 
         List<GamificationAwardResponse> rewards =
                 new ArrayList<>();
@@ -221,9 +226,14 @@ public class MobileFinalQuizService {
                 )
         );
 
+        List<UserBadgeResponse> badges =
+                userBadgeService.awardEarnedBadges(user);
+
         return quizMapper.toSubmitResponse(
                 attempt,
-                rewards
+                rewards,
+                certificate,
+                badges
         );
     }
 

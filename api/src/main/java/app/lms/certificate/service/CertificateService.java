@@ -35,7 +35,7 @@ public class CertificateService {
     }
 
     @Transactional
-    public void issueCertificate(
+    public CertificateResponse issueCertificate(
             Course course,
             User user,
             Integer finalQuizScore,
@@ -67,8 +67,12 @@ public class CertificateService {
                         .grade(gradeFor(finalQuizPercentage))
                         .build();
 
-        certificateRepository.save(certificate);
+        Certificate savedCertificate =
+                certificateRepository.save(certificate);
 
+        return certificateMapper.toResponse(
+                savedCertificate
+        );
     }
 
     private Integer calculatePercentage(
