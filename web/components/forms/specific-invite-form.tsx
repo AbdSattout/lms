@@ -60,15 +60,10 @@ export function SpecificInviteForm({
 
       if (!response.success) {
         const errMessage = response.error || ""
-        if (
-          errMessage.includes("already a member") ||
-          errMessage.includes("400")
-        ) {
+        console.log("errmessage" + errMessage)
+        if (errMessage.includes("member")) {
           toast.error("هذا المستخدم عضو بالفعل في هذه المؤسسة")
-        } else if (
-          errMessage.includes("already") ||
-          errMessage.includes("400")
-        ) {
+        } else if (errMessage.includes("already ")) {
           toast.error("هذا المستخدم يمتلك دعوة نشطة مسبقاً")
         } else {
           toast.error("تعذر إرسال الدعوة في الوقت الحالي")

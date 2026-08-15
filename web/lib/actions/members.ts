@@ -95,7 +95,18 @@ export async function banUserAction(
     return { success: false, error: errorMessage }
   }
 }
-
+export async function getBannedUsers(
+  slug: string,
+  pageable: { page: number; size: number }
+) {
+  try {
+    const data = await api.dashboard.organizations.banUser.get(slug, pageable)
+    return { success: true, data, error: null }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return { success: false, data: null, error: errorMessage }
+  }
+}
 export async function unbanUserAction(slug: string, userId: number) {
   try {
     await api.dashboard.organizations.unbanUser.delete(slug, userId)

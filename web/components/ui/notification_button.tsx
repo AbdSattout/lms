@@ -11,6 +11,8 @@ import {
 } from "@/lib/actions/invites"
 import { cn } from "@/lib/utils"
 import { InviteDetailDialog } from "../forms/invite-detial-dialog"
+import { toast } from "sonner"
+import { useRouter } from "next/dist/client/components/navigation"
 
 export function Notifications() {
   const [isOpen, setIsOpen] = useState(false)
@@ -22,7 +24,7 @@ export function Notifications() {
   const [selectedInvite, setSelectedInvite] =
     useState<OrganizationInviteResponse | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
-
+  const router = useRouter()
   const handleToggle = async () => {
     const willOpen = !isOpen
     setIsOpen(willOpen)
@@ -45,16 +47,47 @@ export function Notifications() {
     e: React.MouseEvent
   ) => {
     e.stopPropagation()
-    if (!invite.token) return
-    setProcessingInvites((prev) => new Set(prev).add(invite.id))
-    const result = await acceptInviteAction(invite.token)
-    if (result.success)
-      setInvites((prev) => prev.filter((i) => i.id !== invite.id))
+
+    const slug = invite.organization?.slug
+
+    if (!slug) {
+      toast.error("تعذر تحديد المنظمة")
+      console.error("Invite organization slug is missing:", invite)
+      return
+    }
+
     setProcessingInvites((prev) => {
-      const newSet = new Set(prev)
-      newSet.delete(invite.id)
-      return newSet
+      const next = new Set(prev)
+      next.add(invite.id)
+      return next
     })
+
+    try {
+      const result = await acceptInviteAction(slug, invite.id)
+
+      if (!result.success) {
+        toast.error(result.error || "فشل قبول الدعوة")
+        return
+      }
+
+      setInvites((prev) => prev.filter((i) => i.id !== invite.id))
+
+      toast.success("تم قبول الدعوة بنجاح")
+
+      router.refresh()
+    } catch (error) {
+      console.error("Accept invite failed:", error)
+
+      toast.error(
+        error instanceof Error ? error.message : "حدث خطأ أثناء قبول الدعوة"
+      )
+    } finally {
+      setProcessingInvites((prev) => {
+        const next = new Set(prev)
+        next.delete(invite.id)
+        return next
+      })
+    }
   }
 
   const handleDecline = async (
@@ -62,18 +95,48 @@ export function Notifications() {
     e: React.MouseEvent
   ) => {
     e.stopPropagation()
-    if (!invite.token) return
-    setProcessingInvites((prev) => new Set(prev).add(invite.id))
-    const result = await declineInviteAction(invite.token)
-    if (result.success)
-      setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-    setProcessingInvites((prev) => {
-      const newSet = new Set(prev)
-      newSet.delete(invite.id)
-      return newSet
-    })
-  }
 
+    const slug = invite.organization?.slug
+
+    if (!slug) {
+      toast.error("تعذر تحديد المنظمة")
+      console.error("Invite organization slug is missing:", invite)
+      return
+    }
+
+    setProcessingInvites((prev) => {
+      const next = new Set(prev)
+      next.add(invite.id)
+      return next
+    })
+
+    try {
+      const result = await declineInviteAction(slug, invite.id)
+
+      if (!result.success) {
+        toast.error(result.error || "فشل رفض الدعوة")
+        return
+      }
+
+      setInvites((prev) => prev.filter((i) => i.id !== invite.id))
+
+      toast.success("تم رفض الدعوة")
+
+      router.refresh()
+    } catch (error) {
+      console.error("Decline invite failed:", error)
+
+      toast.error(
+        error instanceof Error ? error.message : "حدث خطأ أثناء رفض الدعوة"
+      )
+    } finally {
+      setProcessingInvites((prev) => {
+        const next = new Set(prev)
+        next.delete(invite.id)
+        return next
+      })
+    }
+  }
   const pendingCount = invites.length
 
   return (
@@ -205,7 +268,7 @@ export function Notifications() {
                     <Bell className="h-7 w-7 text-muted-foreground opacity-50" />
                   </div>
                   <h4 className="text-sm font-semibold text-foreground">
-                    الرقميات مُغلفة بسلام
+                    الاشعارات فارغة
                   </h4>
                   <p className="mt-1.5 text-xs text-muted-foreground">
                     لا توجد دعوات انضمام لديك في الوقت الحالي.
