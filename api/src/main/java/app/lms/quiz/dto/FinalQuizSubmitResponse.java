@@ -1,5 +1,7 @@
 package app.lms.quiz.dto;
 
+import app.lms.badge.dto.UserBadgeResponse;
+import app.lms.certificate.dto.CertificateResponse;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.gamification.dto.GamificationAwardResponse;
 
@@ -16,6 +18,10 @@ public record FinalQuizSubmitResponse(
         List<FinalQuizQuestionResultResponse> results,
 
         List<GamificationAwardResponse> rewards,
+
+        CertificateResponse certificate,
+
+        List<UserBadgeResponse> badges,
 
         BaseEntityResponse baseEntity
 ) {

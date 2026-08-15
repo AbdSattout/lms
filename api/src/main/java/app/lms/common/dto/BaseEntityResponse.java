@@ -2,11 +2,11 @@ package app.lms.common.dto;
 
 import app.lms.common.model.BaseEntity;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record BaseEntityResponse(
-        LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        Instant createdAt,
+        Instant updatedAt
 ) {
 
     public static BaseEntityResponse from(

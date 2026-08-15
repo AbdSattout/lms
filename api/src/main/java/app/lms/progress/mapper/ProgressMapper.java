@@ -1,5 +1,6 @@
 package app.lms.progress.mapper;
 
+import app.lms.badge.dto.UserBadgeResponse;
 import app.lms.block.model.Block;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.progress.dto.SubmitBlockAnswerResponse;
@@ -20,6 +21,7 @@ public class ProgressMapper {
                 null,
                 null,
                 "Incorrect answer",
+                List.of(),
                 List.of()
         );
     }
@@ -34,6 +36,7 @@ public class ProgressMapper {
                 block.getLesson().getChapter().getId(),
                 null,
                 "Correct answer",
+                List.of(),
                 List.of()
         );
     }
@@ -48,6 +51,7 @@ public class ProgressMapper {
                 null,
                 quiz.getId(),
                 "Course lessons completed. Go to final quiz.",
+                List.of(),
                 List.of()
         );
     }
@@ -60,13 +64,15 @@ public class ProgressMapper {
                 null,
                 null,
                 "Course completed",
+                List.of(),
                 List.of()
         );
     }
 
     public SubmitBlockAnswerResponse withRewards(
             SubmitBlockAnswerResponse response,
-            List<GamificationAwardResponse> rewards
+            List<GamificationAwardResponse> rewards,
+            List<UserBadgeResponse> badges
     ) {
 
         return new SubmitBlockAnswerResponse(
@@ -76,7 +82,8 @@ public class ProgressMapper {
                 response.nextChapterId(),
                 response.quizId(),
                 response.message(),
-                rewards
+                rewards,
+                badges
         );
     }
 }

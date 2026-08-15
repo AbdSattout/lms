@@ -4,10 +4,12 @@ package app.lms.user.controller;
 import app.lms.security.UserPrincipal;
 import app.lms.user.dto.CurrentUserResponse;
 import app.lms.user.dto.ProfileResponse;
+import app.lms.user.dto.PublicUserProfileResponse;
 import app.lms.user.dto.RequestUserEmailOtpRequest;
 import app.lms.user.dto.UpdateUserRequest;
 import app.lms.user.dto.UserResponse;
 import app.lms.user.dto.VerifyUserEmailOtpRequest;
+import app.lms.user.service.PublicUserProfileService;
 import app.lms.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final PublicUserProfileService publicUserProfileService;
 
 
     @PatchMapping("/me")
@@ -115,6 +118,23 @@ public class UserController {
                 userPrincipal.getId()
         );
 
+    }
+
+    @GetMapping("/{userId}/profile")
+    public ResponseEntity<PublicUserProfileResponse> getProfile(
+            @PathVariable
+            Long userId,
+
+            @AuthenticationPrincipal
+            UserPrincipal userPrincipal
+    ) {
+
+        return ResponseEntity.ok(
+                publicUserProfileService.getProfile(
+                        userId,
+                        userPrincipal.user()
+                )
+        );
     }
 
 }

@@ -1,5 +1,7 @@
 package app.lms.quiz.mapper;
 
+import app.lms.badge.dto.UserBadgeResponse;
+import app.lms.certificate.dto.CertificateResponse;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.gamification.dto.GamificationAwardResponse;
@@ -63,13 +65,17 @@ public class QuizMapper {
 
         return toSubmitResponse(
                 attempt,
+                List.of(),
+                null,
                 List.of()
         );
     }
 
     public FinalQuizSubmitResponse toSubmitResponse(
             FinalQuizAttempt attempt,
-            List<GamificationAwardResponse> rewards
+            List<GamificationAwardResponse> rewards,
+            CertificateResponse certificate,
+            List<UserBadgeResponse> badges
     ) {
 
         return new FinalQuizSubmitResponse(
@@ -92,6 +98,8 @@ public class QuizMapper {
                         )
                         .toList(),
                 rewards,
+                certificate,
+                badges,
                 BaseEntityResponse.from(attempt)
         );
     }

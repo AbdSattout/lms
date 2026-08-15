@@ -3,11 +3,9 @@ package app.lms.moderation.service;
 import app.lms.email.service.EmailDeliveryService;
 import app.lms.organization.model.Organization;
 import app.lms.user.model.User;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -140,9 +138,7 @@ public class BanNotificationEmailService {
                     )
             );
 
-        } catch (MailException |
-                 MessagingException |
-                 IllegalStateException ex) {
+        } catch (RuntimeException ex) {
             log.warn(
                     "Failed to send ban notification email. userId={}",
                     recipient.getId(),

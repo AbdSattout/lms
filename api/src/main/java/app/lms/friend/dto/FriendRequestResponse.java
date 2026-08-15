@@ -3,7 +3,7 @@ package app.lms.friend.dto;
 import app.lms.friend.enums.FriendRequestStatus;
 import app.lms.user.dto.UserResponse;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record FriendRequestResponse(
 
@@ -15,7 +15,7 @@ public record FriendRequestResponse(
 
         FriendRequestStatus status,
 
-        LocalDateTime createdAt
+        Instant createdAt
 
 ) {
 }
