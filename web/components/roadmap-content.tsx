@@ -21,7 +21,11 @@ import { useRouter } from "next/navigation"
 import { useTransition, useState } from "react"
 import { toast } from "sonner"
 import { RoadmapCard } from "./cards/roadmap-card"
-import { deleteRoadmap } from "@/lib/actions/roadmap"
+import {
+  deleteRoadmap,
+  moveRoadmapToDraft,
+  publishRoadmap,
+} from "@/lib/actions/roadmap"
 
 interface RoadmapsContentProps {
   orgSlug: string
@@ -31,7 +35,9 @@ interface RoadmapsContentProps {
 export function RoadmapsContent({ orgSlug, roadmaps }: RoadmapsContentProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [statusTargetId, setStatusTargetId] = useState<number | null>(null)
 
+  const isChangingStatus = isPending && statusTargetId !== null
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null)
   const isDeleting = isPending && deleteTargetId !== null
 
@@ -44,7 +50,48 @@ export function RoadmapsContent({ orgSlug, roadmaps }: RoadmapsContentProps) {
       router.push(`/${orgSlug}/roadmaps/${roadmapId}` as Route)
     )
   }
+  const handleStatusToggle = (roadmap: RoadmapResponse) => {
+    setStatusTargetId(roadmap.id)
 
+    startTransition(async () => {
+      try {
+        const result =
+          roadmap.status === "PUBLISHED"
+            ? await moveRoadmapToDraft(orgSlug, roadmap.id)
+            : await publishRoadmap(orgSlug, roadmap.id)
+
+        if (result?.error) {
+          const errorMessage = result.error
+
+          if (
+            errorMessage.includes(
+              "All roadmap courses must be published before publishing roadmap"
+            )
+          ) {
+            toast.error(
+              "لا يمكن نشر المسار لأن إحدى الدورات الموجودة فيه غير منشورة."
+            )
+          } else {
+            toast.error(errorMessage)
+          }
+
+          return
+        }
+
+        toast.success(
+          roadmap.status === "PUBLISHED"
+            ? "تم تحويل المسار إلى مسودة"
+            : "تم نشر المسار التعليمي بنجاح"
+        )
+      } catch (error) {
+        console.error("Roadmap status update failed:", error)
+
+        toast.error("حدث خطأ أثناء تحديث حالة المسار.")
+      } finally {
+        setStatusTargetId(null)
+      }
+    })
+  }
   const handleDeleteConfirm = () => {
     if (!deleteTargetId) return
     startTransition(async () => {
@@ -52,7 +99,7 @@ export function RoadmapsContent({ orgSlug, roadmaps }: RoadmapsContentProps) {
         const result = await deleteRoadmap(orgSlug, deleteTargetId)
         if (result?.error) throw new Error(result.error)
         toast.success("تم حذف المسار التعليمي بنجاح")
-      } catch (error) {
+      } catch {
         toast.error("حدث خطأ أثناء حذف المسار")
       } finally {
         setDeleteTargetId(null)
@@ -95,6 +142,10 @@ export function RoadmapsContent({ orgSlug, roadmaps }: RoadmapsContentProps) {
               roadmap={roadmap}
               onClick={() => handleEditRoadmap(roadmap.id)}
               onDelete={() => setDeleteTargetId(roadmap.id)}
+              onStatusToggle={() => handleStatusToggle(roadmap)}
+              isStatusPending={
+                isChangingStatus && statusTargetId === roadmap.id
+              }
             />
           ))}
         </div>

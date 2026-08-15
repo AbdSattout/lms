@@ -15,6 +15,7 @@ interface OrgOverviewCardProps {
   overviewData: OrganizationOverviewResponse
   adminCount: number
   studentCount: number
+  isOwner: boolean
 }
 
 export function OrgOverviewCard({
@@ -22,6 +23,7 @@ export function OrgOverviewCard({
   overviewData,
   adminCount,
   studentCount,
+  isOwner,
 }: OrgOverviewCardProps) {
   const router = useRouter()
   const [selectedType, setSelectedType] = useState<
@@ -33,7 +35,6 @@ export function OrgOverviewCard({
   return (
     <div className="w-full space-y-6">
       <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {/* Owner Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowOwnerDialog(true)}
@@ -51,7 +52,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Admins Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("admins")}
@@ -67,7 +67,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Students Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("students")}
@@ -83,7 +82,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Courses Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowCoursesDialog(true)}
@@ -105,7 +103,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Posts Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => router.push(`/${slug}/posts` as Route)}
@@ -121,7 +118,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Roadmaps Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => router.push(`/${slug}/roadmaps` as Route)}
@@ -147,6 +143,8 @@ export function OrgOverviewCard({
         }}
         type={selectedType}
         slug={slug}
+        ownerId={overviewData.owner.id}
+        isOwner={isOwner}
       />
 
       <OwnerDialog

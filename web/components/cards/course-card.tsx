@@ -20,7 +20,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import type { CourseResponse } from "@/lib/api/types"
-import { Check, EllipsisVertical, Pen, Trash2 } from "lucide-react"
+import {
+  Check,
+  EllipsisVertical,
+  Pen,
+  Trash2,
+  MessageCircle,
+} from "lucide-react" // <--- أضفنا MessageCircle هنا
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
@@ -35,11 +41,13 @@ interface CourseCardProps {
 
 function CourseCardMenu({
   course,
+  orgSlug, // <--- قمنا بتمرير المتغير هنا ليكون متاحاً لزر المنشورات
   onEdit,
   onDelete,
   onPublish,
 }: CourseCardProps) {
   const [publishOpen, setPublishOpen] = useState(false)
+  const router = useRouter() // <--- لاستخدامه للتوجه للصفحة عند ضغط الزر
 
   return (
     <>
@@ -50,11 +58,27 @@ function CourseCardMenu({
             نشر
           </DropdownMenuItem>
         )}
+
+        {/* إضافة زر المنشورات هنا فقط إن كانت الدورة ليست مسودة */}
+        {course.status !== "DRAFT" && (
+          <DropdownMenuItem
+            onClick={() => {
+              const href = `/${orgSlug}/courses/${course.slug}/posts`
+              router.push(href as unknown as Parameters<typeof router.push>[0])
+            }}
+          >
+            <MessageCircle />
+            المنشورات
+          </DropdownMenuItem>
+        )}
+
         <DropdownMenuItem onClick={() => onEdit(course)}>
           <Pen />
           تعديل
         </DropdownMenuItem>
+
         <DropdownMenuSeparator />
+
         <DropdownMenuItem
           variant="destructive"
           onClick={() => onDelete(course)}

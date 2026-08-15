@@ -1,6 +1,6 @@
-// lib/actions/members.ts
 "use server"
-
+import { revalidatePath } from "next/cache"
+import { BanRequest } from "@/lib/api/types"
 import { api } from "@/lib/api"
 import {
   CreateInviteRequest,
@@ -69,4 +69,40 @@ export async function updateInviteCapacity(
 
 export async function resendInvite(slug: string, inviteId: number) {
   return await api.dashboard.organizations.invites.resend.post(slug, inviteId)
+}
+export async function removeMemberAction(slug: string, userId: number) {
+  try {
+    await api.dashboard.organizations.removeMember.delete(slug, userId)
+    revalidatePath(`/${slug}`)
+    return { success: true, error: null }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function banUserAction(
+  slug: string,
+  userId: number,
+  request: BanRequest
+) {
+  try {
+    await api.dashboard.organizations.banUser.post(slug, userId, request)
+    revalidatePath(`/${slug}`)
+    return { success: true, error: null }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return { success: false, error: errorMessage }
+  }
+}
+
+export async function unbanUserAction(slug: string, userId: number) {
+  try {
+    await api.dashboard.organizations.unbanUser.delete(slug, userId)
+    revalidatePath(`/${slug}`)
+    return { success: true, error: null }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    return { success: false, error: errorMessage }
+  }
 }

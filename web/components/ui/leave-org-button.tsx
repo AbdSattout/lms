@@ -41,15 +41,17 @@ export function LeaveOrgButton({ slug }: LeaveOrgButtonProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button
-          variant="outline"
-          className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
-        >
-          <LogOut className="h-4 w-4" />
-          مغادرة المنظمة
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button
+            variant="outline"
+            className="gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut className="h-4 w-4" />
+            مغادرة المنظمة
+          </Button>
+        }
+      />
       <DialogContent dir="rtl">
         <DialogHeader>
           <DialogTitle>مغادرة المنظمة</DialogTitle>

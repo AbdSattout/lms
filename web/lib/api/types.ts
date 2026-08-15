@@ -560,11 +560,14 @@ export interface CourseProgressResponse {
   completed?: boolean
   completedAt?: string
 }
-
+export type RoadmapStatus = "DRAFT" | "PUBLISHED"
 export type RoadmapFollowStatus = "NOT_FOLLOWING" | "ACTIVE" | "COMPLETED"
 
 export interface RoadmapResponse {
   id: number
+  name: string
+  description?: string
+  status: RoadmapStatus
   organization: OrganizationResponse
   items: RoadmapItemResponse[]
   followStatus?: RoadmapFollowStatus
@@ -585,13 +588,6 @@ export interface UpsertRoadmapRequest {
   courseIds: number[]
 }
 
-export interface RoadmapResponse {
-  id: number
-  name?: string
-  description?: string
-  items: RoadmapItemResponse[]
-  position?: number
-}
 export interface PracticeExamResponse {
   id: number
   title: string

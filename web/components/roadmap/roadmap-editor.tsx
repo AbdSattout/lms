@@ -68,7 +68,6 @@ export function RoadmapEditor({
 
   const edgeIdRef = useRef(0)
 
-  // التنسيق لضمان إسناد ترتيبة #الخطوة برمجياً للأسهم الموصولة!
   const getOrderedNodeIds = useCallback(
     (currentNodes: CourseNode[], currentEdges: Edge[]) => {
       if (currentEdges.length === 0) {
@@ -104,7 +103,6 @@ export function RoadmapEditor({
     []
   )
 
-  // تصميم شكل المدرجات الآلي (بما أن المخطط الوصلي يبدأ من المقبض الأسفل للأعلى)، نأخذه لشكل درجي لجمال وحيوية الواجهة!
   const initializeNodesAndEdges = useCallback(() => {
     if (!roadmap?.items?.length) return { nodes: [], edges: [] }
 
@@ -113,7 +111,6 @@ export function RoadmapEditor({
     const nodes: CourseNode[] = items.map((item, index) => ({
       id: `course-${item.course.id}`,
       type: "courseNode",
-      // لقد حدثنا طريقة النزول الدرجي لضمان استقرار الخرائط المنشأة مسبقا وبشكل يتناسب مع توصيل المقابض السفلي-والعلوي. ↘️
       position: { x: index * 320 + 50, y: index * 120 + 100 },
       data: {
         course: item.course,
@@ -274,7 +271,6 @@ export function RoadmapEditor({
       (max, node) => Math.max(max, node.position.x),
       -250
     )
-    // الإدراج يتدلى بـتزايد إلى المحاور الطولية
     const maxYOffset =
       nodes.length > 0 ? Math.max(...nodes.map((n) => n.position.y)) + 120 : 100
 
