@@ -117,14 +117,18 @@ export async function backend<T>(
   }
 
   if (response.status === 401) {
-    // redirect: session expired on an authenticated call -> go to login.
-    // throw: rejected credentials (e.g. bad OTP) -> BackendUnauthorizedError.
     handleUnauthorized(unauthorized, callbackUrl)
   }
 
   if (!response.ok) {
     const detailString = await readResponseDetails(response)
-
+    console.error("[Backend Error]", {
+      url: buildBackendUrl(path),
+      method: init.method ?? "GET",
+      status: response.status,
+      statusText: response.statusText,
+      details: detailString,
+    })
     throw new BackendError(
       response.status,
       `Backend request failed (${response.status}): ${detailString}`

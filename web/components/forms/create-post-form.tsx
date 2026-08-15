@@ -23,44 +23,64 @@ interface CreatePostFormProps {
   orgSlug: string
   organizationId?: number
   courses?: CourseResponse[]
+  fixedCourseId?: number
 }
 
 export function CreatePostForm({
   orgSlug,
   organizationId,
   courses = [],
+  fixedCourseId,
 }: CreatePostFormProps) {
   const router = useRouter()
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
-  const [courseId, setCourseId] = useState<number | null>(null)
+  const [courseId, setCourseId] = useState<number | null>(fixedCourseId ?? null)
   const selectedCourse = courses.find((course) => course.id === courseId)
   const [isSubmitting, startSubmit] = useTransition()
-  const [error, setError] = useState<string | null>(null)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim()) {
-      setError("العنوان مطلوب")
+      toast.error("العنوان مطلوب")
       return
     }
     if (!content.trim()) {
-      setError("المحتوى مطلوب")
+      toast.error("المحتوى مطلوب")
       return
     }
 
-    setError(null)
     startSubmit(async () => {
       try {
-        const post = await createPost(orgSlug, {
+        const response = await createPost(orgSlug, {
           title: title.trim(),
           content: content.trim(),
-          courseId: courseId,
+          courseId,
         })
+
+        if (!response.success) {
+          const errMessage = response.error || ""
+          if (
+            errMessage.includes("Course must be published to create posts") ||
+            errMessage.includes("409")
+          ) {
+            const message =
+              "لا يمكن إنشاء منشور مرتبط بدورة غير منشورة. يجب نشر الدورة أولاً."
+
+            toast.error(message)
+          } else {
+            const message = "فشل إنشاء المنشور. يرجى المحاولة مرة أخرى."
+
+            toast.error(message)
+          }
+
+          return
+        }
+
         toast.success("تم إنشاء المنشور بنجاح")
-        router.push(`/${orgSlug}/posts/${post.id}` as Route)
+        router.push(`/${orgSlug}/posts/${response.data?.id}` as Route)
       } catch {
-        setError("فشل إنشاء المنشور. يرجى المحاولة مرة أخرى.")
+        toast.error("حدث خطأ بالاتصال، يرجى المحاولة لاحقاً.")
       }
     })
   }
@@ -77,12 +97,6 @@ export function CreatePostForm({
             قم بنشر معلومات ونصائح أو مناقشات لمنظمتك بكل سهولة
           </p>
         </div>
-
-        {error && (
-          <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3 font-medium text-destructive">
-            {error}
-          </div>
-        )}
 
         <div className="flex flex-col gap-3 text-start">
           <label
@@ -101,42 +115,60 @@ export function CreatePostForm({
           />
         </div>
 
-        {courses && courses.length > 0 && (
+        {fixedCourseId ? (
           <div className="flex flex-col gap-3 text-start">
             <label className="text-sm font-bold text-card-foreground">
-              مرتبط بدورة (اختياري)
+              الدورة المرتبطة
             </label>
-            <Select
-              value={courseId?.toString() ?? "none"}
-              onValueChange={(value) => {
-                setCourseId(value === "none" ? null : Number(value))
-              }}
-            >
-              <SelectTrigger
-                className="h-11 w-full bg-background/50 text-right"
-                dir="rtl"
-              >
-                <SelectValue>
-                  {selectedCourse?.title ?? "اختر دورة لربط المنشور بها..."}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent dir="rtl" className="max-h-60">
-                <SelectItem value="none">بدون دورة (غير مرتبط)</SelectItem>
-                {courses.map((course) => (
-                  <SelectItem key={course.id} value={course.id.toString()}>
-                    {course.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Input
+              value={selectedCourse?.title ?? "الدورة المحددة"}
+              disabled
+              dir="rtl"
+              className="h-11 cursor-not-allowed border-border/60 bg-muted/60 text-right opacity-80"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              يتم تخصيص هذا المنشور لهذه الدورة فقط.
+            </p>
           </div>
+        ) : (
+          courses &&
+          courses.length > 0 && (
+            <div className="flex flex-col gap-3 text-start">
+              <label className="text-sm font-bold text-card-foreground">
+                مرتبط بدورة (اختياري)
+              </label>
+              <Select
+                value={courseId?.toString() ?? "none"}
+                onValueChange={(value) => {
+                  setCourseId(value === "none" ? null : Number(value))
+                }}
+              >
+                <SelectTrigger
+                  className="h-11 w-full bg-background/50 text-right"
+                  dir="rtl"
+                >
+                  <SelectValue>
+                    {selectedCourse?.title ?? "اختر دورة لربط المنشور بها..."}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent dir="rtl" className="max-h-60">
+                  <SelectItem value="none">بدون دورة (غير مرتبط)</SelectItem>
+                  {courses.map((course) => (
+                    <SelectItem key={course.id} value={course.id.toString()}>
+                      {course.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )
         )}
 
         <div className="flex flex-col gap-3 text-start">
           <label className="flex items-center justify-between text-sm font-bold text-card-foreground">
             المحتوى
           </label>
-          <div className="min-h-[300px] overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+          <div className="min-h-75 overflow-hidden rounded-xl border border-border/60 bg-background/80 shadow-sm transition-all focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
             <Editor
               onChange={setContent}
               content={content}

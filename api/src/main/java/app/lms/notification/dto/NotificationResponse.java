@@ -2,6 +2,7 @@ package app.lms.notification.dto;
 
 import app.lms.notification.enums.NotificationType;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public record NotificationResponse(
@@ -22,6 +23,6 @@ public record NotificationResponse(
 
         LocalDateTime readAt,
 
-        LocalDateTime createdAt
+        Instant createdAt
 ) {
 }

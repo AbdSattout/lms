@@ -16,23 +16,24 @@ import {
 import type { PostResponse } from "@/lib/api/types"
 import { PostCardSkeleton } from "@/components/skeletons/post-card-skeleton"
 import { PostCard } from "../cards/post-card"
-import { getPostsByOrg } from "@/lib/actions/post"
+import { getPostsByCourse, getPostsByOrg } from "@/lib/actions/post"
 
 interface PostsContentProps {
   orgSlug: string
   initialPosts: PostResponse[]
   initialHasMore: boolean
+  courseId?: number
 }
 
 export function PostsContent({
   orgSlug,
   initialPosts,
   initialHasMore,
+  courseId,
 }: PostsContentProps) {
   const [posts, setPosts] = useState<PostResponse[]>(initialPosts)
   const [hasMore, setHasMore] = useState(initialHasMore)
   const [page, setPage] = useState(1)
-
   const [prevInitialPosts, setPrevInitialPosts] = useState(initialPosts)
 
   if (initialPosts !== prevInitialPosts) {
@@ -50,11 +51,17 @@ export function PostsContent({
     if (!hasMore || isLoadingMore) return
     startLoadingMore(async () => {
       try {
-        const result = await getPostsByOrg(orgSlug, {
-          page,
-          size: 20,
-          sort: ["createdAt,desc"],
-        })
+        const result = courseId
+          ? await getPostsByCourse(courseId, {
+              page,
+              size: 20,
+              sort: ["createdAt,desc"],
+            })
+          : await getPostsByOrg(orgSlug, {
+              page,
+              size: 20,
+              sort: ["createdAt,desc"],
+            })
 
         const fetchedPosts = result.content ?? []
 

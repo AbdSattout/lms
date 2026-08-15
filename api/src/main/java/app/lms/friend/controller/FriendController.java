@@ -1,5 +1,6 @@
 package app.lms.friend.controller;
 
+import app.lms.friend.dto.FriendActionResponse;
 import app.lms.friend.dto.FriendRequestResponse;
 import app.lms.friend.dto.FriendResponse;
 import app.lms.friend.service.FriendService;
@@ -36,7 +37,7 @@ public class FriendController {
     }
 
     @PatchMapping("/requests/{requestId}/accept")
-    public ResponseEntity<Void> accept(
+    public ResponseEntity<FriendActionResponse> accept(
 
             @PathVariable Long requestId,
 
@@ -44,12 +45,12 @@ public class FriendController {
             UserPrincipal principal
     ) {
 
-        friendService.accept(
-                requestId,
-                principal.user()
+        return ResponseEntity.ok(
+                friendService.accept(
+                        requestId,
+                        principal.user()
+                )
         );
-
-        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/requests/{requestId}/reject")

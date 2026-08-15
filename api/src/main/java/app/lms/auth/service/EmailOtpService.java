@@ -2,11 +2,9 @@ package app.lms.auth.service;
 
 import app.lms.common.exception.BadRequestException;
 import app.lms.email.service.EmailDeliveryService;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -146,9 +144,7 @@ public class EmailOtpService {
                     purpose
             );
 
-        } catch (MailException |
-                 MessagingException |
-                 IllegalStateException ex) {
+        } catch (RuntimeException ex) {
             clearOtp(
                     purpose,
                     normalizedEmail
@@ -239,7 +235,7 @@ public class EmailOtpService {
             String email,
             String otp,
             EmailOtpPurpose purpose
-    ) throws MessagingException {
+    ) {
 
         emailDeliveryService.sendHtml(
                 email,

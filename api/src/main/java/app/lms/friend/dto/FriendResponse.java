@@ -2,7 +2,7 @@ package app.lms.friend.dto;
 
 import app.lms.user.dto.UserResponse;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record FriendResponse(
 
@@ -10,7 +10,7 @@ public record FriendResponse(
 
         UserResponse user,
 
-        LocalDateTime createdAt
+        Instant createdAt
 
 ) {
 }

@@ -1,5 +1,3 @@
-// app/payment/page.tsx
-
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { getUserSubscriptionStatus } from "@/lib/actions/billing"

@@ -1,4 +1,3 @@
-// app/[slug]/roadmaps/page.tsx
 import { Suspense } from "react"
 
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
@@ -13,9 +12,9 @@ async function RoadmapsSection({
 }) {
   const { slug } = await params
   const roadmaps = await api.dashboard.roadmap
-    .list(slug, { page: 0, size: 50 })
+    .list(slug, { page: 0, size: 10 })
     .catch(() => ({ content: [] }))
-  console.log("Fetched roadmaps:", roadmaps) // Debugging line
+  console.log("Fetched roadmaps:", roadmaps)
   return <RoadmapsContent orgSlug={slug} roadmaps={roadmaps.content ?? []} />
 }
 

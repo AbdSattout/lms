@@ -15,6 +15,7 @@ public record OrganizationOverviewResponse(
         long membersCount,
         long adminsCount,
         long studentsCount,
+        long bannedUsersCount,
 
         long coursesCount,
         long publishedCoursesCount,

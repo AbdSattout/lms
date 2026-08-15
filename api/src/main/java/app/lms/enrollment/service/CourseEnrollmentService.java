@@ -1,5 +1,6 @@
 package app.lms.enrollment.service;
 
+import app.lms.badge.service.UserBadgeService;
 import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
 import app.lms.common.exception.ConflictException;
@@ -66,6 +67,7 @@ public class CourseEnrollmentService {
     private final RoadmapFollowProgressService roadmapFollowProgressService;
 
     private final OrganizationAccessService organizationAccessService;
+    private final UserBadgeService userBadgeService;
 
     @Transactional
     @ConsumesPlanUsage(PlanUsageType.COURSE_ENROLLMENT)
@@ -161,6 +163,7 @@ public class CourseEnrollmentService {
                             existingEnrollment.getEnrolledAt()
                     )
                     .rewards(List.of())
+                    .badges(List.of())
                     .build();
         }
 
@@ -194,6 +197,9 @@ public class CourseEnrollmentService {
                         reward.awarded()
                                 ? List.of(reward)
                                 : List.of()
+                )
+                .badges(
+                        userBadgeService.awardEarnedBadges(user)
                 )
                 .build();
     }

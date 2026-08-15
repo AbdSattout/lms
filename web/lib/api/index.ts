@@ -52,6 +52,7 @@ import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
   commentLikes,
   comments,
+  coursePostById,
   deleteComment,
   likes,
   byCourse as postsByCourse,
@@ -88,7 +89,12 @@ import {
 } from "@/lib/api/questions"
 import type { ApiTree } from "@/lib/api/route"
 import { me, picture, search as userSearch } from "@/lib/api/users"
-import { generateQuestionFromBlock, transformText, generateFaq, getFaqs } from "@/lib/api/ai"
+import {
+  generateQuestionFromBlock,
+  transformText,
+  generateFaq,
+  getFaqs,
+} from "@/lib/api/ai"
 import {
   byOrg as postMediaByOrg,
   byId as postMediaById,
@@ -206,6 +212,7 @@ export const api = {
     },
     posts: {
       byCourse: postsByCourse,
+      coursePostById,
       byId: postsById,
       byOrg: postsByOrg,
       likes,

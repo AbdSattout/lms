@@ -4,10 +4,8 @@ import app.lms.common.exception.BadRequestException;
 import app.lms.email.service.EmailDeliveryService;
 import app.lms.tests.gamification.dto.MonthlyAwardEmailTestRequest;
 import app.lms.tests.gamification.dto.MonthlyAwardEmailTestResponse;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -63,9 +61,7 @@ public class MonthlyAwardEmailTestService {
                             premiumExpiresAt
                     )
             );
-        } catch (MailException |
-                 MessagingException |
-                 IllegalStateException ex) {
+        } catch (RuntimeException ex) {
             throw new BadRequestException(
                     "Failed to send monthly award test email"
             );

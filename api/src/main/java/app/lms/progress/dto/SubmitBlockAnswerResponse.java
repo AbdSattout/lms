@@ -1,5 +1,6 @@
 package app.lms.progress.dto;
 
+import app.lms.badge.dto.UserBadgeResponse;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import app.lms.progress.enums.NextStepType;
 
@@ -12,6 +13,7 @@ public record SubmitBlockAnswerResponse(
         Long nextChapterId,
         Long quizId,
         String message,
-        List<GamificationAwardResponse> rewards
+        List<GamificationAwardResponse> rewards,
+        List<UserBadgeResponse> badges
 ) {
 }

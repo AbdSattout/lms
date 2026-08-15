@@ -13,7 +13,6 @@ export function SubscriptionButton() {
   useEffect(() => {
     const fetchUser = async () => {
       const { user } = await getUserSubscriptionStatus()
-      console.log("Fetched user:", user)
       setUser(user)
       setIsPremium(user?.plan?.premium ?? false)
     }

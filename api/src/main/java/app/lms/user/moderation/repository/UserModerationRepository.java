@@ -1,6 +1,8 @@
 package app.lms.user.moderation.repository;
 
 import app.lms.user.moderation.model.UserModeration;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,5 +27,26 @@ public interface UserModerationRepository
 
     Optional<UserModeration> findByUserId(
             Long userId
+    );
+
+    @Query(
+            value = """
+                    select moderation
+                    from UserModeration moderation
+                    join fetch moderation.user
+                    join fetch moderation.bannedBy
+                    where moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                    order by moderation.createdAt desc
+                    """,
+            countQuery = """
+                    select count(moderation)
+                    from UserModeration moderation
+                    where moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                    """
+    )
+    Page<UserModeration> findAllActive(
+            Pageable pageable
     );
 }

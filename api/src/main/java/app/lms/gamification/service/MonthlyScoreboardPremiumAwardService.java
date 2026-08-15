@@ -8,12 +8,10 @@ import app.lms.gamification.repository.UserActivityDayRepository;
 import app.lms.gamification.repository.projection.MonthlyScoreboardWinnerRow;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.mail.MailException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -224,9 +222,7 @@ public class MonthlyScoreboardPremiumAwardService {
                     LocalDateTime.now()
             );
 
-        } catch (MailException |
-                 MessagingException |
-                 IllegalStateException ex) {
+        } catch (RuntimeException ex) {
             log.warn(
                     "Failed to send monthly premium award email. userId={}, rank={}",
                     award.getUser()
