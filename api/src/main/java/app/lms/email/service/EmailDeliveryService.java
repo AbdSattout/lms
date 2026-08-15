@@ -6,25 +6,27 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class EmailDeliveryService {
 
-    @Value("${app.email.api-key:}")
-    private String apiKey;
+    @Value("${app.email.api-base-url:}")
+    private String apiBaseUrl;
 
-    @Value("${app.email-otp.from:}")
-    private String fromEmail;
+    @Value("${app.email.api-path:/}")
+    private String apiPath;
 
-    private final RestClient restClient = RestClient.builder()
-            .baseUrl("https://api.resend.com")
-            .build();
+    @Value("${app.email.api-secret:}")
+    private String apiSecret;
 
     public boolean isConfigured() {
-        return StringUtils.hasText(apiKey) && StringUtils.hasText(fromEmail);
+        return StringUtils.hasText(apiBaseUrl)
+                && StringUtils.hasText(apiSecret);
     }
 
     public void sendHtml(
@@ -35,27 +37,99 @@ public class EmailDeliveryService {
     ) {
 
         if (!isConfigured()) {
-            throw new IllegalStateException("Resend Email HTTPS API is not configured");
+            throw new IllegalStateException("Transactional email API is not configured");
         }
 
-        Map<String, Object> payload = Map.of(
-                "from", fromEmail,
-                "to", new String[]{to},
-                "subject", subject,
-                "text", plainText,
-                "html", html
+        if (!StringUtils.hasText(plainText)
+                && !StringUtils.hasText(html)) {
+            throw new IllegalArgumentException("Email text or html is required");
+        }
+
+        Map<String, Object> payload =
+                new LinkedHashMap<>();
+
+        payload.put(
+                "to",
+                to
+        );
+        payload.put(
+                "subject",
+                subject
         );
 
-        try {
-            restClient.post()
-                    .uri("/emails")
-                    .header("Authorization", "Bearer " + apiKey)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(payload)
-                    .retrieve()
-                    .toBodilessEntity();
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to deliver email via Resend HTTPS API on Railway", e);
+        if (StringUtils.hasText(plainText)) {
+            payload.put(
+                    "text",
+                    plainText
+            );
         }
+
+        if (StringUtils.hasText(html)) {
+            payload.put(
+                    "html",
+                    html
+            );
+        }
+
+        try {
+            EmailApiResponse response =
+                    RestClient.builder()
+                            .baseUrl(
+                                    apiBaseUrl.trim()
+                            )
+                            .build()
+                            .post()
+                            .uri(apiPath())
+                            .header(
+                                    "Authorization",
+                                    "Bearer " + apiSecret.trim()
+                            )
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .body(payload)
+                            .retrieve()
+                            .body(EmailApiResponse.class);
+
+            if (
+                    response == null ||
+                            !Boolean.TRUE.equals(response.ok())
+            ) {
+                throw new RuntimeException(
+                        "Transactional email API rejected the message"
+                );
+            }
+        } catch (RestClientResponseException e) {
+            throw new RuntimeException(
+                    "Failed to deliver email via transactional email API: HTTP "
+                            + e.getStatusCode()
+                            + " "
+                            + e.getResponseBodyAsString(),
+                    e
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Failed to deliver email via transactional email API",
+                    e
+            );
+        }
+    }
+
+    private String apiPath() {
+
+        if (!StringUtils.hasText(apiPath)) {
+            return "/";
+        }
+
+        String trimmed =
+                apiPath.trim();
+
+        return trimmed.startsWith("/")
+                ? trimmed
+                : "/" + trimmed;
+    }
+
+    private record EmailApiResponse(
+            Boolean ok,
+            String messageId
+    ) {
     }
 }
