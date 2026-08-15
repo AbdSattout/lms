@@ -143,6 +143,31 @@ import '../../features/roadmaps/domain/usecases/follow_roadmap_usecase.dart';
 import '../../features/roadmaps/domain/usecases/unfollow_roadmap_usecase.dart';
 import '../../features/roadmaps/presentation/bloc/roadmap_bloc.dart';
 
+// AI Quiz
+import '../../features/assessments/ai_quiz/data/datasources/ai_quiz_remote_datasource.dart';
+import '../../features/assessments/ai_quiz/data/repositories/ai_quiz_repository_impl.dart';
+import '../../features/assessments/ai_quiz/domain/repositories/ai_quiz_repository.dart';
+import '../../features/assessments/ai_quiz/domain/usecases/generate_ai_quiz_usecase.dart';
+import '../../features/assessments/ai_quiz/domain/usecases/submit_ai_quiz_usecase.dart';
+import '../../features/assessments/ai_quiz/presentation/bloc/ai_quiz_bloc.dart';
+
+// Random Quiz
+import '../../features/assessments/random_quiz/data/datasources/random_quiz_remote_datasource.dart';
+import '../../features/assessments/random_quiz/data/repositories/random_quiz_repository_impl.dart';
+import '../../features/assessments/random_quiz/domain/repositories/random_quiz_repository.dart';
+import '../../features/assessments/random_quiz/domain/usecases/generate_random_quiz_usecase.dart';
+import '../../features/assessments/random_quiz/domain/usecases/submit_random_quiz_usecase.dart';
+import '../../features/assessments/random_quiz/presentation/bloc/random_quiz_bloc.dart';
+
+// Practice Quiz
+import '../../features/assessments/practice_quiz/data/datasources/practice_quiz_remote_datasource.dart';
+import '../../features/assessments/practice_quiz/data/repositories/practice_quiz_repository_impl.dart';
+import '../../features/assessments/practice_quiz/domain/repositories/practice_quiz_repository.dart';
+import '../../features/assessments/practice_quiz/domain/usecases/get_practice_quiz_list_usecase.dart';
+import '../../features/assessments/practice_quiz/domain/usecases/get_practice_quiz_details_usecase.dart';
+import '../../features/assessments/practice_quiz/domain/usecases/submit_practice_quiz_usecase.dart';
+import '../../features/assessments/practice_quiz/presentation/bloc/practice_quiz_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -469,11 +494,40 @@ Future<void> init() async {
     unfollowRoadmap: sl(),
     getMyRoadmaps: sl(),
   ));
+
+  //Ai Quiz
+  sl.registerLazySingleton<AiQuizRemoteDataSource>(() => AiQuizRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<AiQuizRepository>(() => AiQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GenerateAiQuizUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitAiQuizUseCase(sl()));
+  sl.registerFactory(() => AiQuizBloc(generateAiQuiz: sl(), submitAiQuiz: sl()));
+
+  //Random Quiz
+  sl.registerLazySingleton<RandomQuizRemoteDataSource>(() => RandomQuizRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<RandomQuizRepository>(() => RandomQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GenerateRandomQuizUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitRandomQuizUseCase(sl()));
+  sl.registerFactory(() => RandomQuizBloc(generateRandomQuiz: sl(), submitRandomQuiz: sl()));
+
+  // Practice Quiz
+  sl.registerLazySingleton<PracticeQuizRemoteDataSource>(() => PracticeQuizRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<PracticeQuizRepository>(() => PracticeQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetPracticeQuizListUseCase(sl()));
+  sl.registerLazySingleton(() => GetPracticeQuizDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPracticeQuizUseCase(sl()));
+  sl.registerFactory(() => PracticeQuizBloc(
+    getList: sl(),
+    getDetails: sl(),
+    submit: sl(),
+  ));
+  
   // Home
   sl.registerFactory(
     () =>
         HomeBloc(getAllCoursesUseCase: sl(), getAllOrganizationsUseCase: sl()),
   );
+
+
 
   //! External
 
