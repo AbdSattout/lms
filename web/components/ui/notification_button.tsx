@@ -44,7 +44,7 @@ export function Notifications() {
     invite: OrganizationInviteResponse,
     e: React.MouseEvent
   ) => {
-    e.stopPropagation() // لتفادي فتح نافذة التفاصيل إذا قام بالضغط على الزر سريعاً من القائمة المنسدلة
+    e.stopPropagation()
     if (!invite.token) return
     setProcessingInvites((prev) => new Set(prev).add(invite.id))
     const result = await acceptInviteAction(invite.token)

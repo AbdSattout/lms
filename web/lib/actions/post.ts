@@ -10,9 +10,27 @@ import type {
 import { revalidatePath } from "next/cache"
 
 export async function createPost(orgSlug: string, input: CreatePostInput) {
-  const post = await api.dashboard.posts.byOrg.post(orgSlug, input)
-  revalidatePath(`/${orgSlug}/posts`)
-  return post
+  try {
+    const data = await api.dashboard.posts.byOrg.post(orgSlug, input)
+
+    revalidatePath(`/${orgSlug}/posts`)
+    if (input.courseId) {
+      revalidatePath(`/${orgSlug}/courses/${input.courseId}/posts`)
+    }
+    return {
+      success: true,
+      data,
+      error: null,
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
+    return {
+      success: false,
+      data: null,
+      error: errorMessage,
+    }
+  }
 }
 export async function likePost(
   postId: number,
@@ -73,7 +91,15 @@ export async function getPostsByOrg(slug: string, pageable: PageableInput) {
 export async function getPostById(postId: number, slug: string) {
   return api.dashboard.posts.byId.get(slug, postId)
 }
-
+export async function getPostsByCourse(
+  courseId: number,
+  pageable: PageableInput
+) {
+  return api.dashboard.posts.byCourse.get(courseId, pageable)
+}
+export async function getCoursePostById(courseId: number, postId: number) {
+  return api.dashboard.posts.coursePostById.get(courseId, postId)
+}
 export async function getCommentsByPost(postId: number) {
   return api.dashboard.posts.comments.get(postId)
 }

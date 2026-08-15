@@ -40,7 +40,6 @@ export async function declineInviteAction(token: string): Promise<{
   error?: string
 }> {
   try {
-    // Use the API endpoint you already defined
     await api.dashboard.organizations.invites.decline.post(token)
     revalidatePath("/")
     return { success: true }
