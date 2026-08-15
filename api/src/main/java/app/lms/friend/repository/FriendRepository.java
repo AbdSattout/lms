@@ -26,4 +26,14 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             Pageable pageable
     );
 
+    @Query("""
+            SELECT COUNT(friend)
+            FROM Friend friend
+            WHERE friend.user1.id = :userId
+               OR friend.user2.id = :userId
+            """)
+    long countByUserId(
+            Long userId
+    );
+
 }

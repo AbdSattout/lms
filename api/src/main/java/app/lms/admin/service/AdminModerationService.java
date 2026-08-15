@@ -1,5 +1,8 @@
 package app.lms.admin.service;
 
+import app.lms.admin.dto.BannedOrganizationResponse;
+import app.lms.admin.dto.BannedUserResponse;
+import app.lms.admin.mapper.AdminModerationMapper;
 import app.lms.admin.model.Admin;
 import app.lms.common.exception.BadRequestException;
 import app.lms.moderation.dto.BanRequest;
@@ -12,6 +15,8 @@ import app.lms.user.moderation.model.UserModeration;
 import app.lms.user.moderation.repository.UserModerationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -26,6 +31,7 @@ public class AdminModerationService {
     private final OrganizationModerationRepository organizationModerationRepository;
     private final UserModerationRepository userModerationRepository;
     private final BanNotificationEmailService banNotificationEmailService;
+    private final AdminModerationMapper adminModerationMapper;
 
     public void banUser(
             Long userId,
@@ -187,6 +193,67 @@ public class AdminModerationService {
                 expiresAt
         );
 
+    }
+
+    public Page<BannedUserResponse> getBannedUsers(
+            Long adminId,
+            Pageable pageable
+    ) {
+
+        Admin admin =
+                accessService.getAdmin(
+                        adminId
+                );
+
+        accessService.validateAdmin(admin);
+
+        return userModerationRepository
+                .findAllActive(pageable)
+                .map(adminModerationMapper::toBannedUserResponse);
+    }
+
+    public void unbanOrganization(
+            Long organizationId,
+            Long adminId
+    ) {
+
+        Admin admin =
+                accessService.getAdmin(
+                        adminId
+                );
+
+        accessService.validateAdmin(admin);
+
+        Organization organization =
+                accessService.getOrganization(
+                        organizationId
+                );
+
+        OrganizationModeration ban =
+                accessService.getOrganizationModerationBan(
+                        organization
+                );
+
+        organizationModerationRepository.delete(
+                ban
+        );
+    }
+
+    public Page<BannedOrganizationResponse> getBannedOrganizations(
+            Long adminId,
+            Pageable pageable
+    ) {
+
+        Admin admin =
+                accessService.getAdmin(
+                        adminId
+                );
+
+        accessService.validateAdmin(admin);
+
+        return organizationModerationRepository
+                .findAllActive(pageable)
+                .map(adminModerationMapper::toBannedOrganizationResponse);
     }
 
     private void validateBanIsExpired(

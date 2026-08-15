@@ -1,5 +1,6 @@
 package app.lms.practiceExam.mapper;
 
+import app.lms.badge.dto.UserBadgeResponse;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.common.quiz.service.QuizDifficultyService;
 import app.lms.course.model.Course;
@@ -115,7 +116,8 @@ public class PracticeExamMapper {
 
     public PracticeExamSubmitResponse toSubmitResponse(
             PracticeExamAttempt attempt,
-            List<GamificationAwardResponse> rewards
+            List<GamificationAwardResponse> rewards,
+            List<UserBadgeResponse> badges
     ) {
 
         return new PracticeExamSubmitResponse(
@@ -140,6 +142,7 @@ public class PracticeExamMapper {
                         )
                         .toList(),
                 rewards,
+                badges,
                 BaseEntityResponse.from(attempt)
         );
     }

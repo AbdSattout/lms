@@ -1,5 +1,7 @@
 package app.lms.progress.service;
 
+import app.lms.badge.dto.UserBadgeResponse;
+import app.lms.badge.service.UserBadgeService;
 import app.lms.block.model.Block;
 import app.lms.block.repository.BlockRepository;
 import app.lms.block.service.BlockAccessService;
@@ -46,6 +48,7 @@ public class ProgressService {
     private final CourseEnrollmentAccessService courseEnrollmentAccessService;
     private final QuizRepository quizRepository;
     private final GamificationService gamificationService;
+    private final UserBadgeService userBadgeService;
 
     @Transactional
     public SubmitBlockAnswerResponse submitAnswer(
@@ -127,9 +130,13 @@ public class ProgressService {
                         progress
                 );
 
+        List<UserBadgeResponse> badges =
+                userBadgeService.awardEarnedBadges(user);
+
         return progressMapper.withRewards(
                 nextStep,
-                rewards
+                rewards,
+                badges
         );
     }
 

@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity(name = "UserLike")
 @Table(
@@ -60,7 +60,8 @@ public class Like {
     private ReactionType reactionType = ReactionType.LIKE;
 
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    @Column(columnDefinition = "timestamp(6) with time zone")
+    private Instant createdAt;
 
     @PrePersist
     @PreUpdate

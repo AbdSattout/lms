@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(
@@ -57,5 +57,6 @@ public class Conversation extends BaseEntity {
     @Column(length = 500)
     private String lastMessagePreview;
 
-    private LocalDateTime lastMessageAt;
+    @Column(columnDefinition = "timestamp(6) with time zone")
+    private Instant lastMessageAt;
 }

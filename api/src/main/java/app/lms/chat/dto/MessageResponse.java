@@ -3,6 +3,7 @@ package app.lms.chat.dto;
 
 import app.lms.chat.enums.MessageType;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 public record MessageResponse(
@@ -19,7 +20,7 @@ public record MessageResponse(
 
         MessageType type,
 
-        LocalDateTime createdAt,
+        Instant createdAt,
 
         LocalDateTime editedAt,
 
