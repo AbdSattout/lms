@@ -525,6 +525,27 @@ public class DashboardOrganizationService {
                 .map(organizationMapper::toMemberResponse);
     }
 
+    public Page<OrganizationBannedUserResponse> getBannedUsers(
+            String slug,
+            Pageable pageable,
+            User currentUser
+    ) {
+
+        Organization organization =
+                organizationAccessService
+                        .getManageableOrganization(
+                                slug,
+                                currentUser
+                        );
+
+        return organizationBanRepository
+                .findAllActiveByOrganizationId(
+                        organization.getId(),
+                        pageable
+                )
+                .map(organizationMapper::toBannedUserResponse);
+    }
+
     public List<OrganizationUserSearchResponse> searchUsers(
             String slug,
             String q,
