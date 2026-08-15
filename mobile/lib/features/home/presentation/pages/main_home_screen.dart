@@ -39,22 +39,16 @@ import '../../bloc/navbar_cubit.dart';
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
 
-  const MainHomeScreen({
-    super.key,
-    required this.userAuthData,
-  });
+  const MainHomeScreen({super.key, required this.userAuthData});
   @override
   Widget build(BuildContext context) {
     final user = userAuthData.user;
 
     return MultiBlocProvider(
       providers: [
+        BlocProvider(create: (_) => NavbarCubit()),
         BlocProvider(
-          create: (_) => NavbarCubit(),
-        ),
-        BlocProvider(
-          create: (_) =>
-          sl<NotificationsBloc>()..add(LoadNotificationsEvent()),
+          create: (_) => sl<NotificationsBloc>()..add(LoadNotificationsEvent()),
         ),
       ],
       child: Directionality(
@@ -70,27 +64,25 @@ class MainHomeScreen extends StatelessWidget {
                   controller: context.read<NavbarCubit>().controller,
                   children: [
                     BlocProvider(
-                      create: (_) =>
-                      sl<HomeBloc>()..add(GetHomeDataEvent()),
+                      create: (_) => sl<HomeBloc>()..add(GetHomeDataEvent()),
                       child: _HomeContent(user: user),
                     ),
                     BlocProvider(
                       create: (_) =>
-                      sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
+                          sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
                       child: const MyCoursesPage(),
                     ),
                     BlocProvider(
                       create: (_) =>
-                      sl<OrganizationBloc>()
-                        ..add(GetAllOrganizationsEvent()),
+                          sl<OrganizationBloc>()
+                            ..add(GetAllOrganizationsEvent()),
                       child: OrganizationsPage(
                         currentUserName: user.name,
                         showOnlyMine: true,
                       ),
                     ),
                     BlocProvider(
-                      create: (_) =>
-                      sl<ProfileBloc>()..add(GetProfileEvent()),
+                      create: (_) => sl<ProfileBloc>()..add(GetProfileEvent()),
                       child: const ProfilePage(),
                     ),
                   ],
@@ -108,28 +100,21 @@ class MainHomeScreen extends StatelessWidget {
     return BlocBuilder<NavbarCubit, int>(
       builder: (context, state) {
         return Padding(
-          padding: const EdgeInsets.only(
-            left: 18,
-            right: 18,
-            bottom: 15,
-          ),
+          padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
           child: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(48),
             ),
-            backgroundColor:
-            Theme.of(context).scaffoldBackgroundColor,
-            snakeViewColor:
-            AppColors.primary.withValues(alpha: 0.10),
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            snakeViewColor: AppColors.primary.withValues(alpha: 0.10),
             height: 70,
             elevation: 10,
             selectedItemColor: AppColors.primary,
-            unselectedItemColor: Theme.of(context)
-                .colorScheme
-                .onSurfaceVariant
-                .withValues(alpha: 0.72),
+            unselectedItemColor: Theme.of(
+              context,
+            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.72),
             showSelectedLabels: true,
             showUnselectedLabels: false,
             currentIndex: state,
@@ -143,22 +128,10 @@ class MainHomeScreen extends StatelessWidget {
               context.read<NavbarCubit>().update(index);
             },
             items: [
-              _buildNavItem(
-                'assets/navbar_icons/home.png',
-                'الرئيسية',
-              ),
-              _buildNavItem(
-                'assets/navbar_icons/book.png',
-                'كورساتي',
-              ),
-              _buildNavItem(
-                'assets/navbar_icons/categories.png',
-                'منظماتي',
-              ),
-              _buildNavItem(
-                'assets/navbar_icons/user.png',
-                'حسابي',
-              ),
+              _buildNavItem('assets/navbar_icons/home.png', 'الرئيسية'),
+              _buildNavItem('assets/navbar_icons/book.png', 'كورساتي'),
+              _buildNavItem('assets/navbar_icons/categories.png', 'منظماتي'),
+              _buildNavItem('assets/navbar_icons/user.png', 'حسابي'),
             ],
           ),
         );
@@ -166,37 +139,28 @@ class MainHomeScreen extends StatelessWidget {
     );
   }
 
-  BottomNavigationBarItem _buildNavItem(
-      String iconPath,
-      String label,
-      ) {
+  BottomNavigationBarItem _buildNavItem(String iconPath, String label) {
     return BottomNavigationBarItem(
-      icon: ImageIcon(
-        AssetImage(iconPath),
-        size: 22,
-      ),
+      icon: ImageIcon(AssetImage(iconPath), size: 22),
       activeIcon: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: AppColors.primary.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(14),
         ),
-        child: ImageIcon(
-          AssetImage(iconPath),
-          size: 22,
-        ),
+        child: ImageIcon(AssetImage(iconPath), size: 22),
       ),
       label: label,
     );
   }
 
   static Widget buildAvatar(
-      dynamic user, {
-        required BuildContext context,
-        required double radius,
-        bool isHome = false,
-        VoidCallback? onTap,
-      }) {
+    dynamic user, {
+    required BuildContext context,
+    required double radius,
+    bool isHome = false,
+    VoidCallback? onTap,
+  }) {
     final colors = Theme.of(context).colorScheme;
 
     return ResilientNetworkAvatar(
@@ -216,9 +180,7 @@ class MainHomeScreen extends StatelessWidget {
 class _HomeContent extends StatelessWidget {
   final dynamic user;
 
-  const _HomeContent({
-    required this.user,
-  });
+  const _HomeContent({required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -228,21 +190,13 @@ class _HomeContent extends StatelessWidget {
       child: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverToBoxAdapter(
-            child: _WelcomeHeader(user: user),
-          ),
+          SliverToBoxAdapter(child: _WelcomeHeader(user: user)),
 
-          SliverToBoxAdapter(
-            child: const SizedBox(height: 20),
-          ),
+          SliverToBoxAdapter(child: const SizedBox(height: 20)),
 
-          SliverToBoxAdapter(
-            child: _SearchBar(),
-          ),
+          SliverToBoxAdapter(child: _SearchBar()),
 
-          SliverToBoxAdapter(
-            child: const SizedBox(height: 30),
-          ),
+          SliverToBoxAdapter(child: const SizedBox(height: 30)),
 
           BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
@@ -250,37 +204,27 @@ class _HomeContent extends StatelessWidget {
                 return const SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: 100),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: Center(child: CircularProgressIndicator()),
                   ),
                 );
               }
 
               if (state is HomeLoaded) {
                 return SliverToBoxAdapter(
-                  child: _HomeLoadedContent(
-                    state: state,
-                    user: user,
-                  ),
+                  child: _HomeLoadedContent(state: state, user: user),
                 );
               }
 
-              return const SliverToBoxAdapter(
-                child: SizedBox.shrink(),
-              );
+              return const SliverToBoxAdapter(child: SizedBox.shrink());
             },
           ),
 
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 110),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 110)),
         ],
       ),
     );
   }
 }
-
 
 class _WelcomeHeader extends StatelessWidget {
   final dynamic user;
@@ -304,9 +248,7 @@ class _WelcomeHeader extends StatelessWidget {
             isDark
                 ? AppColors.primary.withValues(alpha: 0.20)
                 : AppColors.primaryLight,
-            isDark
-                ? AppColors.primary.withValues(alpha: 0.08)
-                : colors.surface,
+            isDark ? AppColors.primary.withValues(alpha: 0.08) : colors.surface,
           ],
         ),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(34)),
@@ -400,9 +342,7 @@ class _SearchBar extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(
-                      alpha: isDark ? 0.16 : 0.05,
-                    ),
+                    color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.05),
                     blurRadius: 18,
                     offset: const Offset(0, 7),
                   ),
@@ -421,13 +361,9 @@ class _SearchBar extends StatelessWidget {
                     Icons.search_rounded,
                     color: colors.onSurfaceVariant,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 17,
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 17),
                 ),
-                style: TextStyle(
-                  color: colors.onSurface,
-                ),
+                style: TextStyle(color: colors.onSurface),
               ),
             ),
           ),
@@ -440,18 +376,13 @@ class _SearchBar extends StatelessWidget {
               borderRadius: BorderRadius.circular(18),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primary.withValues(
-                    alpha: 0.24,
-                  ),
+                  color: AppColors.primary.withValues(alpha: 0.24),
                   blurRadius: 14,
                   offset: const Offset(0, 6),
                 ),
               ],
             ),
-            child: const Icon(
-              Icons.tune_rounded,
-              color: Colors.white,
-            ),
+            child: const Icon(Icons.tune_rounded, color: Colors.white),
           ),
         ],
       ),
@@ -463,10 +394,7 @@ class _HomeLoadedContent extends StatelessWidget {
   final HomeLoaded state;
   final dynamic user;
 
-  const _HomeLoadedContent({
-    required this.state,
-    required this.user,
-  });
+  const _HomeLoadedContent({required this.state, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -519,25 +447,25 @@ class _HomeLoadedContent extends StatelessWidget {
       return _RetryCard(
         message: state.coursesError!,
         onRetry: () {
-          context.read<HomeBloc>().add(
-            GetHomeDataEvent(),
-          );
+          context.read<HomeBloc>().add(GetHomeDataEvent());
         },
       );
     }
 
-    final courses = state.courses ?? [];
+    final recommendations = state.recommendedCourses ?? [];
 
-    if (courses.isEmpty) {
+    if (recommendations.isEmpty) {
       return const SizedBox.shrink();
     }
 
-    final course = courses.first;
+    final recommendation = recommendations.first;
+    final course = recommendation.course;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: _FeaturedCourseCard(
         course: course,
+        reason: recommendation.reason,
         onTap: () => _openCourse(context, course),
       ),
     );
@@ -548,26 +476,24 @@ class _HomeLoadedContent extends StatelessWidget {
       return _RetryCard(
         message: state.organizationsError!,
         onRetry: () {
-          context.read<HomeBloc>().add(
-            GetHomeDataEvent(),
-          );
+          context.read<HomeBloc>().add(GetHomeDataEvent());
         },
       );
     }
 
-    final organizations = state.organizations ?? [];
+    final recommendations = state.recommendedOrganizations ?? [];
 
-    if (organizations.isEmpty) {
+    if (recommendations.isEmpty) {
       return _EmptyState(
         icon: Icons.apartment_rounded,
         message: 'لا توجد منظمات حالياً',
       );
     }
 
-    final preview = organizations.take(5).toList();
+    final preview = recommendations.take(5).toList();
 
     return SizedBox(
-      height: 185,
+      height: 205,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 22),
         scrollDirection: Axis.horizontal,
@@ -575,14 +501,13 @@ class _HomeLoadedContent extends StatelessWidget {
         itemCount: preview.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
-          final organization = preview[index];
+          final recommendation = preview[index];
+          final organization = recommendation.organization;
 
           return _HomeOrganizationCard(
             organization: organization,
-            onTap: () => _openOrganization(
-              context,
-              organization,
-            ),
+            reason: recommendation.reason,
+            onTap: () => _openOrganization(context, organization),
           );
         },
       ),
@@ -594,9 +519,9 @@ class _HomeLoadedContent extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final courses = state.courses ?? [];
+    final recommendations = state.recommendedCourses ?? [];
 
-    if (courses.isEmpty) {
+    if (recommendations.isEmpty) {
       return _EmptyState(
         icon: Icons.menu_book_rounded,
         message: 'لا توجد كورسات منشورة حالياً',
@@ -609,13 +534,15 @@ class _HomeLoadedContent extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 22),
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
-        itemCount: courses.length,
+        itemCount: recommendations.length,
         separatorBuilder: (_, __) => const SizedBox(width: 14),
         itemBuilder: (context, index) {
-          final course = courses[index];
+          final recommendation = recommendations[index];
+          final course = recommendation.course;
 
           return _HomeCourseCard(
             course: course,
+            reason: recommendation.reason,
             onTap: () => _openCourse(context, course),
           );
         },
@@ -624,42 +551,31 @@ class _HomeLoadedContent extends StatelessWidget {
   }
 
   void _openOrganization(
-      BuildContext context,
-      OrganizationEntity organization,
-      ) {
+    BuildContext context,
+    OrganizationEntity organization,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider(
           create: (_) =>
-          sl<OrganizationDetailsBloc>()
-            ..add(
-              GetOrganizationDetailsEvent(
-                organization.slug,
-              ),
-            ),
-          child: OrganizationDetailsPage(
-            slug: organization.slug,
-          ),
+              sl<OrganizationDetailsBloc>()
+                ..add(GetOrganizationDetailsEvent(organization.slug)),
+          child: OrganizationDetailsPage(slug: organization.slug),
         ),
       ),
     );
   }
 
-  Future<void> _openCourse(
-      BuildContext context,
-      CourseEntity course,
-      ) async {
+  Future<void> _openCourse(BuildContext context, CourseEntity course) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider(
-          create: (_) =>
-          sl<CourseDetailsBloc>()
+          create: (_) => sl<CourseDetailsBloc>()
             ..add(
               GetCourseDetailsEvent(
-                orgSlug:
-                course.organization?.slug ?? '',
+                orgSlug: course.organization?.slug ?? '',
                 courseSlug: course.slug,
               ),
             ),
@@ -669,14 +585,10 @@ class _HomeLoadedContent extends StatelessWidget {
     );
 
     if (context.mounted) {
-      context.read<HomeBloc>().add(
-        GetHomeDataEvent(),
-      );
+      context.read<HomeBloc>().add(GetHomeDataEvent());
     }
   }
 }
-
-
 
 class _SectionHeader extends StatelessWidget {
   final String title;
@@ -748,13 +660,68 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+class _RecommendationReasonBadge extends StatelessWidget {
+  final String reason;
+  final bool onImage;
+
+  const _RecommendationReasonBadge({
+    required this.reason,
+    this.onImage = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (reason.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final colors = Theme.of(context).colorScheme;
+    final textColor = onImage ? Colors.white : colors.primary;
+    final backgroundColor = onImage
+        ? Colors.white.withValues(alpha: 0.16)
+        : colors.primary.withValues(alpha: 0.10);
+    final borderColor = onImage
+        ? Colors.white.withValues(alpha: 0.18)
+        : colors.primary.withValues(alpha: 0.18);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: borderColor),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.auto_awesome_rounded, size: 12, color: textColor),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              reason,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: textColor,
+                fontSize: 10.5,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 class _FeaturedCourseCard extends StatelessWidget {
   final CourseEntity course;
+  final String reason;
   final VoidCallback onTap;
 
   const _FeaturedCourseCard({
     required this.course,
+    required this.reason,
     required this.onTap,
   });
 
@@ -762,14 +729,12 @@ class _FeaturedCourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    final hasCover =
-        course.coverUrl != null &&
-            course.coverUrl!.isNotEmpty;
+    final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
     final isEnrolled = course.enrollment != null;
     final isCompleted = course.isCompleted;
-    final progress =
-        course.enrollment?.progressPercentage ?? 0;
+    final progress = course.enrollment?.progressPercentage ?? 0;
+    final organizationName = course.organizationDisplayName;
 
     return Material(
       color: Colors.transparent,
@@ -797,8 +762,7 @@ class _FeaturedCourseCard extends StatelessWidget {
                 Image.network(
                   course.coverUrl!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) =>
-                      _fallbackBackground(),
+                  errorBuilder: (_, __, ___) => _fallbackBackground(),
                 )
               else
                 _fallbackBackground(),
@@ -820,8 +784,7 @@ class _FeaturedCourseCard extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
@@ -831,21 +794,14 @@ class _FeaturedCourseCard extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(
-                              alpha: 0.16,
-                            ),
-                            borderRadius:
-                            BorderRadius.circular(10),
+                            color: Colors.white.withValues(alpha: 0.16),
+                            borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: Colors.white.withValues(
-                                alpha: 0.18,
-                              ),
+                              color: Colors.white.withValues(alpha: 0.18),
                             ),
                           ),
                           child: Text(
-                            isEnrolled
-                                ? 'متابعة التعلم'
-                                : 'ابدأ الآن',
+                            isEnrolled ? 'متابعة التعلم' : 'ابدأ الآن',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -853,20 +809,25 @@ class _FeaturedCourseCard extends StatelessWidget {
                             ),
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _RecommendationReasonBadge(
+                            reason: reason,
+                            onImage: true,
+                          ),
+                        ),
                       ],
                     ),
 
                     const Spacer(),
 
-                    if (course.organizationName != null)
+                    if (organizationName != null)
                       Text(
-                        course.organizationName!,
+                        organizationName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Colors.white.withValues(
-                            alpha: 0.78,
-                          ),
+                          color: Colors.white.withValues(alpha: 0.78),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -893,23 +854,17 @@ class _FeaturedCourseCard extends StatelessWidget {
                         if (isEnrolled)
                           Expanded(
                             child: Column(
-                              crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 ClipRRect(
-                                  borderRadius:
-                                  BorderRadius.circular(8),
-                                  child:
-                                  LinearProgressIndicator(
-                                    value: (progress / 100)
-                                        .clamp(0, 1),
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: LinearProgressIndicator(
+                                    value: (progress / 100).clamp(0, 1),
                                     minHeight: 5,
-                                    backgroundColor:
-                                    Colors.white.withValues(
+                                    backgroundColor: Colors.white.withValues(
                                       alpha: 0.22,
                                     ),
-                                    valueColor:
-                                    const AlwaysStoppedAnimation(
+                                    valueColor: const AlwaysStoppedAnimation(
                                       Colors.white,
                                     ),
                                   ),
@@ -920,11 +875,9 @@ class _FeaturedCourseCard extends StatelessWidget {
                                       ? 'مكتملة بالكامل'
                                       : '${progress.toStringAsFixed(0)}٪ مكتمل',
                                   style: TextStyle(
-                                    color: Colors.white
-                                        .withValues(alpha: 0.8),
+                                    color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 10.5,
-                                    fontWeight:
-                                    FontWeight.w600,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
@@ -940,8 +893,7 @@ class _FeaturedCourseCard extends StatelessWidget {
                           height: 42,
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                            BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(14),
                           ),
                           child: Icon(
                             Icons.arrow_forward_rounded,
@@ -973,47 +925,36 @@ class _FeaturedCourseCard extends StatelessWidget {
         ),
       ),
       child: const Center(
-        child: Icon(
-          Icons.menu_book_rounded,
-          color: Colors.white24,
-          size: 80,
-        ),
+        child: Icon(Icons.menu_book_rounded, color: Colors.white24, size: 80),
       ),
     );
   }
 }
 
-
 class _HomeOrganizationCard extends StatelessWidget {
   final OrganizationEntity organization;
+  final String reason;
   final VoidCallback onTap;
 
   const _HomeOrganizationCard({
     required this.organization,
+    required this.reason,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final isPrivate =
-        organization.visibility ==
-            OrganizationVisibility.private;
+    final isPrivate = organization.visibility == OrganizationVisibility.private;
 
     final hasImage =
-        organization.image != null &&
-            organization.image!.isNotEmpty;
+        organization.image != null && organization.image!.isNotEmpty;
 
     final visibilityColor = isPrivate
-        ? (isDark
-        ? const Color(0xffFBBF24)
-        : const Color(0xffB4780F))
-        : (isDark
-        ? const Color(0xff86EFAC)
-        : const Color(0xff2E7D53));
+        ? (isDark ? const Color(0xffFBBF24) : const Color(0xffB4780F))
+        : (isDark ? const Color(0xff86EFAC) : const Color(0xff2E7D53));
 
     return SizedBox(
       width: 220,
@@ -1034,17 +975,14 @@ class _HomeOrganizationCard extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: isDark ? 0.14 : 0.04,
-                  ),
+                  color: Colors.black.withValues(alpha: isDark ? 0.14 : 0.04),
                   blurRadius: 16,
                   offset: const Offset(0, 7),
                 ),
               ],
             ),
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
@@ -1052,37 +990,32 @@ class _HomeOrganizationCard extends StatelessWidget {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        borderRadius:
-                        BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(16),
                         gradient: hasImage
                             ? null
                             : LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primary
-                                .withValues(alpha: 0.65),
-                          ],
-                        ),
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primary.withValues(alpha: 0.65),
+                                ],
+                              ),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: hasImage
                           ? Image.network(
-                        organization.image!,
-                        fit: BoxFit.cover,
-                        errorBuilder:
-                            (_, __, ___) =>
-                            _initials(),
-                      )
+                              organization.image!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _initials(),
+                            )
                           : _initials(),
                     ),
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.all(7),
                       decoration: BoxDecoration(
-                        color: AppColors.primary
-                            .withValues(alpha: 0.10),
+                        color: AppColors.primary.withValues(alpha: 0.10),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -1161,6 +1094,10 @@ class _HomeOrganizationCard extends StatelessWidget {
                     ),
                   ),
                 ],
+
+                const Spacer(),
+
+                _RecommendationReasonBadge(reason: reason),
               ],
             ),
           ),
@@ -1171,8 +1108,7 @@ class _HomeOrganizationCard extends StatelessWidget {
 
   Widget _initials() {
     final name = organization.name.trim();
-    final initial =
-    name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
+    final initial = name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
 
     return Center(
       child: Text(
@@ -1189,10 +1125,12 @@ class _HomeOrganizationCard extends StatelessWidget {
 
 class _HomeCourseCard extends StatelessWidget {
   final CourseEntity course;
+  final String reason;
   final VoidCallback onTap;
 
   const _HomeCourseCard({
     required this.course,
+    required this.reason,
     required this.onTap,
   });
 
@@ -1200,14 +1138,12 @@ class _HomeCourseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    final hasCover =
-        course.coverUrl != null &&
-            course.coverUrl!.isNotEmpty;
+    final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
 
     final isEnrolled = course.enrollment != null;
     final isCompleted = course.isCompleted;
-    final progress =
-        course.enrollment?.progressPercentage ?? 0;
+    final progress = course.enrollment?.progressPercentage ?? 0;
+    final organizationName = course.organizationDisplayName;
 
     return SizedBox(
       width: 235,
@@ -1221,15 +1157,11 @@ class _HomeCourseCard extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: colors.outlineVariant.withValues(
-                  alpha: 0.5,
-                ),
+                color: colors.outlineVariant.withValues(alpha: 0.5),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: 0.045,
-                  ),
+                  color: Colors.black.withValues(alpha: 0.045),
                   blurRadius: 16,
                   offset: const Offset(0, 7),
                 ),
@@ -1237,8 +1169,7 @@ class _HomeCourseCard extends StatelessWidget {
             ),
             clipBehavior: Clip.antiAlias,
             child: Column(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
                   height: 125,
@@ -1250,32 +1181,39 @@ class _HomeCourseCard extends StatelessWidget {
                         Image.network(
                           course.coverUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder:
-                              (_, __, ___) =>
-                              _placeholder(),
+                          errorBuilder: (_, __, ___) => _placeholder(),
                         )
                       else
                         _placeholder(),
+
+                      Positioned(
+                        top: 10,
+                        left: 10,
+                        right: 10,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: _RecommendationReasonBadge(
+                            reason: reason,
+                            onImage: true,
+                          ),
+                        ),
+                      ),
 
                       if (isCompleted)
                         Positioned(
                           top: 10,
                           right: 10,
                           child: Container(
-                            padding:
-                            const EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                               horizontal: 8,
                               vertical: 5,
                             ),
                             decoration: BoxDecoration(
-                              color:
-                              const Color(0xff2E7D53),
-                              borderRadius:
-                              BorderRadius.circular(9),
+                              color: const Color(0xff2E7D53),
+                              borderRadius: BorderRadius.circular(9),
                             ),
                             child: const Row(
-                              mainAxisSize:
-                              MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
                                   Icons.check_circle_rounded,
@@ -1288,8 +1226,7 @@ class _HomeCourseCard extends StatelessWidget {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 9.5,
-                                    fontWeight:
-                                    FontWeight.w800,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ],
@@ -1304,8 +1241,7 @@ class _HomeCourseCard extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(13),
                     child: Column(
-                      crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           course.title,
@@ -1319,10 +1255,10 @@ class _HomeCourseCard extends StatelessWidget {
                           ),
                         ),
 
-                        if (course.organizationName != null) ...[
+                        if (organizationName != null) ...[
                           const SizedBox(height: 5),
                           Text(
-                            course.organizationName!,
+                            organizationName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
@@ -1337,17 +1273,12 @@ class _HomeCourseCard extends StatelessWidget {
 
                         if (isEnrolled) ...[
                           ClipRRect(
-                            borderRadius:
-                            BorderRadius.circular(8),
-                            child:
-                            LinearProgressIndicator(
-                              value: (progress / 100)
-                                  .clamp(0, 1),
+                            borderRadius: BorderRadius.circular(8),
+                            child: LinearProgressIndicator(
+                              value: (progress / 100).clamp(0, 1),
                               minHeight: 5,
-                              backgroundColor:
-                              colors.surfaceContainerHighest,
-                              valueColor:
-                              AlwaysStoppedAnimation(
+                              backgroundColor: colors.surfaceContainerHighest,
+                              valueColor: AlwaysStoppedAnimation(
                                 isCompleted
                                     ? const Color(0xff2E7D53)
                                     : AppColors.primary,
@@ -1375,8 +1306,7 @@ class _HomeCourseCard extends StatelessWidget {
                                 style: TextStyle(
                                   color: colors.primary,
                                   fontSize: 10.5,
-                                  fontWeight:
-                                  FontWeight.w800,
+                                  fontWeight: FontWeight.w800,
                                 ),
                               ),
                               const SizedBox(width: 3),
@@ -1412,11 +1342,7 @@ class _HomeCourseCard extends StatelessWidget {
         ),
       ),
       child: const Center(
-        child: Icon(
-          Icons.menu_book_rounded,
-          color: Colors.white,
-          size: 38,
-        ),
+        child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 38),
       ),
     );
   }
@@ -1426,10 +1352,7 @@ class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
 
-  const _EmptyState({
-    required this.icon,
-    required this.message,
-  });
+  const _EmptyState({required this.icon, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -1439,22 +1362,14 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          vertical: 26,
-          horizontal: 20,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 20),
         decoration: BoxDecoration(
-          color: colors.surfaceContainerHighest
-              .withValues(alpha: 0.55),
+          color: colors.surfaceContainerHighest.withValues(alpha: 0.55),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              size: 30,
-              color: colors.onSurfaceVariant,
-            ),
+            Icon(icon, size: 30, color: colors.onSurfaceVariant),
             const SizedBox(height: 10),
             Text(
               message,
@@ -1476,10 +1391,7 @@ class _RetryCard extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
 
-  const _RetryCard({
-    required this.message,
-    required this.onRetry,
-  });
+  const _RetryCard({required this.message, required this.onRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -1491,8 +1403,7 @@ class _RetryCard extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: colors.surfaceContainerHighest
-              .withValues(alpha: 0.6),
+          color: colors.surfaceContainerHighest.withValues(alpha: 0.6),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -1500,16 +1411,10 @@ class _RetryCard extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontSize: 12.5,
-              ),
+              style: TextStyle(color: colors.onSurfaceVariant, fontSize: 12.5),
             ),
             const SizedBox(height: 10),
-            TextButton(
-              onPressed: onRetry,
-              child: const Text('إعادة المحاولة'),
-            ),
+            TextButton(onPressed: onRetry, child: const Text('إعادة المحاولة')),
           ],
         ),
       ),
@@ -1517,13 +1422,10 @@ class _RetryCard extends StatelessWidget {
   }
 }
 
-class _NotificationRefreshListener
-    extends StatefulWidget {
+class _NotificationRefreshListener extends StatefulWidget {
   final Widget child;
 
-  const _NotificationRefreshListener({
-    required this.child,
-  });
+  const _NotificationRefreshListener({required this.child});
 
   @override
   State<_NotificationRefreshListener> createState() =>
@@ -1542,9 +1444,7 @@ class _NotificationRefreshListenerState
 
     _notificationsBloc = context.read();
 
-    _subscription ??= sl<FirebaseMessagingService>()
-        .messages
-        .listen((_) {
+    _subscription ??= sl<FirebaseMessagingService>().messages.listen((_) {
       _refreshNotifications();
 
       _delayedRefresh?.cancel();
@@ -1570,67 +1470,46 @@ class _NotificationRefreshListenerState
   void _refreshNotifications() {
     if (!mounted) return;
 
-    _notificationsBloc.add(
-      RefreshNotificationsEvent(),
-    );
+    _notificationsBloc.add(RefreshNotificationsEvent());
   }
 }
 
-class _NotificationBellButton
-    extends StatelessWidget {
+class _NotificationBellButton extends StatelessWidget {
   const _NotificationBellButton();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NotificationsBloc,
-        NotificationsState>(
+    return BlocBuilder<NotificationsBloc, NotificationsState>(
       builder: (context, state) {
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
         final isDark = theme.brightness == Brightness.dark;
 
-        final unreadCount =
-        state is NotificationsLoaded
+        final unreadCount = state is NotificationsLoaded
             ? state.unreadCount
             : 0;
 
-        final inviteCount =
-        state is NotificationsLoaded
+        final inviteCount = state is NotificationsLoaded
             ? state.invites.length
             : 0;
 
-        final badgeCount =
-        unreadCount > inviteCount
+        final badgeCount = unreadCount > inviteCount
             ? unreadCount
             : inviteCount;
 
         final hasBadge = badgeCount > 0;
 
-        final activeColor =
-        isDark
-            ? AppColors.primaryLight
-            : colors.primary;
+        final activeColor = isDark ? AppColors.primaryLight : colors.primary;
 
         final backgroundColor = hasBadge
-            ? activeColor.withValues(
-          alpha: isDark ? 0.16 : 0.10,
-        )
-            : colors.surface.withValues(
-          alpha: isDark ? 0.72 : 0.88,
-        );
+            ? activeColor.withValues(alpha: isDark ? 0.16 : 0.10)
+            : colors.surface.withValues(alpha: isDark ? 0.72 : 0.88);
 
         final borderColor = hasBadge
-            ? activeColor.withValues(
-          alpha: isDark ? 0.30 : 0.22,
-        )
-            : colors.outlineVariant.withValues(
-          alpha: isDark ? 0.28 : 0.45,
-        );
+            ? activeColor.withValues(alpha: isDark ? 0.30 : 0.22)
+            : colors.outlineVariant.withValues(alpha: isDark ? 0.28 : 0.45);
 
-        final iconColor =
-        hasBadge
-            ? activeColor
-            : colors.onSurfaceVariant;
+        final iconColor = hasBadge ? activeColor : colors.onSurfaceVariant;
 
         return Tooltip(
           message: 'الإشعارات',
@@ -1643,18 +1522,14 @@ class _NotificationBellButton
                   context,
                   MaterialPageRoute(
                     builder: (_) => BlocProvider.value(
-                      value: context
-                          .read<NotificationsBloc>(),
-                      child:
-                      const NotificationsPage(),
+                      value: context.read<NotificationsBloc>(),
+                      child: const NotificationsPage(),
                     ),
                   ),
                 );
 
                 if (context.mounted) {
-                  context
-                      .read<NotificationsBloc>()
-                      .add(
+                  context.read<NotificationsBloc>().add(
                     RefreshNotificationsEvent(),
                   );
                 }
@@ -1664,19 +1539,15 @@ class _NotificationBellButton
                 height: 46,
                 decoration: BoxDecoration(
                   color: backgroundColor,
-                  borderRadius:
-                  BorderRadius.circular(15),
-                  border: Border.all(
-                    color: borderColor,
-                  ),
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: borderColor),
                 ),
                 child: Stack(
                   children: [
                     Center(
                       child: Icon(
                         hasBadge
-                            ? Icons
-                            .notifications_active_rounded
+                            ? Icons.notifications_active_rounded
                             : Icons.notifications_rounded,
                         color: iconColor,
                         size: 24,
@@ -1686,9 +1557,7 @@ class _NotificationBellButton
                       Positioned(
                         top: 3,
                         left: 3,
-                        child: _NotificationBadge(
-                          count: badgeCount,
-                        ),
+                        child: _NotificationBadge(count: badgeCount),
                       ),
                   ],
                 ),
@@ -1704,36 +1573,25 @@ class _NotificationBellButton
 class _NotificationBadge extends StatelessWidget {
   final int count;
 
-  const _NotificationBadge({
-    required this.count,
-  });
+  const _NotificationBadge({required this.count});
 
   @override
   Widget build(BuildContext context) {
     final label = count > 99 ? '99+' : count.toString();
     final colors = Theme.of(context).colorScheme;
-    final isDark =
-        Theme.of(context).brightness == Brightness.dark;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: 20,
-      constraints:
-      const BoxConstraints(minWidth: 20),
-      padding:
-      const EdgeInsets.symmetric(horizontal: 5),
+      constraints: const BoxConstraints(minWidth: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
         color: colors.primary,
-        borderRadius:
-        BorderRadius.circular(999),
-        border: Border.all(
-          color: colors.surface,
-          width: 1.5,
-        ),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: colors.surface, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(
-              alpha: isDark ? 0.36 : 0.14,
-            ),
+            color: Colors.black.withValues(alpha: isDark ? 0.36 : 0.14),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
