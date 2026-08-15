@@ -3,29 +3,35 @@ package app.lms.common.model;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Column;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
 @MappedSuperclass
 public abstract class BaseEntity {
 
-    private LocalDateTime createdAt;
+    @Column(columnDefinition = "timestamp(6) with time zone")
+    private Instant createdAt;
 
-    private LocalDateTime updatedAt;
+    @Column(columnDefinition = "timestamp(6) with time zone")
+    private Instant updatedAt;
 
     @PrePersist
     public void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        Instant now =
+                Instant.now();
+
+        createdAt = now;
+        updatedAt = now;
     }
 
     @PreUpdate
     public void onUpdate() {
-        updatedAt = LocalDateTime.now();
+        updatedAt = Instant.now();
     }
 
 }

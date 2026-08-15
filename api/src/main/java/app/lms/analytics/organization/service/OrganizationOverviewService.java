@@ -5,6 +5,7 @@ import app.lms.course.repository.CourseRepository;
 import app.lms.analytics.organization.dto.OrganizationOverviewResponse;
 import app.lms.media.dto.StorageResponse;
 import app.lms.media.repository.OrganizationMediaRepository;
+import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationMemberRepository;
@@ -29,6 +30,8 @@ public class OrganizationOverviewService {
     private final OrganizationAccessService organizationAccessService;
 
     private final OrganizationMemberRepository organizationMemberRepository;
+
+    private final OrganizationBanRepository organizationBanRepository;
 
     private final CourseRepository courseRepository;
 
@@ -102,6 +105,13 @@ public class OrganizationOverviewService {
                                 .countByOrganizationIdAndRole(
                                         organization.getId(),
                                         Role.STUDENT
+                                )
+                )
+
+                .bannedUsersCount(
+                        organizationBanRepository
+                                .countActiveByOrganizationId(
+                                        organization.getId()
                                 )
                 )
 

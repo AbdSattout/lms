@@ -1,5 +1,6 @@
 package app.lms.enrollment.dto;
 
+import app.lms.badge.dto.UserBadgeResponse;
 import app.lms.gamification.dto.GamificationAwardResponse;
 import lombok.Builder;
 
@@ -12,6 +13,7 @@ public record EnrollmentResponse(
         Long courseId,
         String courseTitle,
         LocalDateTime enrolledAt,
-        List<GamificationAwardResponse> rewards
+        List<GamificationAwardResponse> rewards,
+        List<UserBadgeResponse> badges
 
 ) {}

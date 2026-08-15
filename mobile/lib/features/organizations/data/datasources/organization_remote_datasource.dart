@@ -8,6 +8,8 @@ import '../models/organization_model.dart';
 abstract class OrganizationRemoteDataSource {
   Future<List<OrganizationModel>> getAllOrganizations();
 
+  Future<List<OrganizationModel>> getMyOrganizations();
+
   Future<OrganizationModel> getOrganizationBySlug(String slug);
 
   Future<void> joinOrganization(String slug);
@@ -46,6 +48,14 @@ class OrganizationRemoteDataSourceImpl implements OrganizationRemoteDataSource {
     );
 
     return page.content;
+  }
+
+  @override
+  Future<List<OrganizationModel>> getMyOrganizations() async {
+    final response = await api.get(EndPoints.myOrganizations);
+    return (response as List<dynamic>)
+        .map((e) => OrganizationModel.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   @override

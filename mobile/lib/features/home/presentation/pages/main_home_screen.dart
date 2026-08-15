@@ -43,7 +43,6 @@ class MainHomeScreen extends StatelessWidget {
     super.key,
     required this.userAuthData,
   });
-
   @override
   Widget build(BuildContext context) {
     final user = userAuthData.user;
@@ -86,6 +85,7 @@ class MainHomeScreen extends StatelessWidget {
                         ..add(GetAllOrganizationsEvent()),
                       child: OrganizationsPage(
                         currentUserName: user.name,
+                        showOnlyMine: true,
                       ),
                     ),
                     BlocProvider(
@@ -153,7 +153,7 @@ class MainHomeScreen extends StatelessWidget {
               ),
               _buildNavItem(
                 'assets/navbar_icons/categories.png',
-                'المنظمات',
+                'منظماتي',
               ),
               _buildNavItem(
                 'assets/navbar_icons/user.png',
@@ -484,11 +484,10 @@ class _HomeLoadedContent extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (_) => BlocProvider(
-                  create: (_) =>
-                  sl<OrganizationBloc>()
-                    ..add(GetAllOrganizationsEvent()),
+                  create: (_) => sl<OrganizationBloc>(),
                   child: OrganizationsPage(
                     currentUserName: user.name,
+                    showOnlyMine: false,
                   ),
                 ),
               ),
@@ -1382,7 +1381,7 @@ class _HomeCourseCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 3),
                               Icon(
-                                Icons.arrow_back_rounded,
+                                Icons.arrow_forward_rounded,
                                 size: 14,
                                 color: colors.primary,
                               ),

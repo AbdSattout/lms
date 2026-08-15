@@ -50,6 +50,11 @@ export function AppSidebar({
       icon: <SquarePen />,
     },
     {
+      title: "المسارات",
+      url: `/${orgSlug}/roadmaps` as Route,
+      icon: <Map />,
+    },
+    {
       title: "الوسائط",
       url: `/${orgSlug}/media` as Route,
       icon: <ImageIcon />,
@@ -58,11 +63,6 @@ export function AppSidebar({
       title: "الاعدادات",
       url: `/${orgSlug}/settings` as Route,
       icon: <Settings />,
-    },
-    {
-      title: "المسارات",
-      url: `/${orgSlug}/roadmaps` as Route,
-      icon: <Map />,
     },
   ]
 

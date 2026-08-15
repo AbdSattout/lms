@@ -5,13 +5,13 @@ import app.lms.user.dto.UserResponse;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @Builder
 public class JoinRequestResponse {
     private Long id;
     private JoinRequestStatus status;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
     private UserResponse user;
 }

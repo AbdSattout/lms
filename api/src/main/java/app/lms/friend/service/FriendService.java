@@ -1,7 +1,10 @@
 package app.lms.friend.service;
 
+import app.lms.badge.dto.UserBadgeResponse;
+import app.lms.badge.service.UserBadgeService;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.friend.dto.FriendActionResponse;
 import app.lms.friend.dto.FriendRequestResponse;
 import app.lms.friend.dto.FriendResponse;
 import app.lms.friend.enums.FriendRequestStatus;
@@ -22,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class FriendService {
     private final UserMapper userMapper;
 
     private final NotificationService notificationService;
+    private final UserBadgeService userBadgeService;
 
     public void sendRequest(
             Long receiverId,
@@ -57,18 +62,12 @@ public class FriendService {
         if (friendRepository.existsByUser1IdAndUser2Id(user1, user2))
             throw new BadRequestException("this already your friend");
 
-        if (friendRequestRepository.existsBySenderIdAndReceiverIdAndStatus(
+        if (friendRequestRepository.existsBetweenUsersAndStatus(
                 sender.getId(),
                 receiver.getId(),
                 FriendRequestStatus.PENDING
         ))
             throw new BadRequestException("friend request already exists");
-
-        friendRequestRepository.existsBySenderIdAndReceiverIdAndStatus(
-                receiver.getId(),
-                sender.getId(),
-                FriendRequestStatus.PENDING
-        );
 
         FriendRequest request =
                 FriendRequest.builder()
@@ -89,7 +88,7 @@ public class FriendService {
         );
     }
 
-    public void accept(
+    public FriendActionResponse accept(
             Long requestId,
             User receiver
     ) {
@@ -132,6 +131,16 @@ public class FriendService {
                 request.getSender().getId()
         );
 
+        List<UserBadgeResponse> badges =
+                userBadgeService.awardEarnedBadges(receiver);
+
+        userBadgeService.awardEarnedBadges(
+                request.getSender()
+        );
+
+        return new FriendActionResponse(
+                badges
+        );
     }
 
     public void reject(
@@ -235,6 +244,17 @@ public class FriendService {
                             friend.getCreatedAt()
                     );
                 });
+    }
+
+    public void validateIsFriends(Long user1Id ,Long user2Id){
+        boolean isFriend = friendRepository.existsByUser1IdAndUser2Id(
+                user1Id,
+                user2Id
+        );
+
+        if (!isFriend){
+            throw new IllegalStateException("you are not friend");
+        }
     }
 
 }

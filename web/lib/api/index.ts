@@ -53,6 +53,7 @@ import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
   commentLikes,
   comments,
+  coursePostById,
   deleteComment,
   likes,
   byCourse as postsByCourse,
@@ -213,6 +214,7 @@ export const api = {
     },
     posts: {
       byCourse: postsByCourse,
+      coursePostById,
       byId: postsById,
       byOrg: postsByOrg,
       likes,

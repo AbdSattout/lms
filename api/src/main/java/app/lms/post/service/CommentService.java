@@ -1,5 +1,6 @@
 package app.lms.post.service;
 
+import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.post.dto.CommentResponse;
 import app.lms.post.dto.CreateCommentRequest;
@@ -59,6 +60,12 @@ public class CommentService {
                                                     "Parent comment not found"
                                             )
                             );
+
+            if (!parent.getPost().getId().equals(post.getId())) {
+                throw new BadRequestException(
+                        "Parent comment does not belong to this post"
+                );
+            }
         }
 
         Comment comment =

@@ -60,6 +60,40 @@ public interface CourseEnrollmentRepository
     );
 
     @Query("""
+            select enrollment
+            from CourseEnrollment enrollment
+            where enrollment.user.id = :userId
+            and enrollment.status in :statuses
+            and not exists (
+                select moderation.id
+                from OrganizationModeration moderation
+                where moderation.organization.id =
+                        enrollment.course.organization.id
+                and (
+                    moderation.expiresAt is null
+                    or moderation.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id =
+                        enrollment.course.organization.id
+                and ban.user.id = :userId
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
+            order by enrollment.enrolledAt desc
+            """)
+    Page<CourseEnrollment> findProfileCoursesByUserId(
+            @Param("userId") Long userId,
+            @Param("statuses") List<EnrollmentStatus> statuses,
+            Pageable pageable
+    );
+
+    @Query("""
             select count(enrollment)
             from CourseEnrollment enrollment
             where enrollment.user.id = :userId
@@ -119,6 +153,12 @@ public interface CourseEnrollmentRepository
             Long courseId,
             EnrollmentStatus status,
             Pageable pageable
+    );
+
+    boolean existsByCourseIdAndUserIdAndStatus(
+            Long courseId,
+            Long userId,
+            EnrollmentStatus status
     );
 
 }
