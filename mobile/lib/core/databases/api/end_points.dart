@@ -135,7 +135,7 @@ class EndPoints {
       'mobile/organizations/$slug/roadmaps/$roadmapId/follow';
   static const String myRoadmaps = 'mobile/roadmaps/following';
 
-  // AI Quiz
+// AI Quiz
   static String generateAiQuiz(int courseId) => 'mobile/ai/courses/$courseId/random-quiz';
   static String submitAiQuiz(int courseId, int attemptId) => 'mobile/ai/courses/$courseId/random-quiz/attempts/$attemptId/submit';
 
@@ -156,4 +156,19 @@ class EndPoints {
   // Final Exam
   static String finalExam(int courseId) => 'mobile/courses/$courseId/quiz';
   static String submitFinalExam(int courseId) => 'mobile/courses/$courseId/quiz/submit';
+
+  // Friends
+  static const String friends = 'friends';
+  static const String receivedFriendRequests = 'friends/requests/received';
+  static const String sentFriendRequests = 'friends/requests/sent';
+  static String sendFriendRequest(int userId) => 'friends/requests/$userId';
+  static String acceptFriendRequest(int requestId) =>
+      'friends/requests/$requestId/accept';
+  static String rejectFriendRequest(int requestId) =>
+      'friends/requests/$requestId/reject';
+  static String cancelFriendRequest(int requestId) =>
+      'friends/requests/$requestId';
+  static String removeFriend(int friendId) => 'friends/$friendId';
+  static String userProfile(int userId) => 'users/$userId/profile';
+  static const String usersSearch = 'users/search';
 }

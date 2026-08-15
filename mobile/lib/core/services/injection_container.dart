@@ -102,6 +102,23 @@ import 'package:lms/features/courses/domain/usecases/get_placement_test_usecase.
 import 'package:lms/features/courses/domain/usecases/submit_placement_answer_usecase.dart';
 import 'package:lms/features/courses/domain/usecases/skip_placement_test_usecase.dart';
 import 'package:lms/features/courses/presentation/bloc/placement_test_bloc.dart';
+// Friends Feature
+import 'package:lms/features/friends/data/datasources/friends_remote_datasource.dart';
+import 'package:lms/features/friends/data/repositories/friends_repository_impl.dart';
+import 'package:lms/features/friends/domain/repositories/friends_repository.dart';
+import 'package:lms/features/friends/domain/usecases/accept_friend_request_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/cancel_friend_request_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_friends_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_received_friend_requests_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_sent_friend_requests_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_user_profile_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/reject_friend_request_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/remove_friend_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/search_users_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/send_friend_request_usecase.dart';
+import 'package:lms/features/friends/presentation/bloc/add_friend_bloc.dart';
+import 'package:lms/features/friends/presentation/bloc/friends_bloc.dart';
+import 'package:lms/features/friends/presentation/bloc/user_profile_bloc.dart';
 //Organization Feature
 import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
 import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
@@ -440,6 +457,52 @@ Future<void> init() async {
     () => FirebaseMessagingService(
       registerDevice: sl(),
       foregroundNotificationService: sl(),
+    ),
+  );
+
+  // Friends
+  sl.registerLazySingleton<FriendsRemoteDataSource>(
+    () => FriendsRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<FriendsRepository>(
+    () => FriendsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetFriendsUseCase(sl()));
+  sl.registerLazySingleton(() => GetReceivedFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSentFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => SendFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RejectFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => CancelFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFriendUseCase(sl()));
+  sl.registerLazySingleton(() => SearchUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
+  sl.registerFactory(
+    () => FriendsBloc(
+      getFriendsUseCase: sl(),
+      getReceivedFriendRequestsUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => AddFriendBloc(
+      searchUsersUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => UserProfileBloc(
+      getUserProfileUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
     ),
   );
 
