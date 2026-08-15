@@ -10,9 +10,27 @@ import type {
 import { revalidatePath } from "next/cache"
 
 export async function createPost(orgSlug: string, input: CreatePostInput) {
-  const post = await api.dashboard.posts.byOrg.post(orgSlug, input)
-  revalidatePath(`/${orgSlug}/posts`)
-  return post
+  try {
+    const data = await api.dashboard.posts.byOrg.post(orgSlug, input)
+
+    revalidatePath(`/${orgSlug}/posts`)
+    if (input.courseId) {
+      revalidatePath(`/${orgSlug}/courses/${input.courseId}/posts`)
+    }
+    return {
+      success: true,
+      data,
+      error: null,
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+
+    return {
+      success: false,
+      data: null,
+      error: errorMessage,
+    }
+  }
 }
 export async function likePost(
   postId: number,

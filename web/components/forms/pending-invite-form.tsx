@@ -88,7 +88,7 @@ export function PendingInvitesList({
     const domain = "https://lmscenter.vercel.app/"
     const copyTarget = `${domain}/invite/${invite.token || invite.id}`
     navigator.clipboard.writeText(copyTarget)
-    toast.success("تم أخذ الرابط وتجهيزه للحافظة")
+    toast.success("تم نسخ الرابط")
   }
 
   const handleStartEdit = (invite: OrganizationInviteResponse) => {
@@ -106,9 +106,9 @@ export function PendingInvitesList({
       })
       setInvites(invites.map((inv) => (inv.id === inviteId ? updated : inv)))
       setEditingId(null)
-      toast.success("تم تقييد الحجوزات بنجاح!")
+      toast.success("تم تعديل عدد المقاعد بنجاح!")
     } catch {
-      toast.error("فشل تدارك استعلام السعة الجديد")
+      toast.error("فشل معالجة استعلام السعة الجديد")
     } finally {
       setSavingId(null)
     }
@@ -132,7 +132,7 @@ export function PendingInvitesList({
         </div>
         <div>
           <p className="font-semibold text-foreground/80">
-            لم يتم تسجيل أو سحب روابط معلقة
+            لم يتم تسجيل روابط معلقة
           </p>
           <p className="mt-1 text-xs text-muted-foreground/80">
             لا يوجد دعوات نشطة.
@@ -181,7 +181,7 @@ export function PendingInvitesList({
                       className="mt-0.5 truncate text-[10px] font-medium text-muted-foreground opacity-80"
                       dir="rtl"
                     >
-                      مدار بواسطة:{" "}
+                      مدار بواسطة:
                       <span className="text-primary/70">
                         {invite.invitedByName || "مجهول"}
                       </span>
@@ -286,7 +286,7 @@ export function PendingInvitesList({
                           variant="ghost"
                           className="h-7 w-7 border border-transparent bg-indigo-50 text-indigo-500 shadow-sm hover:bg-indigo-100 hover:text-indigo-700 dark:border-indigo-900 dark:bg-indigo-500/10"
                           onClick={() => handleCopyLink(invite)}
-                          title="انسخ التوجيه و رابط المقعد الخاص"
+                          title="انسخ الرابط"
                         >
                           <Copy className="h-3.5 w-3.5" />
                         </Button>

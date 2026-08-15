@@ -15,6 +15,7 @@ interface OrgOverviewCardProps {
   overviewData: OrganizationOverviewResponse
   adminCount: number
   studentCount: number
+  isOwner: boolean
 }
 
 export function OrgOverviewCard({
@@ -22,6 +23,7 @@ export function OrgOverviewCard({
   overviewData,
   adminCount,
   studentCount,
+  isOwner,
 }: OrgOverviewCardProps) {
   const router = useRouter()
   const [selectedType, setSelectedType] = useState<
@@ -141,6 +143,8 @@ export function OrgOverviewCard({
         }}
         type={selectedType}
         slug={slug}
+        ownerId={overviewData.owner.id}
+        isOwner={isOwner}
       />
 
       <OwnerDialog

@@ -35,5 +35,5 @@ export function ClientTimeAgo({ date }: ClientTimeAgoProps) {
     return () => window.clearInterval(interval)
   }, [date])
 
-  return <span>{timeAgo}</span>
+  return <span suppressHydrationWarning>{timeAgo}</span>
 }

@@ -39,7 +39,7 @@ export function SpecificInviteForm({
       try {
         const users = await searchUsers(debouncedQuery)
         setResults(users ?? [])
-      } catch (error) {
+      } catch {
         toast.error("فشل البحث عن المستخدمين")
       } finally {
         setLoading(false)

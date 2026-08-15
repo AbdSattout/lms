@@ -1,7 +1,15 @@
 import Link from "next/link"
 import { CheckCircle2, Sparkles, ArrowRight, Crown } from "lucide-react"
+import { getUserSubscriptionStatus } from "@/lib/actions/billing"
+import { redirect } from "next/dist/client/components/navigation"
 
-export default function PaymentSuccessPage() {
+export default async function PaymentSuccessPage() {
+  const { user } = await getUserSubscriptionStatus()
+
+  const isPremium = user?.plan?.premium ?? false
+  if (!isPremium) {
+    redirect("/payment")
+  }
   return (
     <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-gray-50 p-4 dark:bg-[#0a0a0a]">
       <div className="w-full max-w-[26rem] animate-in overflow-hidden rounded-3xl border border-gray-200 bg-white p-8 text-center shadow-2xl backdrop-blur-md duration-500 zoom-in-95 fade-in dark:border-gray-800 dark:bg-gray-900/60">
