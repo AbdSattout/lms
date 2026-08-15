@@ -73,7 +73,15 @@ export async function getPostsByOrg(slug: string, pageable: PageableInput) {
 export async function getPostById(postId: number, slug: string) {
   return api.dashboard.posts.byId.get(slug, postId)
 }
-
+export async function getPostsByCourse(
+  courseId: number,
+  pageable: PageableInput
+) {
+  return api.dashboard.posts.byCourse.get(courseId, pageable)
+}
+export async function getCoursePostById(courseId: number, postId: number) {
+  return api.dashboard.posts.coursePostById.get(courseId, postId)
+}
 export async function getCommentsByPost(postId: number) {
   return api.dashboard.posts.comments.get(postId)
 }

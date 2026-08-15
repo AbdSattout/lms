@@ -1,4 +1,3 @@
-// components/members-dialog.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -8,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { OrganizationMemberResponse } from "@/lib/api/types"
 import { Plus, ArrowRight } from "lucide-react"
 import { getMembers } from "@/lib/actions/members"
-import { AddMemberForm } from "./forms/member-form-dialog"
+import { AddMemberForm } from "./forms/add-member-form-dialog"
 import { MemberDetailDialog } from "./forms/member-detial-dialog"
 
 interface MembersDialogProps {
@@ -32,9 +31,6 @@ export function MembersDialog({
   const [memberDetailOpen, setMemberDetailOpen] = useState(false)
 
   useEffect(() => {
-    if (!open || !type) return
-    setShowAddForm(false)
-
     const fetchMembers = async () => {
       setLoading(true)
       try {

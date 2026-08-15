@@ -25,7 +25,13 @@ function toQueryString(pageable: PageableInput) {
   const query = params.toString()
   return query ? `?${query}` : ""
 }
-
+export const coursePostById = defineApiRoute({
+  get: (courseId: number, postId: number, options?: BackendFetchOptions) =>
+    backend<PostResponse>(`/courses/${courseId}/posts/${postId}`, {
+      method: "GET",
+      ...options,
+    }),
+})
 export const byCourse = defineApiRoute({
   get: (
     courseId: number,
