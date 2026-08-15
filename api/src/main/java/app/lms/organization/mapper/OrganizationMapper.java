@@ -1,7 +1,10 @@
 package app.lms.organization.mapper;
 
+import app.lms.admin.mapper.AdminMapper;
 import app.lms.common.dto.BaseEntityResponse;
 import app.lms.course.repository.CourseRepository;
+import app.lms.organization.OrganizationBan.model.OrganizationBan;
+import app.lms.organization.dto.OrganizationBannedUserResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.OrganizationSummaryResponse;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Component;
 public class OrganizationMapper {
 
     private final UserMapper userMapper;
+    private final AdminMapper adminMapper;
     private final OrganizationMemberRepository memberRepository;
     private final CourseRepository courseRepository;
 
@@ -223,5 +227,30 @@ public class OrganizationMapper {
                 .user(userMapper.toResponse(member.getUser()))
                 .role(member.getRole())
                 .build();
+    }
+
+    public OrganizationBannedUserResponse toBannedUserResponse(
+            OrganizationBan ban
+    ) {
+
+        return new OrganizationBannedUserResponse(
+                ban.getId(),
+                userMapper.toResponse(
+                        ban.getUser()
+                ),
+                ban.getBannedByOrgAdmins() != null
+                        ? userMapper.toResponse(
+                                ban.getBannedByOrgAdmins()
+                        )
+                        : null,
+                ban.getBannedByAppAdmins() != null
+                        ? adminMapper.toResponse(
+                                ban.getBannedByAppAdmins()
+                        )
+                        : null,
+                ban.getReason(),
+                ban.getExpiresAt(),
+                BaseEntityResponse.from(ban)
+        );
     }
 }
