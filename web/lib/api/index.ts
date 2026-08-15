@@ -144,6 +144,7 @@ export const api = {
       checkCourseSlugAvailability,
       invites,
       leave,
+
       searchUsers: organizationSearchUsers,
       removeMember,
       banUser,

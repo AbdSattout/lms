@@ -32,6 +32,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 interface InviteDetailDialogProps {
   invite: OrganizationInviteResponse | null
@@ -55,7 +57,7 @@ export function InviteDetailDialog({
 
   const [coverError, setCoverError] = useState(false)
   const [logoError, setLogoError] = useState(false)
-
+  const router = useRouter()
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setCoverError(false)
@@ -68,29 +70,68 @@ export function InviteDetailDialog({
   const { organization, overview, invitedByName, role, expiresAt } = invite
 
   const handleAccept = async () => {
-    if (!invite.token) return
+    if (!invite.organization?.slug) {
+      toast.error("تعذر تحديد المنظمة")
+      return
+    }
+
     setIsProcessing(true)
     setActionType("accept")
-    const result = await acceptInviteAction(invite.token)
-    setIsProcessing(false)
-    if (result.success) {
+
+    try {
+      const result = await acceptInviteAction(
+        invite.organization.slug,
+        invite.id
+      )
+
+      if (!result.success) {
+        toast.error(result.error || "فشل قبول الدعوة")
+        return
+      }
+
+      toast.success("تم قبول الدعوة بنجاح")
+
       onAccept?.(invite)
       onClose()
+    } catch {
+      toast.error("حدث خطأ أثناء قبول الدعوة")
+    } finally {
+      setIsProcessing(false)
+      setActionType(null)
     }
   }
-
   const handleDecline = async () => {
-    if (!invite.token) return
+    if (!invite.organization?.slug) {
+      toast.error("تعذر تحديد المنظمة")
+      return
+    }
+
     setIsProcessing(true)
     setActionType("decline")
-    const result = await declineInviteAction(invite.token)
-    setIsProcessing(false)
-    if (result.success) {
+
+    try {
+      const result = await declineInviteAction(
+        invite.organization.slug,
+        invite.id
+      )
+
+      if (!result.success) {
+        toast.error(result.error || "فشل رفض الدعوة")
+        return
+      }
+
+      toast.success("تم رفض الدعوة")
+
       onDecline?.(invite)
       onClose()
+    } catch (error) {
+      console.error(error)
+      toast.error("حدث خطأ أثناء رفض الدعوة")
+    } finally {
+      setIsProcessing(false)
+      setActionType(null)
     }
   }
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("ar-SA", {
       year: "numeric",

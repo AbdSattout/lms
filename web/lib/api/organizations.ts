@@ -11,6 +11,7 @@ import type {
   OrganizationInviteResponse,
   OrganizationResponse,
   OrganizationUserSearchResponse,
+  PageOrganizationBannedUserResponse,
   PageOrganizationMemberResponse,
   UpdateInviteCapacityRequest,
 } from "@/lib/api/types"
@@ -205,16 +206,16 @@ export const invites = {
       ),
   }),
   accept: defineApiRoute({
-    post: (token: string, options?: BackendFetchOptions) =>
-      backend<void>(`/organizations/invites/accept?token=${token}`, {
+    post: (slug: string, inviteId: number, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/${slug}/invites/${inviteId}/accept`, {
         method: "POST",
         ...options,
       }),
   }),
 
   decline: defineApiRoute({
-    post: (token: string, options?: BackendFetchOptions) =>
-      backend<void>(`/organizations/invites/decline?token=${token}`, {
+    post: (slug: string, inviteId: number, options?: BackendFetchOptions) =>
+      backend<void>(`/organizations/${slug}/invites/${inviteId}/decline`, {
         method: "POST",
         ...options,
       }),
@@ -344,6 +345,11 @@ export const removeMember = defineApiRoute({
 })
 
 export const banUser = defineApiRoute({
+  get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
+    backend<PageOrganizationBannedUserResponse>(
+      withPageable(`/dashboard/organizations/${slug}/users/banned`, pageable),
+      { method: "GET", ...options }
+    ),
   post: (
     slug: string,
     userId: number,
