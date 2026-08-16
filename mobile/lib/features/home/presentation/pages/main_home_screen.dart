@@ -20,7 +20,6 @@ import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
-import '../../../organizations/presentation/bloc/organization_event.dart';
 import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../../organizations/presentation/pages/organizations_page.dart';
 import '../../../notifications/presentation/bloc/notifications_bloc.dart';
@@ -73,9 +72,7 @@ class MainHomeScreen extends StatelessWidget {
                       child: const MyCoursesPage(),
                     ),
                     BlocProvider(
-                      create: (_) =>
-                          sl<OrganizationBloc>()
-                            ..add(GetAllOrganizationsEvent()),
+                      create: (_) => sl<OrganizationBloc>(),
                       child: OrganizationsPage(
                         currentUserName: user.name,
                         showOnlyMine: true,
@@ -465,7 +462,6 @@ class _HomeLoadedContent extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 22),
       child: _FeaturedCourseCard(
         course: course,
-        reason: recommendation.reason,
         onTap: () => _openCourse(context, course),
       ),
     );
@@ -493,7 +489,7 @@ class _HomeLoadedContent extends StatelessWidget {
     final preview = recommendations.take(5).toList();
 
     return SizedBox(
-      height: 205,
+      height: 190,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 22),
         scrollDirection: Axis.horizontal,
@@ -506,7 +502,6 @@ class _HomeLoadedContent extends StatelessWidget {
 
           return _HomeOrganizationCard(
             organization: organization,
-            reason: recommendation.reason,
             onTap: () => _openOrganization(context, organization),
           );
         },
@@ -542,7 +537,6 @@ class _HomeLoadedContent extends StatelessWidget {
 
           return _HomeCourseCard(
             course: course,
-            reason: recommendation.reason,
             onTap: () => _openCourse(context, course),
           );
         },
@@ -660,70 +654,11 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class _RecommendationReasonBadge extends StatelessWidget {
-  final String reason;
-  final bool onImage;
-
-  const _RecommendationReasonBadge({
-    required this.reason,
-    this.onImage = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (reason.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final colors = Theme.of(context).colorScheme;
-    final textColor = onImage ? Colors.white : colors.primary;
-    final backgroundColor = onImage
-        ? Colors.white.withValues(alpha: 0.16)
-        : colors.primary.withValues(alpha: 0.10);
-    final borderColor = onImage
-        ? Colors.white.withValues(alpha: 0.18)
-        : colors.primary.withValues(alpha: 0.18);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: borderColor),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.auto_awesome_rounded, size: 12, color: textColor),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Text(
-              reason,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 10.5,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _FeaturedCourseCard extends StatelessWidget {
   final CourseEntity course;
-  final String reason;
   final VoidCallback onTap;
 
-  const _FeaturedCourseCard({
-    required this.course,
-    required this.reason,
-    required this.onTap,
-  });
+  const _FeaturedCourseCard({required this.course, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -807,13 +742,6 @@ class _FeaturedCourseCard extends StatelessWidget {
                               fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: _RecommendationReasonBadge(
-                            reason: reason,
-                            onImage: true,
                           ),
                         ),
                       ],
@@ -933,12 +861,10 @@ class _FeaturedCourseCard extends StatelessWidget {
 
 class _HomeOrganizationCard extends StatelessWidget {
   final OrganizationEntity organization;
-  final String reason;
   final VoidCallback onTap;
 
   const _HomeOrganizationCard({
     required this.organization,
-    required this.reason,
     required this.onTap,
   });
 
@@ -1094,10 +1020,6 @@ class _HomeOrganizationCard extends StatelessWidget {
                     ),
                   ),
                 ],
-
-                const Spacer(),
-
-                _RecommendationReasonBadge(reason: reason),
               ],
             ),
           ),
@@ -1125,14 +1047,9 @@ class _HomeOrganizationCard extends StatelessWidget {
 
 class _HomeCourseCard extends StatelessWidget {
   final CourseEntity course;
-  final String reason;
   final VoidCallback onTap;
 
-  const _HomeCourseCard({
-    required this.course,
-    required this.reason,
-    required this.onTap,
-  });
+  const _HomeCourseCard({required this.course, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1185,19 +1102,6 @@ class _HomeCourseCard extends StatelessWidget {
                         )
                       else
                         _placeholder(),
-
-                      Positioned(
-                        top: 10,
-                        left: 10,
-                        right: 10,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: _RecommendationReasonBadge(
-                            reason: reason,
-                            onImage: true,
-                          ),
-                        ),
-                      ),
 
                       if (isCompleted)
                         Positioned(
@@ -1444,13 +1348,15 @@ class _NotificationRefreshListenerState
 
     _notificationsBloc = context.read();
 
-    _subscription ??= sl<FirebaseMessagingService>().messages.listen((_) {
-      _refreshNotifications();
+    final firebaseMessagingService = sl<FirebaseMessagingService>();
+    _subscription ??= firebaseMessagingService.foregroundMessages.listen((_) {
+      _notificationsBloc.add(NotificationReceivedEvent());
+      _refreshNotifications(keepHigherUnreadCount: true);
 
       _delayedRefresh?.cancel();
       _delayedRefresh = Timer(
         const Duration(milliseconds: 1200),
-        _refreshNotifications,
+        () => _refreshNotifications(keepHigherUnreadCount: true),
       );
     });
   }
@@ -1467,10 +1373,12 @@ class _NotificationRefreshListenerState
     return widget.child;
   }
 
-  void _refreshNotifications() {
+  void _refreshNotifications({bool keepHigherUnreadCount = false}) {
     if (!mounted) return;
 
-    _notificationsBloc.add(RefreshNotificationsEvent());
+    _notificationsBloc.add(
+      RefreshNotificationsEvent(keepHigherUnreadCount: keepHigherUnreadCount),
+    );
   }
 }
 
@@ -1518,11 +1426,14 @@ class _NotificationBellButton extends StatelessWidget {
             child: InkWell(
               borderRadius: BorderRadius.circular(15),
               onTap: () async {
+                final notificationsBloc = context.read<NotificationsBloc>()
+                  ..add(RefreshNotificationsEvent());
+
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => BlocProvider.value(
-                      value: context.read<NotificationsBloc>(),
+                      value: notificationsBloc,
                       child: const NotificationsPage(),
                     ),
                   ),

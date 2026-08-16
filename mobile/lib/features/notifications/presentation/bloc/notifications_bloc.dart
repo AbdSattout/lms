@@ -33,6 +33,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   }) : super(NotificationsInitial()) {
     on<LoadNotificationsEvent>(_load);
     on<RefreshNotificationsEvent>(_refresh);
+    on<NotificationReceivedEvent>(_notificationReceived);
     on<AcceptOrganizationInviteEvent>(_acceptInvite);
     on<DeclineOrganizationInviteEvent>(_declineInvite);
     on<MarkNotificationReadEvent>(_markRead);
@@ -51,7 +52,26 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
     RefreshNotificationsEvent event,
     Emitter<NotificationsState> emit,
   ) async {
-    await _loadData(emit: emit);
+    await _loadData(
+      emit: emit,
+      keepHigherUnreadCount: event.keepHigherUnreadCount,
+    );
+  }
+
+  void _notificationReceived(
+    NotificationReceivedEvent event,
+    Emitter<NotificationsState> emit,
+  ) {
+    final current = state;
+    if (current is! NotificationsLoaded) return;
+
+    emit(
+      current.copyWith(
+        unreadCount: current.unreadCount + 1,
+        clearActionMessage: true,
+        clearErrorMessage: true,
+      ),
+    );
   }
 
   Future<void> _acceptInvite(
@@ -159,6 +179,7 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
   Future<void> _loadData({
     required Emitter<NotificationsState> emit,
     String? actionMessage,
+    bool keepHigherUnreadCount = false,
   }) async {
     try {
       final results = await Future.wait([
@@ -167,11 +188,27 @@ class NotificationsBloc extends Bloc<NotificationsEvent, NotificationsState> {
         getUnreadNotificationCountUseCase(),
       ]);
 
+      final notifications = results[1] as List<AppNotificationEntity>;
+      final unreadCount = results[2] as int;
+      final visibleUnreadCount = notifications
+          .where((notification) => !notification.read)
+          .length;
+      var resolvedUnreadCount = unreadCount > 0
+          ? unreadCount
+          : visibleUnreadCount;
+      final current = state;
+
+      if (keepHigherUnreadCount &&
+          current is NotificationsLoaded &&
+          current.unreadCount > resolvedUnreadCount) {
+        resolvedUnreadCount = current.unreadCount;
+      }
+
       emit(
         NotificationsLoaded(
           invites: results[0] as List<OrganizationInviteEntity>,
-          notifications: results[1] as List<AppNotificationEntity>,
-          unreadCount: results[2] as int,
+          notifications: notifications,
+          unreadCount: resolvedUnreadCount,
           actionMessage: actionMessage,
         ),
       );
