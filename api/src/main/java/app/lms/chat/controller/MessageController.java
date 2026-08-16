@@ -24,7 +24,7 @@ public class MessageController {
     public MessageResponse sendMessage(
             @PathVariable Long conversationId,
             @Valid @RequestBody SendMessageRequest request,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         return messageService.sendMessage(
@@ -38,7 +38,7 @@ public class MessageController {
     public Page<MessageResponse> getMessages(
             @PathVariable Long conversationId,
             Pageable pageable,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         return messageService.getMessages(
@@ -53,7 +53,7 @@ public class MessageController {
             @PathVariable Long conversationId,
             @PathVariable Long messageId,
             @Valid @RequestBody EditMessageRequest request,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         return messageService.editMessage(
@@ -68,7 +68,7 @@ public class MessageController {
     public ResponseEntity<Void> deleteMessage(
             @PathVariable Long conversationId,
             @PathVariable Long messageId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         messageService.deleteMessage(
@@ -84,7 +84,7 @@ public class MessageController {
     public ResponseEntity<Void> markAsRead(
             @PathVariable Long conversationId,
             @PathVariable Long messageId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         messageService.markAsRead(
