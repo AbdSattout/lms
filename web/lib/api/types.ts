@@ -652,25 +652,17 @@ export interface BanRequest {
   reason: string
   duration?: BanDuration
 }
-export interface OrganizationBannedUserResponse {
-  userId: number
-  username: string
-  email: string
-  avatarUrl?: string
-  bannedAt: string
-  banReason?: string
+export interface OrganizationBanResponse {
+  id: number
+  user: UserResponse
+  bannedByOrgAdmin?: UserResponse | null
+  bannedByAppAdmin?: UserResponse | null
+  reason?: string | null
+  expiresAt?: string | null
+  baseEntity?: BaseEntityResponse
 }
 
-export interface PageOrganizationBannedUserResponse {
-  content: OrganizationBannedUserResponse[]
-  page: number
-  size: number
-  totalElements: number
-  totalPages: number
-  last: boolean
-  first: boolean
-  numberOfElements: number
-}
+export type PageOrganizationBanResponse = Page<OrganizationBanResponse>
 export interface OrganizationUserSearchResponse {
   name?: string
   email?: string
