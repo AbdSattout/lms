@@ -11,7 +11,7 @@ import type {
   OrganizationInviteResponse,
   OrganizationResponse,
   OrganizationUserSearchResponse,
-  PageOrganizationBannedUserResponse,
+  PageOrganizationBanResponse,
   PageOrganizationMemberResponse,
   UpdateInviteCapacityRequest,
 } from "@/lib/api/types"
@@ -346,7 +346,7 @@ export const removeMember = defineApiRoute({
 
 export const banUser = defineApiRoute({
   get: (slug: string, pageable: PageableInput, options?: BackendFetchOptions) =>
-    backend<PageOrganizationBannedUserResponse>(
+    backend<PageOrganizationBanResponse>(
       withPageable(`/dashboard/organizations/${slug}/users/banned`, pageable),
       { method: "GET", ...options }
     ),
