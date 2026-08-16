@@ -1,4 +1,3 @@
-// components/leave-org-button.tsx
 "use client"
 
 import { useState, useTransition } from "react"
@@ -15,6 +14,7 @@ import {
 import { leaveOrganizationAction } from "@/lib/actions/organization"
 import { toast } from "sonner"
 import { LogOut } from "lucide-react"
+import { useRouter } from "next/dist/client/components/navigation"
 
 interface LeaveOrgButtonProps {
   slug: string
@@ -23,17 +23,24 @@ interface LeaveOrgButtonProps {
 export function LeaveOrgButton({ slug }: LeaveOrgButtonProps) {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
-
+  const router = useRouter()
   function handleLeave() {
     startTransition(async () => {
       try {
         const result = await leaveOrganizationAction(slug)
+
         if (result?.error) {
           toast.error(result.error)
+          return
         }
-        // If successful, the redirect in the action will handle navigation
-        // so we don't need to do anything else here
+
+        if (result?.success) {
+          setOpen(false)
+          toast.success("تمت المغادرة بنجاح")
+          router.push("/")
+        }
       } catch (error) {
+        console.log("Leave organization failed:", error)
         toast.error("فشل مغادرة المنظمة. حاول مرة أخرى.")
       }
     })

@@ -16,6 +16,7 @@ import Link from "next/link"
 import { Fragment, Suspense, useContext, use } from "react"
 import { Skeleton } from "./ui/skeleton"
 import { BreadcrumbContext } from "./breadcrumb-context"
+import { JoinRequestsNotification } from "./ui/join-request-notification-button"
 
 function BreadcrumbNav({
   orgPromise,
@@ -30,7 +31,9 @@ function BreadcrumbNav({
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink
-            render={(props) => <Link href={`/${org.slug}` as Route} {...props} />}
+            render={(props) => (
+              <Link href={`/${org.slug}` as Route} {...props} />
+            )}
           >
             {org.name}
           </BreadcrumbLink>
@@ -60,8 +63,10 @@ function BreadcrumbNav({
 
 export function Header({
   orgPromise,
+  orgSlug,
 }: {
   orgPromise: Promise<OrganizationResponse>
+  orgSlug: string
 }) {
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -75,6 +80,10 @@ export function Header({
 
         <Suspense fallback={<Skeleton className="h-4 w-16" />}>
           <BreadcrumbNav orgPromise={orgPromise} />
+
+          <div className="absolute left-0">
+            <JoinRequestsNotification slug={orgSlug} />
+          </div>
         </Suspense>
       </div>
     </header>

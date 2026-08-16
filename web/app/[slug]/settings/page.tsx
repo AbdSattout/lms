@@ -1,4 +1,5 @@
 // app/[slug]/settings/page.tsx
+
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
 import { DeleteOrgButton } from "@/components/delete-org-button"
 import { OrganizationForm } from "@/components/forms/organization-form"
@@ -15,12 +16,26 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
   const { slug } = await params
 
   let organizationData
+  let overviewData
+  let currentUser
+
   try {
-    organizationData = await api.dashboard.organizations.bySlug.get(slug)
-    if (!organizationData) notFound()
+    ;[organizationData, overviewData, currentUser] = await Promise.all([
+      api.dashboard.organizations.bySlug.get(slug),
+      api.dashboard.organizations.overview.get(slug),
+      api.profile.me.get(),
+    ])
+
+    if (!organizationData || !overviewData || !currentUser) {
+      notFound()
+    }
   } catch {
     notFound()
   }
+
+  const isOwner = currentUser.user.id === overviewData.owner.id
+
+  const isAdmin = currentUser.user.id !== overviewData.owner.id
 
   return (
     <>
@@ -30,6 +45,7 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
       <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-2">
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold">معلومات المنظمة</h2>
+
           <Card>
             <CardContent>
               <OrganizationForm initialData={organizationData} />
@@ -38,39 +54,48 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
         </section>
 
         <section className="flex flex-col gap-6">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">مغادرة المنظمة</h2>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-muted-foreground">
-                  بمغادرة المنظمة، ستفقد الوصول إلى جميع محتوياتها. يمكنك
-                  الانضمام مجدداً في أي وقت من خلال رابط الدعوة أو طلب الانضمام
-                  إذا كانت المنظمة عامة.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <LeaveOrgButton slug={slug} />
-              </CardFooter>
-            </Card>
-          </div>
+          {isAdmin && !isOwner && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold">مغادرة المنظمة</h2>
 
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold text-destructive">
-              حذف المنظمة
-            </h2>
-            <Card className="border-destructive/30">
-              <CardContent className="pt-6">
-                <p className="text-muted-foreground">
-                  سيؤدي حذف هذه المنظمة إلى حذف جميع بياناتها بما فيها الكورسات،
-                  المنشورات، الملفات، والكويزات. هذا الإجراء لا يمكن التراجع
-                  عنه.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <DeleteOrgButton slug={slug} />
-              </CardFooter>
-            </Card>
-          </div>
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-muted-foreground">
+                    بمغادرة المنظمة، ستفقد الوصول إلى جميع محتوياتها. يمكنك
+                    الانضمام مجدداً في أي وقت من خلال رابط الدعوة أو طلب
+                    الانضمام إذا كانت المنظمة عامة.
+                  </p>
+                </CardContent>
+
+                <CardFooter>
+                  <LeaveOrgButton slug={slug} />
+                </CardFooter>
+              </Card>
+            </div>
+          )}
+
+          {/* OWNER ONLY */}
+          {isOwner && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold text-destructive">
+                حذف المنظمة
+              </h2>
+
+              <Card className="border-destructive/30">
+                <CardContent className="pt-6">
+                  <p className="text-muted-foreground">
+                    سيؤدي حذف هذه المنظمة إلى حذف جميع بياناتها بما فيها
+                    الكورسات، المنشورات، الملفات، والكويزات. هذا الإجراء لا يمكن
+                    التراجع عنه.
+                  </p>
+                </CardContent>
+
+                <CardFooter>
+                  <DeleteOrgButton slug={slug} />
+                </CardFooter>
+              </Card>
+            </div>
+          )}
         </section>
       </div>
     </>

@@ -55,7 +55,7 @@ export function OrgOverviewCard({
           onClick={() => setShowOwnerDialog(true)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               المالك
             </CardTitle>
             <User className="h-5 w-5 text-muted-foreground" />
@@ -72,7 +72,7 @@ export function OrgOverviewCard({
           onClick={() => setSelectedType("admins")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               المشرفين
             </CardTitle>
             <Users className="h-5 w-5 text-muted-foreground" />
@@ -87,7 +87,7 @@ export function OrgOverviewCard({
           onClick={() => setSelectedType("students")}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               الطلاب
             </CardTitle>
             <Users className="h-5 w-5 text-muted-foreground" />
@@ -102,7 +102,7 @@ export function OrgOverviewCard({
           onClick={() => setShowBannedDialog(true)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               الطلاب المحظورين
             </CardTitle>
             <UserX className="h-5 w-5 text-destructive" />
@@ -119,7 +119,7 @@ export function OrgOverviewCard({
           onClick={() => setShowCoursesDialog(true)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               الدورات
             </CardTitle>
             <BookOpen className="h-5 w-5 text-muted-foreground" />
@@ -140,7 +140,7 @@ export function OrgOverviewCard({
           onClick={() => router.push(`/${slug}/posts` as Route)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               المنشورات
             </CardTitle>
             <FileText className="h-5 w-5 text-muted-foreground" />
@@ -155,7 +155,7 @@ export function OrgOverviewCard({
           onClick={() => router.push(`/${slug}/roadmaps` as Route)}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-semibold text-foreground">
+            <CardTitle className="text-xl font-semibold text-foreground">
               المسارات
             </CardTitle>
             <Map className="h-5 w-5 text-muted-foreground" />
@@ -183,7 +183,7 @@ export function OrgOverviewCard({
             )}
 
             <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-sm font-semibold text-foreground">
+              <CardTitle className="text-xl font-semibold text-foreground">
                 التخزين
               </CardTitle>
               <div
