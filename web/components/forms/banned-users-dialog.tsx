@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
+
 import {
   UserX,
   UserCheck,
@@ -25,6 +26,7 @@ import {
 } from "lucide-react"
 
 import type { OrganizationBanResponse } from "@/lib/api/types"
+
 import { getBannedUsers, unbanUserAction } from "@/lib/actions/members"
 
 interface BannedUsersDialogProps {
@@ -102,6 +104,7 @@ function BannedUserDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md" dir="rtl">
         <DialogTitle className="sr-only">معلومات المستخدم المحظور</DialogTitle>
+        <DialogTitle className="sr-only">معلومات الطالب المحظور</DialogTitle>
 
         <div className="flex flex-col items-center space-y-6 p-6 pb-2">
           <div className="relative">
