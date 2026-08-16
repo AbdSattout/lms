@@ -9,8 +9,10 @@ public record MuteUserRequest(
         @NotNull
         Long userId,
 
+        @NotNull
         Long courseId,
 
+        @NotNull
         Long conversationId,
 
         @NotNull

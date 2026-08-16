@@ -2,13 +2,15 @@ package app.lms.report.service;
 
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.NotFoundException;
+import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
-import app.lms.course.service.CourseAccessService;
+import app.lms.organization.model.Organization;
 import app.lms.organization.repository.OrganizationRepository;
-import app.lms.organization.service.OrganizationAccessService;
+import app.lms.post.model.Comment;
+import app.lms.post.model.Post;
 import app.lms.post.repository.CommentRepository;
 import app.lms.post.repository.PostRepository;
-import app.lms.post.service.PostAccessService;
+import app.lms.report.dto.CreateReportRequest;
 import app.lms.report.enums.ReportTargetType;
 import app.lms.report.model.Report;
 import app.lms.report.repository.ReportRepository;
@@ -44,40 +46,235 @@ public class ReportAccessService {
     }
 
 
-    public void validateTarget(
-            ReportTargetType targetType,
-            Long targetId
+    public Long resolveTargetId(
+            CreateReportRequest request
     ) {
 
-        switch (targetType) {
-
-            case USER ->
-                    userRepository.findById(targetId).orElseThrow(() -> new UsernameNotFoundException(
-                            "user not found"
-                    ));
-
-            case POST ->
-                    postRepository.findById(targetId).orElseThrow(() -> new NotFoundException(
-                            "post not found"
-                    ));
-
-            case COURSE ->
-                    courseRepository.findById(targetId).orElseThrow(() -> new NotFoundException(
-                            "course not found"
-                    ));
-
-            case ORGANIZATION ->
-                    organizationRepository.findById(targetId).orElseThrow(() -> new NotFoundException(
-                            "organization not found"
-                    ));
-
-            case COMMENT -> {
-                commentRepository.findById(targetId).orElseThrow(() -> new NotFoundException(
-                        "comment not found"
-                ));
-            }
+        if (request.targetType() == null) {
+            throw new BadRequestException(
+                    "targetType is required"
+            );
         }
 
+        return switch (request.targetType()) {
+
+            case USER ->
+                    resolveUserTarget(request);
+
+            case POST ->
+                    resolvePostTarget(request);
+
+            case COURSE ->
+                    resolveCourseTarget(request);
+
+            case ORGANIZATION ->
+                    resolveOrganizationTarget(request);
+
+            case COMMENT ->
+                    resolveCommentTarget(request);
+        };
+
+    }
+
+    private Long resolveUserTarget(
+            CreateReportRequest request
+    ) {
+
+        Long userId =
+                requireId(
+                        request.userId(),
+                        "userId"
+                );
+
+        userRepository
+                .findById(userId)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException(
+                                "user not found"
+                        )
+                );
+
+        return userId;
+    }
+
+    private Long resolvePostTarget(
+            CreateReportRequest request
+    ) {
+
+        Long postId =
+                requireId(
+                        request.postId(),
+                        "postId"
+                );
+
+        Post post =
+                postRepository
+                        .findById(postId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "post not found"
+                                )
+                        );
+
+        requireAndMatch(
+                "organizationId",
+                request.organizationId(),
+                post.getOrganization() != null
+                        ? post.getOrganization().getId()
+                        : null
+        );
+
+        requireAndMatch(
+                "userId",
+                request.userId(),
+                post.getAuthor() != null
+                        ? post.getAuthor().getId()
+                        : null
+        );
+
+        return postId;
+    }
+
+    private Long resolveCommentTarget(
+            CreateReportRequest request
+    ) {
+
+        Long commentId =
+                requireId(
+                        request.commentId(),
+                        "commentId"
+                );
+
+        Comment comment =
+                commentRepository
+                        .findById(commentId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "comment not found"
+                                )
+                        );
+
+        Post post =
+                comment.getPost();
+
+        requireAndMatch(
+                "postId",
+                request.postId(),
+                post != null
+                        ? post.getId()
+                        : null
+        );
+
+        requireAndMatch(
+                "organizationId",
+                request.organizationId(),
+                post != null
+                        && post.getOrganization() != null
+                        ? post.getOrganization().getId()
+                        : null
+        );
+
+        requireAndMatch(
+                "userId",
+                request.userId(),
+                comment.getAuthor() != null
+                        ? comment.getAuthor().getId()
+                        : null
+        );
+
+        return commentId;
+    }
+
+    private Long resolveCourseTarget(
+            CreateReportRequest request
+    ) {
+
+        Long courseId =
+                requireId(
+                        request.courseId(),
+                        "courseId"
+                );
+
+        Course course =
+                courseRepository
+                        .findById(courseId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "course not found"
+                                )
+                        );
+
+        requireAndMatch(
+                "organizationId",
+                request.organizationId(),
+                course.getOrganization() != null
+                        ? course.getOrganization().getId()
+                        : null
+        );
+
+        return courseId;
+    }
+
+    private Long resolveOrganizationTarget(
+            CreateReportRequest request
+    ) {
+
+        Long organizationId =
+                requireId(
+                        request.organizationId(),
+                        "organizationId"
+                );
+
+        Organization organization =
+                organizationRepository
+                        .findById(organizationId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "organization not found"
+                                )
+                        );
+
+        requireAndMatch(
+                "userId",
+                request.userId(),
+                organization.getOwner() != null
+                        ? organization.getOwner().getId()
+                        : null
+        );
+
+        return organizationId;
+    }
+
+    private Long requireId(
+            Long id,
+            String field
+    ) {
+
+        if (id == null) {
+            throw new BadRequestException(
+                    field + " is required"
+            );
+        }
+
+        return id;
+    }
+
+    private void requireAndMatch(
+            String field,
+            Long provided,
+            Long actual
+    ) {
+
+        requireId(
+                provided,
+                field
+        );
+
+        if (!provided.equals(actual)) {
+            throw new BadRequestException(
+                    field + " does not match the reported target"
+            );
+        }
     }
 
 

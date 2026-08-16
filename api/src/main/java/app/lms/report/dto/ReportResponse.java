@@ -16,7 +16,7 @@ public record ReportResponse(
 
         ReportTargetType targetType,
 
-        Long targetId,
+        ReportTargetResponse target,
 
         String reason,
 

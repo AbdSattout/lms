@@ -20,7 +20,7 @@ public class ChatMuteController {
     @PostMapping
     public ResponseEntity<MuteResponse> mute(
             @Valid @RequestBody MuteUserRequest request,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         return ResponseEntity.ok(
@@ -34,7 +34,7 @@ public class ChatMuteController {
     @DeleteMapping("/{muteId}")
     public ResponseEntity<Void> unmute(
             @PathVariable Long muteId,
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
 
         chatMuteService.unmute(
