@@ -5,7 +5,13 @@ abstract class NotificationsEvent {}
 
 class LoadNotificationsEvent extends NotificationsEvent {}
 
-class RefreshNotificationsEvent extends NotificationsEvent {}
+class RefreshNotificationsEvent extends NotificationsEvent {
+  final bool keepHigherUnreadCount;
+
+  RefreshNotificationsEvent({this.keepHigherUnreadCount = false});
+}
+
+class NotificationReceivedEvent extends NotificationsEvent {}
 
 class AcceptOrganizationInviteEvent extends NotificationsEvent {
   final OrganizationInviteEntity invite;

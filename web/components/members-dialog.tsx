@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { OrganizationMemberResponse } from "@/lib/api/types"
+import { BanDuration, OrganizationMemberResponse } from "@/lib/api/types"
 import { Plus, ArrowRight } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import {
@@ -25,6 +25,13 @@ import {
 import { AddMemberForm } from "./forms/add-member-form-dialog"
 import { MemberDetailDialog } from "./forms/member-detial-dialog"
 import { Textarea } from "./ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
 
 interface MembersDialogProps {
   open: boolean
@@ -50,6 +57,9 @@ export function MembersDialog({
     useState<OrganizationMemberResponse | null>(null)
   const [memberDetailOpen, setMemberDetailOpen] = useState(false)
   const [actionReason, setActionReason] = useState("")
+  const [banDuration, setBanDuration] = useState<BanDuration | string>(
+    "PERMANENT"
+  )
   const [memberAction, setMemberAction] = useState<{
     type: "kick" | "ban"
     member: OrganizationMemberResponse
@@ -80,6 +90,7 @@ export function MembersDialog({
         setShowAddForm(false)
         setMembers([])
         setActionReason("")
+        setBanDuration("PERMANENT")
       }, 200)
     }
     onOpenChange(newOpen)
@@ -97,21 +108,23 @@ export function MembersDialog({
     try {
       const userId = memberAction.member.user.id
       let result
-
+      const finalReason =
+        actionReason.trim() !== "" ? actionReason : "إجراء إداري"
       if (memberAction.type === "kick") {
         result = await removeMemberAction(slug, userId)
       } else {
         result = await banUserAction(slug, userId, {
-          reason: actionReason || "حظر بواسطة المشرف",
+          reason: finalReason,
+          duration: banDuration as BanDuration,
         })
       }
-
       if (result.success) {
         setMembers((prev) =>
           prev.filter((m) => m.memberId !== memberAction.member.memberId)
         )
         setMemberAction(null)
         setActionReason("")
+        setBanDuration("PERMANENT")
       } else {
         console.error("Action failed:", result.error)
       }
@@ -119,7 +132,7 @@ export function MembersDialog({
       console.error("Action failed:", error)
     } finally {
       setActionLoading(false)
-      setMemberAction(null) //TODO
+      setMemberAction(null)
     }
   }
 
@@ -263,12 +276,13 @@ export function MembersDialog({
           if (!open && !actionLoading) {
             setMemberAction(null)
             setActionReason("")
+            setBanDuration("PERMANENT")
           }
         }}
       >
         <AlertDialogContent dir="rtl">
           <AlertDialogHeader>
-            <AlertDialogTitle>
+            <AlertDialogTitle className="text-right">
               {memberAction?.type === "kick" ? "تأكيد الطرد" : "تأكيد الحظر"}
             </AlertDialogTitle>
             <AlertDialogDescription>
@@ -279,22 +293,54 @@ export function MembersDialog({
               {memberAction?.type === "ban" &&
                 " لا يمكن التراجع عن هذا الإجراء ."}
             </AlertDialogDescription>
+          </AlertDialogHeader>
 
-            <div className="mt-4 flex flex-col space-y-2">
-              <Label htmlFor="action-reason" className="text-right">
+          <div className="flex flex-col space-y-5 py-3">
+            {memberAction?.type === "ban" && (
+              <div className="flex flex-col space-y-2.5">
+                <Label className="text-right text-sm font-semibold">
+                  مدة الحظر
+                </Label>
+                <Select
+                  disabled={actionLoading}
+                  value={banDuration}
+                  onValueChange={(value) =>
+                    setBanDuration(value || "PERMANENT")
+                  }
+                >
+                  <SelectTrigger className="w-full text-right transition-all focus:ring-destructive/50 data-[state=open]:ring-destructive/50">
+                    <SelectValue placeholder="اختر مدة الحظر..." />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl">
+                    <SelectItem value="DAY">يوم واحد</SelectItem>
+                    <SelectItem value="WEEK">أسبوع</SelectItem>
+                    <SelectItem value="MONTH">شهر</SelectItem>
+                    <SelectItem value="YEAR">سنة</SelectItem>
+                    <SelectItem value="PERMANENT">حظر دائم</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            <div className="flex flex-col space-y-2.5">
+              <Label
+                htmlFor="action-reason"
+                className="text-right text-sm font-semibold"
+              >
                 السبب (اختياري)
               </Label>
               <Textarea
                 id="action-reason"
-                className="w-full text-right focus:border-destructive/50"
-                placeholder="اذكر سبب الإجراء للتوثيق..."
+                className="min-h-[90px] w-full resize-none bg-background p-3 text-right transition-all focus-visible:ring-destructive/60"
+                placeholder="اذكر سبب الإجراء هنا للتوثيق المستقبلي..."
                 value={actionReason}
                 onChange={(e) => setActionReason(e.target.value)}
                 disabled={actionLoading}
               />
             </div>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex gap-2">
+          </div>
+
+          <AlertDialogFooter className="mt-2 flex flex-row-reverse gap-2 sm:flex-row sm:justify-start">
             <AlertDialogCancel disabled={actionLoading}>
               إلغاء
             </AlertDialogCancel>

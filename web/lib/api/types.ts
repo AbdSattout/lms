@@ -335,9 +335,11 @@ export interface StorageResponse {
 
 export interface OrganizationOverviewResponse {
   owner: UserResponse & { username?: string }
+  ownerPlan: Plan
   membersCount: number
   adminsCount: number
   studentsCount: number
+  bannedUsersCount: number
   coursesCount: number
   publishedCoursesCount: number
   draftCoursesCount: number
@@ -650,7 +652,17 @@ export interface BanRequest {
   reason: string
   duration?: BanDuration
 }
+export interface OrganizationBanResponse {
+  id: number
+  user: UserResponse
+  bannedByOrgAdmin?: UserResponse | null
+  bannedByAppAdmin?: UserResponse | null
+  reason?: string | null
+  expiresAt?: string | null
+  baseEntity?: BaseEntityResponse
+}
 
+export type PageOrganizationBanResponse = Page<OrganizationBanResponse>
 export interface OrganizationUserSearchResponse {
   name?: string
   email?: string

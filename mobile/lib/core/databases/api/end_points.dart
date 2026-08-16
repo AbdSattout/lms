@@ -89,6 +89,11 @@ class EndPoints {
   static String organizationCourses(String orgSlug) =>
       'organizations/$orgSlug/courses';
 
+  // Recommendations
+  static const String recommendedCourses = 'recommendations/courses';
+  static const String recommendedOrganizations =
+      'recommendations/organizations';
+
   static String courseBySlug({
     required String orgSlug,
     required String courseSlug,
@@ -122,8 +127,11 @@ class EndPoints {
 
   // Roadmaps
   static const String allRoadmaps = 'mobile/roadmaps';
-  static String organizationRoadmaps(String slug) => 'mobile/organizations/$slug/roadmaps';
-  static String roadmapDetails(String slug, int roadmapId) => 'mobile/organizations/$slug/roadmaps/$roadmapId';
-  static String followRoadmap(String slug, int roadmapId) => 'mobile/organizations/$slug/roadmaps/$roadmapId/follow';
+  static String organizationRoadmaps(String slug) =>
+      'mobile/organizations/$slug/roadmaps';
+  static String roadmapDetails(String slug, int roadmapId) =>
+      'mobile/organizations/$slug/roadmaps/$roadmapId';
+  static String followRoadmap(String slug, int roadmapId) =>
+      'mobile/organizations/$slug/roadmaps/$roadmapId/follow';
   static const String myRoadmaps = 'mobile/roadmaps/following';
 }
