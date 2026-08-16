@@ -703,3 +703,46 @@ export interface CertificateResponse {
   grade: CertificateGrade
   baseEntity?: BaseEntityResponse
 }
+export type ReportStatus = "PENDING" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED"
+
+export type ReportTargetType = "POST" | "COMMENT" | "USER" | "ORGANIZATION"
+
+export interface ReportReporter {
+  id: number
+  name: string
+  email: string
+}
+
+export interface ReportAdminResponse {
+  id: number
+  name: string
+  email: string
+  role: string
+  enabled: boolean
+}
+
+export interface ReportResponse {
+  id: number
+  reporter: ReportReporter
+  targetType: ReportTargetType
+  targetId: number
+  reason: string
+  status: ReportStatus
+  adminNote?: string | null
+  adminResponse?: ReportAdminResponse | null
+  baseEntityResponse?: BaseEntityResponse
+  reviewedAt?: string | null
+}
+
+export interface ReportPageResponse {
+  content: ReportResponse[]
+  totalElements: number
+  totalPages: number
+  number?: number
+  size?: number
+}
+
+export interface ReportReviewRequest {
+  status: ReportStatus
+  adminNote?: string | null
+}

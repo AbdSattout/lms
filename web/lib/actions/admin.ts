@@ -1,27 +1,61 @@
 "use server"
 
-import { revalidatePath } from "next/cache"
-import { banUser, unbanUser } from "../api/organizations"
+import { organizations, reports, users } from "@/lib/api/admin"
 
-export async function submitUserBan(userId: number, formData: FormData) {
-  const reason = formData.get("reason") as string
+import type {
+  ReportResponse,
+  ReportReviewRequest,
+  ReportStatus,
+} from "@/lib/api/types"
 
-  try {
-    await banUser.post(userId, { reason })
-    revalidatePath("/admin/bans")
-    return { success: true }
-  } catch (error) {
-    console.error("فشل الحظر:", error)
-    return { error: "Failed to ban user." }
-  }
+import type { PageableInput } from "@/lib/validation"
+
+export async function getAdminReportsAction(pageable: PageableInput) {
+  return reports.list.get(pageable)
 }
 
-export async function submitUserUnban(userId: number) {
-  try {
-    await unbanUser.delete(userId)
-    revalidatePath("/admin/bans")
-    return { success: true }
-  } catch {
-    return { error: "Failed to unban user." }
-  }
+export async function getAdminReportsByStatusAction(
+  status: ReportStatus,
+  pageable: PageableInput
+) {
+  return reports.byStatus.get(status, pageable)
+}
+
+export async function reviewAdminReportAction(
+  reportId: number,
+  request: ReportReviewRequest
+): Promise<ReportResponse> {
+  return reports.review.patch(reportId, request)
+}
+
+export async function getAdminOrganizationAction(organizationId: number) {
+  return organizations.get.get(organizationId)
+}
+
+export async function getAdminOrganizationCoursesAction(
+  organizationId: number,
+  pageable: PageableInput
+) {
+  return organizations.courses.get(organizationId, pageable)
+}
+
+export async function getAdminOrganizationPostAction(
+  organizationId: number,
+  postId: number
+) {
+  return organizations.post.get(organizationId, postId)
+}
+
+export async function getAdminUserPostsAction(
+  userId: number,
+  pageable: PageableInput
+) {
+  return users.posts.get(userId, pageable)
+}
+
+export async function getAdminUserCommentsAction(
+  userId: number,
+  pageable: PageableInput
+) {
+  return users.comments.get(userId, pageable)
 }

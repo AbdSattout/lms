@@ -156,7 +156,7 @@ export function LoginForm({
 
       console.log("Admin login successful:", data)
       toast.success("تم تسجيل دخول المشرف بنجاح")
-      router.replace("/admin")
+      router.replace("/admin/reports")
     } catch (error) {
       console.error("Admin login error:", error)
       setError(
