@@ -36,13 +36,13 @@ interface BannedUsersDialogProps {
 }
 
 function formatDate(dateValue: string | Date | number | null | undefined) {
-  if (!dateValue) return "غير متوفر"
+  if (!dateValue) return null
 
   try {
     const date = new Date(dateValue)
 
     if (Number.isNaN(date.getTime())) {
-      return "غير متوفر"
+      return null
     }
 
     return new Intl.DateTimeFormat("ar-EG", {
@@ -51,18 +51,24 @@ function formatDate(dateValue: string | Date | number | null | undefined) {
       day: "numeric",
     }).format(date)
   } catch {
-    return "غير متوفر"
+    return null
   }
 }
-
+function EmptyValue() {
+  return (
+    <span dir="rtl" className="w-fit font-medium text-muted-foreground">
+      غير متوفر
+    </span>
+  )
+}
 function formatDateTime(dateValue: string | Date | number | null | undefined) {
-  if (!dateValue) return "غير متوفر"
+  if (!dateValue) return null
 
   try {
     const date = new Date(dateValue)
 
     if (Number.isNaN(date.getTime())) {
-      return "غير متوفر"
+      return null
     }
 
     return new Intl.DateTimeFormat("ar-EG", {
@@ -73,7 +79,7 @@ function formatDateTime(dateValue: string | Date | number | null | undefined) {
       minute: "2-digit",
     }).format(date)
   } catch {
-    return "غير متوفر"
+    return null
   }
 }
 
@@ -82,7 +88,7 @@ function getUserDisplayName(user: OrganizationBanResponse["user"]) {
 }
 
 function getUsername(user: OrganizationBanResponse["user"]) {
-  return user.username ? `@${user.username}` : "غير متوفر"
+  return user.username ? `@${user.username}` : null
 }
 
 function BannedUserDetailDialog({
@@ -142,41 +148,29 @@ function BannedUserDetailDialog({
 
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">الاسم</p>
-
-                  <p className="font-medium text-foreground">{displayName}</p>
+                  {user.name ? (
+                    <p className="font-medium text-foreground">{displayName}</p>
+                  ) : (
+                    <EmptyValue />
+                  )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 text-sm">
-                <AtSign className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <div className="flex items-start gap-3 text-sm">
+                <AtSign className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
 
-                <div className="flex-1">
+                <div className="min-w-0 flex-1">
                   <p className="text-xs text-muted-foreground">اسم المستخدم</p>
 
-                  <p className="font-medium text-foreground" dir="ltr">
-                    {username}
-                  </p>
+                  {username ? (
+                    <p className="font-medium text-foreground" dir="ltr">
+                      {username}
+                    </p>
+                  ) : (
+                    <EmptyValue />
+                  )}
                 </div>
               </div>
-
-              {user.email && (
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="h-4 w-4 shrink-0" />
-
-                  <div className="flex-1">
-                    <p className="text-xs text-muted-foreground">
-                      البريد الإلكتروني
-                    </p>
-
-                    <p
-                      className="truncate font-medium text-foreground"
-                      dir="ltr"
-                    >
-                      {user.email}
-                    </p>
-                  </div>
-                </div>
-              )}
 
               <div className="flex items-center gap-3 text-sm">
                 <Shield className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -184,9 +178,16 @@ function BannedUserDetailDialog({
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">سبب الحظر</p>
 
-                  <p className="font-medium text-foreground">
-                    {ban.reason || "لم يتم تحديد سبب"}
-                  </p>
+                  {ban.reason ? (
+                    <p className="font-medium text-foreground">{ban.reason}</p>
+                  ) : (
+                    <span
+                      dir="rtl"
+                      className="w-fit font-medium text-muted-foreground"
+                    >
+                      لم يتم تحديد سبب
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -196,9 +197,13 @@ function BannedUserDetailDialog({
                 <div className="flex-1">
                   <p className="text-xs text-muted-foreground">تاريخ الحظر</p>
 
-                  <p className="font-medium text-foreground">
-                    {formatDate(ban.baseEntity?.createdAt)}
-                  </p>
+                  {ban.baseEntity?.createdAt ? (
+                    <p className="font-medium text-foreground">
+                      {formatDate(ban.baseEntity.createdAt)}
+                    </p>
+                  ) : (
+                    <EmptyValue />
+                  )}
                 </div>
               </div>
 
