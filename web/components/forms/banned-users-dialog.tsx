@@ -1,4 +1,3 @@
-// components/banned-users-dialog.tsx
 "use client"
 
 import { useEffect, useState } from "react"
@@ -15,7 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
-import { UserX, UserCheck } from "lucide-react"
+import { UserX, UserCheck, User, AtSign, Mail, Phone } from "lucide-react"
 import type { OrganizationBannedUserResponse } from "@/lib/api/types"
 import { getBannedUsers, unbanUserAction } from "@/lib/actions/members"
 
@@ -23,6 +22,98 @@ interface BannedUsersDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   slug: string
+}
+
+function BannedUserDetailDialog({
+  open,
+  onOpenChange,
+  user,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  user: OrganizationBannedUserResponse | null
+}) {
+  if (!user) return null
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md" dir="rtl">
+        <DialogTitle className="sr-only">معلومات الطالب المحظور</DialogTitle>
+
+        <div className="flex flex-col items-center space-y-6 p-6 pb-2">
+          <div className="relative">
+            <Image
+              src={user.avatarUrl || "/default-avatar.png"}
+              alt={user.username || "User avatar"}
+              width={100}
+              height={100}
+              className="rounded-full object-cover ring-4 ring-muted"
+            />
+            <div className="text-destructive-foreground absolute -right-1 -bottom-1 rounded-full bg-destructive p-1.5 shadow-sm">
+              <UserX className="h-4 w-4" />
+            </div>
+          </div>
+
+          <div className="w-full space-y-4">
+            <div className="space-y-1 text-center">
+              <h3 className="text-xl font-bold text-foreground">
+                {user.username}
+              </h3>
+              <p className="text-xs text-destructive/90">طالب (محظور)</p>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-border/40 bg-muted/50 p-4">
+              <div className="flex items-center gap-3 text-sm">
+                <User className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">الاسم</p>
+                  <p className="font-medium text-foreground">{user.username}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm">
+                <AtSign className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">اسم المستخدم</p>
+                  <p
+                    className="text-left font-medium text-foreground"
+                    dir="ltr"
+                  >
+                    @{user.username || "غير متوفر"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">
+                    البريد الإلكتروني
+                  </p>
+                  <p
+                    className={`font-medium text-foreground ${user.email ? "ltr" : ""}`}
+                    dir={user.email ? "ltr" : "rtl"}
+                  >
+                    {user.email || "غير متوفر"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 text-sm">
+                <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="flex-1">
+                  <p className="text-xs text-muted-foreground">رقم الهاتف</p>
+                  <p className="font-medium text-foreground text-muted-foreground/60">
+                    غير متوفر
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
 }
 
 export function BannedUsersDialog({
@@ -36,6 +127,10 @@ export function BannedUsersDialog({
   const [loading, setLoading] = useState(false)
   const [userToUnban, setUserToUnban] =
     useState<OrganizationBannedUserResponse | null>(null)
+
+  const [selectedBannedUser, setSelectedBannedUser] =
+    useState<OrganizationBannedUserResponse | null>(null)
+
   const [unbanLoading, setUnbanLoading] = useState(false)
 
   useEffect(() => {
@@ -83,12 +178,34 @@ export function BannedUsersDialog({
     }
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ar", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    })
+  const formatDate = (dateData: Date | string | number | null | undefined) => {
+    try {
+      if (!dateData) return "غير متوفر"
+
+      let dateObj: Date
+      if (Array.isArray(dateData)) {
+        dateObj = new Date(
+          dateData[0],
+          (dateData[1] || 1) - 1,
+          dateData[2] || 1,
+          dateData[3] || 0,
+          dateData[4] || 0,
+          dateData[5] || 0
+        )
+      } else {
+        dateObj = new Date(dateData)
+      }
+
+      if (isNaN(dateObj.getTime())) return "غير متوفر"
+
+      return new Intl.DateTimeFormat("ar-EG", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }).format(dateObj)
+    } catch {
+      return "صيغة غير صحيحة"
+    }
   }
 
   return (
@@ -127,7 +244,8 @@ export function BannedUsersDialog({
                   bannedUsers.map((user) => (
                     <div
                       key={user.userId}
-                      className="group flex items-center gap-3 rounded-lg border-b border-muted/20 bg-background/60 p-3 transition-all duration-150 hover:bg-muted/40 hover:shadow-sm"
+                      onClick={() => setSelectedBannedUser(user)}
+                      className="group flex cursor-pointer items-center gap-3 rounded-lg border-b border-muted/20 bg-background/60 p-3 transition-all duration-150 hover:bg-muted/40 hover:shadow-sm active:scale-[0.98]"
                     >
                       <Image
                         src={user.avatarUrl || "/default-avatar.png"}
@@ -157,15 +275,21 @@ export function BannedUsersDialog({
                           حظر بتاريخ: {formatDate(user.bannedAt)}
                         </span>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 gap-1 px-3 text-xs"
-                        onClick={() => setUserToUnban(user)}
-                      >
-                        <UserCheck className="h-3 w-3" />
-                        فك الحظر
-                      </Button>
+
+                      <div className="shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 gap-1 px-3 text-xs"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setUserToUnban(user)
+                          }}
+                        >
+                          <UserCheck className="h-3 w-3" />
+                          فك الحظر
+                        </Button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -199,13 +323,21 @@ export function BannedUsersDialog({
                 handleUnban()
               }}
               disabled={unbanLoading}
-              className="bg-primary hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {unbanLoading ? "جاري المعالجة..." : "تأكيد فك الحظر"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BannedUserDetailDialog
+        open={!!selectedBannedUser}
+        onOpenChange={(open) => {
+          if (!open) setSelectedBannedUser(null)
+        }}
+        user={selectedBannedUser}
+      />
     </>
   )
 }

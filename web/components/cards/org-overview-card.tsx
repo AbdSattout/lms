@@ -50,7 +50,6 @@ export function OrgOverviewCard({
   return (
     <div className="w-full space-y-6">
       <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        {/* Owner Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowOwnerDialog(true)}
@@ -68,7 +67,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Admins Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("admins")}
@@ -84,7 +82,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Students Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setSelectedType("students")}
@@ -100,7 +97,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Banned Students Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-destructive/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowBannedDialog(true)}
@@ -118,7 +114,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Courses Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => setShowCoursesDialog(true)}
@@ -140,7 +135,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Posts Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => router.push(`/${slug}/posts` as Route)}
@@ -156,7 +150,6 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Roadmaps Card */}
         <Card
           className="cursor-pointer transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]"
           onClick={() => router.push(`/${slug}/roadmaps` as Route)}
@@ -174,42 +167,49 @@ export function OrgOverviewCard({
           </CardContent>
         </Card>
 
-        {/* Storage Card - Only visible to owner */}
         {isOwner && (
           <Card
-            className={`relative transition-all duration-200 ${
+            className={
               isPremium
-                ? "border-2 border-amber-400/50 bg-gradient-to-br from-amber-50/50 to-transparent shadow-lg shadow-amber-100/50"
-                : "opacity-75"
-            }`}
+                ? "group relative overflow-hidden border border-amber-500/20 bg-gradient-to-br from-amber-500/[0.04] to-transparent transition-all duration-300 hover:shadow-lg dark:from-amber-500/10 dark:hover:shadow-[0_0_20px_rgba(245,158,11,0.08)]"
+                : "opacity-85 transition-opacity duration-200 hover:opacity-100"
+            }
           >
             {isPremium && (
-              <div className="absolute -top-2 left-1/2 -translate-x-1/2 transform">
-                <div className="rounded-full bg-gradient-to-r from-amber-400 to-yellow-500 p-1 shadow-lg">
-                  <Crown className="h-4 w-4 text-white" />
-                </div>
-              </div>
+              <>
+                <div className="absolute inset-x-0 -top-px h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+                <div className="pointer-events-none absolute top-0 left-0 h-16 w-16 bg-[radial-gradient(circle_at_top_left,_var(--tw-gradient-stops))] from-amber-500/30 to-transparent opacity-30 blur-md" />
+              </>
             )}
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+
+            <CardHeader className="relative flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-semibold text-foreground">
                 التخزين
               </CardTitle>
-              <HardDrive
-                className={`h-5 w-5 ${isPremium ? "text-amber-500" : "text-muted-foreground"}`}
-              />
+              <div
+                className={`flex items-center justify-center rounded-lg p-1.5 transition-colors ${isPremium ? "bg-amber-500/10 text-amber-500" : "bg-muted text-muted-foreground"}`}
+              >
+                <HardDrive className="h-4 w-4" />
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative">
               {isPremium ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Infinity className="h-6 w-6 text-amber-500" />
-                    <span className="text-lg font-bold text-foreground">
+                    <Infinity className="h-6 w-6 stroke-[2.5px] text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.4)]" />
+                    <span className="bg-gradient-to-b from-amber-600 to-amber-500 bg-clip-text text-lg font-bold tracking-tight text-transparent dark:from-amber-300 dark:to-amber-500">
                       مساحة غير محدودة
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    مستخدم: {formatBytes(overviewData.storage.usedBytes)}
-                  </p>
+                  <div className="flex items-center gap-1.5 border-t border-amber-500/10 pt-2 text-xs text-muted-foreground">
+                    <Crown className="h-3 w-3 text-amber-500/80" />
+                    <p>
+                      المستخدم:{" "}
+                      <span className="font-medium text-foreground">
+                        {formatBytes(overviewData.storage.usedBytes)}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -219,11 +219,11 @@ export function OrgOverviewCard({
                   <p className="text-xs text-muted-foreground">
                     من {formatBytes(overviewData.storage.totalBytes ?? 0)}
                   </p>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted/80">
                     <div
-                      className="h-full rounded-full bg-primary transition-all"
+                      className="h-full rounded-full bg-primary transition-all duration-500"
                       style={{
-                        width: `${overviewData.storage.usagePercentage ?? 0}%`,
+                        width: `${Math.min(overviewData.storage.usagePercentage ?? 0, 100)}%`,
                       }}
                     />
                   </div>
