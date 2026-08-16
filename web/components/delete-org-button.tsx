@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 import {
   AlertDialog,
@@ -18,16 +20,35 @@ import { buttonVariants } from "./ui/button"
 
 export function DeleteOrgButton({ slug }: { slug: string }) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleDelete = async () => {
     setLoading(true)
-    await deleteOrganizationAction(slug)
+
+    try {
+      const result = await deleteOrganizationAction(slug)
+
+      if (!result.success) {
+        toast.error(result.error)
+        return
+      }
+
+      toast.success("تم حذف المنظمة بنجاح")
+      router.replace("/")
+      router.refresh()
+    } catch (error) {
+      console.error("Delete organization failed:", error)
+      toast.error("حدث خطأ أثناء حذف المنظمة")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <AlertDialog>
       <AlertDialogTrigger
         className={buttonVariants({ variant: "destructive" })}
+        disabled={loading}
       >
         حذف المنظمة
       </AlertDialogTrigger>
@@ -35,15 +56,16 @@ export function DeleteOrgButton({ slug }: { slug: string }) {
       <AlertDialogContent dir="rtl">
         <AlertDialogHeader>
           <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
+
           <AlertDialogDescription>
             هذا الإجراء سيؤدي إلى حذف المنظمة نهائياً. لا يمكن التراجع عن هذا
             الإجراء.
           </AlertDialogDescription>
         </AlertDialogHeader>
+
         <AlertDialogFooter>
-          <AlertDialogCancel className="cursor-pointer">
-            إلغاء
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={loading}>إلغاء</AlertDialogCancel>
+
           <AlertDialogAction
             onClick={handleDelete}
             variant="destructive"
