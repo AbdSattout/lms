@@ -26,6 +26,11 @@ export function buildLoginPath(callbackUrl = "/") {
   return `/login?callbackUrl=${encodeURIComponent(safeCallbackUrl)}` as const
 }
 
+export function buildLoginErrorPath(message: string, callbackUrl = "/") {
+  const loginPath = buildLoginPath(callbackUrl)
+  return `${loginPath}&error=${encodeURIComponent(message)}` as const
+}
+
 export function buildLoginRedirectResponse(request: NextRequest) {
   const callbackUrl = readCallbackUrlFromRequest(request)
   const loginPath = buildLoginPath(callbackUrl)

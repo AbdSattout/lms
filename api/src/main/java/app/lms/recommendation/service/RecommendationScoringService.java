@@ -16,11 +16,11 @@ public class RecommendationScoringService {
     private static final int JOINED_ORGANIZATION_COURSE_SCORE = 50;
     private static final int POPULAR_COURSE_SCORE = 25;
     private static final int RECENT_COURSE_SCORE = 15;
-    private static final int PUBLIC_COURSE_SCORE = 10;
+    private static final int DISCOVERABLE_COURSE_SCORE = 10;
     private static final int MANY_PUBLISHED_COURSES_SCORE = 30;
     private static final int MANY_MEMBERS_SCORE = 25;
     private static final int ACTIVE_ORGANIZATION_SCORE = 15;
-    private static final int PUBLIC_ORGANIZATION_SCORE = 10;
+    private static final int DISCOVERABLE_ORGANIZATION_SCORE = 10;
 
     public static final long MANY_PUBLISHED_COURSES_THRESHOLD = 3;
     public static final long MANY_MEMBERS_THRESHOLD = 5;
@@ -39,7 +39,8 @@ public class RecommendationScoringService {
             Instant recentCourseCutoff
     ) {
 
-        int score = 0;
+        int score =
+                DISCOVERABLE_COURSE_SCORE;
 
         if (Boolean.TRUE.equals(candidate.userOrganizationMember())) {
             score += JOINED_ORGANIZATION_COURSE_SCORE;
@@ -60,10 +61,6 @@ public class RecommendationScoringService {
             score += RECENT_COURSE_SCORE;
         }
 
-        if (Boolean.TRUE.equals(candidate.publicOrganization())) {
-            score += PUBLIC_COURSE_SCORE;
-        }
-
         return new RecommendationScore(
                 score,
                 courseReason(
@@ -79,7 +76,7 @@ public class RecommendationScoringService {
     ) {
 
         int score =
-                PUBLIC_ORGANIZATION_SCORE;
+                DISCOVERABLE_ORGANIZATION_SCORE;
 
         boolean hasManyPublishedCourses =
                 atLeast(
@@ -139,11 +136,7 @@ public class RecommendationScoringService {
             return RecommendationReason.RECENTLY_ADDED_COURSE;
         }
 
-        if (Boolean.TRUE.equals(candidate.publicOrganization())) {
-            return RecommendationReason.PUBLIC_COURSE;
-        }
-
-        return RecommendationReason.RECOMMENDED_FOR_YOU;
+        return RecommendationReason.DISCOVERABLE_COURSE;
     }
 
     private RecommendationReason organizationReason(
@@ -164,7 +157,7 @@ public class RecommendationScoringService {
             return RecommendationReason.ACTIVE_ORGANIZATION;
         }
 
-        return RecommendationReason.PUBLIC_ORGANIZATION;
+        return RecommendationReason.DISCOVERABLE_ORGANIZATION;
     }
 
     private boolean positive(

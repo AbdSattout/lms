@@ -1,0 +1,15 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "lms-email-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-08-15",
+	"observability": {
+		"enabled": true
+	},
+	"vars": {
+		"MAIL_HOST": "smtp.gmail.com",
+		"MAIL_PORT": "587",
+		"MAIL_SMTP_AUTH": "true",
+		"MAIL_SMTP_STARTTLS_ENABLE": "true"
+	}
+}

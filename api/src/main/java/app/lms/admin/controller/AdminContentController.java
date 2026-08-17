@@ -6,6 +6,7 @@ import app.lms.course.dto.CourseResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.post.dto.CommentResponse;
 import app.lms.post.dto.PostResponse;
+import app.lms.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,42 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminContentController {
 
     private final AdminContentService adminContentService;
+
+    @GetMapping("/users")
+    public ResponseEntity<Page<UserResponse>> getUsers(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminContentService.getUsers(
+                        admin.getId(),
+                        pageable
+                )
+        );
+    }
+
+    @GetMapping("/organizations")
+    public ResponseEntity<Page<OrganizationResponse>> getOrganizations(
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminContentService.getOrganizations(
+                        admin.getId(),
+                        pageable
+                )
+        );
+    }
 
     @GetMapping("/organizations/{organizationId}")
     public ResponseEntity<OrganizationResponse> getOrganization(
@@ -64,6 +101,28 @@ public class AdminContentController {
         );
     }
 
+    @GetMapping("/organizations/{organizationId}/posts")
+    public ResponseEntity<Page<PostResponse>> getOrganizationPosts(
+
+            @PathVariable
+            Long organizationId,
+
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminContentService.getOrganizationPosts(
+                        organizationId,
+                        admin.getId(),
+                        pageable
+                )
+        );
+    }
+
     @GetMapping("/organizations/{organizationId}/posts/{postId}")
     public ResponseEntity<PostResponse> getOrganizationPost(
 
@@ -82,6 +141,25 @@ public class AdminContentController {
                 adminContentService.getOrganizationPost(
                         organizationId,
                         postId,
+                        admin.getId()
+                )
+        );
+    }
+
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<CommentResponse> getComment(
+
+            @PathVariable
+            Long commentId,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminContentService.getComment(
+                        commentId,
                         admin.getId()
                 )
         );

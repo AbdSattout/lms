@@ -33,6 +33,11 @@ public interface OrganizationJoinRequestRepository extends JpaRepository<Organiz
             JoinRequestStatus status
     );
 
+    long countByOrganizationIdAndStatus(
+            Long organizationId,
+            JoinRequestStatus status
+    );
+
     Optional<OrganizationJoinRequest> findFirstByOrganizationIdAndUserIdOrderByCreatedAtDescIdDesc(
             Long organizationId,
             Long userId

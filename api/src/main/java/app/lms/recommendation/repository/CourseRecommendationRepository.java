@@ -3,7 +3,6 @@ package app.lms.recommendation.repository;
 import app.lms.course.enums.CourseStatus;
 import app.lms.course.model.Course;
 import app.lms.enrollment.enums.EnrollmentStatus;
-import app.lms.organization.enums.Visibility;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,8 +20,7 @@ public interface CourseRecommendationRepository
                     select new app.lms.recommendation.repository.CourseRecommendationCandidate(
                         course,
                         count(distinct popularityEnrollment.id),
-                        case when count(distinct organizationMember.id) > 0 then true else false end,
-                        case when organization.visibility = :publicVisibility then true else false end
+                        case when count(distinct organizationMember.id) > 0 then true else false end
                     )
                     from Course course
                     join course.organization organization
@@ -58,17 +56,12 @@ public interface CourseRecommendationRepository
                             or ban.expiresAt > CURRENT_TIMESTAMP
                         )
                     )
-                    and (
-                        organization.visibility = :publicVisibility
-                        or organizationMember.id is not null
-                    )
-                    group by course, organization.visibility
+                    group by course
                     order by
                         (
                             case when count(distinct organizationMember.id) > 0 then 50 else 0 end
                             + case when count(distinct popularityEnrollment.id) > 0 then 25 else 0 end
                             + case when course.createdAt >= :recentCourseCutoff then 15 else 0 end
-                            + case when organization.visibility = :publicVisibility then 10 else 0 end
                         ) desc,
                         count(distinct popularityEnrollment.id) desc,
                         course.createdAt desc
@@ -103,21 +96,11 @@ public interface CourseRecommendationRepository
                             or ban.expiresAt > CURRENT_TIMESTAMP
                         )
                     )
-                    and (
-                        organization.visibility = :publicVisibility
-                        or exists (
-                            select organizationMember.id
-                            from OrganizationMember organizationMember
-                            where organizationMember.organization.id = organization.id
-                            and organizationMember.user.id = :userId
-                        )
-                    )
                     """
     )
     Page<CourseRecommendationCandidate> findCandidates(
             @Param("userId") Long userId,
             @Param("publishedStatus") CourseStatus publishedStatus,
-            @Param("publicVisibility") Visibility publicVisibility,
             @Param("countedEnrollmentStatuses") Collection<EnrollmentStatus> countedEnrollmentStatuses,
             @Param("recentCourseCutoff") Instant recentCourseCutoff,
             Pageable pageable
