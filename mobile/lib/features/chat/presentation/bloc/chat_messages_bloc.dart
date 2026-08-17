@@ -46,9 +46,9 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
   }
 
   @override
-  Future<void> close() {
-    _pusherSubscription?.cancel();
-    unawaited(pusherService.dispose());
+  Future<void> close() async {
+    await _pusherSubscription?.cancel();
+    await pusherService.dispose();
     return super.close();
   }
 
@@ -61,8 +61,8 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     emit(ChatMessagesLoading());
 
     await pusherService.initialize();
+    _pusherSubscription ??= pusherService.events.listen(_handlePusherEvent);
     await pusherService.subscribe();
-    _pusherSubscription = pusherService.events.listen(_handlePusherEvent);
 
     try {
       final page = await getMessagesUseCase(conversationId, page: 0);
@@ -241,6 +241,8 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       final messages = [...current.messages];
       messages[existingIndex] = message;
       emit(current.copyWith(messages: messages, clearErrorMessage: true));
+      chatUpdatesNotifier.notify();
+      _markIncomingMessageRead(message);
       return;
     }
 
@@ -251,6 +253,7 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       ),
     );
     chatUpdatesNotifier.notify();
+    _markIncomingMessageRead(message);
   }
 
   Future<void> _deleteMessage(
@@ -269,6 +272,12 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       content: null,
     );
     emit(current.copyWith(messages: messages));
+    chatUpdatesNotifier.notify();
+  }
+
+  void _markIncomingMessageRead(MessageEntity message) {
+    if (currentUserId <= 0 || message.senderId == currentUserId) return;
+    add(MarkMessagesReadEvent(message.id));
   }
 
   Future<void> _markRead(
