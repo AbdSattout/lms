@@ -134,4 +134,26 @@ class EndPoints {
   static String followRoadmap(String slug, int roadmapId) =>
       'mobile/organizations/$slug/roadmaps/$roadmapId/follow';
   static const String myRoadmaps = 'mobile/roadmaps/following';
+
+  // AI Quiz
+  static String generateAiQuiz(int courseId) => 'mobile/ai/courses/$courseId/random-quiz';
+  static String submitAiQuiz(int courseId, int attemptId) => 'mobile/ai/courses/$courseId/random-quiz/attempts/$attemptId/submit';
+
+  // Random Quiz
+  static String generateRandomQuiz(int courseId) => 'mobile/courses/$courseId/random-quiz';
+  static String submitRandomQuiz(int courseId, int attemptId) => 'mobile/courses/$courseId/random-quiz/attempts/$attemptId/submit';
+
+  // Practice Quiz
+  static String practiceQuizList(int courseId) => 'mobile/courses/$courseId/practice-quizzes';
+  static String practiceQuizDetails(int courseId, int quizId) => 'mobile/courses/$courseId/practice-quizzes/$quizId';
+  static String submitPracticeQuiz(int courseId, int quizId) => 'mobile/courses/$courseId/practice-quizzes/$quizId/submit';
+
+  // Practice Exam
+  static String practiceExamList(int courseId) => 'mobile/courses/$courseId/practice-exams';
+  static String practiceExamDetails(int courseId, int examId) => 'mobile/courses/$courseId/practice-exams/$examId';
+  static String submitPracticeExam(int courseId, int examId) => 'mobile/courses/$courseId/practice-exams/$examId/submit';
+
+  // Final Exam
+  static String finalExam(int courseId) => 'mobile/courses/$courseId/quiz';
+  static String submitFinalExam(int courseId) => 'mobile/courses/$courseId/quiz/submit';
 }
