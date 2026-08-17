@@ -11,6 +11,7 @@ class CommentModel extends CommentEntity {
     required super.likeCount,
     required super.reactionCounts,
     super.viewerReaction,
+    super.viewerComment,
     super.createdAt,
     super.updatedAt,
   });
@@ -25,6 +26,7 @@ class CommentModel extends CommentEntity {
       likeCount: json['likeCount'] as int? ?? 0,
       reactionCounts: ReactionCountsModel.fromJson(json['reactionCounts'] as Map<String, dynamic>? ?? {}),
       viewerReaction: json['viewerReaction'] as String?,
+      viewerComment: json['viewerComment'] as bool? ?? false,
       createdAt: baseEntity?['createdAt'] as String?,
       updatedAt: baseEntity?['updatedAt'] as String?,
     );

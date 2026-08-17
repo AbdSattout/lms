@@ -103,7 +103,7 @@ class AuthRepositoryImpl extends AuthRepository {
       }
 
       return Right(cachedAuth);
-    } on CacheExeption {
+    } on CacheException {
       return const Right(null);
     } catch (e) {
       return Left(Failure(errMessage: "Failed to check cached authentication"));
@@ -134,7 +134,7 @@ class AuthRepositoryImpl extends AuthRepository {
     try {
       await localDataSource.cache.removeData(key: localDataSource.key);
     } catch (e) {
-      throw CacheExeption(
+      throw CacheException(
         errorMessage: "Failed to clear cached authentication",
       );
     }

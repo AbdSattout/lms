@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/markdown/markdown_content_view.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/relative_time.dart';
 import '../../domain/entities/post_entity.dart';
 
 class PostCard extends StatelessWidget {
@@ -61,7 +62,7 @@ class PostCard extends StatelessWidget {
                           Text(post.author.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: colors.onSurface)),
                           if (post.createdAt != null) ...[
                             const SizedBox(height: 2),
-                            Text(_formatDate(post.createdAt!), style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
+                            Text(formatRelativeTime(post.createdAt), style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
                           ],
                         ],
                       ),
@@ -80,7 +81,10 @@ class PostCard extends StatelessWidget {
 
                 Row(
                   children: [
-                    _ReactionSummary(reactionCounts: post.reactionCounts),
+                    _ReactionSummary(
+                      reactionCounts: post.reactionCounts,
+                      viewerReaction: post.viewerReaction,
+                    ),
                     const Spacer(),
                     InkWell(
                       onTap: onCommentTap,
@@ -106,39 +110,61 @@ class PostCard extends StatelessWidget {
       ),
     );
   }
-
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      final day = date.day.toString().padLeft(2, '0');
-      final month = date.month.toString().padLeft(2, '0');
-      final year = date.year;
-      final hour = date.hour.toString().padLeft(2, '0');
-      final minute = date.minute.toString().padLeft(2, '0');
-      return '$day/$month/$year $hour:$minute';
-    } catch (_) {
-      return dateStr;
-    }
-  }
 }
 
 class _ReactionSummary extends StatelessWidget {
   final dynamic reactionCounts;
-  const _ReactionSummary({required this.reactionCounts});
+  final String? viewerReaction;
+
+  const _ReactionSummary({
+    required this.reactionCounts,
+    this.viewerReaction,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final total = reactionCounts.total as int;
-    if (total == 0) return const SizedBox();
 
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.favorite_border_rounded, size: 16, color: const Color(0xffD9534F)),
-        const SizedBox(width: 4),
-        Text('$total', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
-      ],
+    final (emoji, label, color) = switch (viewerReaction) {
+      'LIKE' => ('👍', 'إعجاب', const Color(0xff2563EB)),
+      'LOVE' => ('❤️', 'حب', const Color(0xffD9534F)),
+      'SUPPORT' => ('🤝', 'دعم', const Color(0xff2E7D53)),
+      'CELEBRATE' => ('🎉', 'احتفال', const Color(0xffF2C94C)),
+      'INSIGHTFUL' => ('💡', 'مفيد', const Color(0xff9B51E0)),
+      _ => (null, null, null),
+    };
+
+    if (total == 0 && viewerReaction == null) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: viewerReaction != null
+            ? color!.withOpacity(0.1)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (emoji != null)
+            Text(emoji, style: const TextStyle(fontSize: 14))
+          else
+            Icon(Icons.favorite_border_rounded, size: 16, color: colors.onSurfaceVariant),
+          if (total > 0) ...[
+            const SizedBox(width: 5),
+            Text(
+              '$total',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: viewerReaction != null ? color : colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

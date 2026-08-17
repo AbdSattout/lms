@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../core/markdown/markdown_content_view.dart';
 import '../../../../../core/services/injection_container.dart';
 import '../../../core/presentation/widgets/quiz_option_tile.dart';
 import '../bloc/practice_exam_bloc.dart';
@@ -130,7 +131,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text('سؤال ${index + 1} من ${state.totalQuestions}', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 10),
-                  Text(question.content, style: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800, color: colors.onSurface, height: 1.4)),
+                  MarkdownContentView(content: question.content),
                   const SizedBox(height: 24),
                   ...question.options.asMap().entries.map((entry) {
                     return QuizOptionTile(

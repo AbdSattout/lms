@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/markdown/markdown_content_view.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/course_entity.dart';
 import '../../domain/entities/placement_test_entity.dart';
@@ -121,15 +122,7 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                           color: Theme.of(context).dividerColor,
                         ),
                       ),
-                      child: Text(
-                        question.content,
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: colors.onSurface,
-                          height: 1.5,
-                        ),
-                      ),
+                      child: MarkdownContentView(content: question.content),
                     ),
 
                     const SizedBox(height: 20),

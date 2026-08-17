@@ -16,7 +16,7 @@ class AuthLocalDataSource {
         value: json.encode(authToCache.toJson()),
       );
     } else {
-      throw CacheExeption(errorMessage: "No data to cache");
+      throw CacheException(errorMessage: "No data to cache");
     }
   }
 
@@ -26,7 +26,7 @@ class AuthLocalDataSource {
     if (jsonString != null) {
       return Future.value(AuthModel.fromJson(json.decode(jsonString)));
     } else {
-      throw CacheExeption(errorMessage: "No cached token found");
+      throw CacheException(errorMessage: "No cached token found");
     }
   }
 }

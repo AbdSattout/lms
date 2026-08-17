@@ -5,10 +5,10 @@ class ServerException implements Exception {
   final ErrorModel errorModel;
   ServerException(this.errorModel);
 }
-//!CacheExeption
-class CacheExeption implements Exception {
+//!CacheException
+class CacheException implements Exception {
   final String errorMessage;
-  CacheExeption({required this.errorMessage});
+  CacheException({required this.errorMessage});
 }
 
 class BadCertificateException extends ServerException {
