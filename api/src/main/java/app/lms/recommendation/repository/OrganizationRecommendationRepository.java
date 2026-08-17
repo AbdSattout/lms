@@ -1,7 +1,6 @@
 package app.lms.recommendation.repository;
 
 import app.lms.course.enums.CourseStatus;
-import app.lms.organization.enums.Visibility;
 import app.lms.organization.model.Organization;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,8 +32,7 @@ public interface OrganizationRecommendationRepository
                         and recentPublishedCourse.createdAt >= :recentCourseCutoff
                     left join OrganizationMember member
                         on member.organization.id = organization.id
-                    where organization.visibility = :publicVisibility
-                    and not exists (
+                    where not exists (
                         select moderation.id
                         from OrganizationModeration moderation
                         where moderation.organization.id = organization.id
@@ -75,8 +73,7 @@ public interface OrganizationRecommendationRepository
             countQuery = """
                     select count(organization)
                     from Organization organization
-                    where organization.visibility = :publicVisibility
-                    and not exists (
+                    where not exists (
                         select moderation.id
                         from OrganizationModeration moderation
                         where moderation.organization.id = organization.id
@@ -105,7 +102,6 @@ public interface OrganizationRecommendationRepository
     )
     Page<OrganizationRecommendationCandidate> findCandidates(
             @Param("userId") Long userId,
-            @Param("publicVisibility") Visibility publicVisibility,
             @Param("publishedStatus") CourseStatus publishedStatus,
             @Param("recentCourseCutoff") Instant recentCourseCutoff,
             @Param("manyPublishedCoursesThreshold") long manyPublishedCoursesThreshold,

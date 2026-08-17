@@ -5,7 +5,6 @@ import app.lms.course.enums.CourseStatus;
 import app.lms.course.service.CourseLearningSummaryService;
 import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.organization.dto.OrganizationViewerResponse;
-import app.lms.organization.enums.Visibility;
 import app.lms.organization.service.OrganizationViewerService;
 import app.lms.recommendation.dto.RecommendationScore;
 import app.lms.recommendation.dto.RecommendedCourseResponse;
@@ -47,7 +46,6 @@ public class CourseRecommendationService {
                 courseRecommendationRepository.findCandidates(
                         user.getId(),
                         CourseStatus.PUBLISHED,
-                        Visibility.PUBLIC,
                         List.of(
                                 EnrollmentStatus.ACTIVE,
                                 EnrollmentStatus.COMPLETED

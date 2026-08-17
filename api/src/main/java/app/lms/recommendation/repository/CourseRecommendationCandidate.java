@@ -5,7 +5,6 @@ import app.lms.course.model.Course;
 public record CourseRecommendationCandidate(
         Course course,
         Long enrollmentCount,
-        Boolean userOrganizationMember,
-        Boolean publicOrganization
+        Boolean userOrganizationMember
 ) {
 }
