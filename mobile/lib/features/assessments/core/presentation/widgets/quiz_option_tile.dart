@@ -4,14 +4,14 @@ class QuizOptionTile extends StatelessWidget {
   final String option;
   final int index;
   final bool isSelected;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const QuizOptionTile({
     super.key,
     required this.option,
     required this.index,
     required this.isSelected,
-    required this.onTap,
+    this.onTap,
   });
 
   @override

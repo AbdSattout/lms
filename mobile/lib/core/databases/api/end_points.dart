@@ -139,4 +139,13 @@ class EndPoints {
   static String practiceQuizList(int courseId) => 'mobile/courses/$courseId/practice-quizzes';
   static String practiceQuizDetails(int courseId, int quizId) => 'mobile/courses/$courseId/practice-quizzes/$quizId';
   static String submitPracticeQuiz(int courseId, int quizId) => 'mobile/courses/$courseId/practice-quizzes/$quizId/submit';
+
+  // Practice Exam
+  static String practiceExamList(int courseId) => 'mobile/courses/$courseId/practice-exams';
+  static String practiceExamDetails(int courseId, int examId) => 'mobile/courses/$courseId/practice-exams/$examId';
+  static String submitPracticeExam(int courseId, int examId) => 'mobile/courses/$courseId/practice-exams/$examId/submit';
+
+  // Final Exam
+  static String finalExam(int courseId) => 'mobile/courses/$courseId/quiz';
+  static String submitFinalExam(int courseId) => 'mobile/courses/$courseId/quiz/submit';
 }

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lms/features/assessments/practice_quiz/presentation/pages/practice_quiz_list_page.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../assessments/ai_quiz/presentation/pages/ai_quiz_page.dart';
+import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
+import '../../../assessments/practice_exam/presentation/pages/practice_exam_list_page.dart';
 import '../../../assessments/random_quiz/presentation/pages/random_quiz_config_page.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/block_content_bloc.dart';
@@ -210,8 +213,12 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                               title: 'اختبار تدريبي',
                               subtitle: 'تضعه المنظمة',
                               badge: 'بدون XP',
-                              onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الاختبار التدريبي قريباً'))),
-                            ),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => PracticeQuizListPage(courseId: course.id)),
+                                );
+                              },                            ),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -223,14 +230,24 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                               subtitle: 'تضعه المنظمة',
                               badge: '+ XP',
                               badgeColor: const Color(0xff2E7D53),
-                              onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الامتحان التدريبي قريباً'))),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => PracticeExamListPage(courseId: course.id)),
+                                );
+                              },
                             ),
                           ),
                         ]),
                         const SizedBox(height: 10),
 
                         _FinalQuizCard(
-                          onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('الاختبار النهائي سيكون متاحاً بعد إكمال جميع الدروس'))),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => FinalExamPage(courseId: course.id)),
+                            );
+                          },
                         ),
                         const SizedBox(height: 28),
                         _SectionHeader(icon: Icons.menu_book_rounded, title: 'محتوى الدورة'),

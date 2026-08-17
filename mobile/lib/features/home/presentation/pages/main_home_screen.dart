@@ -1452,16 +1452,16 @@ class _EmptyState extends StatelessWidget {
           children: [
             Icon(
               icon,
-              size: 30,
-              color: colors.onSurfaceVariant,
+              size: 60,
+              color: colors.primary,
             ),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontSize: 13,
+                color: colors.primary,
+                fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1630,7 +1630,7 @@ class _NotificationBellButton
         final iconColor =
         hasBadge
             ? activeColor
-            : colors.onSurfaceVariant;
+            : colors.primary;
 
         return Tooltip(
           message: 'الإشعارات',

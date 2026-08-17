@@ -5,6 +5,19 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/assessments/final_exam/data/datasources/final_exam_remote_datasource.dart';
+import '../../features/assessments/final_exam/data/repositories/final_exam_repository_impl.dart';
+import '../../features/assessments/final_exam/domain/repositories/final_exam_repository.dart';
+import '../../features/assessments/final_exam/domain/usecases/get_final_exam_usecase.dart';
+import '../../features/assessments/final_exam/domain/usecases/submit_final_exam_usecase.dart';
+import '../../features/assessments/final_exam/presesntation/bloc/final_exam_bloc.dart';
+import '../../features/assessments/practice_exam/data/datasources/practice_exam_remote_datasource.dart';
+import '../../features/assessments/practice_exam/data/repositories/practice_exam_repository_impl.dart';
+import '../../features/assessments/practice_exam/domain/repositories/practice_exam_repository.dart';
+import '../../features/assessments/practice_exam/domain/usecases/get_practice_exam_details_usecase.dart';
+import '../../features/assessments/practice_exam/domain/usecases/get_practice_exam_list_usecase.dart';
+import '../../features/assessments/practice_exam/domain/usecases/submit_practice_exam_usecase.dart';
+import '../../features/assessments/practice_exam/presentation/bloc/practice_exam_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/courses/data/datasources/block_remote_datasource.dart';
@@ -520,6 +533,25 @@ Future<void> init() async {
     getDetails: sl(),
     submit: sl(),
   ));
+
+  // Practice Exam
+  sl.registerLazySingleton<PracticeExamRemoteDataSource>(() => PracticeExamRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<PracticeExamRepository>(() => PracticeExamRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetPracticeExamListUseCase(sl()));
+  sl.registerLazySingleton(() => GetPracticeExamDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPracticeExamUseCase(sl()));
+  sl.registerFactory(() => PracticeExamBloc(
+    getList: sl(),
+    getDetails: sl(),
+    submit: sl(),
+  ));
+
+  // Final Exam
+  sl.registerLazySingleton<FinalExamRemoteDataSource>(() => FinalExamRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<FinalExamRepository>(() => FinalExamRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetFinalExamUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitFinalExamUseCase(sl()));
+  sl.registerFactory(() => FinalExamBloc(getExam: sl(), submit: sl()));
   
   // Home
   sl.registerFactory(
