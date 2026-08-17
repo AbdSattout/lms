@@ -21,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -55,12 +55,20 @@ jobs:
         working-directory: mobile
         run: flutter pub get
 
+      - name: Cache Gradle
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('mobile/android/gradle/wrapper/gradle-wrapper.properties', 'mobile/android/build.gradle.kts', 'mobile/android/app/build.gradle.kts', 'mobile/android/settings.gradle.kts', 'mobile/android/gradle.properties') }}
+
       - name: Build APK
         working-directory: mobile
         run: flutter build apk --release --target-platform=android-arm64 --dart-define="BASE_URL=${API_URL:-}" --dart-define="PUSHER_APP_KEY=${PUSHER_APP_KEY:-}" --dart-define="PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER:-mt1}"
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: app-release-apk
           path: mobile/build/app/outputs/flutter-apk/*.apk
