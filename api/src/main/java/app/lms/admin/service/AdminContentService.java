@@ -10,6 +10,7 @@ import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.model.Organization;
 import app.lms.post.dto.CommentResponse;
 import app.lms.post.dto.PostResponse;
+import app.lms.post.model.Comment;
 import app.lms.post.model.Post;
 import app.lms.post.repository.CommentRepository;
 import app.lms.post.repository.PostRepository;
@@ -105,6 +106,29 @@ public class AdminContentService {
 
         return postResponseService.build(
                 post,
+                null
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CommentResponse getComment(
+            Long commentId,
+            Long adminId
+    ) {
+
+        validateAdmin(adminId);
+
+        Comment comment =
+                commentRepository
+                        .findById(commentId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "Comment not found"
+                                )
+                        );
+
+        return commentResponseService.build(
+                comment,
                 null
         );
     }

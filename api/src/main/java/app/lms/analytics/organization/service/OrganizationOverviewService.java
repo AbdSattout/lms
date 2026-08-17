@@ -8,6 +8,8 @@ import app.lms.media.repository.OrganizationMediaRepository;
 import app.lms.organization.OrganizationBan.repository.OrganizationBanRepository;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
+import app.lms.organization.organizationJoinRequest.enums.JoinRequestStatus;
+import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.service.OrganizationAccessService;
 import app.lms.plan.enums.PlanCode;
@@ -32,6 +34,8 @@ public class OrganizationOverviewService {
     private final OrganizationMemberRepository organizationMemberRepository;
 
     private final OrganizationBanRepository organizationBanRepository;
+
+    private final OrganizationJoinRequestRepository organizationJoinRequestRepository;
 
     private final CourseRepository courseRepository;
 
@@ -85,6 +89,10 @@ public class OrganizationOverviewService {
                         )
                 )
 
+                .visibility(
+                        organization.getVisibility()
+                )
+
                 .membersCount(
                         organizationMemberRepository
                                 .countByOrganizationId(
@@ -105,6 +113,14 @@ public class OrganizationOverviewService {
                                 .countByOrganizationIdAndRole(
                                         organization.getId(),
                                         Role.STUDENT
+                                )
+                )
+
+                .joinRequestsCount(
+                        organizationJoinRequestRepository
+                                .countByOrganizationIdAndStatus(
+                                        organization.getId(),
+                                        JoinRequestStatus.PENDING
                                 )
                 )
 
