@@ -98,7 +98,6 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       await reactToPost(event.postId, event.reactionType);
       _comments = await getComments(_currentPost!.id);
 
-      // Determine new viewerReaction
       String? newViewerReaction;
       final oldReaction = _currentPost?.viewerReaction;
       final isRemoving = oldReaction == event.reactionType;
@@ -109,7 +108,6 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
         newViewerReaction = event.reactionType;
       }
 
-      // Build updated reaction counts
       final oldCounts = _currentPost!.reactionCounts;
       ReactionCountsModel newCounts = ReactionCountsModel(
         like: oldCounts.like,
@@ -119,12 +117,10 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
         insightful: oldCounts.insightful,
       );
 
-      // Decrement old reaction if switching
       if (oldReaction != null) {
         newCounts = _decrementReaction(newCounts, oldReaction);
       }
 
-      // Increment new reaction if adding (not removing same)
       if (!isRemoving) {
         newCounts = _incrementReaction(newCounts, event.reactionType);
       }

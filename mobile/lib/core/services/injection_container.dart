@@ -5,6 +5,19 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:data_connection_checker_tv/data_connection_checker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/assessments/final_exam/data/datasources/final_exam_remote_datasource.dart';
+import '../../features/assessments/final_exam/data/repositories/final_exam_repository_impl.dart';
+import '../../features/assessments/final_exam/domain/repositories/final_exam_repository.dart';
+import '../../features/assessments/final_exam/domain/usecases/get_final_exam_usecase.dart';
+import '../../features/assessments/final_exam/domain/usecases/submit_final_exam_usecase.dart';
+import '../../features/assessments/final_exam/presesntation/bloc/final_exam_bloc.dart';
+import '../../features/assessments/practice_exam/data/datasources/practice_exam_remote_datasource.dart';
+import '../../features/assessments/practice_exam/data/repositories/practice_exam_repository_impl.dart';
+import '../../features/assessments/practice_exam/domain/repositories/practice_exam_repository.dart';
+import '../../features/assessments/practice_exam/domain/usecases/get_practice_exam_details_usecase.dart';
+import '../../features/assessments/practice_exam/domain/usecases/get_practice_exam_list_usecase.dart';
+import '../../features/assessments/practice_exam/domain/usecases/submit_practice_exam_usecase.dart';
+import '../../features/assessments/practice_exam/presentation/bloc/practice_exam_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
 import '../../features/auth/presentation/bloc/auth_event.dart';
 import '../../features/courses/data/datasources/block_remote_datasource.dart';
@@ -148,6 +161,31 @@ import '../../features/roadmaps/domain/usecases/follow_roadmap_usecase.dart';
 import '../../features/roadmaps/domain/usecases/unfollow_roadmap_usecase.dart';
 import '../../features/roadmaps/presentation/bloc/roadmap_bloc.dart';
 
+// AI Quiz
+import '../../features/assessments/ai_quiz/data/datasources/ai_quiz_remote_datasource.dart';
+import '../../features/assessments/ai_quiz/data/repositories/ai_quiz_repository_impl.dart';
+import '../../features/assessments/ai_quiz/domain/repositories/ai_quiz_repository.dart';
+import '../../features/assessments/ai_quiz/domain/usecases/generate_ai_quiz_usecase.dart';
+import '../../features/assessments/ai_quiz/domain/usecases/submit_ai_quiz_usecase.dart';
+import '../../features/assessments/ai_quiz/presentation/bloc/ai_quiz_bloc.dart';
+
+// Random Quiz
+import '../../features/assessments/random_quiz/data/datasources/random_quiz_remote_datasource.dart';
+import '../../features/assessments/random_quiz/data/repositories/random_quiz_repository_impl.dart';
+import '../../features/assessments/random_quiz/domain/repositories/random_quiz_repository.dart';
+import '../../features/assessments/random_quiz/domain/usecases/generate_random_quiz_usecase.dart';
+import '../../features/assessments/random_quiz/domain/usecases/submit_random_quiz_usecase.dart';
+import '../../features/assessments/random_quiz/presentation/bloc/random_quiz_bloc.dart';
+
+// Practice Quiz
+import '../../features/assessments/practice_quiz/data/datasources/practice_quiz_remote_datasource.dart';
+import '../../features/assessments/practice_quiz/data/repositories/practice_quiz_repository_impl.dart';
+import '../../features/assessments/practice_quiz/domain/repositories/practice_quiz_repository.dart';
+import '../../features/assessments/practice_quiz/domain/usecases/get_practice_quiz_list_usecase.dart';
+import '../../features/assessments/practice_quiz/domain/usecases/get_practice_quiz_details_usecase.dart';
+import '../../features/assessments/practice_quiz/domain/usecases/submit_practice_quiz_usecase.dart';
+import '../../features/assessments/practice_quiz/presentation/bloc/practice_quiz_bloc.dart';
+
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -214,13 +252,18 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(() {
-    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
-    consumer.onTokenInvalid = () {
-      sl<AuthBloc>().add(LogoutRequested());
-    };
-    return consumer;
-  });
+  sl.registerLazySingleton<ApiConsumer>(
+        () {
+      final consumer = DioConsumer(
+        dio: sl(),
+        authLocalDataSource: sl(),
+      );
+      consumer.onTokenInvalid = () {
+        sl<AuthBloc>().add(LogoutRequested());
+      };
+      return consumer;
+    },
+  );
 
   sl.registerLazySingleton(
     () => Dio(
@@ -485,6 +528,59 @@ Future<void> init() async {
       getMyRoadmaps: sl(),
     ),
   );
+  sl.registerFactory(() => RoadmapBloc(
+    getOrganizationRoadmaps: sl(),
+    getRoadmapDetails: sl(),
+    followRoadmap: sl(),
+    unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
+  ));
+
+  //Ai Quiz
+  sl.registerLazySingleton<AiQuizRemoteDataSource>(() => AiQuizRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<AiQuizRepository>(() => AiQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GenerateAiQuizUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitAiQuizUseCase(sl()));
+  sl.registerFactory(() => AiQuizBloc(generateAiQuiz: sl(), submitAiQuiz: sl()));
+
+  //Random Quiz
+  sl.registerLazySingleton<RandomQuizRemoteDataSource>(() => RandomQuizRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<RandomQuizRepository>(() => RandomQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GenerateRandomQuizUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitRandomQuizUseCase(sl()));
+  sl.registerFactory(() => RandomQuizBloc(generateRandomQuiz: sl(), submitRandomQuiz: sl()));
+
+  // Practice Quiz
+  sl.registerLazySingleton<PracticeQuizRemoteDataSource>(() => PracticeQuizRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<PracticeQuizRepository>(() => PracticeQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetPracticeQuizListUseCase(sl()));
+  sl.registerLazySingleton(() => GetPracticeQuizDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPracticeQuizUseCase(sl()));
+  sl.registerFactory(() => PracticeQuizBloc(
+    getList: sl(),
+    getDetails: sl(),
+    submit: sl(),
+  ));
+
+  // Practice Exam
+  sl.registerLazySingleton<PracticeExamRemoteDataSource>(() => PracticeExamRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<PracticeExamRepository>(() => PracticeExamRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetPracticeExamListUseCase(sl()));
+  sl.registerLazySingleton(() => GetPracticeExamDetailsUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitPracticeExamUseCase(sl()));
+  sl.registerFactory(() => PracticeExamBloc(
+    getList: sl(),
+    getDetails: sl(),
+    submit: sl(),
+  ));
+
+  // Final Exam
+  sl.registerLazySingleton<FinalExamRemoteDataSource>(() => FinalExamRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<FinalExamRepository>(() => FinalExamRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetFinalExamUseCase(sl()));
+  sl.registerLazySingleton(() => SubmitFinalExamUseCase(sl()));
+  sl.registerFactory(() => FinalExamBloc(getExam: sl(), submit: sl()));
+
   // Home
   sl.registerFactory(
     () => HomeBloc(
@@ -492,6 +588,8 @@ Future<void> init() async {
       getRecommendedOrganizationsUseCase: sl(),
     ),
   );
+
+
 
   //! External
 

@@ -38,9 +38,9 @@ class MyRoadmapsPage extends StatelessWidget {
                 if (state.roadmaps.isEmpty) {
                   return Center(
                     child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.map_outlined, size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      Icon(Icons.map_outlined, size: 64, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(height: 16),
-                      Text('لم تتابع أي مسار بعد', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      Text('لم تتابع أي مسار بعد', style: TextStyle(fontSize: 24,color: Theme.of(context).colorScheme.primary)),
                     ]),
                   );
                 }

@@ -29,27 +29,27 @@ public class ReportService {
             User reporter
     ) {
 
-        reportAccessService.validateTarget(
-                request.targetType(),
-                request.targetId()
-        );
+        Long targetId =
+                reportAccessService.resolveTargetId(
+                        request
+                );
 
         reportAccessService.validateNotReportingYourself(
                 reporter,
                 request.targetType(),
-                request.targetId()
+                targetId
         );
 
         reportAccessService.validateDuplicate(
                 reporter,
                 request.targetType(),
-                request.targetId()
+                targetId
         );
 
         Report report = Report.builder()
                 .reporter(reporter)
                 .targetType(request.targetType())
-                .targetId(request.targetId())
+                .targetId(targetId)
                 .reason(request.reason())
                 .status(ReportStatus.PENDING)
                 .build();

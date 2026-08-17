@@ -9,8 +9,15 @@ public record CreateReportRequest(
         @NotNull
         ReportTargetType targetType,
 
-        @NotNull
-        Long targetId,
+        Long userId,
+
+        Long organizationId,
+
+        Long courseId,
+
+        Long postId,
+
+        Long commentId,
 
         @NotNull
         @Size(max = 1000)
