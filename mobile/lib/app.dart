@@ -60,15 +60,17 @@ class _MyAppState extends State<MyApp> {
           value: widget.authBloc,
           child: BlocListener<AuthBloc, AuthState>(
             listenWhen: (previous, current) =>
-            current is Authenticated || current is AuthSuccess || current is Unauthenticated,
+                current is Authenticated ||
+                current is AuthSuccess ||
+                current is Unauthenticated,
             listener: (context, state) {
               _syncMessagingForAuthState(state);
 
-              if (state is Unauthenticated) {
-                _navigatorKey.currentState?.pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const TelegramLoginPage()),
-                      (route) => false,
-                );
+              final authEntity = _authEntityFromState(state);
+              if (authEntity != null) {
+                _replaceRoot(_buildAuthenticatedEntryPoint(authEntity));
+              } else if (state is Unauthenticated) {
+                _replaceRoot(const TelegramLoginPage());
               }
             },
             child: ImmersiveModeGuard(
@@ -105,9 +107,9 @@ class _MyAppState extends State<MyApp> {
                         body: Center(child: CircularProgressIndicator()),
                       );
                     } else if (state is Authenticated) {
-                      return MainHomeScreen(userAuthData: state.authEntity);
+                      return _buildAuthenticatedEntryPoint(state.authEntity);
                     } else if (state is AuthSuccess) {
-                      return MainHomeScreen(userAuthData: state.authEntity);
+                      return _buildAuthenticatedEntryPoint(state.authEntity);
                     } else {
                       return const TelegramLoginPage();
                     }
@@ -166,17 +168,7 @@ class _MyAppState extends State<MyApp> {
 
     final authEntity = _authEntityFromState(state);
     if (authEntity != null) {
-      return BlocProvider(
-        key: ValueKey('public-invite-$token'),
-        create: (_) => sl<PublicOrganizationInviteBloc>(),
-        child: PublicOrganizationInvitePage(
-          token: token,
-          isAuthenticated: true,
-          onDismiss: _clearPendingInvite,
-          onSignInRequested: () {},
-          onAccepted: _clearPendingInvite,
-        ),
-      );
+      return _buildAuthenticatedEntryPoint(authEntity);
     }
 
     if (_showInviteLogin) {
@@ -202,6 +194,37 @@ class _MyAppState extends State<MyApp> {
     if (state is Authenticated) return state.authEntity;
     if (state is AuthSuccess) return state.authEntity;
     return null;
+  }
+
+  Widget _buildAuthenticatedEntryPoint(AuthEntity authEntity) {
+    final inviteToken = _pendingInviteToken;
+    if (inviteToken != null) {
+      return BlocProvider(
+        key: ValueKey('public-invite-$inviteToken'),
+        create: (_) => sl<PublicOrganizationInviteBloc>(),
+        child: PublicOrganizationInvitePage(
+          token: inviteToken,
+          isAuthenticated: true,
+          onDismiss: () => _clearPendingInviteAndShowHome(authEntity),
+          onSignInRequested: () {},
+          onAccepted: () => _clearPendingInviteAndShowHome(authEntity),
+        ),
+      );
+    }
+
+    return MainHomeScreen(userAuthData: authEntity);
+  }
+
+  void _clearPendingInviteAndShowHome(AuthEntity authEntity) {
+    _clearPendingInvite();
+    _replaceRoot(MainHomeScreen(userAuthData: authEntity));
+  }
+
+  void _replaceRoot(Widget page) {
+    _navigatorKey.currentState?.pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => page),
+      (route) => false,
+    );
   }
 
   void _syncMessagingForAuthState(AuthState state) {

@@ -2,6 +2,7 @@ package app.lms.organization.controller;
 
 import app.lms.moderation.dto.BanRequest;
 import app.lms.organization.dto.CreateOrganizationRequest;
+import app.lms.organization.dto.OrganizationBannedUserResponse;
 import app.lms.organization.dto.OrganizationMemberResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.organization.dto.OrganizationUserSearchResponse;
@@ -220,6 +221,28 @@ public class DashboardOrganizationController {
                 dashboardOrganizationService.getMembersByRole(
                         slug,
                         Role.STUDENT,
+                        pageable,
+                        principal.user()
+                )
+        );
+    }
+
+    @GetMapping("/{slug}/users/banned")
+    public ResponseEntity<Page<OrganizationBannedUserResponse>> getBannedUsers(
+
+            @PathVariable
+            String slug,
+
+            @PageableDefault(size = 20)
+            Pageable pageable,
+
+            @AuthenticationPrincipal
+            UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardOrganizationService.getBannedUsers(
+                        slug,
                         pageable,
                         principal.user()
                 )

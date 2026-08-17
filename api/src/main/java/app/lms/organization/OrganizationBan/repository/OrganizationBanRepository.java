@@ -1,6 +1,8 @@
 package app.lms.organization.OrganizationBan.repository;
 
 import app.lms.organization.OrganizationBan.model.OrganizationBan;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,6 +38,34 @@ public interface OrganizationBanRepository
             """)
     long countActiveByOrganizationId(
             @Param("organizationId") Long organizationId
+    );
+
+    @Query(
+            value = """
+                    select ban
+                    from OrganizationBan ban
+                    join fetch ban.user
+                    left join fetch ban.bannedByOrgAdmins
+                    left join fetch ban.bannedByAppAdmins
+                    where ban.organization.id = :organizationId
+                    and (
+                        ban.expiresAt is null
+                        or ban.expiresAt > CURRENT_TIMESTAMP
+                    )
+                    """,
+            countQuery = """
+                    select count(ban)
+                    from OrganizationBan ban
+                    where ban.organization.id = :organizationId
+                    and (
+                        ban.expiresAt is null
+                        or ban.expiresAt > CURRENT_TIMESTAMP
+                    )
+                    """
+    )
+    Page<OrganizationBan> findAllActiveByOrganizationId(
+            @Param("organizationId") Long organizationId,
+            Pageable pageable
     );
 
     Optional<OrganizationBan> findByOrganizationIdAndUserId(

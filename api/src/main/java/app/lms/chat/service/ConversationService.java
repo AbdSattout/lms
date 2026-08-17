@@ -3,20 +3,27 @@ package app.lms.chat.service;
 
 import app.lms.chat.dto.ConversationResponse;
 import app.lms.chat.enums.ConversationType;
+import app.lms.chat.exception.ChatAccessDeniedException;
 import app.lms.chat.mapper.ConversationMapper;
 import app.lms.chat.model.Conversation;
 import app.lms.chat.model.ConversationMember;
 import app.lms.chat.repository.ConversationMemberRepository;
 import app.lms.chat.repository.ConversationRepository;
 import app.lms.course.model.Course;
+import app.lms.course.service.CourseAccessService;
+import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.friend.service.FriendService;
+import app.lms.organization.enums.Role;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,11 +41,17 @@ public class ConversationService {
 
     private final FriendService friendService;
 
+    private final CourseAccessService courseAccessService;
+
     @Transactional
     public Conversation getOrCreateDirectConversation(
             User currentUser,
             User targetUser
     ) {
+
+        validateAuthenticated(
+                currentUser
+        );
 
         Long userOneId = Math.min(
                 currentUser.getId(),
@@ -153,6 +166,10 @@ public class ConversationService {
     @Transactional
     public ConversationResponse directConversation(Long userId, User currentUser) {
 
+        validateAuthenticated(
+                currentUser
+        );
+
         User targetUser =
                 userRepository
                         .findById(userId)
@@ -171,6 +188,57 @@ public class ConversationService {
         return conversationMapper
                 .toResponse(conversation);
 
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ConversationResponse> listConversations(
+            Pageable pageable,
+            User currentUser
+    ) {
+
+        validateAuthenticated(
+                currentUser
+        );
+
+        return conversationRepository
+                .findAccessibleByUserId(
+                        currentUser.getId(),
+                        ConversationType.DIRECT,
+                        ConversationType.COURSE,
+                        EnrollmentStatus.ACTIVE,
+                        List.of(
+                                Role.OWNER,
+                                Role.ADMIN
+                        ),
+                        pageable
+                )
+                .map(conversationMapper::toResponse);
+    }
+
+    @Transactional
+    public ConversationResponse courseConversation(
+            Long courseId,
+            User currentUser
+    ) {
+
+        validateAuthenticated(
+                currentUser
+        );
+
+        Course course =
+                courseAccessService.getEnrolledCourse(
+                        courseId,
+                        currentUser
+                );
+
+        Conversation conversation =
+                getOrCreateCourseConversation(
+                        course
+                );
+
+        return conversationMapper.toResponse(
+                conversation
+        );
     }
 
     @Transactional
@@ -197,5 +265,16 @@ public class ConversationService {
                 });
     }
 
+    private void validateAuthenticated(
+            User user
+    ) {
+
+        if (user == null
+                || user.getId() == null) {
+            throw new ChatAccessDeniedException(
+                    "Authentication required"
+            );
+        }
+    }
 
 }

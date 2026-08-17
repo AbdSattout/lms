@@ -1,4 +1,3 @@
-// components/owner-dialog.tsx
 "use client"
 
 import Image from "next/image"

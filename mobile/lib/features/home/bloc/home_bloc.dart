@@ -1,54 +1,60 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/api_error_resolver.dart';
-import '../../courses/domain/entities/course_entity.dart';
-import '../../courses/domain/usecases/get_all_courses_usecase.dart';
-import '../../organizations/domain/entities/organization_entity.dart';
-import '../../organizations/domain/usecases/get_all_organizations_usecase.dart';
+import '../../recommendations/domain/entities/recommended_course_entity.dart';
+import '../../recommendations/domain/entities/recommended_organization_entity.dart';
+import '../../recommendations/domain/usecases/get_recommended_courses_usecase.dart';
+import '../../recommendations/domain/usecases/get_recommended_organizations_usecase.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final GetAllCoursesUseCase getAllCoursesUseCase;
-  final GetAllOrganizationsUseCase getAllOrganizationsUseCase;
+  final GetRecommendedCoursesUseCase getRecommendedCoursesUseCase;
+  final GetRecommendedOrganizationsUseCase getRecommendedOrganizationsUseCase;
 
   HomeBloc({
-    required this.getAllCoursesUseCase,
-    required this.getAllOrganizationsUseCase,
+    required this.getRecommendedCoursesUseCase,
+    required this.getRecommendedOrganizationsUseCase,
   }) : super(HomeLoading()) {
     on<GetHomeDataEvent>(_getHomeData);
   }
 
   Future<void> _getHomeData(
-      GetHomeDataEvent event,
-      Emitter<HomeState> emit,
-      ) async {
+    GetHomeDataEvent event,
+    Emitter<HomeState> emit,
+  ) async {
     emit(HomeLoading());
 
-    List<CourseEntity>? courses;
+    List<RecommendedCourseEntity>? recommendedCourses;
     String? coursesError;
 
-    List<OrganizationEntity>? organizations;
+    List<RecommendedOrganizationEntity>? recommendedOrganizations;
     String? organizationsError;
 
     await Future.wait([
-      getAllCoursesUseCase().then((result) {
-        courses = result;
-      }).catchError((e) {
-        coursesError = resolveApiErrorMessage(e);
-      }),
+      getRecommendedCoursesUseCase()
+          .then((result) {
+            recommendedCourses = result;
+          })
+          .catchError((e) {
+            coursesError = resolveApiErrorMessage(e);
+          }),
 
-      getAllOrganizationsUseCase().then((result) {
-        organizations = result;
-      }).catchError((e) {
-        organizationsError = resolveApiErrorMessage(e);
-      }),
+      getRecommendedOrganizationsUseCase()
+          .then((result) {
+            recommendedOrganizations = result;
+          })
+          .catchError((e) {
+            organizationsError = resolveApiErrorMessage(e);
+          }),
     ]);
 
-    emit(HomeLoaded(
-      courses: courses,
-      coursesError: coursesError,
-      organizations: organizations,
-      organizationsError: organizationsError,
-    ));
+    emit(
+      HomeLoaded(
+        recommendedCourses: recommendedCourses,
+        coursesError: coursesError,
+        recommendedOrganizations: recommendedOrganizations,
+        organizationsError: organizationsError,
+      ),
+    );
   }
 }

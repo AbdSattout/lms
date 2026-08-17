@@ -1,7 +1,7 @@
 package app.lms.chat.controller;
 
 import app.lms.chat.service.PusherService;
-import app.lms.security.UserPrincipal;
+import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,14 +21,14 @@ public class PusherController {
     public ResponseEntity<?> authenticate(
             @RequestParam String socketId,
             @RequestParam String channelName,
-            @AuthenticationPrincipal UserPrincipal principal
+            @AuthenticationPrincipal(expression = "user") User user
     ) {
-    return ResponseEntity.ok(
-            pusherService.authenticate(
-                    socketId,
-                    channelName,
-                    principal.user()
-            )
-    );
+        return ResponseEntity.ok(
+                pusherService.authenticate(
+                        socketId,
+                        channelName,
+                        user
+                )
+        );
     }
 }
