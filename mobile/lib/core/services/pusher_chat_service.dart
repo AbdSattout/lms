@@ -52,6 +52,15 @@ class PusherChatService {
       await pusher.init(
         apiKey: _pusherKey,
         cluster: _pusherCluster,
+        onConnectionStateChange: (current, previous) {
+          debugPrint('[pusher] connection state: $previous -> $current');
+        },
+        onError: (message, code, e) {
+          debugPrint('[pusher] error: code=$code message=$message e=$e');
+        },
+        onSubscriptionError: (message, e) {
+          debugPrint('[pusher] subscription error: $message e=$e');
+        },
         onAuthorizer: (channelName, socketId, options) async {
           debugPrint(
             '[pusher] authorizing channel=$channelName socketId=$socketId',
