@@ -87,6 +87,25 @@ public class AdminContentController {
         );
     }
 
+    @GetMapping("/comments/{commentId}")
+    public ResponseEntity<CommentResponse> getComment(
+
+            @PathVariable
+            Long commentId,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminContentService.getComment(
+                        commentId,
+                        admin.getId()
+                )
+        );
+    }
+
     @GetMapping("/users/{userId}/posts")
     public ResponseEntity<Page<PostResponse>> getUserPosts(
 
