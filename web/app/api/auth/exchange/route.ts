@@ -7,6 +7,7 @@ import {
   setBackendJwtCookie,
 } from "@/lib/auth/backend-jwt-cookie"
 import {
+  buildLoginErrorPath,
   buildLoginRedirectResponse,
   readCallbackUrlFromRequest,
 } from "@/lib/auth/callback-url"
@@ -70,10 +71,12 @@ export async function GET(request: NextRequest) {
   }
 
   if ("errorStatus" in result) {
-    return NextResponse.json(
-      { message: result.message },
-      { status: result.errorStatus }
+    const callbackUrl = readCallbackUrlFromRequest(request)
+    const errorPath = buildLoginErrorPath(
+      result.message ?? "حدث خطأ ما، حاول مرة أخرى.",
+      callbackUrl
     )
+    return NextResponse.redirect(new URL(errorPath, request.url))
   }
 
   const callbackUrl = readCallbackUrlFromRequest(request)

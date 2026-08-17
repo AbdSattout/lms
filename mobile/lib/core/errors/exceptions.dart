@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:lms/core/errors/error_model.dart';
+
 //!ServerException
 class ServerException implements Exception {
   final ErrorModel errorModel;
   ServerException(this.errorModel);
 }
+
 //!CacheExeption
 class CacheExeption implements Exception {
   final String errorMessage;
@@ -80,13 +82,13 @@ handleDioException(DioException e) {
 
     case DioExceptionType.cancel:
       throw CancelException(
-        ErrorModel(
-          status: 0,
-          errorMessage: 'تم إلغاء تسجيل الدخول',
-        ),
+        ErrorModel(status: 0, errorMessage: 'تم إلغاء تسجيل الدخول'),
       );
 
     case DioExceptionType.unknown:
+      throw UnknownException(_extractError(e));
+
+    case DioExceptionType.transformTimeout:
       throw UnknownException(_extractError(e));
   }
 }
@@ -94,7 +96,9 @@ handleDioException(DioException e) {
 void _handleBadResponse(DioException e) {
   final response = e.response;
   if (response == null) {
-    throw UnknownException(ErrorModel(status: 500, errorMessage: 'استجابة غير معروفة من السيرفر'));
+    throw UnknownException(
+      ErrorModel(status: 500, errorMessage: 'استجابة غير معروفة من السيرفر'),
+    );
   }
 
   switch (response.statusCode) {
@@ -110,19 +114,29 @@ void _handleBadResponse(DioException e) {
       throw ConflictException(ErrorModel.fromJson(response.data));
     case 504: // Bad reponse
       throw BadResponseException(
-        ErrorModel(status: 504, errorMessage: 'استغراق الاتصال بالسيرفر وقت طويلاً')
+        ErrorModel(
+          status: 504,
+          errorMessage: 'استغراق الاتصال بالسيرفر وقت طويلاً',
+        ),
       );
     default:
       throw UnknownException(ErrorModel.fromJson(response.data));
   }
 }
+
 ErrorModel _extractError(DioException e) {
-  if(e.response != null && e.response!.data != null) {
+  if (e.response != null && e.response!.data != null) {
     try {
       return ErrorModel.fromJson(e.response!.data);
-    } catch(_) {
-      return ErrorModel(status: 0, errorMessage: "حدث خطأ أثناء معالجة البيانات");
+    } catch (_) {
+      return ErrorModel(
+        status: 0,
+        errorMessage: "حدث خطأ أثناء معالجة البيانات",
+      );
     }
   }
-  return ErrorModel(status: 0, errorMessage: "لا يوجد اتصال بالانترنت أو السيرفر لا يستجيب");
+  return ErrorModel(
+    status: 0,
+    errorMessage: "لا يوجد اتصال بالانترنت أو السيرفر لا يستجيب",
+  );
 }

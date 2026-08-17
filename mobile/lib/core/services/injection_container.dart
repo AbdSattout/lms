@@ -102,6 +102,35 @@ import 'package:lms/features/courses/domain/usecases/get_placement_test_usecase.
 import 'package:lms/features/courses/domain/usecases/submit_placement_answer_usecase.dart';
 import 'package:lms/features/courses/domain/usecases/skip_placement_test_usecase.dart';
 import 'package:lms/features/courses/presentation/bloc/placement_test_bloc.dart';
+// Friends Feature
+import 'package:lms/features/friends/data/datasources/friends_remote_datasource.dart';
+import 'package:lms/features/friends/data/repositories/friends_repository_impl.dart';
+import 'package:lms/features/friends/domain/repositories/friends_repository.dart';
+import 'package:lms/features/friends/domain/usecases/accept_friend_request_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/cancel_friend_request_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_friends_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_received_friend_requests_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_sent_friend_requests_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/get_user_profile_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/reject_friend_request_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/remove_friend_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/search_users_usecase.dart';
+import 'package:lms/features/friends/domain/usecases/send_friend_request_usecase.dart';
+import 'package:lms/features/friends/presentation/bloc/add_friend_bloc.dart';
+import 'package:lms/features/friends/presentation/bloc/friends_bloc.dart';
+import 'package:lms/features/friends/presentation/bloc/user_profile_bloc.dart';
+// Chat Feature
+import 'package:lms/features/chat/data/datasources/chat_remote_datasource.dart';
+import 'package:lms/features/chat/data/repositories/chat_repository_impl.dart';
+import 'package:lms/features/chat/domain/repositories/chat_repository.dart';
+import 'package:lms/features/chat/domain/usecases/create_direct_conversation_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/get_conversations_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/get_messages_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/mark_conversation_as_read_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:lms/features/chat/presentation/bloc/chat_bloc.dart';
+import 'package:lms/features/chat/presentation/bloc/chat_messages_bloc.dart';
+import 'package:lms/features/chat/presentation/bloc/new_chat_bloc.dart';
 //Organization Feature
 import 'package:lms/features/organizations/data/datasources/organization_remote_datasource.dart';
 import 'package:lms/features/organizations/data/repositories/organization_repository_impl.dart';
@@ -119,9 +148,11 @@ import '../../features/gamification/domain/usecases/get_activity_usecase.dart';
 import '../../features/gamification/domain/usecases/get_leaderboard_usecase.dart';
 import '../../features/gamification/presentation/bloc/gamification_bloc.dart';
 
+import 'chat_updates_notifier.dart';
 import 'external_url_launcher.dart';
 import 'foreground_notification_service.dart';
 import 'firebase_messaging_service.dart';
+import 'pusher_chat_service.dart';
 import '../theme/theme_cubit.dart';
 
 // Notifications
@@ -252,18 +283,13 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(
-        () {
-      final consumer = DioConsumer(
-        dio: sl(),
-        authLocalDataSource: sl(),
-      );
-      consumer.onTokenInvalid = () {
-        sl<AuthBloc>().add(LogoutRequested());
-      };
-      return consumer;
-    },
-  );
+  sl.registerLazySingleton<ApiConsumer>(() {
+    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
+    consumer.onTokenInvalid = () {
+      sl<AuthBloc>().add(LogoutRequested());
+    };
+    return consumer;
+  });
 
   sl.registerLazySingleton(
     () => Dio(
@@ -443,6 +469,86 @@ Future<void> init() async {
     ),
   );
 
+  // Friends
+  sl.registerLazySingleton<FriendsRemoteDataSource>(
+    () => FriendsRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<FriendsRepository>(
+    () => FriendsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetFriendsUseCase(sl()));
+  sl.registerLazySingleton(() => GetReceivedFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSentFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => SendFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RejectFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => CancelFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFriendUseCase(sl()));
+  sl.registerLazySingleton(() => SearchUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
+  sl.registerFactory(
+    () => FriendsBloc(
+      getFriendsUseCase: sl(),
+      getReceivedFriendRequestsUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => AddFriendBloc(
+      searchUsersUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => UserProfileBloc(
+      getUserProfileUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
+
+  // Chat
+  sl.registerLazySingleton(() => ChatUpdatesNotifier());
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetConversationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => CreateDirectConversationUseCase(sl()));
+  sl.registerLazySingleton(() => MarkConversationAsReadUseCase(sl()));
+  sl.registerFactory(
+    () => ChatBloc(
+      getConversationsUseCase: sl(),
+      getFriendsUseCase: sl(),
+      chatUpdatesNotifier: sl(),
+    ),
+  );
+  sl.registerFactory(() => NewChatBloc(getFriendsUseCase: sl()));
+  sl.registerFactoryParam<ChatMessagesBloc, int, int>(
+    (conversationId, currentUserId) => ChatMessagesBloc(
+      conversationId: conversationId,
+      currentUserId: currentUserId,
+      getMessagesUseCase: sl(),
+      sendMessageUseCase: sl(),
+      markConversationAsReadUseCase: sl(),
+      chatUpdatesNotifier: sl(),
+      pusherService: PusherChatService(
+        api: sl(),
+        conversationId: conversationId,
+      ),
+    ),
+  );
+
   // Blocks
   sl.registerLazySingleton<BlockRemoteDataSource>(
     () => BlockRemoteDataSourceImpl(sl()),
@@ -528,55 +634,68 @@ Future<void> init() async {
       getMyRoadmaps: sl(),
     ),
   );
-  sl.registerFactory(() => RoadmapBloc(
-    getOrganizationRoadmaps: sl(),
-    getRoadmapDetails: sl(),
-    followRoadmap: sl(),
-    unfollowRoadmap: sl(),
-    getMyRoadmaps: sl(),
-  ));
 
   //Ai Quiz
-  sl.registerLazySingleton<AiQuizRemoteDataSource>(() => AiQuizRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<AiQuizRepository>(() => AiQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<AiQuizRemoteDataSource>(
+    () => AiQuizRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<AiQuizRepository>(
+    () => AiQuizRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GenerateAiQuizUseCase(sl()));
   sl.registerLazySingleton(() => SubmitAiQuizUseCase(sl()));
-  sl.registerFactory(() => AiQuizBloc(generateAiQuiz: sl(), submitAiQuiz: sl()));
+  sl.registerFactory(
+    () => AiQuizBloc(generateAiQuiz: sl(), submitAiQuiz: sl()),
+  );
 
   //Random Quiz
-  sl.registerLazySingleton<RandomQuizRemoteDataSource>(() => RandomQuizRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<RandomQuizRepository>(() => RandomQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<RandomQuizRemoteDataSource>(
+    () => RandomQuizRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<RandomQuizRepository>(
+    () => RandomQuizRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GenerateRandomQuizUseCase(sl()));
   sl.registerLazySingleton(() => SubmitRandomQuizUseCase(sl()));
-  sl.registerFactory(() => RandomQuizBloc(generateRandomQuiz: sl(), submitRandomQuiz: sl()));
+  sl.registerFactory(
+    () => RandomQuizBloc(generateRandomQuiz: sl(), submitRandomQuiz: sl()),
+  );
 
   // Practice Quiz
-  sl.registerLazySingleton<PracticeQuizRemoteDataSource>(() => PracticeQuizRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<PracticeQuizRepository>(() => PracticeQuizRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<PracticeQuizRemoteDataSource>(
+    () => PracticeQuizRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<PracticeQuizRepository>(
+    () => PracticeQuizRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetPracticeQuizListUseCase(sl()));
   sl.registerLazySingleton(() => GetPracticeQuizDetailsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitPracticeQuizUseCase(sl()));
-  sl.registerFactory(() => PracticeQuizBloc(
-    getList: sl(),
-    getDetails: sl(),
-    submit: sl(),
-  ));
+  sl.registerFactory(
+    () => PracticeQuizBloc(getList: sl(), getDetails: sl(), submit: sl()),
+  );
 
   // Practice Exam
-  sl.registerLazySingleton<PracticeExamRemoteDataSource>(() => PracticeExamRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<PracticeExamRepository>(() => PracticeExamRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<PracticeExamRemoteDataSource>(
+    () => PracticeExamRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<PracticeExamRepository>(
+    () => PracticeExamRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetPracticeExamListUseCase(sl()));
   sl.registerLazySingleton(() => GetPracticeExamDetailsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitPracticeExamUseCase(sl()));
-  sl.registerFactory(() => PracticeExamBloc(
-    getList: sl(),
-    getDetails: sl(),
-    submit: sl(),
-  ));
+  sl.registerFactory(
+    () => PracticeExamBloc(getList: sl(), getDetails: sl(), submit: sl()),
+  );
 
   // Final Exam
-  sl.registerLazySingleton<FinalExamRemoteDataSource>(() => FinalExamRemoteDataSourceImpl(api: sl()));
-  sl.registerLazySingleton<FinalExamRepository>(() => FinalExamRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<FinalExamRemoteDataSource>(
+    () => FinalExamRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<FinalExamRepository>(
+    () => FinalExamRepositoryImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton(() => GetFinalExamUseCase(sl()));
   sl.registerLazySingleton(() => SubmitFinalExamUseCase(sl()));
   sl.registerFactory(() => FinalExamBloc(getExam: sl(), submit: sl()));
@@ -588,8 +707,6 @@ Future<void> init() async {
       getRecommendedOrganizationsUseCase: sl(),
     ),
   );
-
-
 
   //! External
 

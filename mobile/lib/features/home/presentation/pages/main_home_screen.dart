@@ -9,6 +9,9 @@ import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
+import '../../../chat/presentation/bloc/chat_bloc.dart';
+import '../../../chat/presentation/bloc/chat_event.dart';
+import '../../../chat/presentation/pages/chats_page.dart';
 import '../../../courses/domain/entities/course_entity.dart';
 import '../../../courses/presentation/bloc/course_details_bloc.dart';
 import '../../../courses/presentation/bloc/course_details_event.dart';
@@ -68,7 +71,7 @@ class MainHomeScreen extends StatelessWidget {
                     ),
                     BlocProvider(
                       create: (_) =>
-                      sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
+                          sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
                       child: const MyCoursesPage(),
                     ),
                     BlocProvider(
@@ -152,12 +155,12 @@ class MainHomeScreen extends StatelessWidget {
   }
 
   static Widget buildAvatar(
-      dynamic user, {
-        required BuildContext context,
-        required double radius,
-        bool isHome = false,
-        VoidCallback? onTap,
-      }) {
+    dynamic user, {
+    required BuildContext context,
+    required double radius,
+    bool isHome = false,
+    VoidCallback? onTap,
+  }) {
     final colors = Theme.of(context).colorScheme;
 
     return ResilientNetworkAvatar(
@@ -280,6 +283,8 @@ class _WelcomeHeader extends StatelessWidget {
               ),
 
               const Spacer(),
+              const _ChatButton(),
+              const SizedBox(width: 14),
               const _NotificationBellButton(),
             ],
           ),
@@ -545,16 +550,16 @@ class _HomeLoadedContent extends StatelessWidget {
   }
 
   void _openOrganization(
-      BuildContext context,
-      OrganizationEntity organization,
-      ) {
+    BuildContext context,
+    OrganizationEntity organization,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider(
           create: (_) =>
-          sl<OrganizationDetailsBloc>()
-            ..add(GetOrganizationDetailsEvent(organization.slug)),
+              sl<OrganizationDetailsBloc>()
+                ..add(GetOrganizationDetailsEvent(organization.slug)),
           child: OrganizationDetailsPage(slug: organization.slug),
         ),
       ),
@@ -920,21 +925,21 @@ class _HomeOrganizationCard extends StatelessWidget {
                         gradient: hasImage
                             ? null
                             : LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primary.withValues(alpha: 0.65),
-                          ],
-                        ),
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primary.withValues(alpha: 0.65),
+                                ],
+                              ),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: hasImage
                           ? Image.network(
-                        organization.image!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _initials(),
-                      )
+                              organization.image!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _initials(),
+                            )
                           : _initials(),
                     ),
                     const Spacer(),
@@ -1356,7 +1361,7 @@ class _NotificationRefreshListenerState
       _delayedRefresh?.cancel();
       _delayedRefresh = Timer(
         const Duration(milliseconds: 1200),
-            () => _refreshNotifications(keepHigherUnreadCount: true),
+        () => _refreshNotifications(keepHigherUnreadCount: true),
       );
     });
   }
@@ -1378,6 +1383,56 @@ class _NotificationRefreshListenerState
 
     _notificationsBloc.add(
       RefreshNotificationsEvent(keepHigherUnreadCount: keepHigherUnreadCount),
+    );
+  }
+}
+
+class _ChatButton extends StatelessWidget {
+  const _ChatButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Tooltip(
+      message: 'الرسائل',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BlocProvider(
+                  create: (_) => sl<ChatBloc>()..add(LoadChatsEvent()),
+                  child: const ChatsPage(),
+                ),
+              ),
+            );
+          },
+          child: Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: colors.surface.withValues(alpha: isDark ? 0.72 : 0.88),
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(
+                color: colors.outlineVariant.withValues(
+                  alpha: isDark ? 0.28 : 0.45,
+                ),
+              ),
+            ),
+            child: Icon(
+              Icons.chat_bubble_outline_rounded,
+              color: colors.onSurfaceVariant,
+              size: 24,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

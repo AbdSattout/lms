@@ -136,24 +136,60 @@ class EndPoints {
   static const String myRoadmaps = 'mobile/roadmaps/following';
 
   // AI Quiz
-  static String generateAiQuiz(int courseId) => 'mobile/ai/courses/$courseId/random-quiz';
-  static String submitAiQuiz(int courseId, int attemptId) => 'mobile/ai/courses/$courseId/random-quiz/attempts/$attemptId/submit';
+  static String generateAiQuiz(int courseId) =>
+      'mobile/ai/courses/$courseId/random-quiz';
+  static String submitAiQuiz(int courseId, int attemptId) =>
+      'mobile/ai/courses/$courseId/random-quiz/attempts/$attemptId/submit';
 
   // Random Quiz
-  static String generateRandomQuiz(int courseId) => 'mobile/courses/$courseId/random-quiz';
-  static String submitRandomQuiz(int courseId, int attemptId) => 'mobile/courses/$courseId/random-quiz/attempts/$attemptId/submit';
+  static String generateRandomQuiz(int courseId) =>
+      'mobile/courses/$courseId/random-quiz';
+  static String submitRandomQuiz(int courseId, int attemptId) =>
+      'mobile/courses/$courseId/random-quiz/attempts/$attemptId/submit';
 
   // Practice Quiz
-  static String practiceQuizList(int courseId) => 'mobile/courses/$courseId/practice-quizzes';
-  static String practiceQuizDetails(int courseId, int quizId) => 'mobile/courses/$courseId/practice-quizzes/$quizId';
-  static String submitPracticeQuiz(int courseId, int quizId) => 'mobile/courses/$courseId/practice-quizzes/$quizId/submit';
+  static String practiceQuizList(int courseId) =>
+      'mobile/courses/$courseId/practice-quizzes';
+  static String practiceQuizDetails(int courseId, int quizId) =>
+      'mobile/courses/$courseId/practice-quizzes/$quizId';
+  static String submitPracticeQuiz(int courseId, int quizId) =>
+      'mobile/courses/$courseId/practice-quizzes/$quizId/submit';
 
   // Practice Exam
-  static String practiceExamList(int courseId) => 'mobile/courses/$courseId/practice-exams';
-  static String practiceExamDetails(int courseId, int examId) => 'mobile/courses/$courseId/practice-exams/$examId';
-  static String submitPracticeExam(int courseId, int examId) => 'mobile/courses/$courseId/practice-exams/$examId/submit';
+  static String practiceExamList(int courseId) =>
+      'mobile/courses/$courseId/practice-exams';
+  static String practiceExamDetails(int courseId, int examId) =>
+      'mobile/courses/$courseId/practice-exams/$examId';
+  static String submitPracticeExam(int courseId, int examId) =>
+      'mobile/courses/$courseId/practice-exams/$examId/submit';
 
   // Final Exam
   static String finalExam(int courseId) => 'mobile/courses/$courseId/quiz';
-  static String submitFinalExam(int courseId) => 'mobile/courses/$courseId/quiz/submit';
+  static String submitFinalExam(int courseId) =>
+      'mobile/courses/$courseId/quiz/submit';
+
+  // Friends
+  static const String friends = 'friends';
+  static const String receivedFriendRequests = 'friends/requests/received';
+  static const String sentFriendRequests = 'friends/requests/sent';
+  static String sendFriendRequest(int userId) => 'friends/requests/$userId';
+  static String acceptFriendRequest(int requestId) =>
+      'friends/requests/$requestId/accept';
+  static String rejectFriendRequest(int requestId) =>
+      'friends/requests/$requestId/reject';
+  static String cancelFriendRequest(int requestId) =>
+      'friends/requests/$requestId';
+  static String removeFriend(int friendId) => 'friends/$friendId';
+  static String userProfile(int userId) => 'users/$userId/profile';
+  static const String usersSearch = 'users/search';
+
+  // Chat
+  static const String chatConversations = 'chat/conversations';
+  static String chatCreateDirectConversation(int targetUserId) =>
+      'chat/conversations/direct/$targetUserId';
+  static String chatConversationMessages(int conversationId) =>
+      'chat/conversations/$conversationId/messages';
+  static String chatMarkMessageRead(int conversationId, int messageId) =>
+      'chat/conversations/$conversationId/messages/$messageId/read';
+  static const String chatPusherAuth = 'chat/pusher/auth';
 }

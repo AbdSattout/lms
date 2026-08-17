@@ -16,6 +16,8 @@ jobs:
       KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
       TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      PUSHER_APP_KEY: ${{ secrets.PUSHER_APP_KEY }}
+      PUSHER_APP_CLUSTER: ${{ secrets.PUSHER_APP_CLUSTER }}
 
     steps:
       - name: Checkout repository
@@ -55,7 +57,7 @@ jobs:
 
       - name: Build APK
         working-directory: mobile
-        run: flutter build apk --release --target-platform=android-arm64 --dart-define="BASE_URL=${API_URL:-}"
+        run: flutter build apk --release --target-platform=android-arm64 --dart-define="BASE_URL=${API_URL:-}" --dart-define="PUSHER_APP_KEY=${PUSHER_APP_KEY:-}" --dart-define="PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER:-mt1}"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
