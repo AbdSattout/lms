@@ -1,24 +1,34 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { Building2, BookOpen, Users } from "lucide-react"
+import { Building2, BookOpen, Users, FileText } from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import type { CourseResponse, OrganizationResponse } from "@/lib/api/types"
+import type {
+  CourseResponse,
+  OrganizationResponse,
+  PostResponse,
+} from "@/lib/api/types"
 
 import {
   getAdminOrganizationAction,
   getAdminOrganizationCoursesAction,
+  getAdminOrganizationPostsAction,
 } from "@/lib/actions/admin"
 
 interface OrganizationTargetData {
   organization: OrganizationResponse
   courses: {
     content: CourseResponse[]
+    totalElements: number
+    totalPages: number
+  }
+  posts: {
+    content: PostResponse[]
     totalElements: number
     totalPages: number
   }
@@ -38,9 +48,16 @@ export function OrganizationReportTarget({
       try {
         setError(null)
 
-        const [organization, courses] = await Promise.all([
+        const [organization, courses, posts] = await Promise.all([
           getAdminOrganizationAction(organizationId),
+
           getAdminOrganizationCoursesAction(organizationId, {
+            page: 0,
+            size: 6,
+            sort: ["createdAt,desc"],
+          }),
+
+          getAdminOrganizationPostsAction(organizationId, {
             page: 0,
             size: 6,
             sort: ["createdAt,desc"],
@@ -50,13 +67,13 @@ export function OrganizationReportTarget({
         setData({
           organization,
           courses,
+          posts,
         })
       } catch (error) {
         setError(error instanceof Error ? error.message : "فشل تحميل المنظمة")
       }
     })
   }, [organizationId])
-
   if (isLoading && !data) {
     return <OrganizationTargetSkeleton />
   }
@@ -73,7 +90,7 @@ export function OrganizationReportTarget({
 
   if (!data) return null
 
-  const { organization, courses } = data
+  const { organization, courses, posts } = data
 
   const initials =
     organization.name
@@ -166,6 +183,42 @@ export function OrganizationReportTarget({
                 </div>
 
                 <Badge variant="outline">{course.status}</Badge>
+              </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
+      <Card className="border-border/60 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base">أحدث المنشورات</CardTitle>
+        </CardHeader>
+
+        <CardContent className="space-y-2">
+          {posts.content.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+              لا توجد منشورات
+            </div>
+          ) : (
+            posts.content.map((post) => (
+              <div
+                key={post.id}
+                className="flex items-center gap-3 rounded-lg border border-border/50 p-3"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                  <FileText className="h-4 w-4 text-muted-foreground" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{post.title}</p>
+
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                    {post.author?.name ?? "مستخدم مجهول"}
+                  </p>
+                </div>
+
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  #{post.id}
+                </span>
               </div>
             ))
           )}

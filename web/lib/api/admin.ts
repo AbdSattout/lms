@@ -103,6 +103,24 @@ export const organizations = {
         }
       ),
   }),
+  posts: defineApiRoute({
+    get: (
+      organizationId: number,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<{
+        content: PostResponse[]
+        totalElements: number
+        totalPages: number
+      }>(
+        withPageable(`/admin/organizations/${organizationId}/posts`, pageable),
+        {
+          method: "GET",
+          ...options,
+        }
+      ),
+  }),
 
   post: defineApiRoute({
     get: (

@@ -45,7 +45,12 @@ export async function getAdminOrganizationPostAction(
 ) {
   return organizations.post.get(organizationId, postId)
 }
-
+export async function getAdminOrganizationPostsAction(
+  organizationId: number,
+  pageable: PageableInput
+) {
+  return organizations.posts.get(organizationId, pageable)
+}
 export async function getAdminCommentAction(commentId: number) {
   return comments.get(commentId)
 }
