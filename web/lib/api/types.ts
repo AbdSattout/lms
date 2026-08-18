@@ -55,6 +55,7 @@ export interface OrganizationResponse {
   visibility: OrganizationVisibility
   ownerName: string
   membersCount: number
+  coursesCount: number
   viewer?: OrganizationViewerResponse
   baseEntity?: BaseEntityResponse
 }
@@ -710,7 +711,8 @@ export type ReportTargetType = "POST" | "COMMENT" | "USER" | "ORGANIZATION"
 export interface ReportReporter {
   id: number
   name: string
-  email: string
+  username?: string
+  picture?: string | null
 }
 
 export interface ReportAdminResponse {
@@ -720,12 +722,19 @@ export interface ReportAdminResponse {
   role: string
   enabled: boolean
 }
-
+export interface ReportTargetResponse {
+  userId?: number | null
+  organizationId?: number | null
+  courseId?: number | null
+  postId?: number | null
+  commentId?: number | null
+  exists: boolean
+}
 export interface ReportResponse {
   id: number
   reporter: ReportReporter
   targetType: ReportTargetType
-  targetId: number
+  target: ReportTargetResponse
   reason: string
   status: ReportStatus
   adminNote?: string | null

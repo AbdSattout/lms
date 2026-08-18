@@ -3,38 +3,31 @@
 import { useState } from "react"
 import { Bell, Check, X, Loader2 } from "lucide-react"
 
-import { OrganizationInviteResponse } from "@/lib/api/types"
-import {
-  getMyPendingInvitesAction,
-  acceptInviteAction,
-  declineInviteAction,
-} from "@/lib/actions/invites"
+import type { OrganizationInviteResponse } from "@/lib/api/types"
+import { acceptInviteAction, declineInviteAction } from "@/lib/actions/invites"
 import { cn } from "@/lib/utils"
 import { InviteDetailDialog } from "../forms/invite-detial-dialog"
 import { toast } from "sonner"
-import { useRouter } from "next/dist/client/components/navigation"
+import { useRouter } from "next/navigation"
+import { usePendingInvites } from "@/hooks/use-pending-invites"
 
 export function Notifications() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [invites, setInvites] = useState<OrganizationInviteResponse[]>([])
   const [processingInvites, setProcessingInvites] = useState<Set<number>>(
     new Set()
   )
   const [selectedInvite, setSelectedInvite] =
     useState<OrganizationInviteResponse | null>(null)
   const [isDetailOpen, setIsDetailOpen] = useState(false)
-  const router = useRouter()
-  const handleToggle = async () => {
-    const willOpen = !isOpen
-    setIsOpen(willOpen)
 
-    if (willOpen) {
-      setIsLoading(true)
-      const data = await getMyPendingInvitesAction()
-      setInvites(data)
-      setIsLoading(false)
-    }
+  const router = useRouter()
+
+  const { data: invites = [], isLoading, mutate } = usePendingInvites()
+
+  const pendingCount = invites.length
+
+  const handleToggle = () => {
+    setIsOpen((prev) => !prev)
   }
 
   const handleInviteClick = (invite: OrganizationInviteResponse) => {
@@ -70,9 +63,10 @@ export function Notifications() {
         return
       }
 
-      setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-
       toast.success("تم قبول الدعوة بنجاح")
+
+      // Refresh SWR data
+      await mutate()
 
       router.refresh()
     } catch (error) {
@@ -118,9 +112,10 @@ export function Notifications() {
         return
       }
 
-      setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-
       toast.success("تم رفض الدعوة")
+
+      // Refresh SWR data
+      await mutate()
 
       router.refresh()
     } catch (error) {
@@ -137,7 +132,6 @@ export function Notifications() {
       })
     }
   }
-  const pendingCount = invites.length
 
   return (
     <div className="relative z-50">
@@ -149,6 +143,7 @@ export function Notifications() {
         )}
       >
         <Bell className="h-5 w-5 sm:h-6 sm:w-6" />
+
         {pendingCount > 0 && (
           <span className="absolute end-1.5 top-1.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white shadow-sm ring-2 ring-background">
             {pendingCount > 9 ? "9+" : pendingCount}
@@ -169,12 +164,14 @@ export function Notifications() {
                 <h3 className="text-base font-semibold tracking-tight text-foreground">
                   دعوات الإنضمام
                 </h3>
+
                 {pendingCount > 0 && (
                   <span className="flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
                     {pendingCount} جديد
                   </span>
                 )}
               </div>
+
               <button
                 onClick={() => setIsOpen(false)}
                 className="rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
@@ -193,9 +190,10 @@ export function Notifications() {
                     >
                       <div className="flex items-start gap-3">
                         <div className="h-10 w-10 shrink-0 rounded-full bg-muted-foreground/10" />
+
                         <div className="flex-1 space-y-2">
-                          <div className="h-4 w-3/4 rounded bg-muted-foreground/20"></div>
-                          <div className="h-3 w-1/2 rounded bg-muted-foreground/10"></div>
+                          <div className="h-4 w-3/4 rounded bg-muted-foreground/20" />
+                          <div className="h-3 w-1/2 rounded bg-muted-foreground/10" />
                         </div>
                       </div>
                     </div>
@@ -215,15 +213,18 @@ export function Notifications() {
                             <span className="opacity-75">مِن:</span>{" "}
                             {invite.invitedByName}
                           </p>
+
                           {invite.organization && (
                             <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
                               <span>لصالح منظمة:</span>
+
                               <span className="font-medium text-foreground opacity-90">
                                 {invite.organization.name}
                               </span>
                             </p>
                           )}
                         </div>
+
                         <span className="inline-flex shrink-0 items-center rounded-md bg-secondary/80 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-secondary-foreground shadow-sm">
                           {invite.role === "ADMIN"
                             ? "مشرف"
@@ -244,8 +245,10 @@ export function Notifications() {
                           ) : (
                             <Check className="h-4 w-4 shrink-0" />
                           )}
+
                           <span className="hidden sm:inline">موافقة</span>
                         </button>
+
                         <button
                           onClick={(e) => handleDecline(invite, e)}
                           disabled={processingInvites.has(invite.id)}
@@ -256,6 +259,7 @@ export function Notifications() {
                           ) : (
                             <X className="h-4 w-4 shrink-0" />
                           )}
+
                           <span className="hidden sm:inline">رفض</span>
                         </button>
                       </div>
@@ -267,15 +271,18 @@ export function Notifications() {
                   <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-muted/60 shadow-inner">
                     <Bell className="h-7 w-7 text-muted-foreground opacity-50" />
                   </div>
+
                   <h4 className="text-sm font-semibold text-foreground">
                     الاشعارات فارغة
                   </h4>
+
                   <p className="mt-1.5 text-xs text-muted-foreground">
                     لا توجد دعوات انضمام لديك في الوقت الحالي.
                   </p>
                 </div>
               )}
             </div>
+
             {invites.length > 0 && (
               <div className="w-full border-t border-border bg-muted/10 px-3 py-2">
                 <button
@@ -297,12 +304,16 @@ export function Notifications() {
           setIsDetailOpen(false)
           setSelectedInvite(null)
         }}
-        onAccept={(invite) =>
-          setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-        }
-        onDecline={(invite) =>
-          setInvites((prev) => prev.filter((i) => i.id !== invite.id))
-        }
+        onAccept={async (invite) => {
+          await mutate()
+          setIsDetailOpen(false)
+          setSelectedInvite(null)
+        }}
+        onDecline={async (invite) => {
+          await mutate()
+          setIsDetailOpen(false)
+          setSelectedInvite(null)
+        }}
       />
     </div>
   )

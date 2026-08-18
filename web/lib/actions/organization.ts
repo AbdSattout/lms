@@ -9,6 +9,7 @@ import {
 } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { OrganizationOverviewResponse } from "../api/types"
 
 export async function createOrganization(
   _prevState: { error?: string; success?: boolean },
@@ -45,12 +46,10 @@ export async function createOrganization(
 export async function leaveOrganizationAction(slug: string) {
   try {
     await api.dashboard.organizations.leave.post(slug)
-    revalidatePath("/")
-  } catch (error) {
-    console.error("Leave organization failed:", error)
+    return { success: true }
+  } catch {
     return { success: false, error: "فشل مغادرة المنظمة" }
   }
-  redirect("/dashboard")
 }
 export async function checkSlugAvailability(slug: string) {
   if (!slug || !slugSchema.safeParse(slug).success) {
@@ -63,13 +62,28 @@ export async function deleteOrganizationAction(slug: string) {
     await api.dashboard.organizations.bySlug.delete(slug)
 
     revalidatePath("/")
-  } catch (error) {
-    console.error("Delete failed:", error)
-    return { success: false, error: "Failed to delete" }
-  }
-  redirect("/")
-}
 
+    return {
+      success: true,
+    }
+  } catch (error) {
+    console.error("Delete organization failed:", error)
+
+    if (error instanceof Error) {
+      console.error("Delete error:", error.message)
+    }
+
+    return {
+      success: false,
+      error: "تعذر حذف المنظمة. قد تكون مرتبطة ببيانات موجودة.",
+    }
+  }
+}
+export async function getOrganizationOverviewAction(
+  slug: string
+): Promise<OrganizationOverviewResponse> {
+  return api.dashboard.organizations.overview.get(slug)
+}
 export async function updateOrganization(
   _prevState: { error?: string; success?: boolean },
   formData: FormData

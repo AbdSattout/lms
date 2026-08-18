@@ -12,7 +12,6 @@ import app.lms.chat.repository.ConversationRepository;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
 import app.lms.course.service.CourseAccessService;
-import app.lms.organization.service.OrganizationAccessService;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +34,6 @@ public class ChatMuteService {
 
     private final MuteMapper muteMapper;
 
-    private final OrganizationAccessService organizationAccessService;
-
     private final CourseAccessService courseAccessService;
 
     private final PusherService pusherService;
@@ -47,6 +44,10 @@ public class ChatMuteService {
             MuteUserRequest request,
             User instructor
     ) {
+
+        validateAuthenticated(
+                instructor
+        );
 
         User user =
                 userRepository
@@ -148,6 +149,17 @@ public class ChatMuteService {
             Conversation conversation
     ) {
 
+        validateAuthenticated(
+                user
+        );
+
+        if (conversation == null) {
+
+            throw new ChatAccessDeniedException(
+                    "Conversation not found"
+            );
+        }
+
         LocalDateTime now =
                 LocalDateTime.now();
 
@@ -189,6 +201,10 @@ public class ChatMuteService {
             User currentUser
     ) {
 
+        validateAuthenticated(
+                currentUser
+        );
+
         ChatMute mute =
                 chatMuteRepository
                         .findById(muteId)
@@ -198,7 +214,10 @@ public class ChatMuteService {
                                 )
                         );
 
-        if (!mute.getCourse()
+        if (mute.getCourse() == null
+                || mute.getConversation() == null
+                || mute.getConversation().getCourse() == null
+                || !mute.getCourse()
                 .getId()
                 .equals(
                         mute.getConversation()
@@ -231,17 +250,22 @@ public class ChatMuteService {
             Course course
     ) {
 
-        organizationAccessService
-                .getManageableOrganization(
-                        course.getOrganization().getSlug(),
-                        user
-                );
-
-
         courseAccessService
-                .getEditableCourse(
+                .getManageableCourse(
                         course.getId(),
                         user
                 );
+    }
+
+    private void validateAuthenticated(
+            User user
+    ) {
+
+        if (user == null
+                || user.getId() == null) {
+            throw new ChatAccessDeniedException(
+                    "Authentication required"
+            );
+        }
     }
 }

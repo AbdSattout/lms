@@ -3,6 +3,7 @@ package app.lms.chat.service;
 
 import app.lms.chat.dto.ConversationResponse;
 import app.lms.chat.enums.ConversationType;
+import app.lms.chat.exception.ChatAccessDeniedException;
 import app.lms.chat.mapper.ConversationMapper;
 import app.lms.chat.model.Conversation;
 import app.lms.chat.model.ConversationMember;
@@ -47,6 +48,10 @@ public class ConversationService {
             User currentUser,
             User targetUser
     ) {
+
+        validateAuthenticated(
+                currentUser
+        );
 
         Long userOneId = Math.min(
                 currentUser.getId(),
@@ -161,6 +166,10 @@ public class ConversationService {
     @Transactional
     public ConversationResponse directConversation(Long userId, User currentUser) {
 
+        validateAuthenticated(
+                currentUser
+        );
+
         User targetUser =
                 userRepository
                         .findById(userId)
@@ -187,6 +196,10 @@ public class ConversationService {
             User currentUser
     ) {
 
+        validateAuthenticated(
+                currentUser
+        );
+
         return conversationRepository
                 .findAccessibleByUserId(
                         currentUser.getId(),
@@ -207,6 +220,10 @@ public class ConversationService {
             Long courseId,
             User currentUser
     ) {
+
+        validateAuthenticated(
+                currentUser
+        );
 
         Course course =
                 courseAccessService.getEnrolledCourse(
@@ -248,5 +265,16 @@ public class ConversationService {
                 });
     }
 
+    private void validateAuthenticated(
+            User user
+    ) {
+
+        if (user == null
+                || user.getId() == null) {
+            throw new ChatAccessDeniedException(
+                    "Authentication required"
+            );
+        }
+    }
 
 }

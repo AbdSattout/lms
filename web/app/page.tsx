@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { LogOut } from "lucide-react"
 import { OrgsGrid } from "@/components/orgs-grid"
 import { OrgsGridSkeleton } from "@/components/skeletons/orgs-grid-skeleton"
-import { Notifications } from "@/components/ui/notification_button"
+import { Notifications } from "@/components/ui/invite-notification_button"
 import { SubscriptionButton } from "@/components/ui/subscription-button"
 import { LogoutButton } from "@/components/auth/logout-button"
 

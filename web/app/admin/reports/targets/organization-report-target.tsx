@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 import type { CourseResponse, OrganizationResponse } from "@/lib/api/types"
+
 import {
   getAdminOrganizationAction,
   getAdminOrganizationCoursesAction,
@@ -76,10 +77,10 @@ export function OrganizationReportTarget({
 
   const initials =
     organization.name
-      ?.split(" ")
+      .split(" ")
       .map((part) => part[0])
       .join("")
-      .slice(0, 2) || "ORG"
+      .slice(0, 2) || "OR"
 
   return (
     <div className="space-y-4">
@@ -88,7 +89,6 @@ export function OrganizationReportTarget({
           <div className="flex items-start gap-4">
             <Avatar className="h-14 w-14 rounded-xl border border-border/50">
               <AvatarImage src={organization.image} />
-
               <AvatarFallback className="rounded-xl bg-primary/10 font-bold text-primary">
                 {initials}
               </AvatarFallback>
@@ -98,9 +98,7 @@ export function OrganizationReportTarget({
               <div className="flex flex-wrap items-center gap-2">
                 <h3 className="text-xl font-bold">{organization.name}</h3>
 
-                <Badge variant="secondary" className="rounded-full">
-                  منظمة
-                </Badge>
+                <Badge variant="secondary">{organization.visibility}</Badge>
               </div>
 
               <p className="mt-1 text-sm text-muted-foreground">
@@ -108,7 +106,7 @@ export function OrganizationReportTarget({
               </p>
 
               {organization.description && (
-                <p className="mt-4 max-w-2xl text-sm leading-6 text-muted-foreground">
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">
                   {organization.description}
                 </p>
               )}
@@ -126,8 +124,8 @@ export function OrganizationReportTarget({
 
         <StatCard
           icon={BookOpen}
-          label="الدورات المحمّلة"
-          value={courses.totalElements}
+          label="الدورات"
+          value={organization.coursesCount}
         />
 
         <StatCard
@@ -139,7 +137,7 @@ export function OrganizationReportTarget({
 
       <Card className="border-border/60 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base">أحدث الدورات</CardTitle>
+          <CardTitle className="text-base">الدورات</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-2">
@@ -167,9 +165,7 @@ export function OrganizationReportTarget({
                   </p>
                 </div>
 
-                <Badge variant="outline" className="shrink-0">
-                  {course.status}
-                </Badge>
+                <Badge variant="outline">{course.status}</Badge>
               </div>
             ))
           )}
@@ -217,7 +213,7 @@ function OrganizationTargetSkeleton() {
             <div className="flex-1 space-y-2">
               <Skeleton className="h-6 w-48" />
               <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-12 w-full max-w-2xl" />
+              <Skeleton className="h-12 w-full" />
             </div>
           </div>
         </CardContent>
@@ -229,7 +225,7 @@ function OrganizationTargetSkeleton() {
         ))}
       </div>
 
-      <Skeleton className="h-56 rounded-xl" />
+      <Skeleton className="h-64 rounded-xl" />
     </div>
   )
 }

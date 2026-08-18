@@ -149,8 +149,8 @@ export function LoginForm({
         throw new Error(
           data.message ||
             (response.status === 401
-              ? "بيانات المشرف غير صحيحة"
-              : "حدث خطأ ما، حاول مرة أخرى.")
+              ? toast.error("بيانات المشرف غير صحيحة")
+              : toast.error("حدث خطأ ما، حاول مرة أخرى"))
         )
       }
 
@@ -159,9 +159,7 @@ export function LoginForm({
       router.replace("/admin/reports")
     } catch (error) {
       console.error("Admin login error:", error)
-      setError(
-        error instanceof Error ? error.message : "حدث خطأ ما، حاول مرة أخرى."
-      )
+      toast.error("حدث خطأ ما، حاول مرة أخرى")
     } finally {
       setIsAdminLoggingIn(false)
     }

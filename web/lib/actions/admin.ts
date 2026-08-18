@@ -1,6 +1,6 @@
 "use server"
 
-import { organizations, reports, users } from "@/lib/api/admin"
+import { comments, organizations, reports, users } from "@/lib/api/admin"
 
 import type {
   ReportResponse,
@@ -29,7 +29,7 @@ export async function reviewAdminReportAction(
 }
 
 export async function getAdminOrganizationAction(organizationId: number) {
-  return organizations.get.get(organizationId)
+  return organizations.get(organizationId)
 }
 
 export async function getAdminOrganizationCoursesAction(
@@ -44,6 +44,10 @@ export async function getAdminOrganizationPostAction(
   postId: number
 ) {
   return organizations.post.get(organizationId, postId)
+}
+
+export async function getAdminCommentAction(commentId: number) {
+  return comments.get(commentId)
 }
 
 export async function getAdminUserPostsAction(

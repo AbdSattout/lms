@@ -5,8 +5,7 @@ import app.lms.chat.exception.ChatAccessDeniedException;
 import app.lms.chat.model.Conversation;
 import app.lms.chat.repository.ConversationMemberRepository;
 import app.lms.chat.repository.ConversationRepository;
-import app.lms.enrollment.enums.EnrollmentStatus;
-import app.lms.enrollment.repository.CourseEnrollmentRepository;
+import app.lms.course.service.CourseAccessService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,7 @@ public class ConversationAccessService {
 
     private final ConversationMemberRepository memberRepository;
 
-    private final CourseEnrollmentRepository enrollmentRepository;
+    private final CourseAccessService courseAccessService;
 
 
     public Conversation getById(
@@ -39,6 +38,10 @@ public class ConversationAccessService {
             Long conversationId,
             User user
     ) {
+
+        validateAuthenticated(
+                user
+        );
 
         Conversation conversation =
                 conversationRepository
@@ -63,6 +66,12 @@ public class ConversationAccessService {
             validateCourseAccess(
                     conversation,
                     user
+            );
+
+        } else {
+
+            throw new ChatAccessDeniedException(
+                    "Conversation not found"
             );
         }
 
@@ -94,23 +103,33 @@ public class ConversationAccessService {
             User user
     ) {
 
+        if (conversation.getCourse() == null) {
+
+            throw new ChatAccessDeniedException(
+                    "Conversation not found"
+            );
+        }
+
         Long courseId =
                 conversation
                         .getCourse()
                         .getId();
 
-        boolean enrolled =
-                enrollmentRepository
-                        .existsByCourseIdAndUserIdAndStatus(
-                                courseId,
-                                user.getId(),
-                                EnrollmentStatus.ACTIVE
-                        );
+        courseAccessService
+                .getEnrolledCourse(
+                        courseId,
+                        user
+                );
+    }
 
-        if (!enrolled) {
+    private void validateAuthenticated(
+            User user
+    ) {
 
+        if (user == null
+                || user.getId() == null) {
             throw new ChatAccessDeniedException(
-                    "You are not enrolled in this course"
+                    "Authentication required"
             );
         }
     }

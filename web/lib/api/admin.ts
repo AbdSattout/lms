@@ -76,13 +76,11 @@ export const reports = {
 }
 
 export const organizations = {
-  get: defineApiRoute({
-    get: (organizationId: number, options?: BackendFetchOptions) =>
-      backend<OrganizationResponse>(`/admin/organizations/${organizationId}`, {
-        method: "GET",
-        ...options,
-      }),
-  }),
+  get: (organizationId: number, options?: BackendFetchOptions) =>
+    backend<OrganizationResponse>(`/admin/organizations/${organizationId}`, {
+      method: "GET",
+      ...options,
+    }),
 
   courses: defineApiRoute({
     get: (
@@ -121,7 +119,13 @@ export const organizations = {
       ),
   }),
 }
-
+export const comments = {
+  get: (commentId: number, options?: BackendFetchOptions) =>
+    backend<CommentResponse>(`/admin/comments/${commentId}`, {
+      method: "GET",
+      ...options,
+    }),
+}
 export const users = {
   posts: defineApiRoute({
     get: (

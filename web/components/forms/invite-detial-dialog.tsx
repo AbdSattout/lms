@@ -29,7 +29,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogHeader,
-  DialogFooter,
 } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
