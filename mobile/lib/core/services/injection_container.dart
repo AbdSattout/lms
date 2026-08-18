@@ -352,12 +352,14 @@ Future<void> init() async {
       getCourseByIdUseCase: sl(),
       getCourseBySlugUseCase: sl(),
       enrollInCourseUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
     ),
   );
 
   sl.registerFactory(
     () => CourseContentsBloc(
       getCourseByIdUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
       unenrollFromCourseUseCase: sl(),
     ),
   );
