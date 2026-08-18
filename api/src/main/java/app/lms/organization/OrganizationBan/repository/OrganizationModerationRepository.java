@@ -38,7 +38,6 @@ public interface OrganizationModerationRepository
                     join fetch moderation.bannedBy
                     where moderation.expiresAt is null
                     or moderation.expiresAt > CURRENT_TIMESTAMP
-                    order by moderation.createdAt desc
                     """,
             countQuery = """
                     select count(moderation)
