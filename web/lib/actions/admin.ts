@@ -1,8 +1,16 @@
 "use server"
 
-import { comments, organizations, reports, users } from "@/lib/api/admin"
+import {
+  comments,
+  organizations,
+  organizationVerifications,
+  reports,
+  users,
+} from "@/lib/api/admin"
 
 import type {
+  OrganizationVerificationStatus,
+  ReviewOrganizationVerificationRequest,
   ReportResponse,
   ReportReviewRequest,
   ReportStatus,
@@ -19,6 +27,23 @@ export async function getAdminReportsByStatusAction(
   pageable: PageableInput
 ) {
   return reports.byStatus.get(status, pageable)
+}
+
+export async function getOrganizationVerificationsAction(
+  status: OrganizationVerificationStatus | "ALL",
+  pageable: PageableInput
+) {
+  return organizationVerifications.list.get(
+    status === "ALL" ? undefined : status,
+    pageable
+  )
+}
+
+export async function reviewOrganizationVerificationAction(
+  requestId: number,
+  request: ReviewOrganizationVerificationRequest
+) {
+  return organizationVerifications.review.patch(requestId, request)
 }
 
 export async function reviewAdminReportAction(

@@ -9,7 +9,66 @@ import {
 } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import { OrganizationOverviewResponse } from "../api/types"
+import type { OrganizationOverviewResponse } from "../api/types"
+import type { PageableInput } from "../validation"
+
+type OrganizationVerificationFormState = {
+  error?: string
+  success?: boolean
+}
+
+export async function getOrganizationOverviewAction(
+  slug: string
+): Promise<OrganizationOverviewResponse> {
+  return api.dashboard.organizations.overview.get(slug)
+}
+
+export async function getOrganizationVerificationRequestsAction(
+  slug: string,
+  pageable: PageableInput
+) {
+  return api.dashboard.organizations.verificationRequests.list.get(
+    slug,
+    pageable
+  )
+}
+
+export async function submitOrganizationVerificationAction(
+  _prevState: OrganizationVerificationFormState,
+  formData: FormData
+): Promise<OrganizationVerificationFormState> {
+  const slug = String(formData.get("slug") ?? "")
+  const note = String(formData.get("note") ?? "").trim()
+  const proof = formData.get("proof")
+
+  if (!slug) {
+    return { error: "Organization slug is required." }
+  }
+
+  if (!(proof instanceof File) || proof.size === 0) {
+    return { error: "Proof file is required." }
+  }
+
+  try {
+    await api.dashboard.organizations.verificationRequests.submit.post(
+      slug,
+      note ? { note } : {},
+      proof
+    )
+  } catch (error) {
+    console.error("Submit organization verification failed:", error)
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to submit verification request.",
+    }
+  }
+
+  revalidatePath(`/${slug}/settings`)
+
+  return { success: true }
+}
 
 export async function createOrganization(
   _prevState: { error?: string; success?: boolean },

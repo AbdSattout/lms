@@ -280,14 +280,57 @@ class _OrganizationDetailsContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      organization.name,
-                      style: textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: colors.onSurface,
-                        height: 1.3,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            organization.name,
+                            style: textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: colors.onSurface,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                        if (organization.verified)
+                          Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: const Color(0xff0EA5E9).withValues(
+                                alpha: 0.12,
+                              ),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.verified_rounded,
+                              size: 20,
+                              color: Color(0xff0EA5E9),
+                            ),
+                          ),
+                      ],
                     ),
+                    if (organization.verified) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.verified_rounded,
+                            size: 14,
+                            color: Color(0xff0EA5E9),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'Verified organization',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [

@@ -4,13 +4,12 @@ import type { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import {
+  BadgeCheck,
   Ban,
-  Building2,
   FileWarning,
   LogOut,
   Settings,
   ShieldCheck,
-  Users,
 } from "lucide-react"
 
 import { Separator } from "@/components/ui/separator"
@@ -22,6 +21,9 @@ export function AdminSidebar() {
 
   const isReportsActive = pathname.startsWith("/admin/reports")
   const isBansActive = pathname.startsWith("/admin/bans")
+  const isVerificationsActive = pathname.startsWith(
+    "/admin/organization-verifications"
+  )
 
   return (
     <aside className="hidden w-[250px] shrink-0 border-l bg-card lg:flex">
@@ -68,6 +70,19 @@ export function AdminSidebar() {
           >
             <Ban className="h-4 w-4" />
             الحظر
+          </Link>
+
+          <Link
+            href={"/admin/organization-verifications" as Route}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+              isVerificationsActive
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            <BadgeCheck className="h-4 w-4" />
+            Organization verification
           </Link>
 
           <div className="mt-auto flex flex-col gap-1">

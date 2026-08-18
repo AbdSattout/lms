@@ -9,13 +9,17 @@ import type {
   CommentResponse,
   CourseResponse,
   OrganizationResponse,
+  OrganizationVerificationResponse,
+  OrganizationVerificationStatus,
   Page,
   PageBannedUserResponse,
+  PageOrganizationVerificationResponse,
   PostResponse,
   ReportPageResponse,
   ReportResponse,
   ReportReviewRequest,
   ReportStatus,
+  ReviewOrganizationVerificationRequest,
   UserResponse,
 } from "@/lib/api/types"
 import type { PageableInput } from "@/lib/validation"
@@ -41,6 +45,68 @@ function toQueryString(pageable: PageableInput) {
 
 function withPageable(path: string, pageable: PageableInput) {
   return `${path}${toQueryString(pageable)}`
+}
+
+export const organizationVerifications = {
+  list: defineApiRoute({
+    get: (
+      status: OrganizationVerificationStatus | undefined,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) => {
+      const params = new URLSearchParams()
+
+      if (status) {
+        params.set("status", status)
+      }
+
+      if (pageable.page !== undefined) {
+        params.set("page", String(pageable.page))
+      }
+
+      if (pageable.size !== undefined) {
+        params.set("size", String(pageable.size))
+      }
+
+      for (const sort of pageable.sort ?? []) {
+        params.append("sort", sort)
+      }
+
+      const query = params.toString()
+
+      return backend<PageOrganizationVerificationResponse>(
+        `/admin/organization-verifications${query ? `?${query}` : ""}`,
+        {
+          method: "GET",
+          ...options,
+        }
+      )
+    },
+  }),
+
+  byId: defineApiRoute({
+    get: (requestId: number, options?: BackendFetchOptions) =>
+      backend<OrganizationVerificationResponse>(
+        `/admin/organization-verifications/${requestId}`,
+        { method: "GET", ...options }
+      ),
+  }),
+
+  review: defineApiRoute({
+    patch: (
+      requestId: number,
+      request: ReviewOrganizationVerificationRequest,
+      options?: BackendFetchOptions
+    ) =>
+      backend<OrganizationVerificationResponse>(
+        `/admin/organization-verifications/${requestId}`,
+        {
+          method: "PATCH",
+          body: request,
+          ...options,
+        }
+      ),
+  }),
 }
 
 export const reports = {
