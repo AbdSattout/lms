@@ -3,6 +3,7 @@
 import { BreadcrumbTrail } from "@/components/breadcrumb-trail"
 import { DeleteOrgButton } from "@/components/delete-org-button"
 import { OrganizationForm } from "@/components/forms/organization-form"
+import { OrganizationVerificationCard } from "@/components/organization-verification-card"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { LeaveOrgButton } from "@/components/ui/leave-org-button"
 import { api } from "@/lib/api"
@@ -37,6 +38,18 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
 
   const isAdmin = currentUser.user.id !== overviewData.owner.id
 
+  const verificationRequests = isOwner
+    ? (
+        await api.dashboard.organizations.verificationRequests.list
+          .get(slug, {
+            page: 0,
+            size: 5,
+            sort: ["createdAt,desc"],
+          })
+          .catch(() => ({ content: [] }))
+      ).content ?? []
+    : []
+
   return (
     <>
       <BreadcrumbTrail items={[{ label: "الإعدادات" }]} />
@@ -51,6 +64,13 @@ export default async function SettingsPage({ params }: SettingsPageProps) {
               <OrganizationForm initialData={organizationData} />
             </CardContent>
           </Card>
+
+          {isOwner && (
+            <OrganizationVerificationCard
+              organization={organizationData}
+              requests={verificationRequests}
+            />
+          )}
         </section>
 
         <section className="flex flex-col gap-6">

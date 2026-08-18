@@ -36,6 +36,7 @@ class OrganizationEntity {
   final String? description;
   final String? image;
   final OrganizationVisibility visibility;
+  final bool verified;
   final String? ownerName;
   final int membersCount;
 
@@ -53,6 +54,7 @@ class OrganizationEntity {
     this.description,
     this.image,
     this.visibility = OrganizationVisibility.unknown,
+    this.verified = false,
     this.ownerName,
     this.membersCount = 0,
     this.viewerJoined = false,

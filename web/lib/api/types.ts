@@ -53,6 +53,7 @@ export interface OrganizationResponse {
   description?: string
   image?: string
   visibility: OrganizationVisibility
+  verified?: boolean
   ownerName: string
   membersCount: number
   coursesCount: number
@@ -89,6 +90,7 @@ export interface OrganizationSummaryResponse {
   description?: string
   image?: string
   visibility: OrganizationVisibility
+  verified?: boolean
 }
 
 export interface CourseResponse {
@@ -348,6 +350,29 @@ export interface OrganizationOverviewResponse {
   roadmapsCount: number
   storage: StorageResponse
 }
+export type OrganizationVerificationStatus =
+  "PENDING" | "APPROVED" | "REJECTED"
+
+export interface OrganizationVerificationResponse {
+  id: number
+  organization: OrganizationResponse
+  requestedBy: UserResponse
+  note?: string | null
+  proofUrl: string
+  status: OrganizationVerificationStatus
+  reviewedBy?: AdminResponse | null
+  adminNote?: string | null
+  reviewedAt?: string | null
+  baseEntity?: BaseEntityResponse
+}
+
+export interface ReviewOrganizationVerificationRequest {
+  status: OrganizationVerificationStatus
+  adminNote?: string | null
+}
+
+export type PageOrganizationVerificationResponse =
+  Page<OrganizationVerificationResponse>
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>
 
