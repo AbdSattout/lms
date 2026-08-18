@@ -1,4 +1,10 @@
-import { MessageSquareText, FileText, UserRound, Building2 } from "lucide-react"
+import {
+  MessageSquareText,
+  FileText,
+  UserRound,
+  Building2,
+  BookOpen,
+} from "lucide-react"
 
 import type { ReportTargetType } from "@/lib/api/types"
 
@@ -24,6 +30,10 @@ const config: Record<
   ORGANIZATION: {
     label: "منظمة",
     icon: Building2,
+  },
+  COURSE: {
+    label: "دورة",
+    icon: BookOpen,
   },
 }
 
