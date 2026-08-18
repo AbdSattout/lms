@@ -88,7 +88,7 @@ class CourseCard extends StatelessWidget {
                               style: TextStyle(color: colors.primary, fontSize: 12, fontWeight: FontWeight.w700),
                             ),
                             const SizedBox(width: 4),
-                            Icon(Icons.arrow_back_rounded, size: 14, color: colors.primary),
+                            Icon(Icons.arrow_forward_rounded, size: 14, color: colors.primary),
                           ],
                         ),
                       ],

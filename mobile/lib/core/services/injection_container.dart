@@ -469,86 +469,6 @@ Future<void> init() async {
     ),
   );
 
-  // Friends
-  sl.registerLazySingleton<FriendsRemoteDataSource>(
-    () => FriendsRemoteDataSourceImpl(sl()),
-  );
-  sl.registerLazySingleton<FriendsRepository>(
-    () => FriendsRepositoryImpl(sl()),
-  );
-  sl.registerLazySingleton(() => GetFriendsUseCase(sl()));
-  sl.registerLazySingleton(() => GetReceivedFriendRequestsUseCase(sl()));
-  sl.registerLazySingleton(() => GetSentFriendRequestsUseCase(sl()));
-  sl.registerLazySingleton(() => SendFriendRequestUseCase(sl()));
-  sl.registerLazySingleton(() => AcceptFriendRequestUseCase(sl()));
-  sl.registerLazySingleton(() => RejectFriendRequestUseCase(sl()));
-  sl.registerLazySingleton(() => CancelFriendRequestUseCase(sl()));
-  sl.registerLazySingleton(() => RemoveFriendUseCase(sl()));
-  sl.registerLazySingleton(() => SearchUsersUseCase(sl()));
-  sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
-  sl.registerFactory(
-    () => FriendsBloc(
-      getFriendsUseCase: sl(),
-      getReceivedFriendRequestsUseCase: sl(),
-      getSentFriendRequestsUseCase: sl(),
-      acceptFriendRequestUseCase: sl(),
-      rejectFriendRequestUseCase: sl(),
-      cancelFriendRequestUseCase: sl(),
-      removeFriendUseCase: sl(),
-    ),
-  );
-  sl.registerFactory(
-    () => AddFriendBloc(
-      searchUsersUseCase: sl(),
-      sendFriendRequestUseCase: sl(),
-      getSentFriendRequestsUseCase: sl(),
-    ),
-  );
-  sl.registerFactory(
-    () => UserProfileBloc(
-      getUserProfileUseCase: sl(),
-      sendFriendRequestUseCase: sl(),
-      acceptFriendRequestUseCase: sl(),
-      rejectFriendRequestUseCase: sl(),
-      cancelFriendRequestUseCase: sl(),
-      removeFriendUseCase: sl(),
-    ),
-  );
-
-  // Chat
-  sl.registerLazySingleton(() => ChatUpdatesNotifier());
-  sl.registerLazySingleton<ChatRemoteDataSource>(
-    () => ChatRemoteDataSourceImpl(sl()),
-  );
-  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
-  sl.registerLazySingleton(() => GetConversationsUseCase(sl()));
-  sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
-  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
-  sl.registerLazySingleton(() => CreateDirectConversationUseCase(sl()));
-  sl.registerLazySingleton(() => MarkConversationAsReadUseCase(sl()));
-  sl.registerFactory(
-    () => ChatBloc(
-      getConversationsUseCase: sl(),
-      getFriendsUseCase: sl(),
-      chatUpdatesNotifier: sl(),
-    ),
-  );
-  sl.registerFactory(() => NewChatBloc(getFriendsUseCase: sl()));
-  sl.registerFactoryParam<ChatMessagesBloc, int, int>(
-    (conversationId, currentUserId) => ChatMessagesBloc(
-      conversationId: conversationId,
-      currentUserId: currentUserId,
-      getMessagesUseCase: sl(),
-      sendMessageUseCase: sl(),
-      markConversationAsReadUseCase: sl(),
-      chatUpdatesNotifier: sl(),
-      pusherService: PusherChatService(
-        api: sl(),
-        conversationId: conversationId,
-      ),
-    ),
-  );
-
   // Blocks
   sl.registerLazySingleton<BlockRemoteDataSource>(
     () => BlockRemoteDataSourceImpl(sl()),
@@ -625,15 +545,13 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
 
-  sl.registerFactory(
-    () => RoadmapBloc(
-      getOrganizationRoadmaps: sl(),
-      getRoadmapDetails: sl(),
-      followRoadmap: sl(),
-      unfollowRoadmap: sl(),
-      getMyRoadmaps: sl(),
-    ),
-  );
+  sl.registerFactory(() => RoadmapBloc(
+    getOrganizationRoadmaps: sl(),
+    getRoadmapDetails: sl(),
+    followRoadmap: sl(),
+    unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
+  ));
 
   //Ai Quiz
   sl.registerLazySingleton<AiQuizRemoteDataSource>(
@@ -671,9 +589,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetPracticeQuizListUseCase(sl()));
   sl.registerLazySingleton(() => GetPracticeQuizDetailsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitPracticeQuizUseCase(sl()));
-  sl.registerFactory(
-    () => PracticeQuizBloc(getList: sl(), getDetails: sl(), submit: sl()),
-  );
+  sl.registerFactory(() => PracticeQuizBloc(
+    getList: sl(),
+    getDetails: sl(),
+    submit: sl(),
+  ));
 
   // Practice Exam
   sl.registerLazySingleton<PracticeExamRemoteDataSource>(
@@ -685,9 +605,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetPracticeExamListUseCase(sl()));
   sl.registerLazySingleton(() => GetPracticeExamDetailsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitPracticeExamUseCase(sl()));
-  sl.registerFactory(
-    () => PracticeExamBloc(getList: sl(), getDetails: sl(), submit: sl()),
-  );
+  sl.registerFactory(() => PracticeExamBloc(
+    getList: sl(),
+    getDetails: sl(),
+    submit: sl(),
+  ));
 
   // Final Exam
   sl.registerLazySingleton<FinalExamRemoteDataSource>(

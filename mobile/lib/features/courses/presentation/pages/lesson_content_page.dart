@@ -171,14 +171,7 @@ class _LessonContentPageState extends State<LessonContentPage> {
                                     children: [
                                       _DifficultyChip(question: question),
                                       const SizedBox(height: 10),
-                                      Text(
-                                        question.content,
-                                        style: textTheme.titleMedium?.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                          color: colors.onSurface,
-                                          height: 1.5,
-                                        ),
-                                      ),
+                                      MarkdownContentView(content: question.content),
                                     ],
                                   ),
                                 ),
