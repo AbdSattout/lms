@@ -284,13 +284,18 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(() {
-    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
-    consumer.onTokenInvalid = () {
-      sl<AuthBloc>().add(LogoutRequested());
-    };
-    return consumer;
-  });
+  sl.registerLazySingleton<ApiConsumer>(
+        () {
+      final consumer = DioConsumer(
+        dio: sl(),
+        authLocalDataSource: sl(),
+      );
+      consumer.onTokenInvalid = () {
+        sl<AuthBloc>().add(LogoutRequested());
+      };
+      return consumer;
+    },
+  );
 
   sl.registerLazySingleton(
     () => Dio(
