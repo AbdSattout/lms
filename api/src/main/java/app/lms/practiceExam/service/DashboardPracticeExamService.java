@@ -1,11 +1,13 @@
 package app.lms.practiceExam.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.common.quiz.service.QuizQuestionSelectionService;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
 import app.lms.practiceExam.dto.CreatePracticeExamRequest;
 import app.lms.practiceExam.dto.PracticeExamResponse;
 import app.lms.practiceExam.dto.UpdatePracticeExamQuestionsRequest;
+import app.lms.practiceExam.enums.PracticeExamStatus;
 import app.lms.practiceExam.mapper.PracticeExamMapper;
 import app.lms.practiceExam.model.PracticeExam;
 import app.lms.practiceExam.repository.PracticeExamAttemptRepository;
@@ -167,5 +169,45 @@ public class DashboardPracticeExamService {
         practiceExamRepository.delete(
                 practiceExam
         );
+    }
+
+    @Transactional
+    public PracticeExamResponse publish(
+            Long courseId,
+            Long practiceExamId,
+            User user
+    ) {
+
+        PracticeExam practiceExam =
+                practiceExamAccessService
+                        .getManageablePracticeExam(
+                                courseId,
+                                practiceExamId,
+                                user
+                        );
+
+        validateNotPublished(
+                practiceExam
+        );
+
+        practiceExam.setStatus(
+                PracticeExamStatus.PUBLISHED
+        );
+
+        return practiceExamMapper.toResponse(
+                practiceExam
+        );
+    }
+
+    private void validateNotPublished(
+            PracticeExam practiceExam
+    ) {
+
+        if (practiceExam.getStatus()
+                == PracticeExamStatus.PUBLISHED) {
+            throw new ConflictException(
+                    "Practice exam already published"
+            );
+        }
     }
 }

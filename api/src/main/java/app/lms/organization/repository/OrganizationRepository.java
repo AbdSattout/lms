@@ -134,6 +134,48 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
                     select o.*
                     from organizations o
                     where
+                        lower(o.name) like lower(concat('%', :q, '%'))
+                        or lower(o.slug) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(o.description, '')) like lower(concat('%', :q, '%'))
+                        or o.name % :q
+                        or o.slug % :q
+                        or coalesce(o.description, '') % :q
+                        or similarity(o.name, :q) >= :threshold
+                        or similarity(o.slug, :q) >= :threshold
+                        or similarity(coalesce(o.description, ''), :q) >= :threshold
+                    order by greatest(
+                        similarity(o.name, :q),
+                        similarity(o.slug, :q),
+                        similarity(coalesce(o.description, ''), :q)
+                    ) desc, o.created_at desc
+                    """,
+            countQuery = """
+                    select count(*)
+                    from organizations o
+                    where
+                        lower(o.name) like lower(concat('%', :q, '%'))
+                        or lower(o.slug) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(o.description, '')) like lower(concat('%', :q, '%'))
+                        or o.name % :q
+                        or o.slug % :q
+                        or coalesce(o.description, '') % :q
+                        or similarity(o.name, :q) >= :threshold
+                        or similarity(o.slug, :q) >= :threshold
+                        or similarity(coalesce(o.description, ''), :q) >= :threshold
+                    """,
+            nativeQuery = true
+    )
+    Page<Organization> searchAllForAdmin(
+            @Param("q") String q,
+            @Param("threshold") double threshold,
+            Pageable pageable
+    );
+
+    @Query(
+            value = """
+                    select o.*
+                    from organizations o
+                    where
                         not exists (
                             select 1
                             from organization_moderation om
