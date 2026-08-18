@@ -671,9 +671,9 @@ export function CourseManagement({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="size-4" />
-              الاختبارات
+              الاختبارات والامتحانات
             </CardTitle>
-            <CardDescription>إدارة اختبارات الدورة</CardDescription>
+            <CardDescription>إدارة اختبارات وامتحانات الدورة</CardDescription>
           </CardHeader>
         </Card>
 
