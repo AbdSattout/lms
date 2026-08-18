@@ -561,15 +561,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
 
-  sl.registerFactory(
-    () => RoadmapBloc(
-      getOrganizationRoadmaps: sl(),
-      getRoadmapDetails: sl(),
-      followRoadmap: sl(),
-      unfollowRoadmap: sl(),
-      getMyRoadmaps: sl(),
-    ),
-  );
+  sl.registerFactory(() => RoadmapBloc(
+    getOrganizationRoadmaps: sl(),
+    getRoadmapDetails: sl(),
+    followRoadmap: sl(),
+    unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
+    getOrganizationBySlug: sl(),
+  ));
 
   //Ai Quiz
   sl.registerLazySingleton<AiQuizRemoteDataSource>(
