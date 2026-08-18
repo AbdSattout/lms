@@ -55,6 +55,7 @@ export interface OrganizationResponse {
   visibility: OrganizationVisibility
   ownerName: string
   membersCount: number
+  coursesCount: number
   viewer?: OrganizationViewerResponse
   baseEntity?: BaseEntityResponse
 }
@@ -703,3 +704,84 @@ export interface CertificateResponse {
   grade: CertificateGrade
   baseEntity?: BaseEntityResponse
 }
+export type ReportStatus = "PENDING" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED"
+
+export type ReportTargetType =
+  "POST" | "COMMENT" | "USER" | "ORGANIZATION" | "COURSE"
+
+export interface ReportReporter {
+  id: number
+  name: string
+  username?: string
+  picture?: string | null
+}
+
+export interface ReportAdminResponse {
+  id: number
+  name: string
+  email: string
+  role: string
+  enabled: boolean
+}
+export interface ReportTargetResponse {
+  userId?: number | null
+  organizationId?: number | null
+  courseId?: number | null
+  postId?: number | null
+  commentId?: number | null
+  exists: boolean
+}
+export interface ReportResponse {
+  id: number
+  reporter: ReportReporter
+  targetType: ReportTargetType
+  target: ReportTargetResponse
+  reason: string
+  status: ReportStatus
+  adminNote?: string | null
+  adminResponse?: ReportAdminResponse | null
+  baseEntityResponse?: BaseEntityResponse
+  reviewedAt?: string | null
+}
+
+export interface ReportPageResponse {
+  content: ReportResponse[]
+  totalElements: number
+  totalPages: number
+  number?: number
+  size?: number
+}
+
+export interface ReportReviewRequest {
+  status: ReportStatus
+  adminNote?: string | null
+}
+export type AdminRole = "SUPER_ADMIN" | "MODERATOR"
+export interface AdminResponse {
+  id: number
+  name: string
+  email: string
+  role: AdminRole
+  enabled: boolean
+}
+
+export interface BannedUserResponse {
+  id: number
+  user: UserResponse
+  bannedBy: AdminResponse
+  reason: string
+  expiresAt: string | null
+  baseEntity?: BaseEntityResponse
+}
+
+export interface BannedOrganizationResponse {
+  id: number
+  organization: OrganizationSummaryResponse
+  bannedBy: AdminResponse
+  reason: string
+  expiresAt: string | null
+  baseEntity?: BaseEntityResponse
+}
+export type PageBannedUserResponse = Page<BannedUserResponse>
+
+export type PageBannedOrganizationResponse = Page<BannedOrganizationResponse>

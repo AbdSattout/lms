@@ -1,4 +1,3 @@
-// app/[slug]/posts/[postId]/page.tsx
 import { Suspense } from "react"
 import { notFound } from "next/navigation" // أضف هذا الاستيراد
 

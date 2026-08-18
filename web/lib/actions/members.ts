@@ -109,7 +109,7 @@ export async function getBannedUsers(
 }
 export async function unbanUserAction(slug: string, userId: number) {
   try {
-    await api.dashboard.organizations.unbanUser.delete(slug, userId)
+    await api.dashboard.organizations.banUser.delete(slug, userId)
     revalidatePath(`/${slug}`)
     return { success: true, error: null }
   } catch (error) {

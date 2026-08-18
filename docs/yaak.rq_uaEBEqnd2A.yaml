@@ -1,0 +1,51 @@
+type: http_request
+model: http_request
+id: rq_uaEBEqnd2A
+createdAt: 2026-08-17T07:13:37.973773700
+updatedAt: 2026-08-17T07:21:50.858467500
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_XugeQvJB6M
+authentication: {}
+authenticationType: bearer
+body:
+  text: |-
+    {
+      "targetType": "POST",
+      "targetId": 12,
+      "reason": "This post contains harmful content and spam."
+    }
+bodyType: application/json
+description: ''
+headers:
+- enabled: false
+  name: Authorization
+  value: Bearer {{user_token}}
+  id: yTuwuZUSNA
+- enabled: true
+  name: Content-Type
+  value: application/json
+  id: D39rJFFIXH
+- enabled: true
+  name: ''
+  value: ''
+  id: DXY4CuJn3m
+method: POST
+name: ''
+sortPriority: -1786950817971.0
+url: http://localhost:8080/reports
+urlParameters: []
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

@@ -5,6 +5,7 @@ import {
   loginWithGoogle,
   loginWithTelegram,
   requestEmailOtp,
+  loginAdmin,
 } from "@/lib/api/auth"
 import {
   byId as blocksById,
@@ -46,7 +47,6 @@ import {
   members,
   removeMember,
   searchUsers as organizationSearchUsers,
-  unbanUser,
 } from "@/lib/api/organizations"
 import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
@@ -110,6 +110,7 @@ export const api = {
     loginWithGoogle,
     requestEmailOtp,
     loginWithEmailOtp,
+    loginAdmin,
   },
   organizations: {
     list,
@@ -148,7 +149,6 @@ export const api = {
       searchUsers: organizationSearchUsers,
       removeMember,
       banUser,
-      unbanUser,
       members: {
         list: members.list,
         getOwners: members.owners,

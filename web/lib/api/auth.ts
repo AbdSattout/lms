@@ -39,3 +39,12 @@ export const loginWithEmailOtp = defineApiRoute({
       requireAuth: false,
     }),
 })
+
+export const loginAdmin = defineApiRoute({
+  post: (email: string, password: string) =>
+    backend<AuthResponse>("/admin/auth/login", {
+      method: "POST",
+      body: { email, password },
+      requireAuth: false,
+    }),
+})

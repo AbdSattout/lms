@@ -361,12 +361,18 @@ export const banUser = defineApiRoute({
       body: request,
       ...options,
     }),
-})
-
-export const unbanUser = defineApiRoute({
   delete: (slug: string, userId: number, options?: BackendFetchOptions) =>
     backend<void>(`/dashboard/organizations/${slug}/users/${userId}/ban`, {
       method: "DELETE",
+      ...options,
+    }),
+})
+
+export const adminBanOrg = defineApiRoute({
+  post: (orgId: number, request: BanRequest, options?: BackendFetchOptions) =>
+    backend<void>(`/admin/moderation/organizations/${orgId}/ban`, {
+      method: "POST",
+      body: request,
       ...options,
     }),
 })

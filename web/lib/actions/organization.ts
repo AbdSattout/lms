@@ -9,6 +9,7 @@ import {
 } from "@/lib/validation"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { OrganizationOverviewResponse } from "../api/types"
 
 export async function createOrganization(
   _prevState: { error?: string; success?: boolean },
