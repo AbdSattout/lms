@@ -11,8 +11,8 @@ export function OrganizationVerifiedBadge({
 }) {
   return (
     <span
-      title="Verified organization"
-      aria-label="Verified organization"
+      title="منظمة موثقة"
+      aria-label="منظمة موثقة"
       className={cn(
         "inline-flex shrink-0 items-center gap-1 rounded-full text-sky-600 dark:text-sky-400",
         showLabel && "bg-sky-500/10 px-2 py-0.5 text-xs font-semibold",
@@ -20,7 +20,7 @@ export function OrganizationVerifiedBadge({
       )}
     >
       <BadgeCheck className="h-4 w-4 fill-sky-100 dark:fill-sky-950" />
-      {showLabel && <span>Verified</span>}
+      {showLabel && <span>موثقة</span>}
     </span>
   )
 }

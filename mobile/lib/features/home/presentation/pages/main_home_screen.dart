@@ -71,7 +71,7 @@ class MainHomeScreen extends StatelessWidget {
                     ),
                     BlocProvider(
                       create: (_) =>
-                      sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
+                          sl<MyCoursesBloc>()..add(GetMyEnrollmentsEvent()),
                       child: const MyCoursesPage(),
                     ),
                     BlocProvider(
@@ -155,12 +155,12 @@ class MainHomeScreen extends StatelessWidget {
   }
 
   static Widget buildAvatar(
-      dynamic user, {
-        required BuildContext context,
-        required double radius,
-        bool isHome = false,
-        VoidCallback? onTap,
-      }) {
+    dynamic user, {
+    required BuildContext context,
+    required double radius,
+    bool isHome = false,
+    VoidCallback? onTap,
+  }) {
     final colors = Theme.of(context).colorScheme;
 
     return ResilientNetworkAvatar(
@@ -550,16 +550,16 @@ class _HomeLoadedContent extends StatelessWidget {
   }
 
   void _openOrganization(
-      BuildContext context,
-      OrganizationEntity organization,
-      ) {
+    BuildContext context,
+    OrganizationEntity organization,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BlocProvider(
           create: (_) =>
-          sl<OrganizationDetailsBloc>()
-            ..add(GetOrganizationDetailsEvent(organization.slug)),
+              sl<OrganizationDetailsBloc>()
+                ..add(GetOrganizationDetailsEvent(organization.slug)),
           child: OrganizationDetailsPage(slug: organization.slug),
         ),
       ),
@@ -741,7 +741,11 @@ class _FeaturedCourseCard extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            isEnrolled ? 'متابعة التعلم' : 'ابدأ الآن',
+                            isCompleted
+                                ? 'مكتملة بالكامل'
+                                : isEnrolled
+                                ? 'متابعة التعلم'
+                                : 'ابدأ الآن',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -829,7 +833,9 @@ class _FeaturedCourseCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Icon(
-                            Icons.arrow_forward_rounded,
+                            isCompleted
+                                ? Icons.check_rounded
+                                : Icons.arrow_forward_rounded,
                             color: colors.primary,
                           ),
                         ),
@@ -925,21 +931,21 @@ class _HomeOrganizationCard extends StatelessWidget {
                         gradient: hasImage
                             ? null
                             : LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.primary,
-                            AppColors.primary.withValues(alpha: 0.65),
-                          ],
-                        ),
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppColors.primary,
+                                  AppColors.primary.withValues(alpha: 0.65),
+                                ],
+                              ),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: hasImage
                           ? Image.network(
-                        organization.image!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _initials(),
-                      )
+                              organization.image!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => _initials(),
+                            )
                           : _initials(),
                     ),
                     const Spacer(),
@@ -1361,7 +1367,7 @@ class _NotificationRefreshListenerState
       _delayedRefresh?.cancel();
       _delayedRefresh = Timer(
         const Duration(milliseconds: 1200),
-            () => _refreshNotifications(keepHigherUnreadCount: true),
+        () => _refreshNotifications(keepHigherUnreadCount: true),
       );
     });
   }

@@ -47,13 +47,13 @@ export function OrganizationVerificationCard({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
-          <CardTitle className="text-base">Organization verification</CardTitle>
+          <CardTitle className="text-base">توثيق المنظمة</CardTitle>
           {organization.verified ? (
             <OrganizationVerifiedBadge showLabel />
           ) : hasPendingRequest ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
               <Clock3 className="h-3.5 w-3.5" />
-              Pending
+              قيد الانتظار
             </span>
           ) : null}
         </div>
@@ -63,33 +63,33 @@ export function OrganizationVerificationCard({
           <StatusMessage
             icon={<BadgeCheck className="h-5 w-5" />}
             tone="success"
-            title="This organization is verified."
-            description="The verified badge is now shown anywhere this organization appears."
+            title="هذه المنظمة موثقة."
+            description="تظهر شارة التوثيق الآن في كل مكان تظهر فيه هذه المنظمة."
           />
         ) : hasPendingRequest ? (
           <StatusMessage
             icon={<Clock3 className="h-5 w-5" />}
             tone="pending"
-            title="Verification request is pending."
-            description="An admin needs to review the submitted proof before the badge appears."
+            title="طلب التوثيق قيد المراجعة."
+            description="يجب على الإدارة مراجعة الإثبات المرسل قبل ظهور الشارة."
           />
         ) : canSubmit ? (
           <form action={formAction} className="space-y-4">
             <input type="hidden" name="slug" value={organization.slug} />
 
             <div className="space-y-2">
-              <Label htmlFor="verification-note">Note</Label>
+              <Label htmlFor="verification-note">ملاحظة</Label>
               <Textarea
                 id="verification-note"
                 name="note"
-                placeholder="Add any context admins should review."
+                placeholder="أضف أي تفاصيل تريد أن تراجعها الإدارة."
                 className="min-h-24 resize-y"
                 disabled={isPending}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="verification-proof">Proof file</Label>
+              <Label htmlFor="verification-proof">ملف الإثبات</Label>
               <Input
                 id="verification-proof"
                 name="proof"
@@ -114,7 +114,7 @@ export function OrganizationVerificationCard({
 
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-              Submit verification request
+              إرسال طلب التوثيق
             </Button>
           </form>
         ) : null}
@@ -122,7 +122,7 @@ export function OrganizationVerificationCard({
         {latestRequest && (
           <div className="rounded-lg border bg-muted/30 p-3 text-sm">
             <div className="flex items-center justify-between gap-3">
-              <span className="font-semibold">Latest request</span>
+              <span className="font-semibold">آخر طلب</span>
               <VerificationStatus status={latestRequest.status} />
             </div>
             {latestRequest.adminNote && (
@@ -180,7 +180,7 @@ function VerificationStatus({
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-semibold text-destructive">
         <XCircle className="h-3.5 w-3.5" />
-        Rejected
+        مرفوض
       </span>
     )
   }
@@ -188,7 +188,7 @@ function VerificationStatus({
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400">
       <Clock3 className="h-3.5 w-3.5" />
-      Pending
+      قيد الانتظار
     </span>
   )
 }

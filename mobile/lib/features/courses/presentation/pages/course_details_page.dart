@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
 import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
@@ -92,7 +93,7 @@ class _CourseDetailsContent extends StatelessWidget {
     final isOwner = viewerRole == 'OWNER';
     final isBlockedByMembership =
         !isEnrolled && viewerJoined == false && !isOwner;
-    final progressPercentage = course.enrollment?.progressPercentage ?? 0;
+    final progressPercentage = course.learningProgressPercentage;
     final isCompleted = course.isCompleted;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
     final placementTestCompleted =
@@ -240,8 +241,9 @@ class _CourseDetailsContent extends StatelessWidget {
     final viewerJoined = course.organization?.viewerJoined;
     final isBlockedByMembership =
         !isEnrolled && viewerJoined == false && !isOwner;
-    final progressPercentage = course.enrollment?.progressPercentage ?? 0;
+    final progressPercentage = course.learningProgressPercentage;
     final isCompleted = course.isCompleted;
+    final isReadyForFinalQuiz = course.isReadyForFinalQuiz;
 
     if (isOwner) {
       return ElevatedButton.icon(
@@ -316,11 +318,36 @@ class _CourseDetailsContent extends StatelessWidget {
       );
     }
 
+    if (isCompleted) {
+      return ElevatedButton.icon(
+        onPressed: null,
+        style: ElevatedButton.styleFrom(
+          disabledBackgroundColor: const Color(
+            0xff2E7D53,
+          ).withValues(alpha: 0.12),
+          disabledForegroundColor: const Color(0xff2E7D53),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        icon: const Icon(Icons.check_circle_rounded, size: 18),
+        label: const Text(
+          'مكتملة بالكامل',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+      );
+    }
+
     return ElevatedButton.icon(
       onPressed: () async {
-        await Navigator.push(
+        await Navigator.push<bool>(
           context,
-          MaterialPageRoute(builder: (_) => CourseContentsPage(course: course)),
+          MaterialPageRoute(
+            builder: (_) => isReadyForFinalQuiz
+                ? FinalExamPage(courseId: course.id)
+                : CourseContentsPage(course: course),
+          ),
         );
         if (context.mounted)
           context.read<CourseDetailsBloc>().add(
@@ -331,20 +358,20 @@ class _CourseDetailsContent extends StatelessWidget {
           );
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isCompleted ? const Color(0xff2E7D53) : colors.primary,
+        backgroundColor: colors.primary,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
       icon: Icon(
-        isCompleted
-            ? Icons.check_circle_rounded
+        isReadyForFinalQuiz
+            ? Icons.emoji_events_rounded
             : Icons.play_circle_fill_rounded,
         size: 18,
       ),
       label: Text(
-        isCompleted
-            ? 'مكتملة بالكامل'
+        isReadyForFinalQuiz
+            ? 'الذهاب للاختبار النهائي'
             : 'متابعة التعلم • ${progressPercentage.toStringAsFixed(0)}٪',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),

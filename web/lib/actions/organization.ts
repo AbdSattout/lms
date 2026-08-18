@@ -42,11 +42,11 @@ export async function submitOrganizationVerificationAction(
   const proof = formData.get("proof")
 
   if (!slug) {
-    return { error: "Organization slug is required." }
+    return { error: "معرف المنظمة مطلوب." }
   }
 
   if (!(proof instanceof File) || proof.size === 0) {
-    return { error: "Proof file is required." }
+    return { error: "ملف الإثبات مطلوب." }
   }
 
   try {
@@ -61,7 +61,7 @@ export async function submitOrganizationVerificationAction(
       error:
         error instanceof Error
           ? error.message
-          : "Failed to submit verification request.",
+          : "تعذر إرسال طلب التوثيق.",
     }
   }
 

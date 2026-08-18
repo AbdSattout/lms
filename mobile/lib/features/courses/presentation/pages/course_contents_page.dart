@@ -81,11 +81,10 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
           final displayCourse = state is CourseContentsLoaded
               ? state.course
               : course;
-          final progress =
-              displayCourse.progressSnapshot?.progressPercentage ??
-              displayCourse.enrollment?.progressPercentage ??
-              0.0;
+          final progress = displayCourse.learningProgressPercentage;
           final progressSnapshot = displayCourse.progressSnapshot;
+          final isCompleted = displayCourse.isCompleted;
+          final isFinalQuizUnlocked = progress >= 100;
           final placementTestCompleted =
               _placementCompletedLocally ||
               state is CourseContentsLoaded ||
@@ -193,8 +192,10 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    progress == 100
+                                    isCompleted
                                         ? 'مكتمل 🎉'
+                                        : isFinalQuizUnlocked
+                                        ? 'جاهز للاختبار النهائي'
                                         : '${progress.toStringAsFixed(0)}% مكتمل',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w700,
@@ -220,14 +221,16 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                                   backgroundColor:
                                       colors.surfaceContainerHighest,
                                   valueColor: AlwaysStoppedAnimation(
-                                    colors.primary,
+                                    isCompleted
+                                        ? const Color(0xff2E7D53)
+                                        : colors.primary,
                                   ),
                                 ),
                               ),
 
-                              if (progressSnapshot != null &&
-                                  progressSnapshot.currentChapterId !=
-                                      null) ...[
+                              if (!isCompleted &&
+                                  progressSnapshot != null &&
+                                  progressSnapshot.currentBlockId != null) ...[
                                 const SizedBox(height: 14),
                                 Container(
                                   padding: const EdgeInsets.all(12),
@@ -466,14 +469,21 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                         const SizedBox(height: 10),
 
                         _FinalQuizCard(
-                          onTap: () {
-                            Navigator.push(
+                          isCompleted: isCompleted,
+                          isUnlocked: isFinalQuizUnlocked,
+                          onTap: () async {
+                            final completed = await Navigator.push<bool>(
                               context,
                               MaterialPageRoute(
                                 builder: (_) =>
-                                    FinalExamPage(courseId: course.id),
+                                    FinalExamPage(courseId: displayCourse.id),
                               ),
                             );
+                            if (context.mounted && completed == true) {
+                              context.read<CourseContentsBloc>().add(
+                                GetCourseContentsEvent(displayCourse.id),
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: 28),
@@ -882,28 +892,40 @@ class _ToolCard extends StatelessWidget {
 }
 
 class _FinalQuizCard extends StatelessWidget {
+  final bool isCompleted;
+  final bool isUnlocked;
   final VoidCallback onTap;
 
-  const _FinalQuizCard({required this.onTap});
+  const _FinalQuizCard({
+    required this.isCompleted,
+    required this.isUnlocked,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final accentColor = isCompleted
+        ? const Color(0xff2E7D53)
+        : isUnlocked
+        ? const Color(0xffD9534F)
+        : colors.onSurfaceVariant;
+
     return Material(
       color: colors.surface,
       borderRadius: BorderRadius.circular(16),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
+        onTap: isCompleted || !isUnlocked ? null : onTap,
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: const Color(0xffD9534F).withOpacity(0.3)),
+            border: Border.all(color: accentColor.withValues(alpha: 0.3)),
             gradient: LinearGradient(
               colors: [
-                const Color(0xffD9534F).withOpacity(0.05),
-                const Color(0xffD9534F).withOpacity(0.02),
+                accentColor.withValues(alpha: 0.05),
+                accentColor.withValues(alpha: 0.02),
               ],
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
@@ -915,13 +937,15 @@ class _FinalQuizCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0xffD9534F).withOpacity(0.12),
+                  color: accentColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
-                  Icons.emoji_events_rounded,
+                child: Icon(
+                  isCompleted
+                      ? Icons.check_circle_rounded
+                      : Icons.emoji_events_rounded,
                   size: 24,
-                  color: Color(0xffD9534F),
+                  color: accentColor,
                 ),
               ),
               const SizedBox(width: 14),
@@ -939,7 +963,11 @@ class _FinalQuizCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      'متاح بعد إكمال آخر درس',
+                      isCompleted
+                          ? 'تم إكمال الاختبار النهائي والكورس'
+                          : isUnlocked
+                          ? 'جاهز الآن بعد إكمال الدروس'
+                          : 'متاح بعد إكمال آخر درس',
                       style: TextStyle(
                         fontSize: 12,
                         color: colors.onSurfaceVariant,
@@ -954,15 +982,19 @@ class _FinalQuizCard extends StatelessWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xffD9534F).withOpacity(0.1),
+                  color: accentColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text(
-                  '+ XP',
+                child: Text(
+                  isCompleted
+                      ? 'مكتمل'
+                      : isUnlocked
+                      ? 'ابدأ'
+                      : '+ XP',
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xffD9534F),
+                    color: accentColor,
                   ),
                 ),
               ),

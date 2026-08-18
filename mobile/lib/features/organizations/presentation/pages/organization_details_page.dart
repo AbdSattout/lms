@@ -321,7 +321,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           ),
                           const SizedBox(width: 5),
                           Text(
-                            'Verified organization',
+                            'منظمة موثقة',
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w700,

@@ -125,6 +125,7 @@ class CourseEnrollmentDetailsEntity {
   final int? currentChapterId;
   final int? currentLessonId;
   final int? currentBlockId;
+  final DateTime? completedAt;
 
   const CourseEnrollmentDetailsEntity({
     required this.id,
@@ -137,9 +138,11 @@ class CourseEnrollmentDetailsEntity {
     this.currentChapterId,
     this.currentLessonId,
     this.currentBlockId,
+    this.completedAt,
   });
 
-  bool get isCompleted => progressPercentage >= 100;
+  bool get isCompleted =>
+      status.toUpperCase() == 'COMPLETED' || completedAt != null;
 }
 
 class CourseEntity {
@@ -178,8 +181,16 @@ class CourseEntity {
 
   String? get organizationDisplayName => organization?.name ?? organizationName;
 
+  double get learningProgressPercentage =>
+      progressSnapshot?.progressPercentage ??
+      enrollment?.progressPercentage ??
+      0.0;
+
   bool get isCompleted =>
       progressSnapshot?.completed ?? (enrollment?.isCompleted ?? false);
+
+  bool get isReadyForFinalQuiz =>
+      !isCompleted && learningProgressPercentage >= 100;
 }
 
 class RewardEntity {

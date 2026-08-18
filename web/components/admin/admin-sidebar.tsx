@@ -82,7 +82,7 @@ export function AdminSidebar() {
             )}
           >
             <BadgeCheck className="h-4 w-4" />
-            Organization verification
+            توثيق المنظمات
           </Link>
 
           <div className="mt-auto flex flex-col gap-1">
