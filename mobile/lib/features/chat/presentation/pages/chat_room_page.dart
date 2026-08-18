@@ -70,6 +70,22 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     return 0;
   }
 
+  String _buildMutedMessage(DateTime? mutedUntil) {
+    if (mutedUntil == null) return 'تم كتمك في هذه المحادثة';
+    final target = mutedUntil.toLocal();
+    final now = DateTime.now();
+    final sameDay =
+        target.year == now.year &&
+        target.month == now.month &&
+        target.day == now.day;
+    final hh = target.hour.toString().padLeft(2, '0');
+    final mm = target.minute.toString().padLeft(2, '0');
+    if (sameDay) return 'تم كتمك في هذه المحادثة حتى الساعة $hh:$mm';
+    final dd = target.day.toString().padLeft(2, '0');
+    final mo = target.month.toString().padLeft(2, '0');
+    return 'تم كتمك في هذه المحادثة حتى $dd/$mo/${target.year} $hh:$mm';
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentUserId = _currentUserId(context);
@@ -124,6 +140,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     controller: _textController,
                     focusNode: _focusNode,
                     onSend: _handleSend,
+                    isMuted: state.isMuted,
+                    mutedMessage: _buildMutedMessage(state.mutedUntil),
                   ),
                 ],
               );
@@ -440,17 +458,52 @@ class _Composer extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onSend;
+  final bool isMuted;
+  final String mutedMessage;
 
   const _Composer({
     required this.controller,
     required this.focusNode,
     required this.onSend,
+    this.isMuted = false,
+    this.mutedMessage = 'تم كتمك في هذه المحادثة',
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+
+    if (isMuted) {
+      return Material(
+        color: theme.scaffoldBackgroundColor,
+        elevation: 8,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.block_rounded,
+                  size: 22,
+                  color: colors.error,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    mutedMessage,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Material(
       color: theme.scaffoldBackgroundColor,

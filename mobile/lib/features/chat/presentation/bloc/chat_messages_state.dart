@@ -23,6 +23,7 @@ class ChatMessagesLoaded extends ChatMessagesState {
   final bool isLoadingMore;
   final String? actionMessage;
   final String? errorMessage;
+  final DateTime? mutedUntil;
 
   const ChatMessagesLoaded({
     required this.messages,
@@ -33,7 +34,10 @@ class ChatMessagesLoaded extends ChatMessagesState {
     required this.isLoadingMore,
     this.actionMessage,
     this.errorMessage,
+    this.mutedUntil,
   });
+
+  bool get isMuted => mutedUntil != null && mutedUntil!.isAfter(DateTime.now());
 
   ChatMessagesLoaded copyWith({
     List<MessageEntity>? messages,
@@ -46,6 +50,8 @@ class ChatMessagesLoaded extends ChatMessagesState {
     bool clearActionMessage = false,
     String? errorMessage,
     bool clearErrorMessage = false,
+    DateTime? mutedUntil,
+    bool clearMutedUntil = false,
   }) {
     return ChatMessagesLoaded(
       messages: messages ?? this.messages,
@@ -60,6 +66,9 @@ class ChatMessagesLoaded extends ChatMessagesState {
       errorMessage: clearErrorMessage
           ? null
           : errorMessage ?? this.errorMessage,
+      mutedUntil: clearMutedUntil
+          ? null
+          : mutedUntil ?? this.mutedUntil,
     );
   }
 }
