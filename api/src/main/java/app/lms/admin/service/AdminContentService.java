@@ -17,10 +17,12 @@ import app.lms.post.repository.CommentRepository;
 import app.lms.post.repository.PostRepository;
 import app.lms.post.service.CommentResponseService;
 import app.lms.post.service.PostResponseService;
+import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UserResponse;
 import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
+import app.lms.user.repository.projection.UserSearchRow;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -381,5 +383,27 @@ public class AdminContentService {
         }
 
         return q;
+    }
+
+    @Transactional(readOnly = true)
+    public ProfileResponse getUser(
+            Long userId,
+            Long adminId
+    ) {
+
+        validateAdmin(adminId);
+
+        UserSearchRow row =
+                userRepository.findUserWithProfileById(userId)
+                        .orElseThrow(() ->
+                                new NotFoundException(
+                                        "User not found"
+                                )
+                        );
+
+        return userMapper.toProfileResponse(
+                row.getUser(),
+                row.getProfile()
+        );
     }
 }
