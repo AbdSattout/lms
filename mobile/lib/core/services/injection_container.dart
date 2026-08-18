@@ -133,6 +133,8 @@ import 'package:lms/features/chat/domain/usecases/get_course_conversation_usecas
 import 'package:lms/features/chat/domain/usecases/get_messages_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/mark_conversation_as_read_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/edit_message_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/delete_message_usecase.dart';
 import 'package:lms/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:lms/features/chat/presentation/bloc/chat_messages_bloc.dart';
 import 'package:lms/features/chat/presentation/bloc/new_chat_bloc.dart';
@@ -698,6 +700,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetConversationsUseCase(sl()));
   sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
   sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => EditMessageUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteMessageUseCase(sl()));
   sl.registerLazySingleton(() => MarkConversationAsReadUseCase(sl()));
   sl.registerLazySingleton(() => CreateDirectConversationUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseConversationUseCase(sl()));
@@ -716,6 +720,8 @@ Future<void> init() async {
       currentUserId: currentUserId,
       getMessagesUseCase: sl(),
       sendMessageUseCase: sl(),
+      editMessageUseCase: sl(),
+      deleteMessageUseCase: sl(),
       markConversationAsReadUseCase: sl(),
       chatUpdatesNotifier: sl(),
       pusherService: PusherChatService(

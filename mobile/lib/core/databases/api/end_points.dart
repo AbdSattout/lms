@@ -193,6 +193,10 @@ class EndPoints {
       'chat/conversations/courses/$courseId';
   static String chatConversationMessages(int conversationId) =>
       'chat/conversations/$conversationId/messages';
+  static String chatEditMessage(int conversationId, int messageId) =>
+      'chat/conversations/$conversationId/messages/$messageId';
+  static String chatDeleteMessage(int conversationId, int messageId) =>
+      'chat/conversations/$conversationId/messages/$messageId';
   static String chatMarkMessageRead(int conversationId, int messageId) =>
       'chat/conversations/$conversationId/messages/$messageId/read';
   static const String chatPusherAuth = 'chat/pusher/auth';
