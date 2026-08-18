@@ -31,6 +31,13 @@ import type {
 
 type VerificationFilter = OrganizationVerificationStatus | "ALL"
 
+const statusLabels: Record<VerificationFilter, string> = {
+  ALL: "الكل",
+  PENDING: "قيد الانتظار",
+  APPROVED: "تمت الموافقة",
+  REJECTED: "مرفوض",
+}
+
 export function OrganizationVerificationsPage({
   initialRequests,
   totalElements,
@@ -64,7 +71,7 @@ export function OrganizationVerificationsPage({
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to load verification requests"
+            : "تعذر تحميل طلبات التوثيق"
         )
       }
     })
@@ -86,15 +93,15 @@ export function OrganizationVerificationsPage({
             </div>
 
             <div>
-              <h1 className="font-bold">Organization verification</h1>
+              <h1 className="font-bold">توثيق المنظمات</h1>
               <p className="text-xs text-muted-foreground">
-                Review proof files and approve verified organization badges
+                راجع ملفات الإثبات واعتمد شارات توثيق المنظمات
               </p>
             </div>
           </div>
 
           <div className="hidden rounded-full bg-muted px-3 py-1.5 text-xs font-semibold text-muted-foreground sm:block">
-            {totalElements} requests
+            {totalElements} طلبات
           </div>
         </div>
       </header>
@@ -112,7 +119,7 @@ export function OrganizationVerificationsPage({
                     onClick={() => loadStatus(item)}
                     disabled={isLoading}
                   >
-                    {item}
+                    {statusLabels[item]}
                   </Button>
                 )
               )}
@@ -127,9 +134,9 @@ export function OrganizationVerificationsPage({
             ) : requests.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                 <Inbox className="h-10 w-10 text-muted-foreground/50" />
-                <p className="mt-3 text-sm font-semibold">No requests</p>
+                <p className="mt-3 text-sm font-semibold">لا توجد طلبات</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  There are no organization verification requests for this filter.
+                  لا توجد طلبات توثيق منظمات لهذا الفلتر.
                 </p>
               </div>
             ) : (
@@ -205,12 +212,12 @@ function VerificationDetails({
           adminNote: adminNote.trim() || null,
         })
         onUpdated(updated)
-        toast.success("Verification request updated")
+        toast.success("تم تحديث طلب التوثيق")
       } catch (error) {
         toast.error(
           error instanceof Error
             ? error.message
-            : "Failed to update verification request"
+            : "تعذر تحديث طلب التوثيق"
         )
       }
     })
@@ -223,20 +230,20 @@ function VerificationDetails({
           <div className="flex items-center gap-2">
             <BadgeCheck className="h-5 w-5 text-sky-600" />
             <p className="text-sm font-semibold text-muted-foreground">
-              Request #{request.id}
+              طلب رقم {request.id}
             </p>
             <VerificationStatusBadge status={request.status} />
           </div>
 
           <h2 className="mt-2 text-2xl font-extrabold tracking-tight">
-            Review organization verification
+            مراجعة توثيق المنظمة
           </h2>
         </div>
       </div>
 
       <Card className="border-border/60 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base">Organization</CardTitle>
+          <CardTitle className="text-base">المنظمة</CardTitle>
         </CardHeader>
         <CardContent className="space-y-5">
           <div className="flex items-center gap-3">
@@ -261,21 +268,21 @@ function VerificationDetails({
           <Separator />
 
           <div className="grid gap-4 text-sm sm:grid-cols-2">
-            <InfoRow label="Requested by">{request.requestedBy.name}</InfoRow>
-            <InfoRow label="Members">
+            <InfoRow label="مقدم الطلب">{request.requestedBy.name}</InfoRow>
+            <InfoRow label="الأعضاء">
               {request.organization.membersCount ?? 0}
             </InfoRow>
-            <InfoRow label="Courses">
+            <InfoRow label="الكورسات">
               {request.organization.coursesCount ?? 0}
             </InfoRow>
-            <InfoRow label="Current status">
+            <InfoRow label="الحالة الحالية">
               <VerificationStatusBadge status={request.status} />
             </InfoRow>
           </div>
 
           {request.note && (
             <div>
-              <p className="text-xs font-bold text-muted-foreground">Note</p>
+              <p className="text-xs font-bold text-muted-foreground">ملاحظة</p>
               <p className="mt-2 rounded-lg bg-muted/50 p-4 text-sm leading-6">
                 {request.note}
               </p>
@@ -290,21 +297,21 @@ function VerificationDetails({
             }
           >
             <ExternalLink className="ml-2 h-4 w-4" />
-            Open proof file
+            فتح ملف الإثبات
           </Button>
         </CardContent>
       </Card>
 
       <Card className="border-border/60 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-base">Admin decision</CardTitle>
+          <CardTitle className="text-base">قرار الإدارة</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-4">
           <Textarea
             value={adminNote}
             onChange={(event) => setAdminNote(event.target.value)}
-            placeholder="Add an optional admin note..."
+            placeholder="أضف ملاحظة إدارية اختيارية..."
             className="min-h-28 resize-y"
           />
 
@@ -315,7 +322,7 @@ function VerificationDetails({
               onClick={() => review("REJECTED")}
             >
               <XCircle className="ml-2 h-4 w-4" />
-              Reject
+              رفض
             </Button>
 
             <Button
@@ -323,7 +330,7 @@ function VerificationDetails({
               onClick={() => review("APPROVED")}
             >
               <CheckCircle2 className="ml-2 h-4 w-4" />
-              Approve and verify
+              الموافقة والتوثيق
             </Button>
           </div>
         </CardContent>
@@ -345,7 +352,7 @@ function VerificationStatusBadge({
     return (
       <Badge variant="destructive" className="gap-1">
         <XCircle className="h-3.5 w-3.5" />
-        REJECTED
+        {statusLabels.REJECTED}
       </Badge>
     )
   }
@@ -353,7 +360,7 @@ function VerificationStatusBadge({
   return (
     <Badge variant="secondary" className="gap-1">
       <Clock3 className="h-3.5 w-3.5" />
-      PENDING
+      {statusLabels.PENDING}
     </Badge>
   )
 }
@@ -379,10 +386,9 @@ function EmptyDetails() {
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
         <BadgeCheck className="h-6 w-6 text-muted-foreground" />
       </div>
-      <h2 className="mt-4 text-lg font-bold">Select a request to review</h2>
+      <h2 className="mt-4 text-lg font-bold">اختر طلبا للمراجعة</h2>
       <p className="mt-1 max-w-sm text-sm leading-6 text-muted-foreground">
-        Choose an organization verification request to inspect its proof file
-        and submit an admin decision.
+        اختر طلب توثيق منظمة لمراجعة ملف الإثبات وإرسال قرار الإدارة.
       </p>
     </div>
   )

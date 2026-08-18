@@ -97,8 +97,8 @@ class CourseOrganizationRefModel extends CourseOrganizationRef {
       inviteStatus: viewer?['inviteStatus'],
       member: viewer?['member'] != null
           ? OrganizationMemberModel.fromJson(
-        viewer!['member'] as Map<String, dynamic>,
-      )
+              viewer!['member'] as Map<String, dynamic>,
+            )
           : null,
     );
   }
@@ -140,6 +140,7 @@ class CourseEnrollmentDetailsModel extends CourseEnrollmentDetailsEntity {
     super.currentChapterId,
     super.currentLessonId,
     super.currentBlockId,
+    super.completedAt,
   });
 
   factory CourseEnrollmentDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -156,6 +157,9 @@ class CourseEnrollmentDetailsModel extends CourseEnrollmentDetailsEntity {
       currentChapterId: json['currentChapterId'],
       currentLessonId: json['currentLessonId'],
       currentBlockId: json['currentBlockId'],
+      completedAt: json['completedAt'] != null
+          ? DateTime.tryParse(json['completedAt'])
+          : null,
     );
   }
 }
@@ -188,8 +192,8 @@ class CourseModel extends CourseEntity {
       organizationName: json['organizationName'],
       organization: json['organization'] != null
           ? CourseOrganizationRefModel.fromJson(
-        json['organization'] as Map<String, dynamic>,
-      )
+              json['organization'] as Map<String, dynamic>,
+            )
           : null,
       status: json['status'],
       level: json['level'] as String?,
@@ -197,16 +201,16 @@ class CourseModel extends CourseEntity {
       chaptersCount: json['chaptersCount'] as int?,
       enrollment: json['enrollment'] != null
           ? CourseEnrollmentDetailsModel.fromJson(
-        json['enrollment'] as Map<String, dynamic>,
-      )
+              json['enrollment'] as Map<String, dynamic>,
+            )
           : null,
       chapters: (json['chapters'] as List? ?? [])
           .map((c) => ChapterModel.fromJson(c as Map<String, dynamic>))
           .toList(),
       progressSnapshot: json['progress'] != null
           ? CourseProgressSnapshotModel.fromJson(
-        json['progress'] as Map<String, dynamic>,
-      )
+              json['progress'] as Map<String, dynamic>,
+            )
           : null,
     );
   }

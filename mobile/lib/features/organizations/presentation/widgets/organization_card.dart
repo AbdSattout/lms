@@ -366,7 +366,7 @@ class _VerifiedBadge extends StatelessWidget {
           Icon(Icons.verified_rounded, size: 12, color: accent),
           SizedBox(width: 4),
           Text(
-            'Verified',
+            'موثقة',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
