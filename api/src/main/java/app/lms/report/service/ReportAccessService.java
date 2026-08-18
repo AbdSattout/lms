@@ -234,7 +234,7 @@ public class ReportAccessService {
                                 )
                         );
 
-        requireAndMatch(
+        matchIfProvided(
                 "userId",
                 request.userId(),
                 organization.getOwner() != null
@@ -269,6 +269,23 @@ public class ReportAccessService {
                 provided,
                 field
         );
+
+        if (!provided.equals(actual)) {
+            throw new BadRequestException(
+                    field + " does not match the reported target"
+            );
+        }
+    }
+
+    private void matchIfProvided(
+            String field,
+            Long provided,
+            Long actual
+    ) {
+
+        if (provided == null) {
+            return;
+        }
 
         if (!provided.equals(actual)) {
             throw new BadRequestException(

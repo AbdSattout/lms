@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/markdown/markdown_content_view.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/relative_time.dart';
+import '../../../reports/domain/entities/report_target.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/post_entity.dart';
 
 class PostCard extends StatelessWidget {
@@ -28,7 +30,11 @@ class PostCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: colors.outlineVariant.withOpacity(0.5)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Material(
@@ -47,10 +53,14 @@ class PostCard extends StatelessWidget {
                     CircleAvatar(
                       radius: 20,
                       backgroundColor: AppColors.primaryLight,
-                      backgroundImage: post.author.picture != null && post.author.picture!.isNotEmpty
+                      backgroundImage:
+                          post.author.picture != null &&
+                              post.author.picture!.isNotEmpty
                           ? NetworkImage(post.author.picture!)
                           : null,
-                      child: post.author.picture == null || post.author.picture!.isEmpty
+                      child:
+                          post.author.picture == null ||
+                              post.author.picture!.isEmpty
                           ? Icon(Icons.person, color: colors.primary, size: 20)
                           : null,
                     ),
@@ -59,20 +69,96 @@ class PostCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(post.author.name, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: colors.onSurface)),
+                          Text(
+                            post.author.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: colors.onSurface,
+                            ),
+                          ),
                           if (post.createdAt != null) ...[
                             const SizedBox(height: 2),
-                            Text(formatRelativeTime(post.createdAt), style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant)),
+                            Text(
+                              formatRelativeTime(post.createdAt),
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
                           ],
                         ],
                       ),
+                    ),
+                    PopupMenuButton<_PostReportAction>(
+                      tooltip: 'خيارات',
+                      icon: Icon(
+                        Icons.more_horiz_rounded,
+                        color: colors.onSurfaceVariant,
+                      ),
+                      onSelected: (action) {
+                        final title = post.title.trim().isNotEmpty
+                            ? post.title.trim()
+                            : 'منشور ${post.author.name}';
+
+                        switch (action) {
+                          case _PostReportAction.post:
+                            showReportBottomSheet(
+                              context,
+                              ReportTarget.post(
+                                postId: post.id,
+                                organizationId: post.organizationId,
+                                userId: post.author.id,
+                                title: title,
+                              ),
+                            );
+                            break;
+                          case _PostReportAction.author:
+                            showReportBottomSheet(
+                              context,
+                              ReportTarget.user(
+                                userId: post.author.id,
+                                title: post.author.name,
+                              ),
+                            );
+                            break;
+                        }
+                      },
+                      itemBuilder: (context) => const [
+                        PopupMenuItem(
+                          value: _PostReportAction.post,
+                          child: Row(
+                            children: [
+                              Icon(Icons.outlined_flag_rounded, size: 18),
+                              SizedBox(width: 8),
+                              Text('الإبلاغ عن المنشور'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: _PostReportAction.author,
+                          child: Row(
+                            children: [
+                              Icon(Icons.person_off_rounded, size: 18),
+                              SizedBox(width: 8),
+                              Text('الإبلاغ عن المستخدم'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
 
                 if (post.title.isNotEmpty) ...[
-                  Text(post.title, style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: colors.onSurface)),
+                  Text(
+                    post.title,
+                    style: textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: colors.onSurface,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                 ],
 
@@ -90,13 +176,26 @@ class PostCard extends StatelessWidget {
                       onTap: onCommentTap,
                       borderRadius: BorderRadius.circular(8),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.chat_bubble_outline_rounded, size: 18, color: colors.onSurfaceVariant),
+                            Icon(
+                              Icons.chat_bubble_outline_rounded,
+                              size: 18,
+                              color: colors.onSurfaceVariant,
+                            ),
                             const SizedBox(width: 4),
-                            Text('${post.commentCount}', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant)),
+                            Text(
+                              '${post.commentCount}',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: colors.onSurfaceVariant,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -112,14 +211,13 @@ class PostCard extends StatelessWidget {
   }
 }
 
+enum _PostReportAction { post, author }
+
 class _ReactionSummary extends StatelessWidget {
   final dynamic reactionCounts;
   final String? viewerReaction;
 
-  const _ReactionSummary({
-    required this.reactionCounts,
-    this.viewerReaction,
-  });
+  const _ReactionSummary({required this.reactionCounts, this.viewerReaction});
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +249,11 @@ class _ReactionSummary extends StatelessWidget {
           if (emoji != null)
             Text(emoji, style: const TextStyle(fontSize: 14))
           else
-            Icon(Icons.favorite_border_rounded, size: 16, color: colors.onSurfaceVariant),
+            Icon(
+              Icons.favorite_border_rounded,
+              size: 16,
+              color: colors.onSurfaceVariant,
+            ),
           if (total > 0) ...[
             const SizedBox(width: 5),
             Text(

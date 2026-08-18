@@ -7,6 +7,8 @@ import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart
 import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
+import '../../../reports/domain/entities/report_target.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
@@ -114,6 +116,18 @@ class _CourseDetailsContent extends StatelessWidget {
                 hasCover: hasCover,
                 hasOrgImage: hasOrgImage,
                 onBack: () => Navigator.maybePop(context),
+                onReport: course.organization == null
+                    ? null
+                    : () {
+                        showReportBottomSheet(
+                          context,
+                          ReportTarget.course(
+                            courseId: course.id,
+                            organizationId: course.organization!.id,
+                            title: course.title,
+                          ),
+                        );
+                      },
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
