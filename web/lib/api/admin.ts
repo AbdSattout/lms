@@ -3,14 +3,20 @@ import "server-only"
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
+  BannedOrganizationResponse,
+  BannedUserResponse,
+  BanRequest,
   CommentResponse,
   CourseResponse,
   OrganizationResponse,
+  Page,
+  PageBannedUserResponse,
   PostResponse,
   ReportPageResponse,
   ReportResponse,
   ReportReviewRequest,
   ReportStatus,
+  UserResponse,
 } from "@/lib/api/types"
 import type { PageableInput } from "@/lib/validation"
 
@@ -176,4 +182,146 @@ export const users = {
         ...options,
       }),
   }),
+}
+
+export const moderation = {
+  users: {
+    list: defineApiRoute({
+      get: (
+        q: string | undefined,
+        pageable: PageableInput,
+        options?: BackendFetchOptions
+      ) => {
+        const query = new URLSearchParams()
+
+        if (q?.trim()) {
+          query.set("q", q.trim())
+        }
+
+        if (pageable.page !== undefined) {
+          query.set("page", String(pageable.page))
+        }
+
+        if (pageable.size !== undefined) {
+          query.set("size", String(pageable.size))
+        }
+
+        for (const sort of pageable.sort ?? []) {
+          query.append("sort", sort)
+        }
+
+        const queryString = query.toString()
+
+        return backend<Page<UserResponse>>(
+          `/admin/users${queryString ? `?${queryString}` : ""}`,
+          {
+            method: "GET",
+            ...options,
+          }
+        )
+      },
+    }),
+
+    banned: defineApiRoute({
+      get: (pageable: PageableInput, options?: BackendFetchOptions) =>
+        backend<Page<BannedUserResponse>>(
+          withPageable("/admin/moderation/users/banned", pageable),
+          {
+            method: "GET",
+            ...options,
+          }
+        ),
+    }),
+
+    ban: defineApiRoute({
+      post: (
+        userId: number,
+        request: BanRequest,
+        options?: BackendFetchOptions
+      ) =>
+        backend<void>(`/admin/moderation/users/${userId}/ban`, {
+          method: "POST",
+          body: request,
+          ...options,
+        }),
+    }),
+
+    unban: defineApiRoute({
+      delete: (userId: number, options?: BackendFetchOptions) =>
+        backend<void>(`/admin/moderation/users/${userId}/ban`, {
+          method: "DELETE",
+          ...options,
+        }),
+    }),
+  },
+
+  organizations: {
+    list: defineApiRoute({
+      get: (
+        q: string | undefined,
+        pageable: PageableInput,
+        options?: BackendFetchOptions
+      ) => {
+        const query = new URLSearchParams()
+
+        if (q?.trim()) {
+          query.set("q", q.trim())
+        }
+
+        if (pageable.page !== undefined) {
+          query.set("page", String(pageable.page))
+        }
+
+        if (pageable.size !== undefined) {
+          query.set("size", String(pageable.size))
+        }
+
+        for (const sort of pageable.sort ?? []) {
+          query.append("sort", sort)
+        }
+
+        const queryString = query.toString()
+
+        return backend<Page<OrganizationResponse>>(
+          `/admin/organizations${queryString ? `?${queryString}` : ""}`,
+          {
+            method: "GET",
+            ...options,
+          }
+        )
+      },
+    }),
+
+    banned: defineApiRoute({
+      get: (pageable: PageableInput, options?: BackendFetchOptions) =>
+        backend<Page<BannedOrganizationResponse>>(
+          withPageable("/admin/moderation/organizations/banned", pageable),
+          {
+            method: "GET",
+            ...options,
+          }
+        ),
+    }),
+
+    ban: defineApiRoute({
+      post: (
+        organizationId: number,
+        request: BanRequest,
+        options?: BackendFetchOptions
+      ) =>
+        backend<void>(`/admin/moderation/organizations/${organizationId}/ban`, {
+          method: "POST",
+          body: request,
+          ...options,
+        }),
+    }),
+
+    unban: defineApiRoute({
+      delete: (organizationId: number, options?: BackendFetchOptions) =>
+        backend<void>(`/admin/moderation/organizations/${organizationId}/ban`, {
+          method: "DELETE",
+          ...options,
+        }),
+    }),
+  },
 }

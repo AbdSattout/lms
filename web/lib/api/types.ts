@@ -706,7 +706,8 @@ export interface CertificateResponse {
 }
 export type ReportStatus = "PENDING" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED"
 
-export type ReportTargetType = "POST" | "COMMENT" | "USER" | "ORGANIZATION"
+export type ReportTargetType =
+  "POST" | "COMMENT" | "USER" | "ORGANIZATION" | "COURSE"
 
 export interface ReportReporter {
   id: number
@@ -755,3 +756,32 @@ export interface ReportReviewRequest {
   status: ReportStatus
   adminNote?: string | null
 }
+export type AdminRole = "SUPER_ADMIN" | "MODERATOR"
+export interface AdminResponse {
+  id: number
+  name: string
+  email: string
+  role: AdminRole
+  enabled: boolean
+}
+
+export interface BannedUserResponse {
+  id: number
+  user: UserResponse
+  bannedBy: AdminResponse
+  reason: string
+  expiresAt: string | null
+  baseEntity?: BaseEntityResponse
+}
+
+export interface BannedOrganizationResponse {
+  id: number
+  organization: OrganizationSummaryResponse
+  bannedBy: AdminResponse
+  reason: string
+  expiresAt: string | null
+  baseEntity?: BaseEntityResponse
+}
+export type PageBannedUserResponse = Page<BannedUserResponse>
+
+export type PageBannedOrganizationResponse = Page<BannedOrganizationResponse>

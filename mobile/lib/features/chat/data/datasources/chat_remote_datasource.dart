@@ -23,6 +23,8 @@ abstract class ChatRemoteDataSource {
 
   Future<ConversationModel> createDirectConversation(int targetUserId);
 
+  Future<ConversationModel> getCourseConversation(int courseId);
+
   Future<void> markAsRead({
     required int conversationId,
     required int lastReadMessageId,
@@ -82,6 +84,12 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     final response = await api.post(
       EndPoints.chatCreateDirectConversation(targetUserId),
     );
+    return ConversationModel.fromJson(response);
+  }
+
+  @override
+  Future<ConversationModel> getCourseConversation(int courseId) async {
+    final response = await api.get(EndPoints.chatCourseConversation(courseId));
     return ConversationModel.fromJson(response);
   }
 

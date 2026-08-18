@@ -22,12 +22,16 @@ import app.lms.user.mapper.UserMapper;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,19 +51,39 @@ public class AdminContentService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Value("${app.search.organization-similarity-threshold:0.2}")
+    private double organizationSearchSimilarityThreshold;
+
+    @Value("${app.search.user-similarity-threshold:0.2}")
+    private double userSearchSimilarityThreshold;
+
     @Transactional(readOnly = true)
     public Page<UserResponse> getUsers(
             Long adminId,
+            String q,
             Pageable pageable
     ) {
 
         validateAdmin(adminId);
 
-        return userRepository
-                .findAll(
-                        pageableWithDefaultSort(
-                                pageable,
-                                "id"
+        Pageable listPageRequest =
+                pageableWithDefaultSort(
+                        pageable,
+                        "id"
+                );
+
+        return searchQuery(q)
+                .map(query ->
+                        userRepository.searchForAdmin(
+                                query,
+                                usernameQuery(query),
+                                userSearchSimilarityThreshold,
+                                searchPageable(pageable)
+                        )
+                )
+                .orElseGet(() ->
+                        userRepository.findAll(
+                                listPageRequest
                         )
                 )
                 .map(userMapper::toResponse);
@@ -68,16 +92,29 @@ public class AdminContentService {
     @Transactional(readOnly = true)
     public Page<OrganizationResponse> getOrganizations(
             Long adminId,
+            String q,
             Pageable pageable
     ) {
 
         validateAdmin(adminId);
 
-        return organizationRepository
-                .findAll(
-                        pageableWithDefaultSort(
-                                pageable,
-                                "createdAt"
+        Pageable listPageRequest =
+                pageableWithDefaultSort(
+                        pageable,
+                        "createdAt"
+                );
+
+        return searchQuery(q)
+                .map(query ->
+                        organizationRepository.searchAllForAdmin(
+                                query,
+                                organizationSearchSimilarityThreshold,
+                                searchPageable(pageable)
+                        )
+                )
+                .orElseGet(() ->
+                        organizationRepository.findAll(
+                                listPageRequest
                         )
                 )
                 .map(organizationMapper::ToResponse);
@@ -305,5 +342,44 @@ public class AdminContentService {
                         defaultSort
                 )
         );
+    }
+
+    private Pageable searchPageable(
+            Pageable pageable
+    ) {
+
+        if (pageable == null) {
+            return PageRequest.of(
+                    0,
+                    20
+            );
+        }
+
+        return PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize()
+        );
+    }
+
+    private Optional<String> searchQuery(
+            String q
+    ) {
+
+        return StringUtils.hasText(q)
+                ? Optional.of(
+                        q.trim()
+                )
+                : Optional.empty();
+    }
+
+    private String usernameQuery(
+            String q
+    ) {
+
+        if (q.startsWith("@")) {
+            return q.substring(1);
+        }
+
+        return q;
     }
 }

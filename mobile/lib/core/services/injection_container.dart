@@ -125,6 +125,7 @@ import 'package:lms/features/chat/data/repositories/chat_repository_impl.dart';
 import 'package:lms/features/chat/domain/repositories/chat_repository.dart';
 import 'package:lms/features/chat/domain/usecases/create_direct_conversation_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/get_conversations_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/get_course_conversation_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/get_messages_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/mark_conversation_as_read_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/send_message_usecase.dart';
@@ -550,13 +551,15 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
 
-  sl.registerFactory(() => RoadmapBloc(
-    getOrganizationRoadmaps: sl(),
-    getRoadmapDetails: sl(),
-    followRoadmap: sl(),
-    unfollowRoadmap: sl(),
-    getMyRoadmaps: sl(),
-  ));
+  sl.registerFactory(
+    () => RoadmapBloc(
+      getOrganizationRoadmaps: sl(),
+      getRoadmapDetails: sl(),
+      followRoadmap: sl(),
+      unfollowRoadmap: sl(),
+      getMyRoadmaps: sl(),
+    ),
+  );
 
   //Ai Quiz
   sl.registerLazySingleton<AiQuizRemoteDataSource>(
@@ -594,11 +597,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetPracticeQuizListUseCase(sl()));
   sl.registerLazySingleton(() => GetPracticeQuizDetailsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitPracticeQuizUseCase(sl()));
-  sl.registerFactory(() => PracticeQuizBloc(
-    getList: sl(),
-    getDetails: sl(),
-    submit: sl(),
-  ));
+  sl.registerFactory(
+    () => PracticeQuizBloc(getList: sl(), getDetails: sl(), submit: sl()),
+  );
 
   // Practice Exam
   sl.registerLazySingleton<PracticeExamRemoteDataSource>(
@@ -610,11 +611,9 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetPracticeExamListUseCase(sl()));
   sl.registerLazySingleton(() => GetPracticeExamDetailsUseCase(sl()));
   sl.registerLazySingleton(() => SubmitPracticeExamUseCase(sl()));
-  sl.registerFactory(() => PracticeExamBloc(
-    getList: sl(),
-    getDetails: sl(),
-    submit: sl(),
-  ));
+  sl.registerFactory(
+    () => PracticeExamBloc(getList: sl(), getDetails: sl(), submit: sl()),
+  );
 
   // Final Exam
   sl.registerLazySingleton<FinalExamRemoteDataSource>(
@@ -635,7 +634,49 @@ Future<void> init() async {
     ),
   );
 
+  // Friends (required by chat for avatars / new chat picker)
+  sl.registerLazySingleton<FriendsRemoteDataSource>(
+    () => FriendsRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<FriendsRepository>(
+    () => FriendsRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton(() => GetFriendsUseCase(sl()));
 
+  // Chat
+  sl.registerLazySingleton<ChatRemoteDataSource>(
+    () => ChatRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<ChatRepository>(() => ChatRepositoryImpl(sl()));
+  sl.registerLazySingleton(() => GetConversationsUseCase(sl()));
+  sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
+  sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => MarkConversationAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => CreateDirectConversationUseCase(sl()));
+  sl.registerLazySingleton(() => GetCourseConversationUseCase(sl()));
+  sl.registerLazySingleton(() => ChatUpdatesNotifier());
+  sl.registerFactory(
+    () => ChatBloc(
+      getConversationsUseCase: sl(),
+      getFriendsUseCase: sl(),
+      chatUpdatesNotifier: sl(),
+    ),
+  );
+  sl.registerFactory(() => NewChatBloc(getFriendsUseCase: sl()));
+  sl.registerFactoryParam<ChatMessagesBloc, int, int>(
+    (conversationId, currentUserId) => ChatMessagesBloc(
+      conversationId: conversationId,
+      currentUserId: currentUserId,
+      getMessagesUseCase: sl(),
+      sendMessageUseCase: sl(),
+      markConversationAsReadUseCase: sl(),
+      chatUpdatesNotifier: sl(),
+      pusherService: PusherChatService(
+        api: sl(),
+        conversationId: conversationId,
+      ),
+    ),
+  );
 
   //! External
 

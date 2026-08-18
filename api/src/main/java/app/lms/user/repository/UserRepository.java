@@ -2,6 +2,8 @@ package app.lms.user.repository;
 
 import app.lms.user.model.User;
 import app.lms.user.repository.projection.UserSearchRow;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,5 +50,95 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<UserSearchRow> searchWithProfile(
             @Param("q") String q,
             @Param("usernameQ") String usernameQ
+    );
+
+    @Query(
+            value = """
+                    select u.*
+                    from users u
+                    left join profiles p
+                        on p.user_id = u.id
+                    where
+                        lower(coalesce(u.name, '')) like lower(concat('%', :q, '%'))
+                        or (
+                            :usernameQ <> ''
+                            and lower(coalesce(u.username, '')) like lower(concat('%', :usernameQ, '%'))
+                        )
+                        or lower(coalesce(u.email, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(p.email, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(p.phone, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(p.university, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(u.name, '')) % lower(:q)
+                        or (
+                            :usernameQ <> ''
+                            and lower(coalesce(u.username, '')) % lower(:usernameQ)
+                        )
+                        or lower(coalesce(u.email, '')) % lower(:q)
+                        or lower(coalesce(p.email, '')) % lower(:q)
+                        or lower(coalesce(p.phone, '')) % lower(:q)
+                        or lower(coalesce(p.university, '')) % lower(:q)
+                        or similarity(lower(coalesce(u.name, '')), lower(:q)) >= :threshold
+                        or (
+                            :usernameQ <> ''
+                            and similarity(lower(coalesce(u.username, '')), lower(:usernameQ)) >= :threshold
+                        )
+                        or similarity(lower(coalesce(u.email, '')), lower(:q)) >= :threshold
+                        or similarity(lower(coalesce(p.email, '')), lower(:q)) >= :threshold
+                        or similarity(lower(coalesce(p.phone, '')), lower(:q)) >= :threshold
+                        or similarity(lower(coalesce(p.university, '')), lower(:q)) >= :threshold
+                    order by greatest(
+                        similarity(lower(coalesce(u.name, '')), lower(:q)),
+                        case
+                            when :usernameQ <> ''
+                                then similarity(lower(coalesce(u.username, '')), lower(:usernameQ))
+                            else 0
+                        end,
+                        similarity(lower(coalesce(u.email, '')), lower(:q)),
+                        similarity(lower(coalesce(p.email, '')), lower(:q)),
+                        similarity(lower(coalesce(p.phone, '')), lower(:q)),
+                        similarity(lower(coalesce(p.university, '')), lower(:q))
+                    ) desc, u.id desc
+                    """,
+            countQuery = """
+                    select count(*)
+                    from users u
+                    left join profiles p
+                        on p.user_id = u.id
+                    where
+                        lower(coalesce(u.name, '')) like lower(concat('%', :q, '%'))
+                        or (
+                            :usernameQ <> ''
+                            and lower(coalesce(u.username, '')) like lower(concat('%', :usernameQ, '%'))
+                        )
+                        or lower(coalesce(u.email, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(p.email, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(p.phone, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(p.university, '')) like lower(concat('%', :q, '%'))
+                        or lower(coalesce(u.name, '')) % lower(:q)
+                        or (
+                            :usernameQ <> ''
+                            and lower(coalesce(u.username, '')) % lower(:usernameQ)
+                        )
+                        or lower(coalesce(u.email, '')) % lower(:q)
+                        or lower(coalesce(p.email, '')) % lower(:q)
+                        or lower(coalesce(p.phone, '')) % lower(:q)
+                        or lower(coalesce(p.university, '')) % lower(:q)
+                        or similarity(lower(coalesce(u.name, '')), lower(:q)) >= :threshold
+                        or (
+                            :usernameQ <> ''
+                            and similarity(lower(coalesce(u.username, '')), lower(:usernameQ)) >= :threshold
+                        )
+                        or similarity(lower(coalesce(u.email, '')), lower(:q)) >= :threshold
+                        or similarity(lower(coalesce(p.email, '')), lower(:q)) >= :threshold
+                        or similarity(lower(coalesce(p.phone, '')), lower(:q)) >= :threshold
+                        or similarity(lower(coalesce(p.university, '')), lower(:q)) >= :threshold
+                    """,
+            nativeQuery = true
+    )
+    Page<User> searchForAdmin(
+            @Param("q") String q,
+            @Param("usernameQ") String usernameQ,
+            @Param("threshold") double threshold,
+            Pageable pageable
     );
 }

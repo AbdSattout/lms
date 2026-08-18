@@ -12,6 +12,7 @@ import app.lms.gamification.enums.XPEventType;
 import app.lms.gamification.service.GamificationService;
 import app.lms.gamification.service.UserActivityService;
 import app.lms.practiceExam.dto.*;
+import app.lms.practiceExam.enums.PracticeExamStatus;
 import app.lms.practiceExam.mapper.PracticeExamMapper;
 import app.lms.practiceExam.model.PracticeExam;
 import app.lms.practiceExam.model.PracticeExamAttempt;
@@ -89,8 +90,9 @@ public class MobilePracticeExamService {
         );
 
         return practiceExamRepository
-                .findAllByCourseIdOrderByCreatedAtDesc(
-                        courseId
+                .findAllByCourseIdAndStatusOrderByCreatedAtDesc(
+                        courseId,
+                        PracticeExamStatus.PUBLISHED
                 )
                 .stream()
                 .map(practiceExamMapper::toSummaryResponse)
@@ -357,9 +359,10 @@ public class MobilePracticeExamService {
     ) {
 
         return practiceExamRepository
-                .findByIdAndCourseId(
+                .findByIdAndCourseIdAndStatus(
                         practiceExamId,
-                        courseId
+                        courseId,
+                        PracticeExamStatus.PUBLISHED
                 )
                 .orElseThrow(() ->
                         new NotFoundException(

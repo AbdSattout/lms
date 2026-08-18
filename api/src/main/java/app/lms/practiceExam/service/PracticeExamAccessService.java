@@ -1,8 +1,10 @@
 package app.lms.practiceExam.service;
 
+import app.lms.common.exception.ConflictException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
+import app.lms.practiceExam.enums.PracticeExamStatus;
 import app.lms.practiceExam.model.PracticeExam;
 import app.lms.practiceExam.repository.PracticeExamRepository;
 import app.lms.user.model.User;
@@ -26,12 +28,13 @@ public class PracticeExamAccessService {
 
         Course course =
                 courseAccessService
-                        .getEditableCourse(
+                        .getManageableCourse(
                                 courseId,
                                 user
                         );
 
-        return practiceExamRepository
+        PracticeExam practiceExam =
+                practiceExamRepository
                 .findByIdAndCourseId(
                         practiceExamId,
                         course.getId()
@@ -41,6 +44,12 @@ public class PracticeExamAccessService {
                                 "Practice exam not found"
                         )
                 );
+
+        validateDraft(
+                practiceExam
+        );
+
+        return practiceExam;
     }
 
     public PracticeExam getManageablePracticeExam(
@@ -84,5 +93,17 @@ public class PracticeExamAccessService {
                 .findAllByCourseIdOrderByCreatedAtDesc(
                         course.getId()
                 );
+    }
+
+    private void validateDraft(
+            PracticeExam practiceExam
+    ) {
+
+        if (practiceExam.getStatus()
+                == PracticeExamStatus.PUBLISHED) {
+            throw new ConflictException(
+                    "Published practice exam cannot be modified"
+            );
+        }
     }
 }
