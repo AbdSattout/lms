@@ -3,23 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/utils/api_error_resolver.dart';
-import '../../../auth/presentation/bloc/auth_bloc.dart';
-import '../../../auth/presentation/bloc/auth_state.dart';
-import '../../../chat/domain/entities/conversation_entity.dart';
-import '../../../chat/domain/usecases/get_course_conversation_usecase.dart';
-import '../../../chat/presentation/bloc/chat_messages_bloc.dart';
-import '../../../chat/presentation/bloc/chat_messages_event.dart';
-import '../../../chat/presentation/pages/chat_room_page.dart';
 import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
-import '../../../posts/presentation/pages/course_posts_page.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
 import '../bloc/course_details_state.dart';
-import '../widgets/course_feature_card.dart';
 import '../widgets/course_hero_header.dart';
 import '../widgets/course_organization_card.dart';
 import '../widgets/course_progress_bar.dart';
@@ -204,33 +194,6 @@ class _CourseDetailsContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                     ],
-                    const CourseSectionHeader(
-                      icon: Icons.groups_rounded,
-                      title: 'مجتمع الكورس',
-                    ),
-                    const SizedBox(height: 12),
-                    CourseFeatureCard(
-                      icon: Icons.forum_outlined,
-                      iconBg: colors.primary.withOpacity(0.1),
-                      iconColor: colors.primary,
-                      title: 'منشورات الكورس',
-                      subtitle: 'مناقشات وإعلانات',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => CoursePostsPage(courseId: course.id),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    CourseFeatureCard(
-                      icon: Icons.chat_bubble_outline_rounded,
-                      iconBg: const Color(0xff2E7D53).withOpacity(0.1),
-                      iconColor: const Color(0xff2E7D53),
-                      title: 'محادثة المجموعة',
-                      subtitle: 'تواصل مع زملائك',
-                      onTap: () => _openCourseChat(context),
-                    ),
                   ],
                 ),
               ),
@@ -265,25 +228,6 @@ class _CourseDetailsContent extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  void _openCourseChat(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => _CourseChatGate(
-          course: course,
-          currentUserId: _currentUserId(context),
-        ),
-      ),
-    );
-  }
-
-  int _currentUserId(BuildContext context) {
-    final state = context.read<AuthBloc>().state;
-    if (state is Authenticated) return state.authEntity.user.id;
-    if (state is AuthSuccess) return state.authEntity.user.id;
-    return 0;
   }
 
   Widget _buildCta(BuildContext context) {
@@ -478,114 +422,6 @@ class _CourseDetailsContent extends StatelessWidget {
       color: colors.surface,
       borderRadius: BorderRadius.circular(20),
       border: Border.all(color: colors.outlineVariant.withOpacity(0.5)),
-    );
-  }
-}
-
-class _CourseChatGate extends StatefulWidget {
-  final CourseEntity course;
-  final int currentUserId;
-
-  const _CourseChatGate({required this.course, required this.currentUserId});
-
-  @override
-  State<_CourseChatGate> createState() => _CourseChatGateState();
-}
-
-class _CourseChatGateState extends State<_CourseChatGate> {
-  late Future<ConversationEntity> _future;
-  bool _opened = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  void _load() {
-    _future = sl<GetCourseConversationUseCase>().call(widget.course.id);
-    _future.then((conversation) {
-      if (!mounted || _opened) return;
-      _opened = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) => BlocProvider(
-              create: (_) => sl<ChatMessagesBloc>(
-                param1: conversation.id,
-                param2: widget.currentUserId,
-              )..add(OpenChatConversationEvent()),
-              child: ChatRoomPage(
-                conversationId: conversation.id,
-                title: widget.course.title,
-              ),
-            ),
-          ),
-        );
-      });
-    });
-  }
-
-  void _retry() {
-    setState(_load);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        body: FutureBuilder<ConversationEntity>(
-          future: _future,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              final error = snapshot.error;
-              return _CourseChatGateError(
-                message: error != null
-                    ? resolveApiErrorMessage(error)
-                    : 'تعذر فتح المحادثة',
-                onRetry: _retry,
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-          },
-        ),
-      ),
-    );
-  }
-}
-
-class _CourseChatGateError extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
-
-  const _CourseChatGateError({required this.message, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.cloud_off_rounded,
-              size: 56,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 14),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            FilledButton.tonalIcon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('إعادة المحاولة'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
