@@ -350,8 +350,7 @@ export interface OrganizationOverviewResponse {
   roadmapsCount: number
   storage: StorageResponse
 }
-export type OrganizationVerificationStatus =
-  "PENDING" | "APPROVED" | "REJECTED"
+export type OrganizationVerificationStatus = "PENDING" | "APPROVED" | "REJECTED"
 
 export interface OrganizationVerificationResponse {
   id: number
@@ -810,3 +809,10 @@ export interface BannedOrganizationResponse {
 export type PageBannedUserResponse = Page<BannedUserResponse>
 
 export type PageBannedOrganizationResponse = Page<BannedOrganizationResponse>
+export interface CreateModeratorRequest {
+  name: string
+  email: string
+  password: string
+}
+
+export type PageModeratorResponse = Page<AdminResponse>
