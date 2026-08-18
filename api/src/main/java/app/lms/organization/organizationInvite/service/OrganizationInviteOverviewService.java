@@ -42,14 +42,14 @@ public class OrganizationInviteOverviewService {
 
         Map<Long, Long> membersCounts =
                 toCountMap(
-                        memberRepository.countByOrganizationIds(
+                        memberRepository.countActiveByOrganizationIds(
                                 organizationIds
                         )
                 );
 
         Map<Long, Long> adminsCounts =
                 toCountMap(
-                        memberRepository.countByOrganizationIdsAndRole(
+                        memberRepository.countActiveByOrganizationIdsAndRole(
                                 organizationIds,
                                 Role.ADMIN
                         )
@@ -57,7 +57,7 @@ public class OrganizationInviteOverviewService {
 
         Map<Long, Long> studentsCounts =
                 toCountMap(
-                        memberRepository.countByOrganizationIdsAndRole(
+                        memberRepository.countActiveByOrganizationIdsAndRole(
                                 organizationIds,
                                 Role.STUDENT
                         )

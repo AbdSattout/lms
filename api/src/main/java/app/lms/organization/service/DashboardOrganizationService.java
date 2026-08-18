@@ -495,7 +495,7 @@ public class DashboardOrganizationService {
                         );
 
         return organizationMemberRepository
-                .findByOrganizationId(
+                .findActiveByOrganizationId(
                         organization.getId(),
                         pageable
                 )
@@ -517,7 +517,7 @@ public class DashboardOrganizationService {
                         );
 
         return organizationMemberRepository
-                .findByOrganizationIdAndRole(
+                .findActiveByOrganizationIdAndRole(
                         organization.getId(),
                         role,
                         pageable
@@ -633,7 +633,7 @@ public class DashboardOrganizationService {
         }
 
         return organizationMemberRepository
-                .findAllByOrganizationIdAndUserIdIn(
+                .findAllActiveByOrganizationIdAndUserIdIn(
                         organizationId,
                         userIds
                 )
