@@ -10,6 +10,7 @@ import {
   LogOut,
   Settings,
   ShieldCheck,
+  Users,
 } from "lucide-react"
 
 import { Separator } from "@/components/ui/separator"
@@ -71,7 +72,13 @@ export function AdminSidebar() {
             <Ban className="h-4 w-4" />
             الحظر
           </Link>
-
+          <Link
+            href={"/admin/moderators" as Route}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            <Users className="h-4 w-4" />
+            المشرفون
+          </Link>
           <Link
             href={"/admin/organization-verifications" as Route}
             className={cn(
@@ -86,11 +93,6 @@ export function AdminSidebar() {
           </Link>
 
           <div className="mt-auto flex flex-col gap-1">
-            <div className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground">
-              <Settings className="h-4 w-4" />
-              الإعدادات
-            </div>
-
             <LogoutButton
               variant="ghost"
               className="w-full justify-start gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive"

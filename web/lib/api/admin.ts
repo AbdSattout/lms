@@ -3,16 +3,19 @@ import "server-only"
 import { backend, type BackendFetchOptions } from "@/lib/api/backend"
 import { defineApiRoute } from "@/lib/api/route"
 import type {
+  AdminResponse,
   BannedOrganizationResponse,
   BannedUserResponse,
   BanRequest,
   CommentResponse,
   CourseResponse,
+  CreateModeratorRequest,
   OrganizationResponse,
   OrganizationVerificationResponse,
   OrganizationVerificationStatus,
   Page,
   PageBannedUserResponse,
+  PageModeratorResponse,
   PageOrganizationVerificationResponse,
   PostResponse,
   ReportPageResponse,
@@ -390,4 +393,33 @@ export const moderation = {
         }),
     }),
   },
+}
+export const moderators = {
+  list: defineApiRoute({
+    get: (pageable: PageableInput, options?: BackendFetchOptions) =>
+      backend<PageModeratorResponse>(
+        withPageable("/admin/moderators", pageable),
+        {
+          method: "GET",
+          ...options,
+        }
+      ),
+  }),
+
+  create: defineApiRoute({
+    post: (request: CreateModeratorRequest, options?: BackendFetchOptions) =>
+      backend<AdminResponse>("/admin/moderators", {
+        method: "POST",
+        body: request,
+        ...options,
+      }),
+  }),
+
+  remove: defineApiRoute({
+    delete: (moderatorId: number, options?: BackendFetchOptions) =>
+      backend<void>(`/admin/moderators/${moderatorId}`, {
+        method: "DELETE",
+        ...options,
+      }),
+  }),
 }
