@@ -11,6 +11,7 @@ public enum RecommendationReason {
     RECOMMENDED_FOR_YOU("Recommended for you"),
     HAS_MANY_PUBLISHED_COURSES("Has many published courses"),
     POPULAR_ORGANIZATION("Popular organization"),
+    VERIFIED_ORGANIZATION("Verified organization"),
     ACTIVE_ORGANIZATION("Active organization"),
     DISCOVERABLE_ORGANIZATION("Organization you may like");
 

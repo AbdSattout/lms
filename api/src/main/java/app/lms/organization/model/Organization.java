@@ -34,6 +34,9 @@ public class Organization extends BaseEntity {
 
     private String imageFileId;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean verified = false;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -111,6 +111,11 @@ public class OrganizationMapper {
                 .description(organization.getDescription())
                 .image(organization.getImageUrl())
                 .visibility(organization.getVisibility())
+                .verified(
+                        Boolean.TRUE.equals(
+                                organization.getVerified()
+                        )
+                )
                 .ownerName(
                         organization.getOwner().getName()
                 )
@@ -213,6 +218,11 @@ public class OrganizationMapper {
                 .description(organization.getDescription())
                 .image(organization.getImageUrl())
                 .visibility(organization.getVisibility())
+                .verified(
+                        Boolean.TRUE.equals(
+                                organization.getVerified()
+                        )
+                )
                 .viewer(viewer)
                 .build();
     }

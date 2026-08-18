@@ -62,9 +62,11 @@ public interface OrganizationRecommendationRepository
                         (
                             case when count(distinct publishedCourse.id) >= :manyPublishedCoursesThreshold then 30 else 0 end
                             + case when count(distinct member.id) >= :manyMembersThreshold then 25 else 0 end
+                            + case when organization.verified = true then 40 else 0 end
                             + case when count(distinct recentPublishedCourse.id) > 0 then 15 else 0 end
                             + 10
                         ) desc,
+                        case when organization.verified = true then 1 else 0 end desc,
                         count(distinct publishedCourse.id) desc,
                         count(distinct member.id) desc,
                         max(publishedCourse.createdAt) desc,
