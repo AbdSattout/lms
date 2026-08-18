@@ -162,6 +162,12 @@ export function chatMuteUser(request: ChatMuteUserRequest) {
   })
 }
 
+export function chatGetMutes(conversationId: number) {
+  return chatFetch<ChatMuteResponse[]>(
+    `chat/conversations/${conversationId}/mutes`
+  )
+}
+
 export function chatUnmute(muteId: number) {
   return chatFetch<void>(`/chat/mutes/${muteId}`, { method: "DELETE" })
 }
