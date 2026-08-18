@@ -40,6 +40,11 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<ConversationEntity> getCourseConversation(int courseId) {
+    return remote.getCourseConversation(courseId);
+  }
+
+  @override
   Future<void> markAsRead({
     required int conversationId,
     required int lastReadMessageId,

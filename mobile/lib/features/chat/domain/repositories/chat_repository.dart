@@ -21,6 +21,8 @@ abstract class ChatRepository {
 
   Future<ConversationEntity> createDirectConversation(int targetUserId);
 
+  Future<ConversationEntity> getCourseConversation(int courseId);
+
   Future<void> markAsRead({
     required int conversationId,
     required int lastReadMessageId,
