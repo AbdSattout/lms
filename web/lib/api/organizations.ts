@@ -9,9 +9,11 @@ import type {
   CreatePublicInviteRequest,
   JoinRequestResponse,
   OrganizationInviteResponse,
+  OrganizationVerificationResponse,
   OrganizationResponse,
   OrganizationUserSearchResponse,
   PageOrganizationBanResponse,
+  PageOrganizationVerificationResponse,
   PageOrganizationMemberResponse,
   UpdateInviteCapacityRequest,
 } from "@/lib/api/types"
@@ -270,6 +272,50 @@ export const invites = {
 
 function withPageable(path: string, pageable: PageableInput) {
   return `${path}${toQueryString(pageable)}`
+}
+
+export const verificationRequests = {
+  list: defineApiRoute({
+    get: (
+      slug: string,
+      pageable: PageableInput,
+      options?: BackendFetchOptions
+    ) =>
+      backend<PageOrganizationVerificationResponse>(
+        withPageable(
+          `/dashboard/organizations/${slug}/verification-requests`,
+          pageable
+        ),
+        { method: "GET", ...options }
+      ),
+  }),
+
+  submit: defineApiRoute({
+    post: (
+      slug: string,
+      request: { note?: string },
+      proof: File,
+      options?: BackendFetchOptions
+    ) =>
+      backend<OrganizationVerificationResponse>(
+        `/dashboard/organizations/${slug}/verification-requests`,
+        {
+          method: "POST",
+          body: (() => {
+            const body = new FormData()
+
+            body.set(
+              "request",
+              new Blob([JSON.stringify(request)], { type: "application/json" })
+            )
+            body.set("proof", proof)
+
+            return body
+          })(),
+          ...options,
+        }
+      ),
+  }),
 }
 
 export const members = {

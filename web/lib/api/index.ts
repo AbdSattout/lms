@@ -47,6 +47,7 @@ import {
   members,
   removeMember,
   searchUsers as organizationSearchUsers,
+  verificationRequests,
 } from "@/lib/api/organizations"
 import { courseOverview, orgOverview, userOverview } from "@/lib/api/overview"
 import {
@@ -149,6 +150,7 @@ export const api = {
       searchUsers: organizationSearchUsers,
       removeMember,
       banUser,
+      verificationRequests,
       members: {
         list: members.list,
         getOwners: members.owners,

@@ -1,4 +1,5 @@
 import { OrgAvatar } from "@/components/org-avatar"
+import { OrganizationVerifiedBadge } from "@/components/organization-verified-badge"
 import { Badge } from "@/components/ui/badge"
 import {
   Card,
@@ -21,7 +22,8 @@ export async function OrgCard({ org }: { org: OrganizationResponse }) {
           <OrgAvatar src={org.image} name={org.name} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2">
-              <CardTitle className="text-base">{org.name}</CardTitle>
+              <CardTitle className="truncate text-base">{org.name}</CardTitle>
+              {org.verified && <OrganizationVerifiedBadge />}
             </div>
             {org.description && (
               <CardDescription className="line-clamp-2 text-xs">

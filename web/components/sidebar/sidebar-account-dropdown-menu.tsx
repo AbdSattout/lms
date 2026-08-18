@@ -15,6 +15,7 @@ import { LogOutIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { OrgAvatar } from "../org-avatar"
+import { OrganizationVerifiedBadge } from "../organization-verified-badge"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { Button } from "../ui/button"
 
@@ -44,7 +45,10 @@ export function SidebarAccountDropdownMenu({
       >
         <OrgAvatar src={org.image} name={org.name} className="size-8" />
         <div className="grid flex-1 text-start text-sm leading-tight">
-          <span className="truncate font-medium">{org.name}</span>
+          <span className="inline-flex min-w-0 items-center gap-1 truncate font-medium">
+            <span className="truncate">{org.name}</span>
+            {org.verified && <OrganizationVerifiedBadge />}
+          </span>
           <span className="truncate text-xs text-foreground/70">
             {user.name}
           </span>
@@ -65,7 +69,10 @@ export function SidebarAccountDropdownMenu({
               className="cursor-pointer"
             >
               <OrgAvatar src={o.image} name={o.name} />
-              <span className="truncate">{o.name}</span>
+              <span className="inline-flex min-w-0 flex-1 items-center gap-1 truncate">
+                <span className="truncate">{o.name}</span>
+                {o.verified && <OrganizationVerifiedBadge />}
+              </span>
             </DropdownMenuItem>
           ))}
           {organizations.length > 0 && <DropdownMenuSeparator />}
