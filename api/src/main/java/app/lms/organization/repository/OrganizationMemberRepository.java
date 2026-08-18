@@ -38,8 +38,57 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
             from OrganizationMember member
             join fetch member.user
             where member.organization.id = :organizationId
+            and member.user.id in :userIds
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = member.organization.id
+                and ban.user.id = member.user.id
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
             """)
-    Page<OrganizationMember> findByOrganizationId(
+    List<OrganizationMember> findAllActiveByOrganizationIdAndUserIdIn(
+            @Param("organizationId") Long organizationId,
+            @Param("userIds") Collection<Long> userIds
+    );
+
+    @Query(
+            value = """
+                    select member
+                    from OrganizationMember member
+                    join fetch member.user
+                    where member.organization.id = :organizationId
+                    and not exists (
+                        select ban.id
+                        from OrganizationBan ban
+                        where ban.organization.id = member.organization.id
+                        and ban.user.id = member.user.id
+                        and (
+                            ban.expiresAt is null
+                            or ban.expiresAt > CURRENT_TIMESTAMP
+                        )
+                    )
+                    """,
+            countQuery = """
+                    select count(member)
+                    from OrganizationMember member
+                    where member.organization.id = :organizationId
+                    and not exists (
+                        select ban.id
+                        from OrganizationBan ban
+                        where ban.organization.id = member.organization.id
+                        and ban.user.id = member.user.id
+                        and (
+                            ban.expiresAt is null
+                            or ban.expiresAt > CURRENT_TIMESTAMP
+                        )
+                    )
+                    """
+    )
+    Page<OrganizationMember> findActiveByOrganizationId(
             @Param("organizationId") Long organizationId,
             Pageable pageable
     );
@@ -88,14 +137,42 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
             @Param("userId") Long userId
     );
 
-    @Query("""
-            select member
-            from OrganizationMember member
-            join fetch member.user
-            where member.organization.id = :organizationId
-            and member.role = :role
-            """)
-    Page<OrganizationMember> findByOrganizationIdAndRole(
+    @Query(
+            value = """
+                    select member
+                    from OrganizationMember member
+                    join fetch member.user
+                    where member.organization.id = :organizationId
+                    and member.role = :role
+                    and not exists (
+                        select ban.id
+                        from OrganizationBan ban
+                        where ban.organization.id = member.organization.id
+                        and ban.user.id = member.user.id
+                        and (
+                            ban.expiresAt is null
+                            or ban.expiresAt > CURRENT_TIMESTAMP
+                        )
+                    )
+                    """,
+            countQuery = """
+                    select count(member)
+                    from OrganizationMember member
+                    where member.organization.id = :organizationId
+                    and member.role = :role
+                    and not exists (
+                        select ban.id
+                        from OrganizationBan ban
+                        where ban.organization.id = member.organization.id
+                        and ban.user.id = member.user.id
+                        and (
+                            ban.expiresAt is null
+                            or ban.expiresAt > CURRENT_TIMESTAMP
+                        )
+                    )
+                    """
+    )
+    Page<OrganizationMember> findActiveByOrganizationIdAndRole(
             @Param("organizationId") Long organizationId,
             @Param("role") Role role,
             Pageable pageable
@@ -106,6 +183,46 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
     findAllByUserIdAndRoleIn(
             Long userId,
             List<Role> roles
+    );
+
+    @Query("""
+            select count(member)
+            from OrganizationMember member
+            where member.organization.id = :organizationId
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = member.organization.id
+                and ban.user.id = member.user.id
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
+            """)
+    long countActiveByOrganizationId(
+            @Param("organizationId") Long organizationId
+    );
+
+    @Query("""
+            select count(member)
+            from OrganizationMember member
+            where member.organization.id = :organizationId
+            and member.role = :role
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = member.organization.id
+                and ban.user.id = member.user.id
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
+            """)
+    long countActiveByOrganizationIdAndRole(
+            @Param("organizationId") Long organizationId,
+            @Param("role") Role role
     );
 
     long countByOrganizationId(Long organizationId);
@@ -150,9 +267,19 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
                    count(member.id) as total
             from OrganizationMember member
             where member.organization.id in :organizationIds
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = member.organization.id
+                and ban.user.id = member.user.id
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
             group by member.organization.id
             """)
-    List<OrganizationCountProjection> countByOrganizationIds(
+    List<OrganizationCountProjection> countActiveByOrganizationIds(
             @Param("organizationIds") Collection<Long> organizationIds
     );
 
@@ -162,9 +289,19 @@ public interface OrganizationMemberRepository extends JpaRepository<Organization
             from OrganizationMember member
             where member.organization.id in :organizationIds
             and member.role = :role
+            and not exists (
+                select ban.id
+                from OrganizationBan ban
+                where ban.organization.id = member.organization.id
+                and ban.user.id = member.user.id
+                and (
+                    ban.expiresAt is null
+                    or ban.expiresAt > CURRENT_TIMESTAMP
+                )
+            )
             group by member.organization.id
             """)
-    List<OrganizationCountProjection> countByOrganizationIdsAndRole(
+    List<OrganizationCountProjection> countActiveByOrganizationIdsAndRole(
             @Param("organizationIds") Collection<Long> organizationIds,
             @Param("role") Role role
     );

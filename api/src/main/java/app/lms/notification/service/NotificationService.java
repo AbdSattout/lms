@@ -170,7 +170,7 @@ public class NotificationService {
 
         Page<OrganizationMember> members =
                 organizationMemberRepository
-                        .findByOrganizationIdAndRole(
+                        .findActiveByOrganizationIdAndRole(
                                 organization.getId(),
                                 Role.STUDENT,
                                 pageable
@@ -202,7 +202,7 @@ public class NotificationService {
 
         Page<OrganizationMember> admins =
                 organizationMemberRepository
-                        .findByOrganizationIdAndRole(
+                        .findActiveByOrganizationIdAndRole(
                                 organization.getId(),
                                 Role.ADMIN,
                                 pageable

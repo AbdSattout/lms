@@ -47,6 +47,8 @@ export function ReportDetails({
     })
   }
 
+  const targetId = getReportTargetId(report)
+
   return (
     <div className="flex min-w-0 flex-col gap-5 p-4 md:p-6 lg:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -83,9 +85,11 @@ export function ReportDetails({
             <div>
               <p className="text-sm font-bold">{report.reporter.name}</p>
 
-              <p className="text-xs text-muted-foreground">
-                {report.reporter.email}
-              </p>
+              {report.reporter.username && (
+                <p className="text-xs text-muted-foreground">
+                  @{report.reporter.username}
+                </p>
+              )}
             </div>
           </div>
 
@@ -104,7 +108,9 @@ export function ReportDetails({
           <div className="grid gap-4 text-sm sm:grid-cols-2">
             <InfoRow label="نوع البلاغ">{report.targetType}</InfoRow>
 
-            <InfoRow label="المحتوى المستهدف">#{report.targetId}</InfoRow>
+            <InfoRow label="المحتوى المستهدف">
+              {targetId != null ? `#${targetId}` : "—"}
+            </InfoRow>
 
             <InfoRow label="الحالة الحالية">
               <ReportStatusBadge status={report.status} />
@@ -196,6 +202,28 @@ export function ReportDetails({
       </Card>
     </div>
   )
+}
+
+function getReportTargetId(report: ReportResponse): number | null {
+  switch (report.targetType) {
+    case "POST":
+      return report.target.postId ?? null
+
+    case "COMMENT":
+      return report.target.commentId ?? null
+
+    case "USER":
+      return report.target.userId ?? null
+
+    case "ORGANIZATION":
+      return report.target.organizationId ?? null
+
+    case "COURSE":
+      return report.target.courseId ?? null
+
+    default:
+      return null
+  }
 }
 
 function InfoRow({

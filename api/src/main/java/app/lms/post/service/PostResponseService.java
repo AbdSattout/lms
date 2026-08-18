@@ -6,7 +6,9 @@ import app.lms.post.enums.ReactionType;
 import app.lms.post.mapper.PostMapper;
 import app.lms.post.model.Like;
 import app.lms.post.model.Post;
+import app.lms.post.repository.CommentRepository;
 import app.lms.post.repository.LikeRepository;
+import app.lms.post.repository.PostCommentCountProjection;
 import app.lms.post.repository.ReactionCountProjection;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class PostResponseService {
 
     private final PostMapper postMapper;
     private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     public PostResponse build(
             Post post,
@@ -90,6 +93,11 @@ public class PostResponseService {
 
         return postMapper.toResponse(
                 post,
+                context.commentCountsByPostId()
+                        .getOrDefault(
+                                post.getId(),
+                                0L
+                        ),
                 totalReactions(reactionCounts),
                 reactionCounts,
                 context.viewerReactionsByPostId()
@@ -110,17 +118,37 @@ public class PostResponseService {
         if (postIds.isEmpty()) {
             return new PostReactionContext(
                     Map.of(),
+                    Map.of(),
                     Map.of()
             );
         }
 
         return new PostReactionContext(
+                commentCountsByPostId(postIds),
                 reactionCountsByPostId(postIds),
                 viewerReactionsByPostId(
                         postIds,
                         user
                 )
         );
+    }
+
+    private Map<Long, Long> commentCountsByPostId(
+            List<Long> postIds
+    ) {
+
+        return commentRepository
+                .countByPostIds(
+                        postIds
+                )
+                .stream()
+                .collect(
+                        Collectors.toMap(
+                                PostCommentCountProjection::getPostId,
+                                PostCommentCountProjection::getCommentCount,
+                                Long::sum
+                        )
+                );
     }
 
     private Map<Long, Map<ReactionType, Long>> reactionCountsByPostId(
@@ -185,6 +213,7 @@ public class PostResponseService {
     }
 
     private record PostReactionContext(
+            Map<Long, Long> commentCountsByPostId,
             Map<Long, Map<ReactionType, Long>> reactionCountsByPostId,
             Map<Long, ReactionType> viewerReactionsByPostId
     ) {}

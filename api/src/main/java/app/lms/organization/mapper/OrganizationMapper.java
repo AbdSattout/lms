@@ -111,10 +111,15 @@ public class OrganizationMapper {
                 .description(organization.getDescription())
                 .image(organization.getImageUrl())
                 .visibility(organization.getVisibility())
+                .verified(
+                        Boolean.TRUE.equals(
+                                organization.getVerified()
+                        )
+                )
                 .ownerName(
                         organization.getOwner().getName()
                 )
-                .membersCount(memberRepository.countByOrganizationId(
+                .membersCount(memberRepository.countActiveByOrganizationId(
                         organization.getId()
                 ))
                 .coursesCount(
@@ -213,6 +218,11 @@ public class OrganizationMapper {
                 .description(organization.getDescription())
                 .image(organization.getImageUrl())
                 .visibility(organization.getVisibility())
+                .verified(
+                        Boolean.TRUE.equals(
+                                organization.getVerified()
+                        )
+                )
                 .viewer(viewer)
                 .build();
     }
