@@ -45,6 +45,8 @@ class EndPoints {
 
   static const String updateProfilePicture = 'users/me/picture';
 
+  static const String reports = 'reports';
+
   static const String requestAccountEmailOtp = 'users/me/email/request-otp';
 
   static const String verifyAccountEmailOtp = 'users/me/email/verify-otp';

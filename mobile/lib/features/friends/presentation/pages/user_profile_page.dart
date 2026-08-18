@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
+import '../../../reports/domain/entities/report_target.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/friend_user_entity.dart';
 import '../../domain/entities/user_profile_entity.dart';
 import '../bloc/user_profile_bloc.dart';
@@ -41,6 +43,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
           title: const Text('الملف الشخصي'),
           centerTitle: true,
+          actions: [
+            _UserReportAction(
+              userId: widget.userId,
+              initialName: widget.initialUser?.name,
+            ),
+          ],
         ),
         body: BlocConsumer<UserProfileBloc, UserProfileState>(
           listenWhen: (previous, current) {
@@ -207,6 +215,45 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 }
 
+class _UserReportAction extends StatelessWidget {
+  final int userId;
+  final String? initialName;
+
+  const _UserReportAction({required this.userId, this.initialName});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<UserProfileBloc, UserProfileState>(
+      builder: (context, state) {
+        if (state is UserProfileLoaded &&
+            state.profile.friendship.status == 'SELF') {
+          return const SizedBox.shrink();
+        }
+
+        final loadedName = state is UserProfileLoaded
+            ? state.profile.profile.name
+            : null;
+        final name = loadedName?.trim().isNotEmpty == true
+            ? loadedName!
+            : (initialName?.trim().isNotEmpty == true
+                  ? initialName!
+                  : 'المستخدم');
+
+        return IconButton(
+          tooltip: 'إبلاغ',
+          icon: const Icon(Icons.outlined_flag_rounded),
+          onPressed: () {
+            showReportBottomSheet(
+              context,
+              ReportTarget.user(userId: userId, title: name),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 class _HeaderCard extends StatelessWidget {
   final String name;
   final String? username;
@@ -259,7 +306,9 @@ class _HeaderCard extends StatelessWidget {
                 bottom: 0,
                 left: 0,
                 right: 0,
-                child: Center(child: _ProfileAvatar(name: name, picture: picture)),
+                child: Center(
+                  child: _ProfileAvatar(name: name, picture: picture),
+                ),
               ),
             ],
           ),
@@ -289,7 +338,11 @@ class _HeaderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.mail_outline_rounded, size: 15, color: colors.onSurfaceVariant),
+              Icon(
+                Icons.mail_outline_rounded,
+                size: 15,
+                color: colors.onSurfaceVariant,
+              ),
               const SizedBox(width: 5),
               Flexible(
                 child: Text(
