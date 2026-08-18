@@ -15,12 +15,14 @@ class ChatRoomPage extends StatefulWidget {
   final int conversationId;
   final FriendUserEntity? otherUser;
   final String? title;
+  final bool isCourseChat;
 
   const ChatRoomPage({
     super.key,
     required this.conversationId,
     this.otherUser,
     this.title,
+    this.isCourseChat = false,
   });
 
   @override
@@ -164,6 +166,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         return _MessageBubble(
           item: item,
           currentUserId: currentUserId,
+          showSenderName: widget.isCourseChat,
           onRetry: () {
             context.read<ChatMessagesBloc>().add(
               RetryChatMessageEvent(item.localId!),
@@ -202,11 +205,13 @@ class _ChatItem {
 class _MessageBubble extends StatelessWidget {
   final _ChatItem item;
   final int currentUserId;
+  final bool showSenderName;
   final VoidCallback onRetry;
 
   const _MessageBubble({
     required this.item,
     required this.currentUserId,
+    required this.showSenderName,
     required this.onRetry,
   });
 
@@ -228,6 +233,7 @@ class _MessageBubble extends StatelessWidget {
               item: item,
               isMine: isMine,
               currentUserId: currentUserId,
+              showSenderName: showSenderName,
               onRetry: onRetry,
             ),
           ),
@@ -241,12 +247,14 @@ class _BubbleBody extends StatelessWidget {
   final _ChatItem item;
   final bool isMine;
   final int currentUserId;
+  final bool showSenderName;
   final VoidCallback onRetry;
 
   const _BubbleBody({
     required this.item,
     required this.isMine,
     required this.currentUserId,
+    required this.showSenderName,
     required this.onRetry,
   });
 
@@ -264,6 +272,7 @@ class _BubbleBody extends StatelessWidget {
         : colors.onSurface;
 
     final showAvatar = !isMine && item.message != null;
+    final showName = showAvatar && showSenderName;
     final isDeleted = item.message?.isDeleted ?? false;
     final isFailed = item.isFailed;
 
@@ -350,7 +359,27 @@ class _BubbleBody extends StatelessWidget {
             backgroundColor: colors.primary.withValues(alpha: 0.1),
           ),
         ),
-        Flexible(child: bubble),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (showName) ...[
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 3),
+                  child: Text(
+                    item.message?.senderName ?? '',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+              bubble,
+            ],
+          ),
+        ),
       ],
     );
   }
