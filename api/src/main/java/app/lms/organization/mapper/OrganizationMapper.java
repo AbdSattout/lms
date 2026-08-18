@@ -114,7 +114,7 @@ public class OrganizationMapper {
                 .ownerName(
                         organization.getOwner().getName()
                 )
-                .membersCount(memberRepository.countByOrganizationId(
+                .membersCount(memberRepository.countActiveByOrganizationId(
                         organization.getId()
                 ))
                 .coursesCount(

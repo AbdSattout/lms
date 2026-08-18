@@ -108,16 +108,20 @@ public class CommentService {
         Post post =
                 comment.getPost();
 
-        Long currentComments = post.getCommentsCount();
-        if (currentComments == null) {
-            currentComments = 0L;
-        }
-
         long deletedCount = countCommentAndReplies(comment);
+        long currentComments =
+                commentRepository.countByPostId(
+                        post.getId()
+                );
 
         commentRepository.delete(comment);
 
-        post.setCommentsCount(Math.max(0, currentComments - deletedCount));
+        post.setCommentsCount(
+                Math.max(
+                        0,
+                        currentComments - deletedCount
+                )
+        );
     }
 
     private long countCommentAndReplies(Comment comment) {

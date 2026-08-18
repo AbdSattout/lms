@@ -95,14 +95,14 @@ public class OrganizationOverviewService {
 
                 .membersCount(
                         organizationMemberRepository
-                                .countByOrganizationId(
+                                .countActiveByOrganizationId(
                                         organization.getId()
                                 )
                 )
 
                 .adminsCount(
                         organizationMemberRepository
-                                .countByOrganizationIdAndRole(
+                                .countActiveByOrganizationIdAndRole(
                                         organization.getId(),
                                         Role.ADMIN
                                 )
@@ -110,7 +110,7 @@ public class OrganizationOverviewService {
 
                 .studentsCount(
                         organizationMemberRepository
-                                .countByOrganizationIdAndRole(
+                                .countActiveByOrganizationIdAndRole(
                                         organization.getId(),
                                         Role.STUDENT
                                 )
