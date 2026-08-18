@@ -155,6 +155,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       return const _EmptyMessagesView();
     }
 
+    final isFirstInGroup = _computeGroupFirsts(items);
+
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
@@ -166,7 +168,8 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         return _MessageBubble(
           item: item,
           currentUserId: currentUserId,
-          showSenderName: widget.isCourseChat,
+          isCourseChat: widget.isCourseChat,
+          isFirstInGroup: isFirstInGroup[index],
           onRetry: () {
             context.read<ChatMessagesBloc>().add(
               RetryChatMessageEvent(item.localId!),
@@ -175,6 +178,40 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         );
       },
     );
+  }
+
+  List<bool> _computeGroupFirsts(List<_ChatItem> items) {
+    const groupGap = Duration(minutes: 5);
+    final result = List<bool>.filled(items.length, false);
+
+    for (var i = 0; i < items.length; i++) {
+      if (i == items.length - 1) {
+        result[i] = true;
+        continue;
+      }
+
+      final current = items[i];
+      final older = items[i + 1];
+      final currentSenderId = current.message?.senderId;
+      final olderSenderId = older.message?.senderId;
+
+      if (currentSenderId == null || olderSenderId == null) {
+        result[i] = true;
+        continue;
+      }
+
+      if (currentSenderId != olderSenderId) {
+        result[i] = true;
+        continue;
+      }
+
+      final gap = older.message!.createdAt.difference(
+        current.message!.createdAt,
+      );
+      result[i] = gap > groupGap;
+    }
+
+    return result;
   }
 }
 
@@ -205,13 +242,15 @@ class _ChatItem {
 class _MessageBubble extends StatelessWidget {
   final _ChatItem item;
   final int currentUserId;
-  final bool showSenderName;
+  final bool isCourseChat;
+  final bool isFirstInGroup;
   final VoidCallback onRetry;
 
   const _MessageBubble({
     required this.item,
     required this.currentUserId,
-    required this.showSenderName,
+    required this.isCourseChat,
+    required this.isFirstInGroup,
     required this.onRetry,
   });
 
@@ -233,7 +272,8 @@ class _MessageBubble extends StatelessWidget {
               item: item,
               isMine: isMine,
               currentUserId: currentUserId,
-              showSenderName: showSenderName,
+              isCourseChat: isCourseChat,
+              isFirstInGroup: isFirstInGroup,
               onRetry: onRetry,
             ),
           ),
@@ -247,14 +287,16 @@ class _BubbleBody extends StatelessWidget {
   final _ChatItem item;
   final bool isMine;
   final int currentUserId;
-  final bool showSenderName;
+  final bool isCourseChat;
+  final bool isFirstInGroup;
   final VoidCallback onRetry;
 
   const _BubbleBody({
     required this.item,
     required this.isMine,
     required this.currentUserId,
-    required this.showSenderName,
+    required this.isCourseChat,
+    required this.isFirstInGroup,
     required this.onRetry,
   });
 
@@ -271,8 +313,9 @@ class _BubbleBody extends StatelessWidget {
         ? (isDark ? AppColors.primaryLight : colors.primary)
         : colors.onSurface;
 
-    final showAvatar = !isMine && item.message != null;
-    final showName = showAvatar && showSenderName;
+    final showAvatar =
+        !isMine && item.message != null && (!isCourseChat || isFirstInGroup);
+    final showName = !isMine && isCourseChat && isFirstInGroup;
     final isDeleted = item.message?.isDeleted ?? false;
     final isFailed = item.isFailed;
 
