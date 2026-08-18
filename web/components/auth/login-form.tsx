@@ -21,7 +21,7 @@ import { cn } from "@/lib/utils"
 const RESEND_COOLDOWN_SECONDS = 60
 const MAX_ATTEMPTS = 5
 const REQUEST_TIMEOUT_MS = 20_000
-
+const GENERIC_ERROR_MESSAGE = "حدث خطأ ما، حاول مرة أخرى"
 type Step = "email" | "code" | "admin"
 
 async function postJson(url: string, body: unknown) {
@@ -54,6 +54,15 @@ export function LoginForm({
   const searchParams = useSearchParams()
 
   const callbackUrl = resolveSafeCallbackUrl(searchParams.get("callbackUrl"))
+  const authError = searchParams.get("error")
+
+  useEffect(() => {
+    if (!authError) {
+      return
+    }
+
+    toast.error(authError)
+  }, [authError])
 
   const [step, setStep] = useState<Step>("email")
   const [email, setEmail] = useState("")
@@ -188,7 +197,7 @@ export function LoginForm({
       }
 
       if (!response.ok) {
-        throw new Error("حدث خطأ ما، حاول مرة أخرى.")
+        throw new Error(GENERIC_ERROR_MESSAGE)
       }
 
       setCode("")
@@ -197,9 +206,7 @@ export function LoginForm({
       setStep("code")
       lastAutoSubmittedCodeRef.current = ""
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "حدث خطأ ما، حاول مرة أخرى."
-      )
+      setError(error instanceof Error ? error.message : GENERIC_ERROR_MESSAGE)
     } finally {
       setIsSending(false)
     }
@@ -234,15 +241,13 @@ export function LoginForm({
         throw new Error(
           response.status === 400
             ? "رمز التحقق غير صحيح أو منتهي."
-            : "حدث خطأ ما، حاول مرة أخرى."
+            : GENERIC_ERROR_MESSAGE
         )
       }
 
       router.replace(callbackUrl as never)
     } catch (error) {
-      setError(
-        error instanceof Error ? error.message : "حدث خطأ ما، حاول مرة أخرى."
-      )
+      setError(error instanceof Error ? error.message : GENERIC_ERROR_MESSAGE)
     } finally {
       setIsVerifying(false)
     }

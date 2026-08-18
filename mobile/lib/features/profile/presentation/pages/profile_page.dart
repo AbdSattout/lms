@@ -12,6 +12,9 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../billing/presentation/bloc/billing_bloc.dart';
 import '../../../billing/presentation/bloc/billing_event.dart';
 import '../../../billing/presentation/pages/billing_page.dart';
+import '../../../friends/presentation/bloc/friends_bloc.dart';
+import '../../../friends/presentation/bloc/friends_event.dart';
+import '../../../friends/presentation/pages/friends_page.dart';
 import '../../../gamification/presentation/widgets/gamification_card.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -249,6 +252,23 @@ class _ProfilePageState extends State<ProfilePage> {
                       icon: Icons.edit_outlined,
                       onTap: () {
                         _showEditProfileSheet(context, profile);
+                      },
+                    ),
+
+                    ProfileOptionTile(
+                      title: "الأصدقاء",
+                      icon: Icons.people_alt_outlined,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BlocProvider(
+                              create: (_) => sl<FriendsBloc>()
+                                ..add(LoadFriendsEvent()),
+                              child: const FriendsPage(),
+                            ),
+                          ),
+                        );
                       },
                     ),
 

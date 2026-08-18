@@ -79,11 +79,6 @@ export async function deleteOrganizationAction(slug: string) {
     }
   }
 }
-export async function getOrganizationOverviewAction(
-  slug: string
-): Promise<OrganizationOverviewResponse> {
-  return api.dashboard.organizations.overview.get(slug)
-}
 export async function updateOrganization(
   _prevState: { error?: string; success?: boolean },
   formData: FormData
