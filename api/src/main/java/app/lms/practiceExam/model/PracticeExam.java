@@ -2,6 +2,7 @@ package app.lms.practiceExam.model;
 
 import app.lms.common.model.BaseEntity;
 import app.lms.course.model.Course;
+import app.lms.practiceExam.enums.PracticeExamStatus;
 import app.lms.question.model.Question;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,6 +31,11 @@ public class PracticeExam extends BaseEntity {
 
     @Column(name = "time_limit_minutes")
     private Integer timeLimitMinutes;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'DRAFT'")
+    @Builder.Default
+    private PracticeExamStatus status = PracticeExamStatus.DRAFT;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)

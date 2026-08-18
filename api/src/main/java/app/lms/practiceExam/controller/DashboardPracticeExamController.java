@@ -86,6 +86,22 @@ public class DashboardPracticeExamController {
         );
     }
 
+    @PostMapping("/{practiceExamId}/publish")
+    public ResponseEntity<PracticeExamResponse> publish(
+            @PathVariable Long courseId,
+            @PathVariable Long practiceExamId,
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+
+        return ResponseEntity.ok(
+                dashboardPracticeExamService.publish(
+                        courseId,
+                        practiceExamId,
+                        principal.user()
+                )
+        );
+    }
+
     @DeleteMapping("/{practiceExamId}")
     public ResponseEntity<Void> delete(
             @PathVariable Long courseId,
