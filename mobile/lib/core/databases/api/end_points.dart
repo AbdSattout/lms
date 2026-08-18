@@ -187,6 +187,8 @@ class EndPoints {
   static const String chatConversations = 'chat/conversations';
   static String chatCreateDirectConversation(int targetUserId) =>
       'chat/conversations/direct/$targetUserId';
+  static String chatCourseConversation(int courseId) =>
+      'chat/conversations/courses/$courseId';
   static String chatConversationMessages(int conversationId) =>
       'chat/conversations/$conversationId/messages';
   static String chatMarkMessageRead(int conversationId, int messageId) =>
