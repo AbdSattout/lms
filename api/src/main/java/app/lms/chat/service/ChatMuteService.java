@@ -137,7 +137,8 @@ public class ChatMuteService {
         pusherService.publishMute(
                 conversation,
                 user.getId(),
-                saved.getMutedUntil().toString()
+                saved.getMutedUntil().toString(),
+                saved.getReason()
         );
 
 
@@ -176,7 +177,8 @@ public class ChatMuteService {
                     .ifPresent(mute -> {
                         throw new ChatMutedException(
                                 "You are muted in this course",
-                                mute.getMutedUntil()
+                                mute.getMutedUntil(),
+                                mute.getReason()
                         );
                     });
         }
@@ -190,7 +192,8 @@ public class ChatMuteService {
                 .ifPresent(mute -> {
                     throw new ChatMutedException(
                             "You are muted in this conversation",
-                            mute.getMutedUntil()
+                            mute.getMutedUntil(),
+                            mute.getReason()
                     );
                 });
     }

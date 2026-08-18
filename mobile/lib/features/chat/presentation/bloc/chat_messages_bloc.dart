@@ -105,7 +105,10 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       case 'member.muted':
         final mutedUserId = (event.data['userId'] as num?)?.toInt() ?? 0;
         final mutedUntil = parseApiDateTime(event.data['mutedUntil']);
-        if (mutedUserId > 0) add(MemberMutedEvent(mutedUserId, mutedUntil));
+        final muteReason = _nullableString(event.data['reason']);
+        if (mutedUserId > 0) {
+          add(MemberMutedEvent(mutedUserId, mutedUntil, muteReason));
+        }
         break;
       case 'member.unmuted':
         final unmutedUserId = (event.data['userId'] as num?)?.toInt() ?? 0;
@@ -181,12 +184,13 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       final pending = Map<String, String>.from(newCurrent.pendingMessages);
       pending.remove(localId);
 
-      final mutedUntil = _extractMutedUntil(e);
-      if (mutedUntil != null) {
+      final muteInfo = _extractMuteInfo(e);
+      if (muteInfo.$1 != null) {
         emit(
           newCurrent.copyWith(
             pendingMessages: pending,
-            mutedUntil: mutedUntil,
+            mutedUntil: muteInfo.$1,
+            muteReason: muteInfo.$2,
             clearErrorMessage: true,
             clearActionMessage: true,
           ),
@@ -205,13 +209,18 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     }
   }
 
-  DateTime? _extractMutedUntil(Object error) {
+  (DateTime?, String?) _extractMuteInfo(Object error) {
     try {
       final dynamic e = error;
       final dynamic model = e.errorModel;
-      if (model is ErrorModel) return model.mutedUntil;
+      if (model is ErrorModel) return (model.mutedUntil, model.muteReason);
     } catch (_) {}
-    return null;
+    return (null, null);
+  }
+
+  String? _nullableString(Object? value) {
+    final text = value?.toString().trim();
+    return (text == null || text.isEmpty) ? null : text;
   }
 
   void _memberMuted(
@@ -224,6 +233,7 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     emit(
       current.copyWith(
         mutedUntil: event.mutedUntil,
+        muteReason: event.reason,
         clearErrorMessage: true,
         clearActionMessage: true,
       ),
@@ -240,6 +250,7 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     emit(
       current.copyWith(
         clearMutedUntil: true,
+        clearMuteReason: true,
         clearErrorMessage: true,
         clearActionMessage: true,
       ),

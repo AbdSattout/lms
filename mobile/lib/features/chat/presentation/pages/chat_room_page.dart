@@ -146,6 +146,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     onSend: _handleSend,
                     isMuted: state.isMuted,
                     mutedMessage: _buildMutedMessage(state.mutedUntil),
+                    muteReason: state.muteReason,
                   ),
                 ],
               );
@@ -529,6 +530,7 @@ class _Composer extends StatelessWidget {
   final ValueChanged<String> onSend;
   final bool isMuted;
   final String mutedMessage;
+  final String? muteReason;
 
   const _Composer({
     required this.controller,
@@ -536,6 +538,7 @@ class _Composer extends StatelessWidget {
     required this.onSend,
     this.isMuted = false,
     this.mutedMessage = 'تم كتمك في هذه المحادثة',
+    this.muteReason,
   });
 
   @override
@@ -552,6 +555,7 @@ class _Composer extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
                   Icons.block_rounded,
@@ -560,11 +564,27 @@ class _Composer extends StatelessWidget {
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(
-                    mutedMessage,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        mutedMessage,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      if (muteReason != null && muteReason!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          muteReason!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ],

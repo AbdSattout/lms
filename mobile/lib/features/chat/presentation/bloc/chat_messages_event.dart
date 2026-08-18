@@ -39,8 +39,9 @@ class MarkMessagesReadEvent extends ChatMessagesEvent {
 class MemberMutedEvent extends ChatMessagesEvent {
   final int userId;
   final DateTime? mutedUntil;
+  final String? reason;
 
-  MemberMutedEvent(this.userId, this.mutedUntil);
+  MemberMutedEvent(this.userId, this.mutedUntil, this.reason);
 }
 
 class MemberUnmutedEvent extends ChatMessagesEvent {

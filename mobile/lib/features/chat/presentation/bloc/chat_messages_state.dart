@@ -24,6 +24,7 @@ class ChatMessagesLoaded extends ChatMessagesState {
   final String? actionMessage;
   final String? errorMessage;
   final DateTime? mutedUntil;
+  final String? muteReason;
 
   const ChatMessagesLoaded({
     required this.messages,
@@ -35,6 +36,7 @@ class ChatMessagesLoaded extends ChatMessagesState {
     this.actionMessage,
     this.errorMessage,
     this.mutedUntil,
+    this.muteReason,
   });
 
   bool get isMuted => mutedUntil != null && mutedUntil!.isAfter(DateTime.now());
@@ -52,6 +54,8 @@ class ChatMessagesLoaded extends ChatMessagesState {
     bool clearErrorMessage = false,
     DateTime? mutedUntil,
     bool clearMutedUntil = false,
+    String? muteReason,
+    bool clearMuteReason = false,
   }) {
     return ChatMessagesLoaded(
       messages: messages ?? this.messages,
@@ -69,6 +73,9 @@ class ChatMessagesLoaded extends ChatMessagesState {
       mutedUntil: clearMutedUntil
           ? null
           : mutedUntil ?? this.mutedUntil,
+      muteReason: clearMuteReason
+          ? null
+          : muteReason ?? this.muteReason,
     );
   }
 }
