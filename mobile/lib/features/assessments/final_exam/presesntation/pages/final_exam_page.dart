@@ -39,16 +39,23 @@ class _FinalExamPageState extends State<FinalExamPage> {
               if (state is FinalExamCompleted) {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (_) => FinalExamResultPage(result: state.result)),
+                  MaterialPageRoute(
+                    builder: (_) => FinalExamResultPage(result: state.result),
+                  ),
+                  result: true,
                 );
               }
               if (state is FinalExamFailed) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(state.message)));
               }
             },
             builder: (context, state) {
               return switch (state) {
-                FinalExamInitial() || FinalExamLoading() => const Center(child: CircularProgressIndicator()),
+                FinalExamInitial() || FinalExamLoading() => const Center(
+                  child: CircularProgressIndicator(),
+                ),
                 FinalExamReady() => _buildExam(context, state),
                 FinalExamSubmitting() => _buildSubmitting(context),
                 FinalExamCompleted() => const SizedBox(),
@@ -79,23 +86,37 @@ class _FinalExamPageState extends State<FinalExamPage> {
 
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(20),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('سؤال ${index + 1} من ${state.totalQuestions}', style: TextStyle(fontSize: 13, color: colors.onSurfaceVariant, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 10),
-                  MarkdownContentView(content: question.content),                  const SizedBox(height: 24),
-                  ...question.options.asMap().entries.map((entry) {
-                    return QuizOptionTile(
-                      option: entry.value,
-                      index: entry.key,
-                      isSelected: selected == entry.key,
-                      onTap: () {
-                        context.read<FinalExamBloc>().add(
-                          FinalExamAnswerSelected(questionId: question.id, answerIndex: entry.key),
-                        );
-                      },
-                    );
-                  }),
-                ]),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'سؤال ${index + 1} من ${state.totalQuestions}',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    MarkdownContentView(content: question.content),
+                    const SizedBox(height: 24),
+                    ...question.options.asMap().entries.map((entry) {
+                      return QuizOptionTile(
+                        option: entry.value,
+                        index: entry.key,
+                        isSelected: selected == entry.key,
+                        onTap: () {
+                          context.read<FinalExamBloc>().add(
+                            FinalExamAnswerSelected(
+                              questionId: question.id,
+                              answerIndex: entry.key,
+                            ),
+                          );
+                        },
+                      );
+                    }),
+                  ],
+                ),
               );
             },
           ),
@@ -110,22 +131,41 @@ class _FinalExamPageState extends State<FinalExamPage> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      child: Column(children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Text('أجبت على ${state.answeredCount} من ${state.totalQuestions}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant)),
-          Text('${((state.answeredCount / state.totalQuestions) * 100).toStringAsFixed(0)}%', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, color: colors.primary)),
-        ]),
-        const SizedBox(height: 8),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: LinearProgressIndicator(
-            value: state.answeredCount / state.totalQuestions,
-            minHeight: 6,
-            backgroundColor: colors.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation(colors.primary),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'أجبت على ${state.answeredCount} من ${state.totalQuestions}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+              Text(
+                '${((state.answeredCount / state.totalQuestions) * 100).toStringAsFixed(0)}%',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w900,
+                  color: colors.primary,
+                ),
+              ),
+            ],
           ),
-        ),
-      ]),
+          const SizedBox(height: 8),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: state.answeredCount / state.totalQuestions,
+              minHeight: 6,
+              backgroundColor: colors.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation(colors.primary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -134,32 +174,66 @@ class _FinalExamPageState extends State<FinalExamPage> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-      decoration: BoxDecoration(color: colors.surface, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))]),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
       child: SafeArea(
         top: false,
-        child: Row(children: [
-          if (_currentIndex > 0)
-            OutlinedButton(
-              onPressed: () => _pageController.previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut),
-              child: const Text('السابق'),
-            ),
-          const Spacer(),
-          if (_currentIndex < state.totalQuestions - 1)
-            ElevatedButton(
-              onPressed: state.selectedAnswers.containsKey(state.exam.questions[_currentIndex].id)
-                  ? () => _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut)
-                  : null,
-              style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-              child: const Text('التالي'),
-            )
-          else
-            ElevatedButton.icon(
-              onPressed: state.allAnswered ? () => _showSubmitConfirmation(context) : null,
-              style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
-              icon: const Icon(Icons.check_rounded),
-              label: const Text('إرسال الإجابات'),
-            ),
-        ]),
+        child: Row(
+          children: [
+            if (_currentIndex > 0)
+              OutlinedButton(
+                onPressed: () => _pageController.previousPage(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                ),
+                child: const Text('السابق'),
+              ),
+            const Spacer(),
+            if (_currentIndex < state.totalQuestions - 1)
+              ElevatedButton(
+                onPressed:
+                    state.selectedAnswers.containsKey(
+                      state.exam.questions[_currentIndex].id,
+                    )
+                    ? () => _pageController.nextPage(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
+                      )
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                child: const Text('التالي'),
+              )
+            else
+              ElevatedButton.icon(
+                onPressed: state.allAnswered
+                    ? () => _showSubmitConfirmation(context)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+                icon: const Icon(Icons.check_rounded),
+                label: const Text('إرسال الإجابات'),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -171,15 +245,23 @@ class _FinalExamPageState extends State<FinalExamPage> {
         textDirection: TextDirection.rtl,
         child: AlertDialog(
           title: const Text('إنهاء الاختبار النهائي'),
-          content: const Text('هل أنت متأكد من إنهاء الاختبار النهائي وإرسال إجاباتك؟'),
+          content: const Text(
+            'هل أنت متأكد من إنهاء الاختبار النهائي وإرسال إجاباتك؟',
+          ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('إلغاء')),
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إلغاء'),
+            ),
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
                 context.read<FinalExamBloc>().add(SubmitFinalExamRequested());
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+              ),
               child: const Text('إرسال'),
             ),
           ],
@@ -190,11 +272,14 @@ class _FinalExamPageState extends State<FinalExamPage> {
 
   Widget _buildSubmitting(BuildContext context) {
     return const Center(
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        CircularProgressIndicator(),
-        SizedBox(height: 16),
-        Text('جاري تصحيح الإجابات...'),
-      ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('جاري تصحيح الإجابات...'),
+        ],
+      ),
     );
   }
 
@@ -203,13 +288,19 @@ class _FinalExamPageState extends State<FinalExamPage> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.error_outline_rounded, size: 48, color: colors.error),
-          const SizedBox(height: 12),
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('العودة')),
-        ]),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.error_outline_rounded, size: 48, color: colors.error),
+            const SizedBox(height: 12),
+            Text(message, textAlign: TextAlign.center),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('العودة'),
+            ),
+          ],
+        ),
       ),
     );
   }

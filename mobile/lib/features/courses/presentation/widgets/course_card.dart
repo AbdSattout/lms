@@ -9,18 +9,15 @@ class CourseCard extends StatelessWidget {
   final CourseEntity course;
   final VoidCallback onTap;
 
-  const CourseCard({
-    super.key,
-    required this.course,
-    required this.onTap,
-  });
+  const CourseCard({super.key, required this.course, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isEnrolled = course.enrollment != null;
     final isCompleted = course.isCompleted;
-    final progressPercentage = course.enrollment?.progressPercentage ?? 0;
+    final isReadyForFinalQuiz = course.isReadyForFinalQuiz;
+    final progressPercentage = course.learningProgressPercentage;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
     final orgName = course.organization?.name ?? course.organizationName;
     final orgImage = course.organization?.image;
@@ -72,23 +69,38 @@ class CourseCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
-                      if (orgName != null) _OrganizationRow(name: orgName, image: orgImage),
+                      if (orgName != null)
+                        _OrganizationRow(name: orgName, image: orgImage),
                       const SizedBox(height: 12),
-                      if (course.level != null || course.completionXp != null || course.chaptersCount != null)
+                      if (course.level != null ||
+                          course.completionXp != null ||
+                          course.chaptersCount != null)
                         _MetaRow(course: course),
                       if (isEnrolled) ...[
                         const SizedBox(height: 14),
-                        _ProgressSection(progress: progressPercentage, isCompleted: isCompleted),
+                        _ProgressSection(
+                          progress: progressPercentage,
+                          isCompleted: isCompleted,
+                          isReadyForFinalQuiz: isReadyForFinalQuiz,
+                        ),
                       ] else ...[
                         const SizedBox(height: 10),
                         Row(
                           children: [
                             Text(
                               'استكشف الكورس',
-                              style: TextStyle(color: colors.primary, fontSize: 12, fontWeight: FontWeight.w700),
+                              style: TextStyle(
+                                color: colors.primary,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                             const SizedBox(width: 4),
-                            Icon(Icons.arrow_forward_rounded, size: 14, color: colors.primary),
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 14,
+                              color: colors.primary,
+                            ),
                           ],
                         ),
                       ],
@@ -109,7 +121,11 @@ class _CourseCover extends StatelessWidget {
   final bool hasCover;
   final bool isCompleted;
 
-  const _CourseCover({required this.course, required this.hasCover, required this.isCompleted});
+  const _CourseCover({
+    required this.course,
+    required this.hasCover,
+    required this.isCompleted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -119,22 +135,24 @@ class _CourseCover extends StatelessWidget {
           borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
           child: hasCover
               ? Image.network(
-            course.coverUrl!,
-            height: 140,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _placeholder(),
-            loadingBuilder: (context, child, progress) {
-              if (progress == null) return child;
-              return _placeholder(showLoading: true);
-            },
-          )
+                  course.coverUrl!,
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _placeholder(),
+                  loadingBuilder: (context, child, progress) {
+                    if (progress == null) return child;
+                    return _placeholder(showLoading: true);
+                  },
+                )
               : _placeholder(),
         ),
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(22),
+              ),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -153,14 +171,31 @@ class _CourseCover extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xff2E7D53),
                 borderRadius: BorderRadius.circular(10),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8, offset: const Offset(0, 2))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check_circle_rounded, size: 13, color: Colors.white),
+                  Icon(
+                    Icons.check_circle_rounded,
+                    size: 13,
+                    color: Colors.white,
+                  ),
                   SizedBox(width: 4),
-                  Text('مكتملة', style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800, color: Colors.white)),
+                  Text(
+                    'مكتملة',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -180,12 +215,27 @@ class _CourseCover extends StatelessWidget {
       height: 140,
       width: double.infinity,
       decoration: BoxDecoration(
-        gradient: LinearGradient(begin: Alignment.topRight, end: Alignment.bottomLeft, colors: [AppColors.primary, AppColors.primary.withOpacity(0.6)]),
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [AppColors.primary, AppColors.primary.withOpacity(0.6)],
+        ),
       ),
       child: Center(
         child: showLoading
-            ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-            : const Icon(Icons.menu_book_rounded, color: Colors.white, size: 36),
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Icon(
+                Icons.menu_book_rounded,
+                color: Colors.white,
+                size: 36,
+              ),
       ),
     );
   }
@@ -207,17 +257,36 @@ class _OrganizationRow extends StatelessWidget {
         Container(
           width: 22,
           height: 22,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(7), color: colors.surfaceContainerHighest),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(7),
+            color: colors.surfaceContainerHighest,
+          ),
           clipBehavior: Clip.antiAlias,
           child: hasImage
-              ? Image.network(image!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => Icon(Icons.apartment_rounded, size: 12, color: colors.onSurfaceVariant))
-              : Icon(Icons.apartment_rounded, size: 12, color: colors.onSurfaceVariant),
+              ? Image.network(
+                  image!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.apartment_rounded,
+                    size: 12,
+                    color: colors.onSurfaceVariant,
+                  ),
+                )
+              : Icon(
+                  Icons.apartment_rounded,
+                  size: 12,
+                  color: colors.onSurfaceVariant,
+                ),
         ),
         const SizedBox(width: 6),
         Expanded(
           child: Text(
             name,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: colors.onSurfaceVariant,
+            ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
@@ -244,19 +313,33 @@ class _MetaRow extends StatelessWidget {
       runSpacing: 8,
       children: [
         if (level != null) CourseLevelBadge(level: level),
-        if (xp != null) CourseMetaChip(icon: Icons.bolt_rounded, label: '+$xp XP', color: const Color(0xffB4780F)),
-        if (chapters != null) CourseMetaChip(icon: Icons.menu_book_rounded, label: chapters == 1 ? 'فصل واحد' : '$chapters فصول', color: colors.primary),
+        if (xp != null)
+          CourseMetaChip(
+            icon: Icons.bolt_rounded,
+            label: '+$xp XP',
+            color: const Color(0xffB4780F),
+          ),
+        if (chapters != null)
+          CourseMetaChip(
+            icon: Icons.menu_book_rounded,
+            label: chapters == 1 ? 'فصل واحد' : '$chapters فصول',
+            color: colors.primary,
+          ),
       ],
     );
   }
 }
 
-
 class _ProgressSection extends StatelessWidget {
   final double progress;
   final bool isCompleted;
+  final bool isReadyForFinalQuiz;
 
-  const _ProgressSection({required this.progress, required this.isCompleted});
+  const _ProgressSection({
+    required this.progress,
+    required this.isCompleted,
+    required this.isReadyForFinalQuiz,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,10 +351,27 @@ class _ProgressSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('التقدم', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: colors.onSurfaceVariant)),
+            Text(
+              isReadyForFinalQuiz ? 'جاهز للاختبار النهائي' : 'التقدم',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: isReadyForFinalQuiz
+                    ? const Color(0xffD9534F)
+                    : colors.onSurfaceVariant,
+              ),
+            ),
             Text(
               isCompleted ? '100%' : '${progress.toStringAsFixed(0)}%',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: isCompleted ? const Color(0xff2E7D53) : colors.primary),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                color: isCompleted
+                    ? const Color(0xff2E7D53)
+                    : isReadyForFinalQuiz
+                    ? const Color(0xffD9534F)
+                    : colors.primary,
+              ),
             ),
           ],
         ),
@@ -282,7 +382,13 @@ class _ProgressSection extends StatelessWidget {
             value: (progress / 100).clamp(0, 1),
             minHeight: 6,
             backgroundColor: colors.surfaceContainerHighest,
-            valueColor: AlwaysStoppedAnimation(isCompleted ? const Color(0xff2E7D53) : colors.primary),
+            valueColor: AlwaysStoppedAnimation(
+              isCompleted
+                  ? const Color(0xff2E7D53)
+                  : isReadyForFinalQuiz
+                  ? const Color(0xffD9534F)
+                  : colors.primary,
+            ),
           ),
         ),
       ],
