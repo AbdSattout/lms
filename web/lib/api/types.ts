@@ -720,6 +720,52 @@ export interface CourseFaqResponse {
 
 export type CertificateGrade = "BASIC" | "GOOD" | "VERY_GOOD" | "EXCELLENT"
 
+export type ConversationType = "DIRECT" | "COURSE"
+
+export interface ConversationResponse {
+  id: number
+  type: ConversationType
+  courseId?: number | null
+  directUserOneId?: number | null
+  directUserTwoId?: number | null
+  lastMessagePreview?: string | null
+  lastMessageAt?: string | null
+}
+
+export type ChatMessageType = "TEXT"
+
+export interface ChatMessageResponse {
+  id: number
+  conversationId: number
+  senderId: number
+  senderName: string
+  content?: string | null
+  type: ChatMessageType
+  createdAt: string
+  editedAt?: string | null
+  deletedAt?: string | null
+}
+
+export interface ChatMuteResponse {
+  id: number
+  userId: number
+  courseId?: number | null
+  conversationId?: number | null
+  mutedUntil: string
+  reason?: string | null
+  createdByInstructorId: number
+}
+
+export interface ChatMuteUserRequest {
+  userId: number
+  courseId: number
+  conversationId: number
+  durationMinutes: number
+  reason?: string
+}
+
+export type PageChatMessageResponse = Page<ChatMessageResponse>
+
 export interface CertificateResponse {
   certificateCode: string
   studentName: string
