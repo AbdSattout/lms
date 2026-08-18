@@ -372,10 +372,23 @@ class _BubbleBody extends StatelessWidget {
     const bubbleRadius = Radius.circular(18);
     const flatRadius = Radius.circular(4);
 
-    final topLeft = (!isMine && isLastInGroup) ? flatRadius : bubbleRadius;
-    final topRight = (isMine && isLastInGroup) ? flatRadius : bubbleRadius;
-    final bottomLeft = (!isMine && isFirstInGroup) ? flatRadius : bubbleRadius;
-    final bottomRight = (isMine && isFirstInGroup) ? flatRadius : bubbleRadius;
+    bool topSenderFlat;
+    bool bottomSenderFlat;
+    if (isFirstInGroup) {
+      topSenderFlat = false;
+      bottomSenderFlat = true;
+    } else if (isLastInGroup) {
+      topSenderFlat = true;
+      bottomSenderFlat = false;
+    } else {
+      topSenderFlat = true;
+      bottomSenderFlat = true;
+    }
+
+    final topLeft = (!isMine && topSenderFlat) ? flatRadius : bubbleRadius;
+    final topRight = (isMine && topSenderFlat) ? flatRadius : bubbleRadius;
+    final bottomLeft = (!isMine && bottomSenderFlat) ? flatRadius : bubbleRadius;
+    final bottomRight = (isMine && bottomSenderFlat) ? flatRadius : bubbleRadius;
 
     final bubble = Material(
       color: bubbleColor,
