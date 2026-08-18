@@ -350,8 +350,7 @@ export interface OrganizationOverviewResponse {
   roadmapsCount: number
   storage: StorageResponse
 }
-export type OrganizationVerificationStatus =
-  "PENDING" | "APPROVED" | "REJECTED"
+export type OrganizationVerificationStatus = "PENDING" | "APPROVED" | "REJECTED"
 
 export interface OrganizationVerificationResponse {
   id: number
@@ -616,11 +615,14 @@ export interface UpsertRoadmapRequest {
   courseIds: number[]
 }
 
+export type PracticeExamStatus = "DRAFT" | "PUBLISHED"
+
 export interface PracticeExamResponse {
   id: number
   title: string
   description?: string
   timeLimitMinutes?: number
+  status: PracticeExamStatus
   courseId: number
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
@@ -810,3 +812,10 @@ export interface BannedOrganizationResponse {
 export type PageBannedUserResponse = Page<BannedUserResponse>
 
 export type PageBannedOrganizationResponse = Page<BannedOrganizationResponse>
+export interface CreateModeratorRequest {
+  name: string
+  email: string
+  password: string
+}
+
+export type PageModeratorResponse = Page<AdminResponse>
