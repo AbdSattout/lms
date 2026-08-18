@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CourseEnrollmentAccessService {
@@ -75,9 +77,12 @@ public class CourseEnrollmentAccessService {
     ) {
 
         return enrollmentRepository
-                .findAllByUserIdAndStatusAndCourseOrganizationNotBanned(
+                .findAllByUserIdAndStatusInAndCourseOrganizationNotBanned(
                         user.getId(),
-                        EnrollmentStatus.ACTIVE,
+                        List.of(
+                                EnrollmentStatus.ACTIVE,
+                                EnrollmentStatus.COMPLETED
+                        ),
                         pageable
                 )
                 .map(enrollment ->

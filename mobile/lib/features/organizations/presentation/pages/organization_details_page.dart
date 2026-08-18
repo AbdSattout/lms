@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../posts/presentation/pages/organization_posts_page.dart';
+import '../../../reports/domain/entities/report_target.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../../roadmaps/presentation/pages/organization_roadmaps_page.dart';
 import '../../domain/entities/organization_entity.dart';
 import '../bloc/organization_details_bloc.dart';
@@ -233,6 +235,18 @@ class _OrganizationDetailsContent extends StatelessWidget {
                             icon: Icons.arrow_back_ios_new_rounded,
                             onTap: () => Navigator.pop(context),
                           ),
+                          _roundIconButton(
+                            icon: Icons.outlined_flag_rounded,
+                            onTap: () {
+                              showReportBottomSheet(
+                                context,
+                                ReportTarget.organization(
+                                  organizationId: organization.id,
+                                  title: organization.name,
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -280,14 +294,57 @@ class _OrganizationDetailsContent extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      organization.name,
-                      style: textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: colors.onSurface,
-                        height: 1.3,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            organization.name,
+                            style: textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w900,
+                              color: colors.onSurface,
+                              height: 1.3,
+                            ),
+                          ),
+                        ),
+                        if (organization.verified)
+                          Container(
+                            padding: const EdgeInsets.all(7),
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xff0EA5E9,
+                              ).withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.verified_rounded,
+                              size: 20,
+                              color: Color(0xff0EA5E9),
+                            ),
+                          ),
+                      ],
                     ),
+                    if (organization.verified) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.verified_rounded,
+                            size: 14,
+                            color: Color(0xff0EA5E9),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'منظمة موثقة',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: colors.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -463,7 +520,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
                       title: ' المنشورات والإعلانات',
                       subtitle: 'تفاعل مع منشورات المنظمة!',
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                OrganizationPostsPage(orgSlug: slug),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 12),
@@ -475,7 +538,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
                       title: 'المسارات التعليمية',
                       subtitle: 'استعرض مسارات التعلم',
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationRoadmapsPage(slug: slug)));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                OrganizationRoadmapsPage(slug: slug),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 28),
@@ -569,7 +638,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     height: 48,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                OrganizationPostsPage(orgSlug: slug),
+                          ),
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),

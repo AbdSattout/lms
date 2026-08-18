@@ -17,6 +17,7 @@ import { Fragment, Suspense, useContext, use } from "react"
 import { Skeleton } from "./ui/skeleton"
 import { BreadcrumbContext } from "./breadcrumb-context"
 import { JoinRequestsNotification } from "./ui/join-request-notification-button"
+import { OrganizationVerifiedBadge } from "./organization-verified-badge"
 
 function BreadcrumbNav({
   orgPromise,
@@ -35,7 +36,10 @@ function BreadcrumbNav({
               <Link href={`/${org.slug}` as Route} {...props} />
             )}
           >
-            {org.name}
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <span className="truncate">{org.name}</span>
+              {org.verified && <OrganizationVerifiedBadge />}
+            </span>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {trail.map((item, index) => (

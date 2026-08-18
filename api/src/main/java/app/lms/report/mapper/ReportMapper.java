@@ -18,7 +18,8 @@ import app.lms.user.mapper.UserMapper;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
+import app.lms.admin.dto.AdminResponse;
+import app.lms.admin.model.Admin;
 @Component
 @RequiredArgsConstructor
 public class ReportMapper {
@@ -31,12 +32,9 @@ public class ReportMapper {
     private final CourseRepository courseRepository;
     private final OrganizationRepository organizationRepository;
 
-    public ReportResponse   toResponse(
-            Report report
-    ) {
+    public ReportResponse toResponse(Report report) {
 
         return new ReportResponse(
-
                 report.getId(),
 
                 userMapper.toResponse(
@@ -53,14 +51,21 @@ public class ReportMapper {
 
                 report.getAdminNote(),
 
-                adminMapper.toResponse(
-                        report.getReviewedBy()
-                ),
+                mapReviewedBy(report),
 
                 BaseEntityResponse.from(report),
 
                 report.getReviewedAt()
         );
+    }
+
+    private AdminResponse mapReviewedBy(Report report) {
+
+        Admin admin = report.getReviewedBy();
+
+        return admin == null
+                ? null
+                : adminMapper.toResponse(admin);
     }
 
     private ReportTargetResponse targetResponse(

@@ -741,7 +741,11 @@ class _FeaturedCourseCard extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            isEnrolled ? 'متابعة التعلم' : 'ابدأ الآن',
+                            isCompleted
+                                ? 'مكتملة بالكامل'
+                                : isEnrolled
+                                ? 'متابعة التعلم'
+                                : 'ابدأ الآن',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -829,7 +833,9 @@ class _FeaturedCourseCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                           child: Icon(
-                            Icons.arrow_forward_rounded,
+                            isCompleted
+                                ? Icons.check_rounded
+                                : Icons.arrow_forward_rounded,
                             color: colors.primary,
                           ),
                         ),

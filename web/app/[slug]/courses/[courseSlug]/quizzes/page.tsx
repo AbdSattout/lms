@@ -16,7 +16,8 @@ export default async function QuizzesPage({
 
   if (!course) notFound()
 
-  const [quizzes, bankQuestions] = await Promise.all([
+  const [exams, quizzes, bankQuestions] = await Promise.all([
+    api.dashboard.practiceExams.list(course.id).catch(() => []),
     api.dashboard.practiceQuizzes.list(course.id).catch(() => []),
     api.dashboard.questions.byCourse.get(course.id).catch(() => []),
   ])
@@ -27,12 +28,13 @@ export default async function QuizzesPage({
         items={[
           { label: "الدورات", href: `/${slug}/courses` },
           { label: course.title, href: `/${slug}/courses/${courseSlug}` },
-          { label: "الاختبارات" },
+          { label: "الاختبارات والامتحانات" },
         ]}
       />
       <QuizzesClient
         course={course}
         orgSlug={slug}
+        initialExams={exams}
         initialQuizzes={quizzes}
         initialBankQuestions={bankQuestions}
       />

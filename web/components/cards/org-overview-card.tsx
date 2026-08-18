@@ -21,20 +21,17 @@ import { CoursesOverviewDialog } from "../forms/course-overview-form"
 import { OwnerDialog } from "../forms/owner-form-dialog"
 import { formatBytes } from "@/lib/utils/format-bytes"
 import { BannedUsersDialog } from "../forms/banned-users-dialog"
+import { useOrganizationOverview } from "@/hooks/use-overview"
 
 interface OrgOverviewCardProps {
   slug: string
   overviewData: OrganizationOverviewResponse
-  adminCount: number
-  studentCount: number
   isOwner: boolean
 }
 
 export function OrgOverviewCard({
   slug,
-  overviewData,
-  adminCount,
-  studentCount,
+  overviewData: initialOverviewData,
   isOwner,
 }: OrgOverviewCardProps) {
   const router = useRouter()
@@ -44,7 +41,10 @@ export function OrgOverviewCard({
   const [showOwnerDialog, setShowOwnerDialog] = useState(false)
   const [showCoursesDialog, setShowCoursesDialog] = useState(false)
   const [showBannedDialog, setShowBannedDialog] = useState(false)
-
+  const { data: overviewData = initialOverviewData } = useOrganizationOverview(
+    slug,
+    initialOverviewData
+  )
   const isPremium = overviewData.ownerPlan.premium ?? false
 
   return (
@@ -78,7 +78,7 @@ export function OrgOverviewCard({
             <Users className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{adminCount}</div>
+            <div className="text-3xl font-bold">{overviewData.adminsCount}</div>
           </CardContent>
         </Card>
 
@@ -93,7 +93,9 @@ export function OrgOverviewCard({
             <Users className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{studentCount}</div>
+            <div className="text-3xl font-bold">
+              {overviewData.studentsCount}
+            </div>
           </CardContent>
         </Card>
 

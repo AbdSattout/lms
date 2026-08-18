@@ -16,7 +16,9 @@ import app.lms.user.moderation.repository.UserModerationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -208,7 +210,7 @@ public class AdminModerationService {
         accessService.validateAdmin(admin);
 
         return userModerationRepository
-                .findAllActive(pageable)
+                .findAllActive(moderationPageable(pageable))
                 .map(adminModerationMapper::toBannedUserResponse);
     }
 
@@ -252,8 +254,63 @@ public class AdminModerationService {
         accessService.validateAdmin(admin);
 
         return organizationModerationRepository
-                .findAllActive(pageable)
+                .findAllActive(moderationPageable(pageable))
                 .map(adminModerationMapper::toBannedOrganizationResponse);
+    }
+
+    private Pageable moderationPageable(
+            Pageable pageable
+    ) {
+
+        Sort sort =
+                moderationSort(
+                        pageable.getSort()
+                );
+
+        if (pageable.isUnpaged()) {
+            return Pageable.unpaged(
+                    sort
+            );
+        }
+
+        return PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                sort
+        );
+    }
+
+    private Sort moderationSort(
+            Sort sort
+    ) {
+
+        if (sort.isUnsorted()) {
+            return Sort.by(
+                    Sort.Direction.DESC,
+                    "createdAt"
+            );
+        }
+
+        return Sort.by(
+                sort.stream()
+                        .map(order -> order.withProperty(
+                                moderationSortProperty(
+                                        order.getProperty()
+                                )
+                        ))
+                        .toList()
+        );
+    }
+
+    private String moderationSortProperty(
+            String property
+    ) {
+
+        return switch (property) {
+            case "baseEntity.createdAt" -> "createdAt";
+            case "baseEntity.updatedAt" -> "updatedAt";
+            default -> property;
+        };
     }
 
     private void validateBanIsExpired(

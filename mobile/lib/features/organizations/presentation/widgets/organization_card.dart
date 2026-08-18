@@ -82,6 +82,15 @@ class OrganizationCard extends StatelessWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              if (organization.verified)
+                                const Padding(
+                                  padding: EdgeInsets.only(right: 6),
+                                  child: Icon(
+                                    Icons.verified_rounded,
+                                    size: 18,
+                                    color: Color(0xff0EA5E9),
+                                  ),
+                                ),
                               if (isOwnedByMe)
                                 Padding(
                                   padding: const EdgeInsets.only(right: 6),
@@ -101,6 +110,8 @@ class OrganizationCard extends StatelessWidget {
                             runSpacing: 6,
                             children: [
                               _VisibilityBadge(isPrivate: isPrivate),
+                              if (organization.verified)
+                                const _VerifiedBadge(),
                               if (isOwnedByMe) const _OwnerBadge(),
                             ],
                           ),
@@ -324,6 +335,42 @@ class _VisibilityBadge extends StatelessWidget {
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: badgeColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VerifiedBadge extends StatelessWidget {
+  const _VerifiedBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    const accent = Color(0xff0EA5E9);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.18),
+        ),
+      ),
+      child: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.verified_rounded, size: 12, color: accent),
+          SizedBox(width: 4),
+          Text(
+            'موثقة',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: accent,
             ),
           ),
         ],

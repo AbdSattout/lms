@@ -19,6 +19,7 @@ public class RecommendationScoringService {
     private static final int DISCOVERABLE_COURSE_SCORE = 10;
     private static final int MANY_PUBLISHED_COURSES_SCORE = 30;
     private static final int MANY_MEMBERS_SCORE = 25;
+    private static final int VERIFIED_ORGANIZATION_SCORE = 40;
     private static final int ACTIVE_ORGANIZATION_SCORE = 15;
     private static final int DISCOVERABLE_ORGANIZATION_SCORE = 10;
 
@@ -98,6 +99,16 @@ public class RecommendationScoringService {
             score += MANY_MEMBERS_SCORE;
         }
 
+        boolean verifiedOrganization =
+                Boolean.TRUE.equals(
+                        candidate.organization()
+                                .getVerified()
+                );
+
+        if (verifiedOrganization) {
+            score += VERIFIED_ORGANIZATION_SCORE;
+        }
+
         boolean activeOrganization =
                 positive(candidate.recentPublishedCourseCount())
                         || isRecent(
@@ -114,6 +125,7 @@ public class RecommendationScoringService {
                 organizationReason(
                         hasManyPublishedCourses,
                         hasManyMembers,
+                        verifiedOrganization,
                         activeOrganization
                 )
         );
@@ -142,8 +154,13 @@ public class RecommendationScoringService {
     private RecommendationReason organizationReason(
             boolean hasManyPublishedCourses,
             boolean hasManyMembers,
+            boolean verifiedOrganization,
             boolean activeOrganization
     ) {
+
+        if (verifiedOrganization) {
+            return RecommendationReason.VERIFIED_ORGANIZATION;
+        }
 
         if (hasManyPublishedCourses) {
             return RecommendationReason.HAS_MANY_PUBLISHED_COURSES;

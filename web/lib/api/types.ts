@@ -53,8 +53,10 @@ export interface OrganizationResponse {
   description?: string
   image?: string
   visibility: OrganizationVisibility
+  verified?: boolean
   ownerName: string
   membersCount: number
+  coursesCount: number
   viewer?: OrganizationViewerResponse
   baseEntity?: BaseEntityResponse
 }
@@ -88,6 +90,7 @@ export interface OrganizationSummaryResponse {
   description?: string
   image?: string
   visibility: OrganizationVisibility
+  verified?: boolean
 }
 
 export interface CourseResponse {
@@ -347,6 +350,28 @@ export interface OrganizationOverviewResponse {
   roadmapsCount: number
   storage: StorageResponse
 }
+export type OrganizationVerificationStatus = "PENDING" | "APPROVED" | "REJECTED"
+
+export interface OrganizationVerificationResponse {
+  id: number
+  organization: OrganizationResponse
+  requestedBy: UserResponse
+  note?: string | null
+  proofUrl: string
+  status: OrganizationVerificationStatus
+  reviewedBy?: AdminResponse | null
+  adminNote?: string | null
+  reviewedAt?: string | null
+  baseEntity?: BaseEntityResponse
+}
+
+export interface ReviewOrganizationVerificationRequest {
+  status: OrganizationVerificationStatus
+  adminNote?: string | null
+}
+
+export type PageOrganizationVerificationResponse =
+  Page<OrganizationVerificationResponse>
 export type PagePostResponse = Page<PostResponse>
 export type PageCourseMediaResponse = Page<CourseMediaResponse>
 
@@ -590,11 +615,14 @@ export interface UpsertRoadmapRequest {
   courseIds: number[]
 }
 
+export type PracticeExamStatus = "DRAFT" | "PUBLISHED"
+
 export interface PracticeExamResponse {
   id: number
   title: string
   description?: string
   timeLimitMinutes?: number
+  status: PracticeExamStatus
   courseId: number
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]
@@ -703,3 +731,91 @@ export interface CertificateResponse {
   grade: CertificateGrade
   baseEntity?: BaseEntityResponse
 }
+export type ReportStatus = "PENDING" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED"
+
+export type ReportTargetType =
+  "POST" | "COMMENT" | "USER" | "ORGANIZATION" | "COURSE"
+
+export interface ReportReporter {
+  id: number
+  name: string
+  username?: string
+  picture?: string | null
+}
+
+export interface ReportAdminResponse {
+  id: number
+  name: string
+  email: string
+  role: string
+  enabled: boolean
+}
+export interface ReportTargetResponse {
+  userId?: number | null
+  organizationId?: number | null
+  courseId?: number | null
+  postId?: number | null
+  commentId?: number | null
+  exists: boolean
+}
+export interface ReportResponse {
+  id: number
+  reporter: ReportReporter
+  targetType: ReportTargetType
+  target: ReportTargetResponse
+  reason: string
+  status: ReportStatus
+  adminNote?: string | null
+  adminResponse?: ReportAdminResponse | null
+  baseEntityResponse?: BaseEntityResponse
+  reviewedAt?: string | null
+}
+
+export interface ReportPageResponse {
+  content: ReportResponse[]
+  totalElements: number
+  totalPages: number
+  number?: number
+  size?: number
+}
+
+export interface ReportReviewRequest {
+  status: ReportStatus
+  adminNote?: string | null
+}
+export type AdminRole = "SUPER_ADMIN" | "MODERATOR"
+export interface AdminResponse {
+  id: number
+  name: string
+  email: string
+  role: AdminRole
+  enabled: boolean
+}
+
+export interface BannedUserResponse {
+  id: number
+  user: UserResponse
+  bannedBy: AdminResponse
+  reason: string
+  expiresAt: string | null
+  baseEntity?: BaseEntityResponse
+}
+
+export interface BannedOrganizationResponse {
+  id: number
+  organization: OrganizationSummaryResponse
+  bannedBy: AdminResponse
+  reason: string
+  expiresAt: string | null
+  baseEntity?: BaseEntityResponse
+}
+export type PageBannedUserResponse = Page<BannedUserResponse>
+
+export type PageBannedOrganizationResponse = Page<BannedOrganizationResponse>
+export interface CreateModeratorRequest {
+  name: string
+  email: string
+  password: string
+}
+
+export type PageModeratorResponse = Page<AdminResponse>
