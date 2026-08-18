@@ -615,11 +615,14 @@ export interface UpsertRoadmapRequest {
   courseIds: number[]
 }
 
+export type PracticeExamStatus = "DRAFT" | "PUBLISHED"
+
 export interface PracticeExamResponse {
   id: number
   title: string
   description?: string
   timeLimitMinutes?: number
+  status: PracticeExamStatus
   courseId: number
   difficulty: QuestionDifficulty
   questions: QuestionResponse[]

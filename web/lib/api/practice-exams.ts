@@ -14,23 +14,33 @@ export const create = defineApiRoute({
     request: CreatePracticeExamRequest,
     options?: BackendFetchOptions
   ) =>
-    backend<PracticeExamResponse>(`/dashboard/courses/${courseId}/practice-exams`, {
-      method: "POST",
-      body: request,
-      ...options,
-    }),
+    backend<PracticeExamResponse>(
+      `/dashboard/courses/${courseId}/practice-exams`,
+      {
+        method: "POST",
+        body: request,
+        ...options,
+      }
+    ),
 })
 
 export const list = defineApiRoute({
   get: (courseId: number, options?: BackendFetchOptions) =>
-    backend<PracticeExamResponse[]>(`/dashboard/courses/${courseId}/practice-exams`, {
-      method: "GET",
-      ...options,
-    }),
+    backend<PracticeExamResponse[]>(
+      `/dashboard/courses/${courseId}/practice-exams`,
+      {
+        method: "GET",
+        ...options,
+      }
+    ),
 })
 
 export const byId = defineApiRoute({
-  get: (courseId: number, practiceExamId: number, options?: BackendFetchOptions) =>
+  get: (
+    courseId: number,
+    practiceExamId: number,
+    options?: BackendFetchOptions
+  ) =>
     backend<PracticeExamResponse>(
       `/dashboard/courses/${courseId}/practice-exams/${practiceExamId}`,
       {
@@ -57,8 +67,27 @@ export const updateQuestions = defineApiRoute({
     ),
 })
 
+export const publish = defineApiRoute({
+  post: (
+    courseId: number,
+    practiceExamId: number,
+    options?: BackendFetchOptions
+  ) =>
+    backend<PracticeExamResponse>(
+      `/dashboard/courses/${courseId}/practice-exams/${practiceExamId}/publish`,
+      {
+        method: "POST",
+        ...options,
+      }
+    ),
+})
+
 export const deleteExam = defineApiRoute({
-  delete: (courseId: number, practiceExamId: number, options?: BackendFetchOptions) =>
+  delete: (
+    courseId: number,
+    practiceExamId: number,
+    options?: BackendFetchOptions
+  ) =>
     backend<void>(
       `/dashboard/courses/${courseId}/practice-exams/${practiceExamId}`,
       {
