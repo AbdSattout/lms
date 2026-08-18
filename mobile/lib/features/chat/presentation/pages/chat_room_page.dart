@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../friends/domain/entities/friend_user_entity.dart';
+import '../../../friends/presentation/bloc/user_profile_bloc.dart';
+import '../../../friends/presentation/bloc/user_profile_event.dart';
+import '../../../friends/presentation/pages/user_profile_page.dart';
 import '../../domain/entities/message_entity.dart';
 import '../bloc/chat_messages_bloc.dart';
 import '../bloc/chat_messages_event.dart';
@@ -15,12 +19,14 @@ class ChatRoomPage extends StatefulWidget {
   final int conversationId;
   final FriendUserEntity? otherUser;
   final String? title;
+  final bool isCourseChat;
 
   const ChatRoomPage({
     super.key,
     required this.conversationId,
     this.otherUser,
     this.title,
+    this.isCourseChat = false,
   });
 
   @override
@@ -66,6 +72,22 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     if (state is Authenticated) return state.authEntity.user.id;
     if (state is AuthSuccess) return state.authEntity.user.id;
     return 0;
+  }
+
+  String _buildMutedMessage(DateTime? mutedUntil) {
+    if (mutedUntil == null) return 'تم كتمك في هذه المحادثة';
+    final target = mutedUntil.toLocal();
+    final now = DateTime.now();
+    final sameDay =
+        target.year == now.year &&
+        target.month == now.month &&
+        target.day == now.day;
+    final hh = target.hour.toString().padLeft(2, '0');
+    final mm = target.minute.toString().padLeft(2, '0');
+    if (sameDay) return 'تم كتمك في هذه المحادثة حتى الساعة $hh:$mm';
+    final dd = target.day.toString().padLeft(2, '0');
+    final mo = target.month.toString().padLeft(2, '0');
+    return 'تم كتمك في هذه المحادثة حتى $dd/$mo/${target.year} $hh:$mm';
   }
 
   @override
@@ -122,6 +144,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     controller: _textController,
                     focusNode: _focusNode,
                     onSend: _handleSend,
+                    isMuted: state.isMuted,
+                    mutedMessage: _buildMutedMessage(state.mutedUntil),
+                    muteReason: state.muteReason,
                   ),
                 ],
               );
@@ -153,6 +178,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       return const _EmptyMessagesView();
     }
 
+    final isFirstInGroup = _computeGroupFirsts(items);
+    final isLastInGroup = _computeGroupLasts(items);
+
     return ListView.builder(
       controller: _scrollController,
       reverse: true,
@@ -164,6 +192,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         return _MessageBubble(
           item: item,
           currentUserId: currentUserId,
+          isCourseChat: widget.isCourseChat,
+          isFirstInGroup: isFirstInGroup[index],
+          isLastInGroup: isLastInGroup[index],
           onRetry: () {
             context.read<ChatMessagesBloc>().add(
               RetryChatMessageEvent(item.localId!),
@@ -172,6 +203,74 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         );
       },
     );
+  }
+
+  List<bool> _computeGroupFirsts(List<_ChatItem> items) {
+    const groupGap = Duration(minutes: 5);
+    final result = List<bool>.filled(items.length, false);
+
+    for (var i = 0; i < items.length; i++) {
+      if (i == items.length - 1) {
+        result[i] = true;
+        continue;
+      }
+
+      final current = items[i];
+      final older = items[i + 1];
+      final currentSenderId = current.message?.senderId;
+      final olderSenderId = older.message?.senderId;
+
+      if (currentSenderId == null || olderSenderId == null) {
+        result[i] = true;
+        continue;
+      }
+
+      if (currentSenderId != olderSenderId) {
+        result[i] = true;
+        continue;
+      }
+
+      final gap = older.message!.createdAt.difference(
+        current.message!.createdAt,
+      );
+      result[i] = gap > groupGap;
+    }
+
+    return result;
+  }
+
+  List<bool> _computeGroupLasts(List<_ChatItem> items) {
+    const groupGap = Duration(minutes: 5);
+    final result = List<bool>.filled(items.length, false);
+
+    for (var i = 0; i < items.length; i++) {
+      if (i == 0) {
+        result[i] = true;
+        continue;
+      }
+
+      final current = items[i];
+      final newer = items[i - 1];
+      final currentSenderId = current.message?.senderId;
+      final newerSenderId = newer.message?.senderId;
+
+      if (currentSenderId == null || newerSenderId == null) {
+        result[i] = true;
+        continue;
+      }
+
+      if (currentSenderId != newerSenderId) {
+        result[i] = true;
+        continue;
+      }
+
+      final gap = current.message!.createdAt.difference(
+        newer.message!.createdAt,
+      );
+      result[i] = gap > groupGap;
+    }
+
+    return result;
   }
 }
 
@@ -202,11 +301,17 @@ class _ChatItem {
 class _MessageBubble extends StatelessWidget {
   final _ChatItem item;
   final int currentUserId;
+  final bool isCourseChat;
+  final bool isFirstInGroup;
+  final bool isLastInGroup;
   final VoidCallback onRetry;
 
   const _MessageBubble({
     required this.item,
     required this.currentUserId,
+    required this.isCourseChat,
+    required this.isFirstInGroup,
+    required this.isLastInGroup,
     required this.onRetry,
   });
 
@@ -218,20 +323,14 @@ class _MessageBubble extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        mainAxisAlignment: isMine
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        children: [
-          Flexible(
-            child: _BubbleBody(
-              item: item,
-              isMine: isMine,
-              currentUserId: currentUserId,
-              onRetry: onRetry,
-            ),
-          ),
-        ],
+      child: _BubbleBody(
+        item: item,
+        isMine: isMine,
+        currentUserId: currentUserId,
+        isCourseChat: isCourseChat,
+        isFirstInGroup: isFirstInGroup,
+        isLastInGroup: isLastInGroup,
+        onRetry: onRetry,
       ),
     );
   }
@@ -241,12 +340,18 @@ class _BubbleBody extends StatelessWidget {
   final _ChatItem item;
   final bool isMine;
   final int currentUserId;
+  final bool isCourseChat;
+  final bool isFirstInGroup;
+  final bool isLastInGroup;
   final VoidCallback onRetry;
 
   const _BubbleBody({
     required this.item,
     required this.isMine,
     required this.currentUserId,
+    required this.isCourseChat,
+    required this.isFirstInGroup,
+    required this.isLastInGroup,
     required this.onRetry,
   });
 
@@ -263,17 +368,40 @@ class _BubbleBody extends StatelessWidget {
         ? (isDark ? AppColors.primaryLight : colors.primary)
         : colors.onSurface;
 
-    final showAvatar = !isMine && item.message != null;
+    final showAvatar =
+        !isMine && item.message != null && (!isCourseChat || isFirstInGroup);
+    final showName = !isMine && isCourseChat && isFirstInGroup;
     final isDeleted = item.message?.isDeleted ?? false;
     final isFailed = item.isFailed;
+
+    const bubbleRadius = Radius.circular(18);
+    const flatRadius = Radius.circular(4);
+
+    bool topSenderFlat;
+    bool bottomSenderFlat;
+    if (isFirstInGroup) {
+      topSenderFlat = false;
+      bottomSenderFlat = true;
+    } else if (isLastInGroup) {
+      topSenderFlat = true;
+      bottomSenderFlat = false;
+    } else {
+      topSenderFlat = true;
+      bottomSenderFlat = true;
+    }
+
+    final topLeft = (!isMine && topSenderFlat) ? flatRadius : bubbleRadius;
+    final topRight = (isMine && topSenderFlat) ? flatRadius : bubbleRadius;
+    final bottomLeft = (!isMine && bottomSenderFlat) ? flatRadius : bubbleRadius;
+    final bottomRight = (isMine && bottomSenderFlat) ? flatRadius : bubbleRadius;
 
     final bubble = Material(
       color: bubbleColor,
       borderRadius: BorderRadius.only(
-        topLeft: const Radius.circular(18),
-        topRight: const Radius.circular(18),
-        bottomLeft: Radius.circular(isMine ? 18 : 4),
-        bottomRight: Radius.circular(isMine ? 4 : 18),
+        topLeft: topLeft,
+        topRight: topRight,
+        bottomLeft: bottomLeft,
+        bottomRight: bottomRight,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -329,29 +457,62 @@ class _BubbleBody extends StatelessWidget {
       ),
     );
 
-    if (!showAvatar) {
+    const double avatarRadius = 15;
+    const double avatarSlotWidth = avatarRadius * 2 + 8;
+
+    if (isMine) {
       return Align(
-        alignment: isMine
-            ? AlignmentDirectional.centerEnd
-            : AlignmentDirectional.centerStart,
+        alignment: AlignmentDirectional.centerStart,
         child: bubble,
       );
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: ResilientNetworkAvatar(
-            radius: 15,
-            imageUrl: null,
-            fallbackLabel: item.message?.senderName,
-            backgroundColor: colors.primary.withValues(alpha: 0.1),
+    final Widget avatarSlot = showAvatar
+        ? Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ResilientNetworkAvatar(
+              radius: avatarRadius,
+              imageUrl: item.message?.senderPicture,
+              fallbackLabel: item.message?.senderName,
+              backgroundColor: colors.primary.withValues(alpha: 0.1),
+              onTap: item.message == null
+                  ? null
+                  : () => _openUserProfile(context, item.message!),
+            ),
+          )
+        : const SizedBox(width: avatarSlotWidth);
+
+    return Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: Row(
+        textDirection: TextDirection.ltr,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          avatarSlot,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showName) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 3),
+                    child: Text(
+                      item.message?.senderName ?? '',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+                bubble,
+              ],
+            ),
           ),
-        ),
-        Flexible(child: bubble),
-      ],
+        ],
+      ),
     );
   }
 
@@ -367,17 +528,71 @@ class _Composer extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final ValueChanged<String> onSend;
+  final bool isMuted;
+  final String mutedMessage;
+  final String? muteReason;
 
   const _Composer({
     required this.controller,
     required this.focusNode,
     required this.onSend,
+    this.isMuted = false,
+    this.mutedMessage = 'تم كتمك في هذه المحادثة',
+    this.muteReason,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+
+    if (isMuted) {
+      return Material(
+        color: theme.scaffoldBackgroundColor,
+        elevation: 8,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.block_rounded,
+                  size: 22,
+                  color: colors.error,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        mutedMessage,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      if (muteReason != null && muteReason!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          muteReason!,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: colors.onSurfaceVariant,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Material(
       color: theme.scaffoldBackgroundColor,
@@ -492,4 +707,25 @@ class _EmptyMessagesView extends StatelessWidget {
       ),
     );
   }
+}
+
+void _openUserProfile(BuildContext context, MessageEntity message) {
+  if (message.senderId <= 0) return;
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) =>
+            sl<UserProfileBloc>()..add(LoadUserProfileEvent(message.senderId)),
+        child: UserProfilePage(
+          userId: message.senderId,
+          initialUser: FriendUserEntity(
+            id: message.senderId,
+            name: message.senderName,
+            picture: message.senderPicture,
+          ),
+        ),
+      ),
+    ),
+  );
 }

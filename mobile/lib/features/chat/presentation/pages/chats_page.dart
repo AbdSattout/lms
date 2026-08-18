@@ -200,6 +200,7 @@ class _ChatsPageState extends State<ChatsPage> {
       child: ChatRoomPage(
         conversationId: conversation.id,
         otherUser: otherUser,
+        isCourseChat: conversation.type == ConversationType.course,
       ),
     );
   }

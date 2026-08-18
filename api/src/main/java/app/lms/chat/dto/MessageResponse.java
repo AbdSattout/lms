@@ -16,6 +16,8 @@ public record MessageResponse(
 
         String senderName,
 
+        String senderPicture,
+
         String content,
 
         MessageType type,

@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/error_model.dart';
 import '../../../../core/services/chat_updates_notifier.dart';
 import '../../../../core/services/pusher_chat_service.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../../../core/utils/date_time_utils.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message_entity.dart';
 import '../../domain/usecases/get_messages_usecase.dart';
@@ -43,6 +45,8 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     on<UpdateMessageEvent>(_updateMessage);
     on<DeleteMessageEvent>(_deleteMessage);
     on<MarkMessagesReadEvent>(_markRead);
+    on<MemberMutedEvent>(_memberMuted);
+    on<MemberUnmutedEvent>(_memberUnmuted);
   }
 
   @override
@@ -97,6 +101,18 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       case 'message.deleted':
         final messageId = (event.data['messageId'] as num?)?.toInt() ?? 0;
         if (messageId > 0) add(DeleteMessageEvent(messageId));
+        break;
+      case 'member.muted':
+        final mutedUserId = (event.data['userId'] as num?)?.toInt() ?? 0;
+        final mutedUntil = parseApiDateTime(event.data['mutedUntil']);
+        final muteReason = _nullableString(event.data['reason']);
+        if (mutedUserId > 0) {
+          add(MemberMutedEvent(mutedUserId, mutedUntil, muteReason));
+        }
+        break;
+      case 'member.unmuted':
+        final unmutedUserId = (event.data['userId'] as num?)?.toInt() ?? 0;
+        if (unmutedUserId > 0) add(MemberUnmutedEvent(unmutedUserId));
         break;
     }
   }
@@ -167,6 +183,21 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
       if (newCurrent is! ChatMessagesLoaded) return;
       final pending = Map<String, String>.from(newCurrent.pendingMessages);
       pending.remove(localId);
+
+      final muteInfo = _extractMuteInfo(e);
+      if (muteInfo.$1 != null) {
+        emit(
+          newCurrent.copyWith(
+            pendingMessages: pending,
+            mutedUntil: muteInfo.$1,
+            muteReason: muteInfo.$2,
+            clearErrorMessage: true,
+            clearActionMessage: true,
+          ),
+        );
+        return;
+      }
+
       emit(
         newCurrent.copyWith(
           pendingMessages: pending,
@@ -176,6 +207,54 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
         ),
       );
     }
+  }
+
+  (DateTime?, String?) _extractMuteInfo(Object error) {
+    try {
+      final dynamic e = error;
+      final dynamic model = e.errorModel;
+      if (model is ErrorModel) return (model.mutedUntil, model.muteReason);
+    } catch (_) {}
+    return (null, null);
+  }
+
+  String? _nullableString(Object? value) {
+    final text = value?.toString().trim();
+    return (text == null || text.isEmpty) ? null : text;
+  }
+
+  void _memberMuted(
+    MemberMutedEvent event,
+    Emitter<ChatMessagesState> emit,
+  ) {
+    if (event.userId != currentUserId) return;
+    final current = state;
+    if (current is! ChatMessagesLoaded) return;
+    emit(
+      current.copyWith(
+        mutedUntil: event.mutedUntil,
+        muteReason: event.reason,
+        clearErrorMessage: true,
+        clearActionMessage: true,
+      ),
+    );
+  }
+
+  void _memberUnmuted(
+    MemberUnmutedEvent event,
+    Emitter<ChatMessagesState> emit,
+  ) {
+    if (event.userId != currentUserId) return;
+    final current = state;
+    if (current is! ChatMessagesLoaded) return;
+    emit(
+      current.copyWith(
+        clearMutedUntil: true,
+        clearMuteReason: true,
+        clearErrorMessage: true,
+        clearActionMessage: true,
+      ),
+    );
   }
 
   void _replacePendingMessage(

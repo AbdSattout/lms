@@ -16,6 +16,7 @@ public class MessageMapper {
                 message.getConversation().getId(),
                 message.getSender().getId(),
                 message.getSender().getName(),
+                message.getSender().getPicture(),
                 message.getDeletedAt() != null
                         ? null
                         : message.getContent(),

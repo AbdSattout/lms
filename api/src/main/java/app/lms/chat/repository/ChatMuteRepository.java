@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ChatMuteRepository
@@ -53,6 +54,19 @@ public interface ChatMuteRepository
     Optional<ChatMute> findActiveMuteForCourse(
             @Param("userId") Long userId,
             @Param("courseId") Long courseId,
+            @Param("now") LocalDateTime now
+    );
+
+    @Query("""
+        SELECT m
+        FROM ChatMute m
+        WHERE m.conversation.id = :conversationId
+          AND m.revokedAt IS NULL
+          AND m.mutedUntil > :now
+        ORDER BY m.createdAt DESC
+    """)
+    List<ChatMute> findActiveMutesByConversation(
+            @Param("conversationId") Long conversationId,
             @Param("now") LocalDateTime now
     );
 }
