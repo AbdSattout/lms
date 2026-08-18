@@ -5,6 +5,7 @@ class MessageEntity {
   final int conversationId;
   final int senderId;
   final String senderName;
+  final String? senderPicture;
   final String? content;
   final ChatMessageType type;
   final DateTime createdAt;
@@ -16,6 +17,7 @@ class MessageEntity {
     required this.conversationId,
     required this.senderId,
     required this.senderName,
+    this.senderPicture,
     this.content,
     this.type = ChatMessageType.text,
     required this.createdAt,
@@ -32,6 +34,7 @@ class MessageEntity {
     int? conversationId,
     int? senderId,
     String? senderName,
+    String? senderPicture,
     String? content,
     ChatMessageType? type,
     DateTime? createdAt,
@@ -44,6 +47,7 @@ class MessageEntity {
       conversationId: conversationId ?? this.conversationId,
       senderId: senderId ?? this.senderId,
       senderName: senderName ?? this.senderName,
+      senderPicture: senderPicture ?? this.senderPicture,
       content: content ?? this.content,
       type: type ?? this.type,
       createdAt: createdAt ?? this.createdAt,

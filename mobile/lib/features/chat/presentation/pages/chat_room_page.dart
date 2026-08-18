@@ -354,7 +354,7 @@ class _BubbleBody extends StatelessWidget {
           padding: const EdgeInsets.only(left: 8),
           child: ResilientNetworkAvatar(
             radius: 15,
-            imageUrl: null,
+            imageUrl: item.message?.senderPicture,
             fallbackLabel: item.message?.senderName,
             backgroundColor: colors.primary.withValues(alpha: 0.1),
           ),
