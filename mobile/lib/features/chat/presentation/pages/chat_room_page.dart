@@ -67,6 +67,125 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     _focusNode.requestFocus();
   }
 
+  void _showMessageActions(BuildContext context, MessageEntity message) {
+    final isMine = message.isMine(_currentUserId(context));
+    if (!isMine) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit_rounded),
+                title: const Text('تعديل الرسالة'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _showEditMessageDialog(context, message);
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.delete_outline_rounded,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                title: Text(
+                  'حذف الرسالة',
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _confirmDeleteMessage(context, message);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _showEditMessageDialog(
+    BuildContext context,
+    MessageEntity message,
+  ) async {
+    final controller = TextEditingController(text: message.content ?? '');
+
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('تعديل الرسالة'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            minLines: 2,
+            maxLines: 5,
+            decoration: const InputDecoration(hintText: 'اكتب رسالتك...'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('إلغاء'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: const Text('حفظ'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    final text = controller.text.trim();
+    controller.dispose();
+    if (saved != true || text.isEmpty) return;
+    if (!context.mounted) return;
+
+    context.read<ChatMessagesBloc>().add(
+      EditChatMessageEvent(message.id, text),
+    );
+  }
+
+  Future<void> _confirmDeleteMessage(
+    BuildContext context,
+    MessageEntity message,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: const Text('حذف الرسالة'),
+          content: const Text('هل أنت متأكد من أنك تريد حذف هذه الرسالة؟'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: const Text('إلغاء'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('حذف'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (!context.mounted || confirmed != true) return;
+    context.read<ChatMessagesBloc>().add(
+      DeleteChatMessageEvent(message.id),
+    );
+  }
+
   int _currentUserId(BuildContext context) {
     final state = context.read<AuthBloc>().state;
     if (state is Authenticated) return state.authEntity.user.id;
@@ -200,6 +319,15 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               RetryChatMessageEvent(item.localId!),
             );
           },
+          onEdit: (message) {
+            _showEditMessageDialog(context, message);
+          },
+          onDelete: (message) {
+            _confirmDeleteMessage(context, message);
+          },
+          onLongPress: (message) {
+            _showMessageActions(context, message);
+          },
         );
       },
     );
@@ -305,6 +433,9 @@ class _MessageBubble extends StatelessWidget {
   final bool isFirstInGroup;
   final bool isLastInGroup;
   final VoidCallback onRetry;
+  final ValueChanged<MessageEntity> onEdit;
+  final ValueChanged<MessageEntity> onDelete;
+  final ValueChanged<MessageEntity> onLongPress;
 
   const _MessageBubble({
     required this.item,
@@ -313,6 +444,9 @@ class _MessageBubble extends StatelessWidget {
     required this.isFirstInGroup,
     required this.isLastInGroup,
     required this.onRetry,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onLongPress,
   });
 
   @override
@@ -331,6 +465,9 @@ class _MessageBubble extends StatelessWidget {
         isFirstInGroup: isFirstInGroup,
         isLastInGroup: isLastInGroup,
         onRetry: onRetry,
+        onEdit: onEdit,
+        onDelete: onDelete,
+        onLongPress: onLongPress,
       ),
     );
   }
@@ -344,6 +481,9 @@ class _BubbleBody extends StatelessWidget {
   final bool isFirstInGroup;
   final bool isLastInGroup;
   final VoidCallback onRetry;
+  final ValueChanged<MessageEntity> onEdit;
+  final ValueChanged<MessageEntity> onDelete;
+  final ValueChanged<MessageEntity> onLongPress;
 
   const _BubbleBody({
     required this.item,
@@ -353,6 +493,9 @@ class _BubbleBody extends StatelessWidget {
     required this.isFirstInGroup,
     required this.isLastInGroup,
     required this.onRetry,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onLongPress,
   });
 
   @override
@@ -442,6 +585,15 @@ class _BubbleBody extends StatelessWidget {
                     child: CircularProgressIndicator(strokeWidth: 1.6),
                   ),
                 if (item.isPending || isFailed) const SizedBox(width: 5),
+                if (item.message?.editedAt != null) ...[
+                  Text(
+                    'معدلة',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
                 Text(
                   _formatTime(
                     item.message?.createdAt ?? DateTime.now().toLocal(),
@@ -460,10 +612,17 @@ class _BubbleBody extends StatelessWidget {
     const double avatarRadius = 15;
     const double avatarSlotWidth = avatarRadius * 2 + 8;
 
+    final Widget interactive = isMine && !isDeleted
+        ? GestureDetector(
+            onLongPress: () => onLongPress(item.message!),
+            child: bubble,
+          )
+        : bubble;
+
     if (isMine) {
       return Align(
         alignment: AlignmentDirectional.centerStart,
-        child: bubble,
+        child: interactive,
       );
     }
 
@@ -507,7 +666,7 @@ class _BubbleBody extends StatelessWidget {
                     ),
                   ),
                 ],
-                bubble,
+                interactive,
               ],
             ),
           ),

@@ -18,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -140,7 +142,7 @@ public class ChatMuteService {
         pusherService.publishMute(
                 conversation,
                 user.getId(),
-                saved.getMutedUntil().toString(),
+                toInstant(saved.getMutedUntil()).toString(),
                 saved.getReason()
         );
 
@@ -180,7 +182,7 @@ public class ChatMuteService {
                     .ifPresent(mute -> {
                         throw new ChatMutedException(
                                 "You are muted in this course",
-                                mute.getMutedUntil(),
+                                toInstant(mute.getMutedUntil()),
                                 mute.getReason()
                         );
                     });
@@ -195,7 +197,7 @@ public class ChatMuteService {
                 .ifPresent(mute -> {
                     throw new ChatMutedException(
                             "You are muted in this conversation",
-                            mute.getMutedUntil(),
+                            toInstant(mute.getMutedUntil()),
                             mute.getReason()
                     );
                 });
@@ -275,6 +277,10 @@ public class ChatMuteService {
                 mute.getConversation(),
                 mute.getUser().getId()
         );
+    }
+
+    private static Instant toInstant(LocalDateTime value) {
+        return value.atZone(ZoneId.systemDefault()).toInstant();
     }
 
     private void validateMutePermission(

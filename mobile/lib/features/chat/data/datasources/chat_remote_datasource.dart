@@ -21,6 +21,17 @@ abstract class ChatRemoteDataSource {
     required String content,
   });
 
+  Future<MessageModel> editMessage({
+    required int conversationId,
+    required int messageId,
+    required String content,
+  });
+
+  Future<void> deleteMessage({
+    required int conversationId,
+    required int messageId,
+  });
+
   Future<ConversationModel> createDirectConversation(int targetUserId);
 
   Future<ConversationModel> getCourseConversation(int courseId);
@@ -77,6 +88,29 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       data: {'content': content},
     );
     return MessageModel.fromJson(response);
+  }
+
+  @override
+  Future<MessageModel> editMessage({
+    required int conversationId,
+    required int messageId,
+    required String content,
+  }) async {
+    final response = await api.patch(
+      EndPoints.chatEditMessage(conversationId, messageId),
+      data: {'content': content},
+    );
+    return MessageModel.fromJson(response);
+  }
+
+  @override
+  Future<void> deleteMessage({
+    required int conversationId,
+    required int messageId,
+  }) {
+    return api.delete(
+      EndPoints.chatDeleteMessage(conversationId, messageId),
+    );
   }
 
   @override

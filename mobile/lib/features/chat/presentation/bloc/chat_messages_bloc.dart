@@ -10,6 +10,8 @@ import '../../../../core/utils/api_error_resolver.dart';
 import '../../../../core/utils/date_time_utils.dart';
 import '../../data/models/message_model.dart';
 import '../../domain/entities/message_entity.dart';
+import '../../domain/usecases/delete_message_usecase.dart';
+import '../../domain/usecases/edit_message_usecase.dart';
 import '../../domain/usecases/get_messages_usecase.dart';
 import '../../domain/usecases/mark_conversation_as_read_usecase.dart';
 import '../../domain/usecases/send_message_usecase.dart';
@@ -21,6 +23,8 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
   final int currentUserId;
   final GetMessagesUseCase getMessagesUseCase;
   final SendMessageUseCase sendMessageUseCase;
+  final EditMessageUseCase editMessageUseCase;
+  final DeleteMessageUseCase deleteMessageUseCase;
   final MarkConversationAsReadUseCase markConversationAsReadUseCase;
   final ChatUpdatesNotifier chatUpdatesNotifier;
   final PusherChatService pusherService;
@@ -34,6 +38,8 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     required this.currentUserId,
     required this.getMessagesUseCase,
     required this.sendMessageUseCase,
+    required this.editMessageUseCase,
+    required this.deleteMessageUseCase,
     required this.markConversationAsReadUseCase,
     required this.chatUpdatesNotifier,
     required this.pusherService,
@@ -42,6 +48,8 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     on<LoadMoreMessagesEvent>(_loadMore);
     on<SendChatMessageEvent>(_send);
     on<RetryChatMessageEvent>(_retry);
+    on<EditChatMessageEvent>(_editMessage);
+    on<DeleteChatMessageEvent>(_deleteMessageRequested);
     on<UpdateMessageEvent>(_updateMessage);
     on<DeleteMessageEvent>(_deleteMessage);
     on<MarkMessagesReadEvent>(_markRead);
@@ -303,6 +311,119 @@ class ChatMessagesBloc extends Bloc<ChatMessagesEvent, ChatMessagesState> {
     emit(current.copyWith(failedMessages: failed, clearErrorMessage: true));
 
     await _send(SendChatMessageEvent(text), emit);
+  }
+
+  Future<void> _editMessage(
+    EditChatMessageEvent event,
+    Emitter<ChatMessagesState> emit,
+  ) async {
+    final current = state;
+    if (current is! ChatMessagesLoaded) return;
+
+    final text = event.newText.trim();
+    if (text.isEmpty) return;
+
+    final existingIndex = current.messages.indexWhere(
+      (m) => m.id == event.messageId,
+    );
+    if (existingIndex < 0) return;
+    if (current.messages[existingIndex].isDeleted) return;
+
+    final original = current.messages[existingIndex];
+    final messages = [...current.messages];
+    messages[existingIndex] = original.copyWith(
+      content: text,
+      editedAt: DateTime.now(),
+    );
+    emit(current.copyWith(messages: messages, clearErrorMessage: true));
+
+    try {
+      final updated = await editMessageUseCase(
+        conversationId: conversationId,
+        messageId: event.messageId,
+        content: text,
+      );
+      final newCurrent = state;
+      if (newCurrent is! ChatMessagesLoaded) return;
+      final index = newCurrent.messages.indexWhere(
+        (m) => m.id == event.messageId,
+      );
+      if (index < 0) return;
+      final updatedMessages = [...newCurrent.messages];
+      updatedMessages[index] = updated;
+      emit(
+        newCurrent.copyWith(
+          messages: updatedMessages,
+          clearErrorMessage: true,
+          actionMessage: 'تم تعديل الرسالة',
+        ),
+      );
+      chatUpdatesNotifier.notify();
+    } catch (e) {
+      final newCurrent = state;
+      if (newCurrent is! ChatMessagesLoaded) return;
+      final index = newCurrent.messages.indexWhere(
+        (m) => m.id == event.messageId,
+      );
+      final revertedMessages = [...newCurrent.messages];
+      if (index >= 0) {
+        revertedMessages[index] = revertedMessages[index].copyWith(
+          content: original.content,
+          editedAt: original.editedAt,
+        );
+      }
+      emit(
+        newCurrent.copyWith(
+          messages: revertedMessages,
+          errorMessage: resolveApiErrorMessage(e),
+          clearActionMessage: true,
+        ),
+      );
+    }
+  }
+
+  Future<void> _deleteMessageRequested(
+    DeleteChatMessageEvent event,
+    Emitter<ChatMessagesState> emit,
+  ) async {
+    final current = state;
+    if (current is! ChatMessagesLoaded) return;
+
+    try {
+      await deleteMessageUseCase(
+        conversationId: conversationId,
+        messageId: event.messageId,
+      );
+      final newCurrent = state;
+      if (newCurrent is! ChatMessagesLoaded) return;
+      final index = newCurrent.messages.indexWhere(
+        (m) => m.id == event.messageId,
+      );
+      if (index < 0) return;
+
+      final messages = [...newCurrent.messages];
+      messages[index] = messages[index].copyWith(
+        deletedAt: DateTime.now(),
+        content: null,
+      );
+      emit(
+        newCurrent.copyWith(
+          messages: messages,
+          clearErrorMessage: true,
+          actionMessage: 'تم حذف الرسالة',
+        ),
+      );
+      chatUpdatesNotifier.notify();
+    } catch (e) {
+      final newCurrent = state;
+      if (newCurrent is! ChatMessagesLoaded) return;
+      emit(
+        newCurrent.copyWith(
+          errorMessage: resolveApiErrorMessage(e),
+          clearActionMessage: true,
+        ),
+      );
+    }
   }
 
   Future<void> _updateMessage(

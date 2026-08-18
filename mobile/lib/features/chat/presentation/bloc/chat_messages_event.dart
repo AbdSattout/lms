@@ -18,6 +18,19 @@ class RetryChatMessageEvent extends ChatMessagesEvent {
   RetryChatMessageEvent(this.localId);
 }
 
+class EditChatMessageEvent extends ChatMessagesEvent {
+  final int messageId;
+  final String newText;
+
+  EditChatMessageEvent(this.messageId, this.newText);
+}
+
+class DeleteChatMessageEvent extends ChatMessagesEvent {
+  final int messageId;
+
+  DeleteChatMessageEvent(this.messageId);
+}
+
 class UpdateMessageEvent extends ChatMessagesEvent {
   final MessageEntity message;
 
