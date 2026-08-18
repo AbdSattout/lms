@@ -13,6 +13,7 @@ public record OrganizationSummaryResponse(
         String description,
         String image,
         Visibility visibility,
+        Boolean verified,
         @JsonInclude(JsonInclude.Include.NON_NULL)
         OrganizationViewerResponse viewer
 

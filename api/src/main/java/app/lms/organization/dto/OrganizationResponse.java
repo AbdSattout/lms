@@ -14,6 +14,7 @@ public record OrganizationResponse(
         String description,
         String image,
         Visibility visibility,
+        Boolean verified,
         String ownerName,
         Long membersCount,
         Long coursesCount,
