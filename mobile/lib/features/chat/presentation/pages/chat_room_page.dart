@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../friends/domain/entities/friend_user_entity.dart';
+import '../../../friends/presentation/bloc/user_profile_bloc.dart';
+import '../../../friends/presentation/bloc/user_profile_event.dart';
+import '../../../friends/presentation/pages/user_profile_page.dart';
 import '../../domain/entities/message_entity.dart';
 import '../bloc/chat_messages_bloc.dart';
 import '../bloc/chat_messages_event.dart';
@@ -470,6 +474,9 @@ class _BubbleBody extends StatelessWidget {
               imageUrl: item.message?.senderPicture,
               fallbackLabel: item.message?.senderName,
               backgroundColor: colors.primary.withValues(alpha: 0.1),
+              onTap: item.message == null
+                  ? null
+                  : () => _openUserProfile(context, item.message!),
             ),
           )
         : const SizedBox(width: avatarSlotWidth);
@@ -479,7 +486,7 @@ class _BubbleBody extends StatelessWidget {
       child: Row(
         textDirection: TextDirection.ltr,
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           avatarSlot,
           Flexible(
@@ -680,4 +687,25 @@ class _EmptyMessagesView extends StatelessWidget {
       ),
     );
   }
+}
+
+void _openUserProfile(BuildContext context, MessageEntity message) {
+  if (message.senderId <= 0) return;
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) =>
+            sl<UserProfileBloc>()..add(LoadUserProfileEvent(message.senderId)),
+        child: UserProfilePage(
+          userId: message.senderId,
+          initialUser: FriendUserEntity(
+            id: message.senderId,
+            name: message.senderName,
+            picture: message.senderPicture,
+          ),
+        ),
+      ),
+    ),
+  );
 }
