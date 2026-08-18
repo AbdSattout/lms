@@ -1,16 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:lms/core/errors/error_model.dart';
-
 //!ServerException
 class ServerException implements Exception {
   final ErrorModel errorModel;
   ServerException(this.errorModel);
 }
-
-//!CacheExeption
-class CacheExeption implements Exception {
+//!CacheException
+class CacheException implements Exception {
   final String errorMessage;
-  CacheExeption({required this.errorMessage});
+  CacheException({required this.errorMessage});
 }
 
 class BadCertificateException extends ServerException {
@@ -82,7 +80,10 @@ handleDioException(DioException e) {
 
     case DioExceptionType.cancel:
       throw CancelException(
-        ErrorModel(status: 0, errorMessage: 'تم إلغاء تسجيل الدخول'),
+        ErrorModel(
+          status: 0,
+          errorMessage: 'تم إلغاء تسجيل الدخول',
+        ),
       );
 
     case DioExceptionType.unknown:
@@ -125,7 +126,7 @@ void _handleBadResponse(DioException e) {
 }
 
 ErrorModel _extractError(DioException e) {
-  if (e.response != null && e.response!.data != null) {
+  if(e.response != null && e.response!.data != null) {
     try {
       return ErrorModel.fromJson(e.response!.data);
     } catch (_) {

@@ -14,8 +14,14 @@ import '../bloc/chat_messages_state.dart';
 class ChatRoomPage extends StatefulWidget {
   final int conversationId;
   final FriendUserEntity? otherUser;
+  final String? title;
 
-  const ChatRoomPage({super.key, required this.conversationId, this.otherUser});
+  const ChatRoomPage({
+    super.key,
+    required this.conversationId,
+    this.otherUser,
+    this.title,
+  });
 
   @override
   State<ChatRoomPage> createState() => _ChatRoomPageState();
@@ -70,7 +76,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.otherUser?.name ?? 'محادثة'),
+          title: Text(widget.title ?? widget.otherUser?.name ?? 'محادثة'),
           centerTitle: true,
           actions: [
             if (widget.otherUser != null)

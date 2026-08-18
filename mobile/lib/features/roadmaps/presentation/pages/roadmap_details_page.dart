@@ -5,6 +5,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../courses/presentation/bloc/course_details_bloc.dart';
 import '../../../courses/presentation/bloc/course_details_event.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
+import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../../organizations/presentation/bloc/organization_details_event.dart';
 import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../bloc/roadmap_bloc.dart';
 import '../bloc/roadmap_event.dart';
@@ -72,7 +74,10 @@ class _RoadmapDetailsContent extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isFollowing = roadmap.followStatus == 'FOLLOWING';
-    final isMember = roadmap.organization?.viewerJoined == true;
+
+    final org = roadmap.organization;
+    final isMember = org?.viewerJoined == true;
+
     final items = roadmap.items as List<dynamic>;
 
     return SingleChildScrollView(
@@ -80,15 +85,13 @@ class _RoadmapDetailsContent extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(roadmap.name, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, color: colors.onSurface)),
         const SizedBox(height: 8),
-        if (roadmap.organization != null)
+        if (org != null)
           GestureDetector(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationDetailsPage(slug: slug)));
-            },
+            onTap: () => _navigateToOrganization(context),
             child: Row(children: [
               Icon(Icons.apartment_rounded, size: 15, color: colors.primary),
               const SizedBox(width: 6),
-              Text(roadmap.organization.name, style: TextStyle(fontSize: 13, color: colors.primary, fontWeight: FontWeight.w600)),
+              Text(org.name, style: TextStyle(fontSize: 13, color: colors.primary, fontWeight: FontWeight.w600)),
             ]),
           ),
         const SizedBox(height: 16),
@@ -114,8 +117,21 @@ class _RoadmapDetailsContent extends StatelessWidget {
           course: item.course,
           isMember: isMember,
           slug: slug,
+          onNavigateToOrg: () => _navigateToOrganization(context),
         )),
       ]),
+    );
+  }
+
+  void _navigateToOrganization(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => sl<OrganizationDetailsBloc>()..add(GetOrganizationDetailsEvent(slug)),
+          child: OrganizationDetailsPage(slug: slug),
+        ),
+      ),
     );
   }
 
@@ -131,7 +147,7 @@ class _RoadmapDetailsContent extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(child: Text('انضم إلى المنظمة لمتابعة هذا المسار', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.onSurface))),
           const SizedBox(width: 10),
-          OutlinedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationDetailsPage(slug: slug))), child: const Text('عرض المنظمة')),
+          OutlinedButton(onPressed: () => _navigateToOrganization(context), child: const Text('عرض المنظمة')),
         ]),
       );
     }
@@ -164,8 +180,15 @@ class _RoadmapCourseTile extends StatelessWidget {
   final dynamic course;
   final bool isMember;
   final String slug;
+  final VoidCallback onNavigateToOrg;
 
-  const _RoadmapCourseTile({required this.position, required this.course, required this.isMember, required this.slug});
+  const _RoadmapCourseTile({
+    required this.position,
+    required this.course,
+    required this.isMember,
+    required this.slug,
+    required this.onNavigateToOrg,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -221,7 +244,7 @@ class _RoadmapCourseTile extends StatelessWidget {
                 if (!isMember) Text('يتطلب عضوية المنظمة', style: TextStyle(fontSize: 11, color: colors.error)),
               ]),
             ),
-            Icon(Icons.arrow_back_ios_rounded, size: 14, color: colors.onSurfaceVariant),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colors.onSurfaceVariant),
           ]),
         ),
       ),
@@ -241,7 +264,7 @@ class _RoadmapCourseTile extends StatelessWidget {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationDetailsPage(slug: slug)));
+                onNavigateToOrg();
               },
               child: const Text('عرض المنظمة'),
             ),

@@ -9,6 +9,7 @@ class CommentEntity {
   final int likeCount;
   final ReactionCountsEntity reactionCounts;
   final String? viewerReaction;
+  final bool viewerComment;
   final String? createdAt;
   final String? updatedAt;
 
@@ -20,6 +21,7 @@ class CommentEntity {
     required this.likeCount,
     required this.reactionCounts,
     this.viewerReaction,
+    this.viewerComment = false,
     this.createdAt,
     this.updatedAt,
   });

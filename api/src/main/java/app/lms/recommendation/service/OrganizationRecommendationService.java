@@ -2,7 +2,6 @@ package app.lms.recommendation.service;
 
 import app.lms.course.enums.CourseStatus;
 import app.lms.organization.dto.OrganizationViewerResponse;
-import app.lms.organization.enums.Visibility;
 import app.lms.organization.service.OrganizationViewerService;
 import app.lms.recommendation.dto.RecommendationScore;
 import app.lms.recommendation.dto.RecommendedOrganizationResponse;
@@ -41,7 +40,6 @@ public class OrganizationRecommendationService {
         Page<OrganizationRecommendationCandidate> candidates =
                 organizationRecommendationRepository.findCandidates(
                         user.getId(),
-                        Visibility.PUBLIC,
                         CourseStatus.PUBLISHED,
                         recentCourseCutoff,
                         RecommendationScoringService.MANY_PUBLISHED_COURSES_THRESHOLD,
