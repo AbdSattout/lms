@@ -15,6 +15,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,6 +28,9 @@ public class AdminContentController {
     @GetMapping("/users")
     public ResponseEntity<Page<UserResponse>> getUsers(
 
+            @RequestParam(required = false)
+            String q,
+
             Pageable pageable,
 
             @AuthenticationPrincipal
@@ -37,6 +41,7 @@ public class AdminContentController {
         return ResponseEntity.ok(
                 adminContentService.getUsers(
                         admin.getId(),
+                        q,
                         pageable
                 )
         );
@@ -44,6 +49,9 @@ public class AdminContentController {
 
     @GetMapping("/organizations")
     public ResponseEntity<Page<OrganizationResponse>> getOrganizations(
+
+            @RequestParam(required = false)
+            String q,
 
             Pageable pageable,
 
@@ -55,6 +63,7 @@ public class AdminContentController {
         return ResponseEntity.ok(
                 adminContentService.getOrganizations(
                         admin.getId(),
+                        q,
                         pageable
                 )
         );
