@@ -11,6 +11,7 @@ import app.lms.chat.model.ConversationMember;
 import app.lms.chat.model.Message;
 import app.lms.chat.repository.ConversationMemberRepository;
 import app.lms.chat.repository.MessageRepository;
+import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,6 +36,8 @@ public class MessageService {
     private final MessageMapper messageMapper;
 
     private final ConversationMemberRepository memberRepository;
+
+    private final OrganizationMemberAccessService organizationMemberAccessService;
 
     @Transactional
     public MessageResponse sendMessage(
@@ -194,9 +197,25 @@ public class MessageService {
                                 )
                         );
 
-        if (!message.getSender()
-                .getId()
-                .equals(user.getId())) {
+        boolean isSender =
+                message.getSender()
+                        .getId()
+                        .equals(user.getId());
+
+        boolean isManager =
+                !isSender
+                        && conversation.getCourse() != null
+                        && conversation.getCourse().getOrganization() != null
+                        && organizationMemberAccessService.isManager(
+                                conversation
+                                        .getCourse()
+                                        .getOrganization()
+                                        .getId(),
+                                user.getId()
+                        );
+
+        if (!isSender
+                && !isManager) {
 
             throw new ChatAccessDeniedException(
                     "You can only delete your own messages"

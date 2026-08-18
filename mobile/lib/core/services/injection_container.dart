@@ -652,6 +652,43 @@ Future<void> init() async {
     () => FriendsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetFriendsUseCase(sl()));
+  sl.registerLazySingleton(() => GetReceivedFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSentFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => SendFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RejectFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => CancelFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFriendUseCase(sl()));
+  sl.registerLazySingleton(() => SearchUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
+  sl.registerFactory(
+    () => FriendsBloc(
+      getFriendsUseCase: sl(),
+      getReceivedFriendRequestsUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => AddFriendBloc(
+      searchUsersUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => UserProfileBloc(
+      getUserProfileUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
 
   // Chat
   sl.registerLazySingleton<ChatRemoteDataSource>(
