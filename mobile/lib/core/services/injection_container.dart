@@ -62,6 +62,10 @@ import '../../features/recommendations/data/repositories/recommendation_reposito
 import '../../features/recommendations/domain/repositories/recommendation_repository.dart';
 import '../../features/recommendations/domain/usecases/get_recommended_courses_usecase.dart';
 import '../../features/recommendations/domain/usecases/get_recommended_organizations_usecase.dart';
+import '../../features/reports/data/datasources/report_remote_datasource.dart';
+import '../../features/reports/data/repositories/report_repository_impl.dart';
+import '../../features/reports/domain/repositories/report_repository.dart';
+import '../../features/reports/domain/usecases/create_report_usecase.dart';
 import '../../features/roadmaps/domain/usecases/get_my_roadmaps_usecase.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
@@ -284,18 +288,13 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(
-        () {
-      final consumer = DioConsumer(
-        dio: sl(),
-        authLocalDataSource: sl(),
-      );
-      consumer.onTokenInvalid = () {
-        sl<AuthBloc>().add(LogoutRequested());
-      };
-      return consumer;
-    },
-  );
+  sl.registerLazySingleton<ApiConsumer>(() {
+    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
+    consumer.onTokenInvalid = () {
+      sl<AuthBloc>().add(LogoutRequested());
+    };
+    return consumer;
+  });
 
   sl.registerLazySingleton(
     () => Dio(
@@ -353,12 +352,14 @@ Future<void> init() async {
       getCourseByIdUseCase: sl(),
       getCourseBySlugUseCase: sl(),
       enrollInCourseUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
     ),
   );
 
   sl.registerFactory(
     () => CourseContentsBloc(
       getCourseByIdUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
       unenrollFromCourseUseCase: sl(),
     ),
   );
@@ -442,6 +443,15 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => GetRecommendedCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetRecommendedOrganizationsUseCase(sl()));
+
+  // Reports
+  sl.registerLazySingleton<ReportRemoteDataSource>(
+    () => ReportRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<ReportRepository>(
+    () => ReportRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => CreateReportUseCase(sl()));
 
   // Notifications
   sl.registerLazySingleton<NotificationRemoteDataSource>(

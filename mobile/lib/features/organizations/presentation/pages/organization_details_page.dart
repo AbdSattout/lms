@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../posts/presentation/pages/organization_posts_page.dart';
+import '../../../reports/domain/entities/report_target.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../../roadmaps/presentation/pages/organization_roadmaps_page.dart';
 import '../../domain/entities/organization_entity.dart';
 import '../bloc/organization_details_bloc.dart';
@@ -233,6 +235,18 @@ class _OrganizationDetailsContent extends StatelessWidget {
                             icon: Icons.arrow_back_ios_new_rounded,
                             onTap: () => Navigator.pop(context),
                           ),
+                          _roundIconButton(
+                            icon: Icons.outlined_flag_rounded,
+                            onTap: () {
+                              showReportBottomSheet(
+                                context,
+                                ReportTarget.organization(
+                                  organizationId: organization.id,
+                                  title: organization.name,
+                                ),
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ),
@@ -296,9 +310,9 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(7),
                             decoration: BoxDecoration(
-                              color: const Color(0xff0EA5E9).withValues(
-                                alpha: 0.12,
-                              ),
+                              color: const Color(
+                                0xff0EA5E9,
+                              ).withValues(alpha: 0.12),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(
@@ -506,7 +520,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
                       title: ' المنشورات والإعلانات',
                       subtitle: 'تفاعل مع منشورات المنظمة!',
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                OrganizationPostsPage(orgSlug: slug),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 12),
@@ -518,7 +538,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
                       title: 'المسارات التعليمية',
                       subtitle: 'استعرض مسارات التعلم',
                       onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationRoadmapsPage(slug: slug)));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                OrganizationRoadmapsPage(slug: slug),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 28),
@@ -612,7 +638,13 @@ class _OrganizationDetailsContent extends StatelessWidget {
                     height: 48,
                     child: OutlinedButton.icon(
                       onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => OrganizationPostsPage(orgSlug: slug)));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                OrganizationPostsPage(orgSlug: slug),
+                          ),
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),

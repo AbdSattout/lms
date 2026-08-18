@@ -7,6 +7,7 @@ class CourseHeroHeader extends StatelessWidget {
   final bool hasCover;
   final bool hasOrgImage;
   final VoidCallback onBack;
+  final VoidCallback? onReport;
 
   const CourseHeroHeader({
     super.key,
@@ -14,6 +15,7 @@ class CourseHeroHeader extends StatelessWidget {
     required this.hasCover,
     required this.hasOrgImage,
     required this.onBack,
+    this.onReport,
   });
 
   @override
@@ -23,21 +25,25 @@ class CourseHeroHeader extends StatelessWidget {
     return Stack(
       children: [
         ClipRRect(
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(32),
+          ),
           child: hasCover
               ? Image.network(
-            course.coverUrl!,
-            height: 250,
-            width: double.infinity,
-            fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _placeholder(),
-          )
+                  course.coverUrl!,
+                  height: 250,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _placeholder(),
+                )
               : _placeholder(),
         ),
         Positioned.fill(
           child: DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(32),
+              ),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -56,7 +62,10 @@ class CourseHeroHeader extends StatelessWidget {
             children: [
               if (course.organizationDisplayName != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.16),
                     borderRadius: BorderRadius.circular(12),
@@ -68,14 +77,27 @@ class CourseHeroHeader extends StatelessWidget {
                       if (hasOrgImage)
                         ClipRRect(
                           borderRadius: BorderRadius.circular(6),
-                          child: Image.network(course.organization!.image!, width: 18, height: 18, fit: BoxFit.cover),
+                          child: Image.network(
+                            course.organization!.image!,
+                            width: 18,
+                            height: 18,
+                            fit: BoxFit.cover,
+                          ),
                         )
                       else
-                        const Icon(Icons.apartment_rounded, size: 16, color: Colors.white),
+                        const Icon(
+                          Icons.apartment_rounded,
+                          size: 16,
+                          color: Colors.white,
+                        ),
                       const SizedBox(width: 6),
                       Text(
                         course.organizationDisplayName!,
-                        style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                   ),
@@ -83,7 +105,11 @@ class CourseHeroHeader extends StatelessWidget {
               const SizedBox(height: 10),
               Text(
                 course.title,
-                style: textTheme.headlineMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w900, height: 1.2),
+                style: textTheme.headlineMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  height: 1.2,
+                ),
               ),
             ],
           ),
@@ -97,10 +123,35 @@ class CourseHeroHeader extends StatelessWidget {
                   onTap: onBack,
                   child: Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), shape: BoxShape.circle),
-                    child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: AppColors.dark),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      size: 18,
+                      color: AppColors.dark,
+                    ),
                   ),
                 ),
+                if (onReport != null) ...[
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: onReport,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.outlined_flag_rounded,
+                        size: 18,
+                        color: AppColors.dark,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -120,7 +171,9 @@ class CourseHeroHeader extends StatelessWidget {
           colors: [AppColors.primary, AppColors.primary.withOpacity(0.55)],
         ),
       ),
-      child: const Center(child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 56)),
+      child: const Center(
+        child: Icon(Icons.menu_book_rounded, color: Colors.white, size: 56),
+      ),
     );
   }
 }
