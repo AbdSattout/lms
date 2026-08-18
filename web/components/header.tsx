@@ -13,11 +13,11 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import type { OrganizationResponse } from "@/lib/api/types"
 import { Route } from "next"
 import Link from "next/link"
-import { Fragment, Suspense, useContext, use } from "react"
-import { Skeleton } from "./ui/skeleton"
+import { Fragment, Suspense, use, useContext } from "react"
 import { BreadcrumbContext } from "./breadcrumb-context"
-import { JoinRequestsNotification } from "./ui/join-request-notification-button"
 import { OrganizationVerifiedBadge } from "./organization-verified-badge"
+import { JoinRequestsNotification } from "./ui/join-request-notification-button"
+import { Skeleton } from "./ui/skeleton"
 
 function BreadcrumbNav({
   orgPromise,
@@ -25,7 +25,7 @@ function BreadcrumbNav({
   orgPromise: Promise<OrganizationResponse>
 }) {
   const org = use(orgPromise)
-  const { trail } = useContext(BreadcrumbContext)
+  const { trail, trailing } = useContext(BreadcrumbContext)
 
   return (
     <Breadcrumb>
@@ -60,6 +60,12 @@ function BreadcrumbNav({
             </BreadcrumbItem>
           </Fragment>
         ))}
+        {trailing && (
+          <>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>{trailing}</BreadcrumbItem>
+          </>
+        )}
       </BreadcrumbList>
     </Breadcrumb>
   )
