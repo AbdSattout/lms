@@ -262,22 +262,13 @@ class _MessageBubble extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
-        mainAxisAlignment: isMine
-            ? MainAxisAlignment.end
-            : MainAxisAlignment.start,
-        children: [
-          Flexible(
-            child: _BubbleBody(
-              item: item,
-              isMine: isMine,
-              currentUserId: currentUserId,
-              isCourseChat: isCourseChat,
-              isFirstInGroup: isFirstInGroup,
-              onRetry: onRetry,
-            ),
-          ),
-        ],
+      child: _BubbleBody(
+        item: item,
+        isMine: isMine,
+        currentUserId: currentUserId,
+        isCourseChat: isCourseChat,
+        isFirstInGroup: isFirstInGroup,
+        onRetry: onRetry,
       ),
     );
   }
@@ -381,49 +372,59 @@ class _BubbleBody extends StatelessWidget {
       ),
     );
 
-    if (!showAvatar) {
+    const double avatarRadius = 15;
+    const double avatarSlotWidth = avatarRadius * 2 + 8;
+
+    if (isMine) {
       return Align(
-        alignment: isMine
-            ? AlignmentDirectional.centerEnd
-            : AlignmentDirectional.centerStart,
+        alignment: AlignmentDirectional.centerStart,
         child: bubble,
       );
     }
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: ResilientNetworkAvatar(
-            radius: 15,
-            imageUrl: item.message?.senderPicture,
-            fallbackLabel: item.message?.senderName,
-            backgroundColor: colors.primary.withValues(alpha: 0.1),
-          ),
-        ),
-        Flexible(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (showName) ...[
-                Padding(
-                  padding: const EdgeInsets.only(left: 4, bottom: 3),
-                  child: Text(
-                    item.message?.senderName ?? '',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: colors.primary,
-                      fontWeight: FontWeight.w600,
+    final Widget avatarSlot = showAvatar
+        ? Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ResilientNetworkAvatar(
+              radius: avatarRadius,
+              imageUrl: item.message?.senderPicture,
+              fallbackLabel: item.message?.senderName,
+              backgroundColor: colors.primary.withValues(alpha: 0.1),
+            ),
+          )
+        : const SizedBox(width: avatarSlotWidth);
+
+    return Align(
+      alignment: AlignmentDirectional.centerEnd,
+      child: Row(
+        textDirection: TextDirection.ltr,
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          avatarSlot,
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showName) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 3),
+                    child: Text(
+                      item.message?.senderName ?? '',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                ),
+                ],
+                bubble,
               ],
-              bubble,
-            ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
