@@ -1,6 +1,7 @@
 package app.lms.practiceExam.dto;
 
 import app.lms.common.dto.BaseEntityResponse;
+import app.lms.practiceExam.enums.PracticeExamStatus;
 import app.lms.question.dto.QuestionResponse;
 import app.lms.question.enums.QuestionDifficulty;
 
@@ -11,6 +12,7 @@ public record PracticeExamResponse(
         String title,
         String description,
         Integer timeLimitMinutes,
+        PracticeExamStatus status,
         Long courseId,
         QuestionDifficulty difficulty,
         List<QuestionResponse> questions,

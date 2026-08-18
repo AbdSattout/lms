@@ -57,6 +57,7 @@ public class PracticeExamMapper {
                 practiceExam.getTitle(),
                 practiceExam.getDescription(),
                 practiceExam.getTimeLimitMinutes(),
+                practiceExam.getStatus(),
                 practiceExam.getCourse().getId(),
                 quizDifficultyService.calculate(
                         practiceExam.getQuestions()
@@ -80,6 +81,7 @@ public class PracticeExamMapper {
                 practiceExam.getTitle(),
                 practiceExam.getDescription(),
                 practiceExam.getTimeLimitMinutes(),
+                practiceExam.getStatus(),
                 attempt.getId(),
                 attempt.getStartedAt(),
                 attempt.getExpiresAt(),
@@ -105,6 +107,7 @@ public class PracticeExamMapper {
                 practiceExam.getTitle(),
                 practiceExam.getDescription(),
                 practiceExam.getTimeLimitMinutes(),
+                practiceExam.getStatus(),
                 practiceExam.getCourse().getId(),
                 quizDifficultyService.calculate(
                         practiceExam.getQuestions()
