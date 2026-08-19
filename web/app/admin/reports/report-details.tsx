@@ -200,7 +200,7 @@ export function ReportDetails({
               <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button
                   variant="outline"
-                  disabled={isSubmitting || report.status === "UNDER_REVIEW"}
+                  disabled={isSubmitting}
                   onClick={() => updateStatus("REJECTED")}
                 >
                   <XCircle className="ml-2 h-4 w-4" />
