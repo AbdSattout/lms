@@ -31,7 +31,12 @@ import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
-import '../../features/home/bloc/home_bloc.dart';
+import '../../features/home/data/datasources/home_remote_datasource.dart';
+import '../../features/home/data/repositories/home_repository_impl.dart';
+import '../../features/home/domain/repositories/home_repository.dart';
+import '../../features/home/domain/usecases/search_courses_usecase.dart';
+import '../../features/home/domain/usecases/search_organizations_usecase.dart';
+import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
 import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/accept_organization_invite_by_token_usecase.dart';
@@ -638,10 +643,18 @@ Future<void> init() async {
   sl.registerFactory(() => FinalExamBloc(getExam: sl(), submit: sl()));
 
   // Home
+  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => SearchCoursesUseCase(sl()));
+  sl.registerLazySingleton(() => SearchOrganizationsUseCase(sl()));
+
+// Update HomeBloc registration:
   sl.registerFactory(
-    () => HomeBloc(
+        () => HomeBloc(
       getRecommendedCoursesUseCase: sl(),
       getRecommendedOrganizationsUseCase: sl(),
+      searchCoursesUseCase: sl(),
+      searchOrganizationsUseCase: sl(),
     ),
   );
 

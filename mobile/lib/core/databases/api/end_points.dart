@@ -200,4 +200,10 @@ class EndPoints {
   static String chatMarkMessageRead(int conversationId, int messageId) =>
       'chat/conversations/$conversationId/messages/$messageId/read';
   static const String chatPusherAuth = 'chat/pusher/auth';
+
+  // Search
+  static String searchCourses(String query, {int page = 0, int size = 10}) =>
+      'courses?q=$query&page=$page&size=$size';
+  static String searchOrganizations(String query, {int page = 0, int size = 10}) =>
+      'organizations?q=$query&page=$page&size=$size';
 }
