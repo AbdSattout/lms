@@ -218,6 +218,27 @@ export type UpdatePracticeQuizQuestionsInput = z.infer<
   typeof updatePracticeQuizQuestionsSchema
 >
 
+export const createPracticeExamSchema = z.object({
+  title: z.string().min(1, "العنوان مطلوب"),
+  description: z.string().optional(),
+  timeLimitMinutes: z
+    .number()
+    .int()
+    .positive("الوقت يجب أن يكون أكبر من صفر")
+    .optional(),
+  questionIds: z.array(z.number().int()),
+})
+export type CreatePracticeExamInput = z.infer<typeof createPracticeExamSchema>
+
+export const updatePracticeExamQuestionsSchema = z.object({
+  questionIds: z
+    .array(z.number().int())
+    .min(1, "يجب اختيار سؤال واحد على الأقل"),
+})
+export type UpdatePracticeExamQuestionsInput = z.infer<
+  typeof updatePracticeExamQuestionsSchema
+>
+
 export const upsertRoadmapSchema = z.object({
   courseIds: z.array(z.number().int()).min(1, "يجب اختيار كورس واحد على الأقل"),
 })

@@ -141,4 +141,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("threshold") double threshold,
             Pageable pageable
     );
+    @Query("""
+    select u as user, p as profile
+    from User u
+    left join Profile p
+        on p.user = u
+    where u.id = :id
+""")
+    Optional<UserSearchRow> findUserWithProfileById(
+            @Param("id") Long id
+    );
 }

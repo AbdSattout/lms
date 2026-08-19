@@ -78,6 +78,7 @@ import {
   GraduationCap,
   GripVertical,
   Image,
+  MessageCircle,
   Pen,
   Plus,
   Trash2,
@@ -633,7 +634,7 @@ export function CourseManagement({
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <Card
           className="cursor-pointer transition-colors hover:bg-accent/50"
           onClick={() => setEditOpen(true)}
@@ -671,9 +672,9 @@ export function CourseManagement({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ClipboardList className="size-4" />
-              الاختبارات
+              الاختبارات والامتحانات
             </CardTitle>
-            <CardDescription>إدارة اختبارات الدورة</CardDescription>
+            <CardDescription>إدارة اختبارات وامتحانات الدورة</CardDescription>
           </CardHeader>
         </Card>
 
@@ -690,6 +691,21 @@ export function CourseManagement({
               الوسائط
             </CardTitle>
             <CardDescription>إدارة ملفات الدورة</CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card
+          className="cursor-pointer transition-colors hover:bg-accent/50"
+          onClick={() =>
+            router.push(`/${orgSlug}/courses/${course.slug}/chat` as never)
+          }
+        >
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="size-4" />
+              دردشة الدورة
+            </CardTitle>
+            <CardDescription>محادثة مع طلاب الدورة</CardDescription>
           </CardHeader>
         </Card>
       </div>

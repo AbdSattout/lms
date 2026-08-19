@@ -4,9 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
-import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
+import '../../../reports/domain/entities/report_target.dart';
+import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/course_entity.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
@@ -30,15 +31,42 @@ class CourseDetailsPage extends StatelessWidget {
         body: BlocConsumer<CourseDetailsBloc, CourseDetailsState>(
           listenWhen: (previous, current) =>
               current is CourseEnrollSuccess ||
+              current is CourseStartSuccess ||
+              current is CourseDetailsActionError ||
               (current is CourseDetailsError &&
                   previous is CourseDetailsLoading),
-          listener: (context, state) {
+          listener: (context, state) async {
             if (state is CourseEnrollSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
                 ),
               );
+            }
+            if (state is CourseStartSuccess) {
+              await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CourseContentsPage(course: state.course),
+                ),
+              );
+              if (context.mounted) {
+                final orgSlug = state.course.organization?.slug;
+                context.read<CourseDetailsBloc>().add(
+                  orgSlug != null && orgSlug.isNotEmpty
+                      ? GetCourseDetailsEvent(
+                          orgSlug: orgSlug,
+                          courseSlug: state.course.slug,
+                        )
+                      : GetCourseDetailsEvent(id: state.course.id),
+                );
+              }
+              return;
+            }
+            if (state is CourseDetailsActionError) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
             }
             if (state is CourseDetailsError) {
               ScaffoldMessenger.of(
@@ -64,8 +92,12 @@ class CourseDetailsPage extends StatelessWidget {
             if (state is CourseDetailsLoaded) {
               return _CourseDetailsContent(
                 course: state.course,
+                isStartingCourse: state.isStartingCourse,
                 onEnroll: () => context.read<CourseDetailsBloc>().add(
                   EnrollEvent(state.course.id),
+                ),
+                onStartCourse: () => context.read<CourseDetailsBloc>().add(
+                  StartCourseEvent(state.course.id),
                 ),
               );
             }
@@ -80,24 +112,24 @@ class CourseDetailsPage extends StatelessWidget {
 class _CourseDetailsContent extends StatelessWidget {
   final CourseEntity course;
   final VoidCallback onEnroll;
+  final VoidCallback onStartCourse;
+  final bool isStartingCourse;
 
-  const _CourseDetailsContent({required this.course, required this.onEnroll});
+  const _CourseDetailsContent({
+    required this.course,
+    required this.onEnroll,
+    required this.onStartCourse,
+    required this.isStartingCourse,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final isEnrolled = course.enrollment != null;
-    final viewerJoined = course.organization?.viewerJoined;
-    final viewerRole = course.organization?.viewerRole;
-    final isOwner = viewerRole == 'OWNER';
-    final isBlockedByMembership =
-        !isEnrolled && viewerJoined == false && !isOwner;
     final progressPercentage = course.learningProgressPercentage;
     final isCompleted = course.isCompleted;
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
-    final placementTestCompleted =
-        course.enrollment?.placementTestCompleted ?? false;
     final hasOrgImage =
         course.organization?.image != null &&
         course.organization!.image!.isNotEmpty;
@@ -114,6 +146,18 @@ class _CourseDetailsContent extends StatelessWidget {
                 hasCover: hasCover,
                 hasOrgImage: hasOrgImage,
                 onBack: () => Navigator.maybePop(context),
+                onReport: course.organization == null
+                    ? null
+                    : () {
+                        showReportBottomSheet(
+                          context,
+                          ReportTarget.course(
+                            courseId: course.id,
+                            organizationId: course.organization!.id,
+                            title: course.title,
+                          ),
+                        );
+                      },
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
@@ -134,13 +178,14 @@ class _CourseDetailsContent extends StatelessWidget {
                                   CourseContentsPage(course: course),
                             ),
                           );
-                          if (context.mounted)
+                          if (context.mounted) {
                             context.read<CourseDetailsBloc>().add(
                               GetCourseDetailsEvent(
                                 orgSlug: course.organization?.slug ?? '',
                                 courseSlug: course.slug,
                               ),
                             );
+                          }
                         },
                       ),
                       const SizedBox(height: 24),
@@ -211,7 +256,7 @@ class _CourseDetailsContent extends StatelessWidget {
               color: colors.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 20,
                   offset: const Offset(0, -4),
                 ),
@@ -297,14 +342,7 @@ class _CourseDetailsContent extends StatelessWidget {
 
     if (!placementTestCompleted) {
       return ElevatedButton.icon(
-        onPressed: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => CourseContentsPage(course: course),
-            ),
-          );
-        },
+        onPressed: isStartingCourse ? null : onStartCourse,
         style: ElevatedButton.styleFrom(
           backgroundColor: colors.primary,
           foregroundColor: colors.onPrimary,
@@ -313,8 +351,20 @@ class _CourseDetailsContent extends StatelessWidget {
           ),
           elevation: 0,
         ),
-        icon: const Icon(Icons.psychology_alt_rounded, size: 18),
-        label: const Text('ابدأ اختبار تحديد المستوى'),
+        icon: isStartingCourse
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.2,
+                ),
+              )
+            : const Icon(Icons.play_circle_fill_rounded, size: 18),
+        label: Text(
+          isStartingCourse ? 'جارٍ بدء الكورس...' : 'ابدأ الكورس',
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
       );
     }
 
@@ -349,13 +399,14 @@ class _CourseDetailsContent extends StatelessWidget {
                 : CourseContentsPage(course: course),
           ),
         );
-        if (context.mounted)
+        if (context.mounted) {
           context.read<CourseDetailsBloc>().add(
             GetCourseDetailsEvent(
               orgSlug: course.organization?.slug ?? '',
               courseSlug: course.slug,
             ),
           );
+        }
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: colors.primary,
@@ -417,13 +468,14 @@ class _CourseDetailsContent extends StatelessWidget {
                             ),
                           ),
                         );
-                        if (context.mounted)
+                        if (context.mounted) {
                           context.read<CourseDetailsBloc>().add(
                             GetCourseDetailsEvent(
                               orgSlug: orgSlug,
                               courseSlug: course.slug,
                             ),
                           );
+                        }
                       },
                       icon: const Icon(Icons.apartment_rounded, size: 18),
                       label: const Text('عرض المنظمة'),
@@ -448,7 +500,7 @@ class _CourseDetailsContent extends StatelessWidget {
     return BoxDecoration(
       color: colors.surface,
       borderRadius: BorderRadius.circular(20),
-      border: Border.all(color: colors.outlineVariant.withOpacity(0.5)),
+      border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
     );
   }
 }

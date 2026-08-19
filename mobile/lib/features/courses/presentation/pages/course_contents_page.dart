@@ -22,10 +22,8 @@ import '../bloc/block_content_bloc.dart';
 import '../bloc/course_contents_bloc.dart';
 import '../bloc/course_contents_event.dart';
 import '../bloc/course_contents_state.dart';
-import '../bloc/placement_test_bloc.dart';
 import '../widgets/course_feature_card.dart';
 import 'lesson_content_page.dart';
-import 'placement_test_page.dart';
 
 class CourseContentsPage extends StatelessWidget {
   final CourseEntity course;
@@ -54,7 +52,6 @@ class _CourseContentsView extends StatefulWidget {
 
 class _CourseContentsViewState extends State<_CourseContentsView> {
   CourseEntity get course => widget.course;
-  bool _placementCompletedLocally = false;
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +83,9 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
           final isCompleted = displayCourse.isCompleted;
           final isFinalQuizUnlocked = progress >= 100;
           final placementTestCompleted =
-              _placementCompletedLocally ||
               state is CourseContentsLoaded ||
               displayCourse.enrollment?.placementTestCompleted == true;
+          final isStartingCourse = state is CourseContentsStartingCourse;
           final hasCover =
               displayCourse.coverUrl != null &&
               displayCourse.coverUrl!.isNotEmpty;
@@ -529,10 +526,11 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                                   return const SizedBox();
                                 },
                               )
-                            : _placementTestPrompt(
+                            : _startCoursePrompt(
                                 context,
                                 colors,
                                 displayCourse,
+                                isStartingCourse,
                               ),
                         const SizedBox(height: 24),
 
@@ -595,10 +593,11 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
     return 0;
   }
 
-  Widget _placementTestPrompt(
+  Widget _startCoursePrompt(
     BuildContext context,
     ColorScheme colors,
     CourseEntity displayCourse,
+    bool isStartingCourse,
   ) {
     return Container(
       width: double.infinity,
@@ -618,14 +617,14 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
               shape: BoxShape.circle,
             ),
             child: const Icon(
-              Icons.psychology_alt_rounded,
+              Icons.play_circle_fill_rounded,
               size: 36,
               color: AppColors.lavender,
             ),
           ),
           const SizedBox(height: 18),
           Text(
-            'حدد نقطة بدايتك أولاً',
+            'الكورس جاهز للبدء',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 17,
@@ -634,7 +633,7 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
           ),
           const SizedBox(height: 8),
           Text(
-            'اختبار قصير يحدد أنسب نقطة للبدء بها في هذه الدورة',
+            'ابدأ مباشرة وسيتم تجاوز اختبار تحديد المستوى.',
             textAlign: TextAlign.center,
             style: TextStyle(color: colors.onSurfaceVariant),
           ),
@@ -642,36 +641,34 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
           SizedBox(
             width: double.infinity,
             height: 50,
-            child: ElevatedButton(
+            child: ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              onPressed: () async {
-                final completed = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BlocProvider(
-                      create: (_) => sl<PlacementTestBloc>(),
-                      child: PlacementTestPage(course: displayCourse),
-                    ),
-                  ),
-                );
-                if (context.mounted && completed == true) {
-                  setState(() => _placementCompletedLocally = true);
-                  context.read<CourseContentsBloc>().add(
-                    GetCourseContentsEvent(displayCourse.id),
-                  );
-                }
-              },
-              child: const Text(
-                'ابدأ اختبار تحديد المستوى',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+              onPressed: isStartingCourse
+                  ? null
+                  : () {
+                      context.read<CourseContentsBloc>().add(
+                        StartCourseContentsEvent(displayCourse.id),
+                      );
+                    },
+              icon: isStartingCourse
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.2,
+                      ),
+                    )
+                  : const Icon(Icons.play_circle_fill_rounded, size: 18),
+              label: Text(
+                isStartingCourse ? 'جارٍ بدء الكورس...' : 'ابدأ الكورس',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
@@ -1366,6 +1363,7 @@ class _CourseChatGateState extends State<_CourseChatGate> {
               child: ChatRoomPage(
                 conversationId: conversation.id,
                 title: widget.course.title,
+                isCourseChat: true,
               ),
             ),
           ),

@@ -45,6 +45,8 @@ class EndPoints {
 
   static const String updateProfilePicture = 'users/me/picture';
 
+  static const String reports = 'reports';
+
   static const String requestAccountEmailOtp = 'users/me/email/request-otp';
 
   static const String verifyAccountEmailOtp = 'users/me/email/verify-otp';
@@ -191,6 +193,10 @@ class EndPoints {
       'chat/conversations/courses/$courseId';
   static String chatConversationMessages(int conversationId) =>
       'chat/conversations/$conversationId/messages';
+  static String chatEditMessage(int conversationId, int messageId) =>
+      'chat/conversations/$conversationId/messages/$messageId';
+  static String chatDeleteMessage(int conversationId, int messageId) =>
+      'chat/conversations/$conversationId/messages/$messageId';
   static String chatMarkMessageRead(int conversationId, int messageId) =>
       'chat/conversations/$conversationId/messages/$messageId/read';
   static const String chatPusherAuth = 'chat/pusher/auth';

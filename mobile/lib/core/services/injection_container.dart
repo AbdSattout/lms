@@ -62,6 +62,10 @@ import '../../features/recommendations/data/repositories/recommendation_reposito
 import '../../features/recommendations/domain/repositories/recommendation_repository.dart';
 import '../../features/recommendations/domain/usecases/get_recommended_courses_usecase.dart';
 import '../../features/recommendations/domain/usecases/get_recommended_organizations_usecase.dart';
+import '../../features/reports/data/datasources/report_remote_datasource.dart';
+import '../../features/reports/data/repositories/report_repository_impl.dart';
+import '../../features/reports/domain/repositories/report_repository.dart';
+import '../../features/reports/domain/usecases/create_report_usecase.dart';
 import '../../features/roadmaps/domain/usecases/get_my_roadmaps_usecase.dart';
 import '../connection/network_info.dart';
 import '../databases/api/api_consumer.dart';
@@ -129,6 +133,8 @@ import 'package:lms/features/chat/domain/usecases/get_course_conversation_usecas
 import 'package:lms/features/chat/domain/usecases/get_messages_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/mark_conversation_as_read_usecase.dart';
 import 'package:lms/features/chat/domain/usecases/send_message_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/edit_message_usecase.dart';
+import 'package:lms/features/chat/domain/usecases/delete_message_usecase.dart';
 import 'package:lms/features/chat/presentation/bloc/chat_bloc.dart';
 import 'package:lms/features/chat/presentation/bloc/chat_messages_bloc.dart';
 import 'package:lms/features/chat/presentation/bloc/new_chat_bloc.dart';
@@ -284,18 +290,13 @@ Future<void> init() async {
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
-  sl.registerLazySingleton<ApiConsumer>(
-        () {
-      final consumer = DioConsumer(
-        dio: sl(),
-        authLocalDataSource: sl(),
-      );
-      consumer.onTokenInvalid = () {
-        sl<AuthBloc>().add(LogoutRequested());
-      };
-      return consumer;
-    },
-  );
+  sl.registerLazySingleton<ApiConsumer>(() {
+    final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
+    consumer.onTokenInvalid = () {
+      sl<AuthBloc>().add(LogoutRequested());
+    };
+    return consumer;
+  });
 
   sl.registerLazySingleton(
     () => Dio(
@@ -353,12 +354,14 @@ Future<void> init() async {
       getCourseByIdUseCase: sl(),
       getCourseBySlugUseCase: sl(),
       enrollInCourseUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
     ),
   );
 
   sl.registerFactory(
     () => CourseContentsBloc(
       getCourseByIdUseCase: sl(),
+      skipPlacementTestUseCase: sl(),
       unenrollFromCourseUseCase: sl(),
     ),
   );
@@ -442,6 +445,15 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => GetRecommendedCoursesUseCase(sl()));
   sl.registerLazySingleton(() => GetRecommendedOrganizationsUseCase(sl()));
+
+  // Reports
+  sl.registerLazySingleton<ReportRemoteDataSource>(
+    () => ReportRemoteDataSourceImpl(api: sl()),
+  );
+  sl.registerLazySingleton<ReportRepository>(
+    () => ReportRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton(() => CreateReportUseCase(sl()));
 
   // Notifications
   sl.registerLazySingleton<NotificationRemoteDataSource>(
@@ -642,6 +654,43 @@ Future<void> init() async {
     () => FriendsRepositoryImpl(sl()),
   );
   sl.registerLazySingleton(() => GetFriendsUseCase(sl()));
+  sl.registerLazySingleton(() => GetReceivedFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => GetSentFriendRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => SendFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => AcceptFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RejectFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => CancelFriendRequestUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveFriendUseCase(sl()));
+  sl.registerLazySingleton(() => SearchUsersUseCase(sl()));
+  sl.registerLazySingleton(() => GetUserProfileUseCase(sl()));
+  sl.registerFactory(
+    () => FriendsBloc(
+      getFriendsUseCase: sl(),
+      getReceivedFriendRequestsUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => AddFriendBloc(
+      searchUsersUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      getSentFriendRequestsUseCase: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => UserProfileBloc(
+      getUserProfileUseCase: sl(),
+      sendFriendRequestUseCase: sl(),
+      acceptFriendRequestUseCase: sl(),
+      rejectFriendRequestUseCase: sl(),
+      cancelFriendRequestUseCase: sl(),
+      removeFriendUseCase: sl(),
+    ),
+  );
 
   // Chat
   sl.registerLazySingleton<ChatRemoteDataSource>(
@@ -651,6 +700,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetConversationsUseCase(sl()));
   sl.registerLazySingleton(() => GetMessagesUseCase(sl()));
   sl.registerLazySingleton(() => SendMessageUseCase(sl()));
+  sl.registerLazySingleton(() => EditMessageUseCase(sl()));
+  sl.registerLazySingleton(() => DeleteMessageUseCase(sl()));
   sl.registerLazySingleton(() => MarkConversationAsReadUseCase(sl()));
   sl.registerLazySingleton(() => CreateDirectConversationUseCase(sl()));
   sl.registerLazySingleton(() => GetCourseConversationUseCase(sl()));
@@ -669,6 +720,8 @@ Future<void> init() async {
       currentUserId: currentUserId,
       getMessagesUseCase: sl(),
       sendMessageUseCase: sl(),
+      editMessageUseCase: sl(),
+      deleteMessageUseCase: sl(),
       markConversationAsReadUseCase: sl(),
       chatUpdatesNotifier: sl(),
       pusherService: PusherChatService(

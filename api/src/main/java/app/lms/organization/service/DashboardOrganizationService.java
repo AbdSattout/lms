@@ -71,6 +71,7 @@ public class DashboardOrganizationService {
     private final RoadmapRepository roadmapRepository;
     private final PlanQuotaService planQuotaService;
     private final OrganizationMemberAccessService organizationMemberAccessService;
+    private final OrganizationViewerService organizationViewerService;
     private final OrganizationBanRepository organizationBanRepository;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -461,7 +462,11 @@ public class DashboardOrganizationService {
 
         return organizationMapper
                 .ToResponse(
-                        organization
+                        organization,
+                        organizationViewerService.forOrganization(
+                                organization,
+                                user
+                        )
                 );
     }
 
@@ -476,7 +481,14 @@ public class DashboardOrganizationService {
                 )
                 .stream()
                 .map(
-                        organizationMapper::ToResponse
+                        organization -> organizationMapper
+                                .ToResponse(
+                                        organization,
+                                        organizationViewerService.forOrganization(
+                                                organization,
+                                                user
+                                        )
+                                )
                 )
                 .toList();
     }

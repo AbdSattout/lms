@@ -59,7 +59,8 @@ public class PusherService {
     public void publishMute(
             Conversation conversation,
             Long userId,
-            String mutedUntil
+            String mutedUntil,
+            String reason
     ) {
 
         pusher.trigger(
@@ -67,7 +68,8 @@ public class PusherService {
                 "member.muted",
                 Map.of(
                         "userId", userId,
-                        "mutedUntil", mutedUntil
+                        "mutedUntil", mutedUntil,
+                        "reason", reason == null ? "" : reason
                 )
         );
     }

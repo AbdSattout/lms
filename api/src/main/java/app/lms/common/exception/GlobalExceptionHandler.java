@@ -285,6 +285,10 @@ public class GlobalExceptionHandler {
                 "mutedUntil",
                 ex.getMutedUntil()
         );
+        body.put(
+                "reason",
+                ex.getReason()
+        );
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                 .body(body);

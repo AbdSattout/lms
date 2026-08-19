@@ -6,6 +6,7 @@ import app.lms.course.dto.CourseResponse;
 import app.lms.organization.dto.OrganizationResponse;
 import app.lms.post.dto.CommentResponse;
 import app.lms.post.dto.PostResponse;
+import app.lms.user.dto.ProfileResponse;
 import app.lms.user.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -214,6 +215,24 @@ public class AdminContentController {
                         userId,
                         admin.getId(),
                         pageable
+                )
+        );
+    }
+    @GetMapping("/admin/users/{userId}")
+    public ResponseEntity<ProfileResponse> getUser(
+
+            @PathVariable
+            Long userId,
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+
+    ) {
+
+        return ResponseEntity.ok(
+                adminContentService.getUser(
+                        userId,
+                        admin.getId()
                 )
         );
     }
