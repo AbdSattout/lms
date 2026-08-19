@@ -1,5 +1,6 @@
 package app.lms.organization.organizationInvite.service;
 
+import app.lms.config.WebAppProperties;
 import app.lms.email.service.EmailDeliveryService;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
@@ -30,14 +31,13 @@ public class OrganizationInviteEmailService {
 
     private final EmailDeliveryService emailDeliveryService;
 
+    private final WebAppProperties webAppProperties;
+
     @Value("${app.email-otp.app-name:MSAR LMS Center}")
     private String appName;
 
-    @Value("${app.organization-invites.url-template:${app.web-app.base-url:https://lmscenter.vercel.app}/organizations/{slug}/invites/{inviteId}}")
+    @Value("${app.organization-invites.url-template:}")
     private String inviteUrlTemplate;
-
-    @Value("${app.web-app.base-url:https://lmscenter.vercel.app}")
-    private String webAppBaseUrl;
 
     public void sendPrivateInvite(
             OrganizationInvite invite
@@ -227,7 +227,7 @@ public class OrganizationInviteEmailService {
                         : DEFAULT_INVITE_URL_TEMPLATE;
 
         if (template.startsWith("/")) {
-            template = stripTrailingSlash(webAppBaseUrl) + template;
+            template = webAppProperties.url(template);
         }
 
         return template
@@ -345,17 +345,6 @@ public class OrganizationInviteEmailService {
                 .replace("\r", " ")
                 .replace("\n", " ")
                 .trim();
-    }
-
-    private String stripTrailingSlash(
-            String url
-    ) {
-
-        if (url == null) {
-            return "";
-        }
-
-        return url.replaceAll("/+$", "");
     }
 
     private String escapeHtml(
