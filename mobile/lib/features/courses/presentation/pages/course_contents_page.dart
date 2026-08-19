@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lms/features/assessments/practice_quiz/presentation/pages/practice_quiz_list_page.dart';
+import 'package:lms/features/courses/presentation/pages/placement_test_page.dart';
 
+import '../../../../core/errors/error_retry_card.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/api_error_resolver.dart';
@@ -22,6 +24,7 @@ import '../bloc/block_content_bloc.dart';
 import '../bloc/course_contents_bloc.dart';
 import '../bloc/course_contents_event.dart';
 import '../bloc/course_contents_state.dart';
+import '../bloc/placement_test_bloc.dart';
 import '../widgets/course_feature_card.dart';
 import 'lesson_content_page.dart';
 
@@ -496,7 +499,7 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                                 CourseContentsState
                               >(
                                 builder: (context, state) {
-                                  if (state is CourseContentsLoading)
+                                  if (state is CourseContentsLoading) {
                                     return const Padding(
                                       padding: EdgeInsets.symmetric(
                                         vertical: 40,
@@ -505,17 +508,22 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
                                         child: CircularProgressIndicator(),
                                       ),
                                     );
-                                  if (state is CourseUnenrolled)
+                                  }
+                                  if (state is CourseUnenrolled) {
                                     return const SizedBox();
-                                  if (state is CourseContentsError)
-                                    return _errorCard(
-                                      context,
-                                      colors,
-                                      state.message,
+                                  }
+                                  if (state is CourseContentsError) {
+                                    return ErrorRetryCard(
+                                      message: state.message,
+                                      onRetry: () => context.read<CourseContentsBloc>().add(
+                                        GetCourseContentsEvent(course.id),
+                                      ),
                                     );
+                                  }
                                   if (state is CourseContentsLoaded) {
-                                    if (state.course.chapters.isEmpty)
+                                    if (state.course.chapters.isEmpty) {
                                       return _comingSoonCard(colors);
+                                    }
                                     return _chaptersList(
                                       context,
                                       colors,
@@ -594,11 +602,11 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
   }
 
   Widget _startCoursePrompt(
-    BuildContext context,
-    ColorScheme colors,
-    CourseEntity displayCourse,
-    bool isStartingCourse,
-  ) {
+      BuildContext context,
+      ColorScheme colors,
+      CourseEntity displayCourse,
+      bool isStartingCourse,
+      ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
@@ -624,7 +632,7 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
           ),
           const SizedBox(height: 18),
           Text(
-            'الكورس جاهز للبدء',
+            'ابدأ رحلتك التعليمية',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 17,
@@ -633,7 +641,7 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
           ),
           const SizedBox(height: 8),
           Text(
-            'ابدأ مباشرة وسيتم تجاوز اختبار تحديد المستوى.',
+            'اختر الطريقة التي تناسبك للبدء.',
             textAlign: TextAlign.center,
             style: TextStyle(color: colors.onSurfaceVariant),
           ),
@@ -652,48 +660,62 @@ class _CourseContentsViewState extends State<_CourseContentsView> {
               onPressed: isStartingCourse
                   ? null
                   : () {
-                      context.read<CourseContentsBloc>().add(
-                        StartCourseContentsEvent(displayCourse.id),
-                      );
-                    },
+                context.read<CourseContentsBloc>().add(
+                  StartCourseContentsEvent(displayCourse.id),
+                );
+              },
               icon: isStartingCourse
                   ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2.2,
-                      ),
-                    )
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 2.2,
+                ),
+              )
                   : const Icon(Icons.play_circle_fill_rounded, size: 18),
               label: Text(
-                isStartingCourse ? 'جارٍ بدء الكورس...' : 'ابدأ الكورس',
+                isStartingCourse ? 'جارٍ بدء الكورس...' : 'ابدأ الكورس مباشرة',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
 
-  Widget _errorCard(BuildContext context, ColorScheme colors, String message) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        children: [
-          Text(message, textAlign: TextAlign.center),
-          const SizedBox(height: 12),
-          ElevatedButton(
-            onPressed: () => context.read<CourseContentsBloc>().add(
-              GetCourseContentsEvent(course.id),
+          const SizedBox(height: 10),
+
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.lavender,
+                side: BorderSide(color: AppColors.lavender.withOpacity(0.5)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () async {
+                final completed = await Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider(
+                      create: (_) => sl<PlacementTestBloc>(),
+                      child: PlacementTestPage(course: displayCourse),
+                    ),
+                  ),
+                );
+                if (context.mounted && completed == true) {
+                  context.read<CourseContentsBloc>().add(
+                    GetCourseContentsEvent(displayCourse.id),
+                  );
+                }
+              },
+              icon: const Icon(Icons.psychology_alt_rounded, size: 18),
+              label: const Text(
+                'حدد مستواك أولاً',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-            child: const Text('إعادة المحاولة'),
           ),
         ],
       ),
@@ -1220,10 +1242,11 @@ class _LessonRow extends StatelessWidget {
                     ),
                   ),
                 );
-                if (context.mounted)
+                if (context.mounted) {
                   context.read<CourseContentsBloc>().add(
                     GetCourseContentsEvent(courseId),
                   );
+                }
               },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),

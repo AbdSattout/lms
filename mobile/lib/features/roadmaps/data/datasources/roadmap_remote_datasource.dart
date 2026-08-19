@@ -27,12 +27,15 @@ class RoadmapRemoteDataSourceImpl implements RoadmapRemoteDataSource {
   @override
   Future<RoadmapModel> getRoadmapDetails(String slug, int roadmapId) async {
     final response = await api.get(EndPoints.roadmapDetails(slug, roadmapId));
+    print('📦 FOLLOW STATUS: ${response['followStatus']}');
+    print('📦 FULL KEYS: ${response.keys}');
     return RoadmapModel.fromJson(response);
   }
 
   @override
   Future<RoadmapModel> followRoadmap(String slug, int roadmapId) async {
     final response = await api.post(EndPoints.followRoadmap(slug, roadmapId));
+    print('📦 FOLLOW RESPONSE: $response');
     return RoadmapModel.fromJson(response);
   }
 
