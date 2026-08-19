@@ -1,5 +1,6 @@
 package app.lms.organization.organizationInvite.service;
 
+import app.lms.config.WebAppProperties;
 import app.lms.email.service.EmailDeliveryService;
 import app.lms.organization.enums.Role;
 import app.lms.organization.model.Organization;
@@ -20,7 +21,7 @@ import java.util.Locale;
 public class OrganizationInviteEmailService {
 
     private static final String DEFAULT_INVITE_URL_TEMPLATE =
-            "https://lmscenter.vercel.app/organizations/{slug}/invites/{inviteId}";
+            "/organizations/{slug}/invites/{inviteId}";
 
     private static final DateTimeFormatter EXPIRY_DATE_FORMATTER =
             DateTimeFormatter.ofPattern(
@@ -30,10 +31,12 @@ public class OrganizationInviteEmailService {
 
     private final EmailDeliveryService emailDeliveryService;
 
+    private final WebAppProperties webAppProperties;
+
     @Value("${app.email-otp.app-name:MSAR LMS Center}")
     private String appName;
 
-    @Value("${app.organization-invites.url-template:https://lmscenter.vercel.app/organizations/{slug}/invites/{inviteId}}")
+    @Value("${app.organization-invites.url-template:}")
     private String inviteUrlTemplate;
 
     public void sendPrivateInvite(
@@ -222,6 +225,10 @@ public class OrganizationInviteEmailService {
                 StringUtils.hasText(inviteUrlTemplate)
                         ? inviteUrlTemplate
                         : DEFAULT_INVITE_URL_TEMPLATE;
+
+        if (template.startsWith("/")) {
+            template = webAppProperties.url(template);
+        }
 
         return template
                 .replace(

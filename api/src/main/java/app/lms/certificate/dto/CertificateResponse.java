@@ -24,6 +24,10 @@ public record CertificateResponse(
 
         CertificateGrade grade,
 
+        String previewUrl,
+
+        String pdfUrl,
+
         BaseEntityResponse baseEntity
 
 ) {
