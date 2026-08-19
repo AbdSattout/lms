@@ -85,4 +85,13 @@ public class AdminModeratorController {
         return ResponseEntity.noContent()
                 .build();
     }
+    @GetMapping("/me")
+    public ResponseEntity<AdminResponse> getModerator(
+
+            @AuthenticationPrincipal
+            AdminPrincipal admin
+    ){
+        return ResponseEntity.ok(adminModeratorService.getModerator(admin.getId()));
+    }
+
 }
