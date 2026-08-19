@@ -42,7 +42,6 @@ export function PostDetail({
   const [comments, setComments] = useState<CommentResponse[]>(initialComments)
   const [newComment, setNewComment] = useState("")
   const [isSubmitting, startSubmit] = useTransition()
-  const [error, setError] = useState<string | null>(null)
 
   const [isLikePending, startLikeTransition] = useTransition()
   const [replyingTo, setReplyingTo] = useState<{
@@ -63,7 +62,6 @@ export function PostDetail({
   function handleSubmitComment() {
     if (!newComment.trim()) return
 
-    setError(null)
     startSubmit(async () => {
       try {
         const comment = await createComment(post.id, {
@@ -75,7 +73,7 @@ export function PostDetail({
         setReplyingTo(null)
         toast.success("تم إضافة التعليق بنجاح")
       } catch {
-        setError("فشل إضافة التعليق. يرجى المحاولة مرة أخرى.")
+        toast.error("فشل إضافة التعليق. يرجى المحاولة مرة أخرى.")
       }
     })
   }
@@ -250,12 +248,6 @@ export function PostDetail({
               إلغاء الرد <X className="mr-2 h-4 w-4" />
             </Button>
           </div>
-        )}
-
-        {error && (
-          <p className="mb-4 rounded-md border border-destructive/20 bg-destructive/10 p-3 text-center text-sm font-medium text-destructive">
-            {error}
-          </p>
         )}
 
         <div className="group relative">

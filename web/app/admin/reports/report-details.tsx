@@ -57,9 +57,8 @@ export function ReportDetails({
             <FileWarning className="h-5 w-5 text-primary" />
 
             <p className="text-sm font-semibold text-muted-foreground">
-              البلاغ #{report.id}
+              مراجعة البلاغ
             </p>
-
             <ReportStatusBadge status={report.status} />
           </div>
 
@@ -107,10 +106,6 @@ export function ReportDetails({
 
           <div className="grid gap-4 text-sm sm:grid-cols-2">
             <InfoRow label="نوع البلاغ">{report.targetType}</InfoRow>
-
-            <InfoRow label="المحتوى المستهدف">
-              {targetId != null ? `#${targetId}` : "—"}
-            </InfoRow>
 
             <InfoRow label="الحالة الحالية">
               <ReportStatusBadge status={report.status} />

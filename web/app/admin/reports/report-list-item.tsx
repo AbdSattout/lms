@@ -40,8 +40,6 @@ export function ReportListItem({
 
           <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
             <span>{report.reporter.name}</span>
-            <span>•</span>
-            <span>#{report.id}</span>
           </div>
         </div>
 
