@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../../core/errors/error_retry_card.dart';
 import '../../../../../core/markdown/markdown_content_view.dart';
 import '../../../../../core/services/injection_container.dart';
 import '../../../core/presentation/widgets/quiz_option_tile.dart';
@@ -226,24 +227,14 @@ class _AiQuizPageState extends State<AiQuizPage> {
   }
 
   Widget _buildError(BuildContext context, String message) {
-    final colors = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.error_outline_rounded, size: 48, color: colors.error),
-            const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => context.read<AiQuizBloc>().add(GenerateAiQuizRequested(widget.courseId)),
-              child: const Text('إعادة المحاولة'),
-            ),
-          ],
-        ),
-      ),
-    );
+        child: ErrorRetryCard(
+          message: message,
+          onRetry: () => context.read<AiQuizBloc>().add(GenerateAiQuizRequested(widget.courseId))
+          ),
+        )
+      );
   }
 }

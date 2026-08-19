@@ -12,6 +12,7 @@ import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../billing/presentation/bloc/billing_bloc.dart';
 import '../../../billing/presentation/bloc/billing_event.dart';
 import '../../../billing/presentation/pages/billing_page.dart';
+import '../../../certificates/presentation/pages/my_certificates_page.dart';
 import '../../../friends/presentation/bloc/friends_bloc.dart';
 import '../../../friends/presentation/bloc/friends_event.dart';
 import '../../../friends/presentation/pages/friends_page.dart';
@@ -299,9 +300,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
 
                     ProfileOptionTile(
-                      title: "شهاداتي",
-                      icon: Icons.workspace_premium_outlined,
-                      onTap: () {},
+                      title: 'الشهادات',
+                      icon: Icons.emoji_events_rounded,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const MyCertificatesPage()),
+                        );
+                      },
                     ),
 
                     ProfileOptionTile(

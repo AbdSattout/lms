@@ -31,7 +31,12 @@ import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
-import '../../features/home/bloc/home_bloc.dart';
+import '../../features/home/data/datasources/home_remote_datasource.dart';
+import '../../features/home/data/repositories/home_repository_impl.dart';
+import '../../features/home/domain/repositories/home_repository.dart';
+import '../../features/home/domain/usecases/search_courses_usecase.dart';
+import '../../features/home/domain/usecases/search_organizations_usecase.dart';
+import '../../features/home/presentation/bloc/home_bloc.dart';
 import '../../features/organizations/domain/usecases/cancel_join_request_usecase.dart';
 import '../../features/organizations/domain/usecases/accept_organization_invite_usecase.dart';
 import '../../features/organizations/domain/usecases/accept_organization_invite_by_token_usecase.dart';
@@ -224,6 +229,12 @@ import '../../features/assessments/practice_quiz/domain/usecases/get_practice_qu
 import '../../features/assessments/practice_quiz/domain/usecases/submit_practice_quiz_usecase.dart';
 import '../../features/assessments/practice_quiz/presentation/bloc/practice_quiz_bloc.dart';
 
+// Certificates
+import '../../features/certificates/data/datasources/certificate_remote_datasource.dart';
+import '../../features/certificates/data/repositories/certificate_repository_impl.dart';
+import '../../features/certificates/domain/repositories/certificate_repository.dart';
+import '../../features/certificates/domain/usecases/get_my_certificates_usecase.dart';
+import '../../features/certificates/presentation/bloc/certificate_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -563,15 +574,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UnfollowRoadmapUseCase(sl()));
   sl.registerLazySingleton(() => GetMyRoadmapsUseCase(sl()));
 
-  sl.registerFactory(
-    () => RoadmapBloc(
-      getOrganizationRoadmaps: sl(),
-      getRoadmapDetails: sl(),
-      followRoadmap: sl(),
-      unfollowRoadmap: sl(),
-      getMyRoadmaps: sl(),
-    ),
-  );
+  sl.registerFactory(() => RoadmapBloc(
+    getOrganizationRoadmaps: sl(),
+    getRoadmapDetails: sl(),
+    followRoadmap: sl(),
+    unfollowRoadmap: sl(),
+    getMyRoadmaps: sl(),
+    getOrganizationBySlug: sl(),
+  ));
 
   //Ai Quiz
   sl.registerLazySingleton<AiQuizRemoteDataSource>(
@@ -639,10 +649,18 @@ Future<void> init() async {
   sl.registerFactory(() => FinalExamBloc(getExam: sl(), submit: sl()));
 
   // Home
+  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<HomeRepository>(() => HomeRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => SearchCoursesUseCase(sl()));
+  sl.registerLazySingleton(() => SearchOrganizationsUseCase(sl()));
+
+// Update HomeBloc registration:
   sl.registerFactory(
-    () => HomeBloc(
+        () => HomeBloc(
       getRecommendedCoursesUseCase: sl(),
       getRecommendedOrganizationsUseCase: sl(),
+      searchCoursesUseCase: sl(),
+      searchOrganizationsUseCase: sl(),
     ),
   );
 
@@ -730,6 +748,12 @@ Future<void> init() async {
       ),
     ),
   );
+
+  //Certificates
+  sl.registerLazySingleton<CertificateRemoteDataSource>(() => CertificateRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<CertificateRepository>(() => CertificateRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetMyCertificatesUseCase(sl()));
+  sl.registerFactory(() => CertificateBloc(getMyCertificates: sl()));
 
   //! External
 

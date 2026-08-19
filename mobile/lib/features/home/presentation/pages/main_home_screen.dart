@@ -19,6 +19,7 @@ import '../../../courses/presentation/bloc/my_courses_bloc.dart';
 import '../../../courses/presentation/bloc/my_courses_event.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
 import '../../../courses/presentation/pages/my_courses_page.dart';
+import '../../../courses/presentation/widgets/course_card.dart';
 import '../../../organizations/domain/entities/organization_entity.dart';
 import '../../../organizations/presentation/bloc/organization_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
@@ -29,14 +30,15 @@ import '../../../notifications/presentation/bloc/notifications_bloc.dart';
 import '../../../notifications/presentation/bloc/notifications_event.dart';
 import '../../../notifications/presentation/bloc/notifications_state.dart';
 import '../../../notifications/presentation/pages/notifications_page.dart';
+import '../../../organizations/presentation/widgets/organization_card.dart';
 import '../../../profile/presentation/bloc/profile_bloc.dart';
 import '../../../profile/presentation/bloc/profile_event.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 
-import '../../bloc/home_bloc.dart';
-import '../../bloc/home_event.dart';
-import '../../bloc/home_state.dart';
-import '../../bloc/navbar_cubit.dart';
+import '../bloc/home_bloc.dart';
+import '../bloc/home_event.dart';
+import '../bloc/home_state.dart';
+import '../bloc/navbar_cubit.dart';
 
 class MainHomeScreen extends StatelessWidget {
   final AuthEntity userAuthData;
@@ -104,6 +106,7 @@ class MainHomeScreen extends StatelessWidget {
           child: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(48),
             ),
@@ -177,49 +180,178 @@ class MainHomeScreen extends StatelessWidget {
   }
 }
 
-class _HomeContent extends StatelessWidget {
+class _HomeContent extends StatefulWidget {
   final dynamic user;
-
   const _HomeContent({required this.user});
+
+  @override
+  State<_HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<_HomeContent> {
+  final TextEditingController _searchController = TextEditingController();
+  dynamic get user => widget.user;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _openOrganization(BuildContext context, OrganizationEntity organization) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => sl<OrganizationDetailsBloc>()
+            ..add(GetOrganizationDetailsEvent(organization.slug)),
+          child: OrganizationDetailsPage(slug: organization.slug),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openCourse(BuildContext context, CourseEntity course) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) => sl<CourseDetailsBloc>()
+            ..add(GetCourseDetailsEvent(
+              orgSlug: course.organization?.slug ?? '',
+              courseSlug: course.slug,
+            )),
+          child: const CourseDetailsPage(),
+        ),
+      ),
+    );
+    if (context.mounted) {
+      context.read<HomeBloc>().add(GetHomeDataEvent());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       top: false,
       bottom: false,
-      child: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(child: _WelcomeHeader(user: user)),
+      child: BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          final hasSearchQuery = state is HomeLoaded && state.searchQuery.isNotEmpty;
 
-          SliverToBoxAdapter(child: const SizedBox(height: 20)),
-
-          SliverToBoxAdapter(child: _SearchBar()),
-
-          SliverToBoxAdapter(child: const SizedBox(height: 30)),
-
-          BlocBuilder<HomeBloc, HomeState>(
-            builder: (context, state) {
-              if (state is HomeLoading) {
-                return const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 100),
-                    child: Center(child: CircularProgressIndicator()),
-                  ),
-                );
+          return RefreshIndicator(
+            onRefresh: () async {
+              if (hasSearchQuery && state is HomeLoaded) {
+                context.read<HomeBloc>().add(SearchQueryChanged(state.searchQuery));
+              } else {
+                context.read<HomeBloc>().add(GetHomeDataEvent());
               }
-
-              if (state is HomeLoaded) {
-                return SliverToBoxAdapter(
-                  child: _HomeLoadedContent(state: state, user: user),
-                );
-              }
-
-              return const SliverToBoxAdapter(child: SizedBox.shrink());
             },
-          ),
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(child: _WelcomeHeader(user: user)),
+                SliverToBoxAdapter(child: const SizedBox(height: 20)),
+                SliverToBoxAdapter(
+                  child: _SearchBar(
+                    controller: _searchController,
+                    onChanged: (query) {
+                      context.read<HomeBloc>().add(SearchQueryChanged(query));
+                    },
+                    onClear: () {
+                      _searchController.clear();
+                      context.read<HomeBloc>().add(ClearSearch());
+                    },
+                  ),
+                ),
+                SliverToBoxAdapter(child: const SizedBox(height: 30)),
+                if (hasSearchQuery)
+                  _buildSearchResults(context, state)
+                else
+                  ..._buildNormalContent(context, state),
+                SliverToBoxAdapter(child: const SizedBox(height: 110)),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
-          const SliverToBoxAdapter(child: SizedBox(height: 110)),
+  List<Widget> _buildNormalContent(BuildContext context, HomeState state) {
+    return [
+      BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state) {
+          if (state is HomeLoading) {
+            return const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 100),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+          if (state is HomeLoaded) {
+            return SliverToBoxAdapter(
+              child: _HomeLoadedContent(state: state, user: user),
+            );
+          }
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
+        },
+      ),
+    ];
+  }
+
+  Widget _buildSearchResults(BuildContext context, HomeState state) {
+    if (state is! HomeLoaded) return const SliverToBoxAdapter(child: SizedBox.shrink());
+
+    return SliverToBoxAdapter(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            child: Text(
+              'نتائج البحث',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w900,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _SectionHeader(title: 'المنظمات', subtitle: 'نتائج المطابقة', onViewAll: null),
+          const SizedBox(height: 12),
+          if (state.isSearching)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (state.searchOrganizationsError != null)
+            _RetryCard(message: state.searchOrganizationsError!, onRetry: () {})
+          else if (state.searchOrganizations == null || state.searchOrganizations!.isEmpty)
+              _EmptyState(icon: Icons.apartment_rounded, message: 'لا توجد منظمات مطابقة')
+            else
+              ...state.searchOrganizations!.map((org) => OrganizationCard(
+                organization: org,
+                onTap: () => _openOrganization(context, org),
+              )),
+          const SizedBox(height: 24),
+          _SectionHeader(title: 'الكورسات', subtitle: 'نتائج المطابقة', onViewAll: null),
+          const SizedBox(height: 12),
+          if (state.isSearching)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (state.searchCoursesError != null)
+            _RetryCard(message: state.searchCoursesError!, onRetry: () {})
+          else if (state.searchCourses == null || state.searchCourses!.isEmpty)
+              _EmptyState(icon: Icons.menu_book_rounded, message: 'لا توجد كورسات مطابقة')
+            else
+              ...state.searchCourses!.map((course) => CourseCard(
+                course: course,
+                onTap: () => _openCourse(context, course),
+              )),
         ],
       ),
     );
@@ -321,6 +453,16 @@ class _WelcomeHeader extends StatelessWidget {
 }
 
 class _SearchBar extends StatelessWidget {
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onClear;
+
+  const _SearchBar({
+    required this.controller,
+    required this.onChanged,
+    required this.onClear,
+  });
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -329,69 +471,50 @@ class _SearchBar extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              height: 56,
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: colors.outlineVariant.withValues(
-                    alpha: isDark ? 0.35 : 0.55,
-                  ),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.05),
-                    blurRadius: 18,
-                    offset: const Offset(0, 7),
-                  ),
-                ],
-              ),
-              child: TextField(
-                textDirection: TextDirection.rtl,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'ابحث عن كورس أو منظمة...',
-                  hintStyle: TextStyle(
-                    color: colors.onSurfaceVariant,
-                    fontSize: 13.5,
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 17),
-                ),
-                style: TextStyle(color: colors.onSurface),
-              ),
-            ),
+      child: Container(
+        height: 56,
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: isDark ? 0.35 : 0.55),
           ),
-          const SizedBox(width: 10),
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.primary.withValues(alpha: 0.24),
-                  blurRadius: 14,
-                  offset: const Offset(0, 6),
-                ),
-              ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.16 : 0.05),
+              blurRadius: 18,
+              offset: const Offset(0, 7),
             ),
-            child: const Icon(Icons.tune_rounded, color: Colors.white),
+          ],
+        ),
+        child: TextField(
+          controller: controller,
+          textDirection: TextDirection.rtl,
+          onChanged: onChanged,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: 'ابحث عن كورس أو منظمة...',
+            hintStyle: TextStyle(color: colors.onSurfaceVariant, fontSize: 13.5),
+            prefixIcon: Icon(Icons.search_rounded, color: colors.onSurfaceVariant),
+            suffixIcon: ValueListenableBuilder<TextEditingValue>(
+              valueListenable: controller,
+              builder: (context, value, _) {
+                if (value.text.isEmpty) return const SizedBox.shrink();
+                return IconButton(
+                  onPressed: onClear,
+                  icon: Icon(Icons.close_rounded, size: 18, color: colors.onSurfaceVariant),
+                );
+              },
+            ),
+            contentPadding: const EdgeInsets.symmetric(vertical: 17),
           ),
-        ],
+          style: TextStyle(color: colors.onSurface),
+        ),
       ),
     );
   }
 }
-
 class _HomeLoadedContent extends StatelessWidget {
   final HomeLoaded state;
   final dynamic user;

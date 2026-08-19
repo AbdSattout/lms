@@ -55,6 +55,8 @@ dependencies:
   url_launcher: ^6.2.0
   video_player: ^2.8.0
   qr_flutter: ^4.1.0
+  flutter_markdown_plus: ^1.0.12
+  flutter_markdown_plus_latex: ^1.0.5
 dev_dependencies:
   flutter_test:
     sdk: flutter

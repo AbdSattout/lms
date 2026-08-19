@@ -85,8 +85,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
       await updatePictureUseCase(event.imagePath);
 
-      // FIX: this state was never emitted before, so the
-      // "تم تحديث الصورة بنجاح" snackbar in the UI never fired.
       emit(ProfilePictureUpdated());
 
       emit(await _loadProfile());

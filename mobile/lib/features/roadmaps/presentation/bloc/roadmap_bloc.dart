@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../../organizations/domain/usecases/get_organization_by_slug_usecase.dart';
+import '../../data/models/roadmap_model.dart';
 import '../../domain/usecases/get_my_roadmaps_usecase.dart';
 import '../../domain/usecases/get_organization_roadmaps_usecase.dart';
 import '../../domain/usecases/get_roadmap_details_usecase.dart';
@@ -14,13 +16,14 @@ class RoadmapBloc extends Bloc<RoadmapEvent, RoadmapState> {
   final FollowRoadmapUseCase followRoadmap;
   final UnfollowRoadmapUseCase unfollowRoadmap;
   final GetMyRoadmapsUseCase getMyRoadmaps;
-
+  final GetOrganizationBySlugUseCase getOrganizationBySlug;
   RoadmapBloc({
     required this.getOrganizationRoadmaps,
     required this.getRoadmapDetails,
     required this.followRoadmap,
     required this.unfollowRoadmap,
     required this.getMyRoadmaps,
+    required this.getOrganizationBySlug,
   }) : super(RoadmapInitial()) {
     on<LoadOrganizationRoadmaps>(_onLoadOrganizationRoadmaps);
     on<LoadRoadmapDetails>(_onLoadRoadmapDetails);
@@ -61,8 +64,20 @@ class RoadmapBloc extends Bloc<RoadmapEvent, RoadmapState> {
       ) async {
     try {
       emit(RoadmapLoading());
+
       final roadmap = await getRoadmapDetails(event.slug, event.roadmapId);
-      emit(RoadmapDetailsLoaded(roadmap: roadmap));
+      final organization = await getOrganizationBySlug(event.slug);
+      final updatedRoadmap = RoadmapModel(
+        id: roadmap.id,
+        name: roadmap.name,
+        description: roadmap.description,
+        status: roadmap.status,
+        organization: organization,
+        items: roadmap.items,
+        followStatus: roadmap.followStatus,
+      );
+
+      emit(RoadmapDetailsLoaded(roadmap: updatedRoadmap));
     } catch (e) {
       emit(RoadmapError(resolveApiErrorMessage(e)));
     }
@@ -73,10 +88,41 @@ class RoadmapBloc extends Bloc<RoadmapEvent, RoadmapState> {
       Emitter<RoadmapState> emit,
       ) async {
     try {
-      emit(RoadmapDetailsLoaded(roadmap: (state as RoadmapDetailsLoaded).roadmap, isProcessing: true));
+      print('📌 FOLLOWING ROADMAP: ${event.roadmapId}');
+
+      final current = state;
+      print('📌 CURRENT STATE: ${current.runtimeType}');
+
+      if (current is RoadmapDetailsLoaded) {
+        emit(RoadmapDetailsLoaded(roadmap: current.roadmap, isProcessing: true));
+        print('📌 EMITTED PROCESSING');
+      }
+
+      print('📌 CALLING followRoadmap...');
       final updated = await followRoadmap(event.slug, event.roadmapId);
-      emit(RoadmapDetailsLoaded(roadmap: updated));
+      print('📌 FOLLOW RESPONSE: ${updated.followStatus}');
+
+      print('📌 CALLING getOrganizationBySlug...');
+      final organization = await getOrganizationBySlug(event.slug);
+      print('📌 ORG FETCHED: ${organization.viewerJoined}');
+
+      final updatedWithOrg = RoadmapModel(
+        id: updated.id,
+        name: updated.name,
+        description: updated.description,
+        status: updated.status,
+        organization: organization,
+        items: updated.items,
+        followStatus: updated.followStatus,
+      );
+
+      print('📌 FINAL followStatus: ${updatedWithOrg.followStatus}');
+
+      emit(RoadmapDetailsLoaded(roadmap: updatedWithOrg));
+      print('📌 EMITTED FINAL STATE');
+
     } catch (e) {
+      print('📌 ERROR IN _onFollow: $e');
       emit(RoadmapError(resolveApiErrorMessage(e)));
     }
   }
@@ -86,10 +132,26 @@ class RoadmapBloc extends Bloc<RoadmapEvent, RoadmapState> {
       Emitter<RoadmapState> emit,
       ) async {
     try {
-      emit(RoadmapDetailsLoaded(roadmap: (state as RoadmapDetailsLoaded).roadmap, isProcessing: true));
+      final current = state;
+      if (current is RoadmapDetailsLoaded) {
+        emit(RoadmapDetailsLoaded(roadmap: current.roadmap, isProcessing: true));
+      }
+
       await unfollowRoadmap(event.slug, event.roadmapId);
       final updated = await getRoadmapDetails(event.slug, event.roadmapId);
-      emit(RoadmapDetailsLoaded(roadmap: updated));
+      final organization = await getOrganizationBySlug(event.slug);
+
+      final updatedWithOrg = RoadmapModel(
+        id: updated.id,
+        name: updated.name,
+        description: updated.description,
+        status: updated.status,
+        organization: organization,
+        items: updated.items,
+        followStatus: updated.followStatus,
+      );
+
+      emit(RoadmapDetailsLoaded(roadmap: updatedWithOrg));
     } catch (e) {
       emit(RoadmapError(resolveApiErrorMessage(e)));
     }

@@ -20,5 +20,5 @@ class RoadmapEntity {
     this.followStatus,
   });
 
-  bool get isFollowing => followStatus == 'FOLLOWING';
+  bool get isFollowing => followStatus == 'ACTIVE';
 }

@@ -12,6 +12,9 @@ class PracticeExamSubmitResultModel extends PracticeExamSubmitResultEntity {
   });
 
   factory PracticeExamSubmitResultModel.fromJson(Map<String, dynamic> json) {
+    print('📦 SUBMIT RESPONSE rewards: ${json['rewards']}');
+    print('📦 SUBMIT RESPONSE badges: ${json['badges']}');
+
     return PracticeExamSubmitResultModel(
       attemptId: json['attemptId'] as int,
       score: json['score'] as int? ?? 0,
@@ -43,6 +46,7 @@ class GamificationAwardModel extends GamificationAwardEntity {
   });
 
   factory GamificationAwardModel.fromJson(Map<String, dynamic> json) {
+    print('📦 AWARD: $json');
     return GamificationAwardModel(
       eventType: json['eventType'] as String? ?? '',
       referenceId: json['referenceId'] as int?,
