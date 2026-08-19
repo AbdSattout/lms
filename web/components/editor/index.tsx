@@ -233,7 +233,7 @@ export function Editor({
   })
 
   // AI tools hook
-  const { isLoading, error, handleAiAction, clearError } = useAiTools({
+  const { isLoading, handleAiAction } = useAiTools({
     editor,
   })
 
@@ -244,11 +244,9 @@ export function Editor({
       wasLoading.current = true
     } else if (wasLoading.current && !isLoading) {
       wasLoading.current = false
-      if (!error) {
-        toast.success(<span dir="rtl">تم تحديث المحتوى بنجاح!</span>)
-      }
+      toast.success(<span dir="rtl">تم تحديث المحتوى بنجاح!</span>)
     }
-  }, [isLoading, error])
+  }, [isLoading])
 
   return (
     <div className="editor-wrapper">
@@ -261,8 +259,6 @@ export function Editor({
               isMobile={isMobile}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
-              aiError={error}
-              onClearAiError={clearError}
               orgSlug={orgSlug}
               organizationId={organizationId}
               course={course}
@@ -276,8 +272,6 @@ export function Editor({
               mode={mobileView as "link" | "math"}
               onAiAction={handleAiAction}
               isAiLoading={isLoading}
-              aiError={error}
-              onClearAiError={clearError}
             />
           )}
         </Toolbar>

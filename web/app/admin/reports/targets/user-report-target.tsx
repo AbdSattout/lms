@@ -1,21 +1,37 @@
 "use client"
 
 import { useEffect, useState, useTransition } from "react"
-import { FileText, MessageSquareText, UserRound } from "lucide-react"
+import {
+  FileText,
+  Mail,
+  MessageSquareText,
+  Phone,
+  School,
+  UserRound,
+} from "lucide-react"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import type { CommentResponse, PostResponse } from "@/lib/api/types"
+import type {
+  CommentResponse,
+  PostResponse,
+  ProfileResponse,
+} from "@/lib/api/types"
 
-import { ClientTimeAgo } from "@/components/client-time-ago"
 import {
   getAdminUserCommentsAction,
   getAdminUserPostsAction,
 } from "@/lib/actions/admin"
 
+import { ClientTimeAgo } from "@/components/client-time-ago"
+import { getAdminUserAction } from "@/lib/actions/admin-moderators"
+import { toast } from "sonner"
+import { cn } from "@/lib/tiptap-utils"
+
 interface UserTargetData {
+  user: ProfileResponse
   posts: {
     content: PostResponse[]
     totalElements: number
@@ -30,20 +46,20 @@ interface UserTargetData {
 
 export function UserReportTarget({ userId }: { userId: number }) {
   const [data, setData] = useState<UserTargetData | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [isLoading, startLoading] = useTransition()
 
   useEffect(() => {
     startLoading(async () => {
       try {
-        setError(null)
+        const [user, posts, comments] = await Promise.all([
+          getAdminUserAction(userId),
 
-        const [posts, comments] = await Promise.all([
           getAdminUserPostsAction(userId, {
             page: 0,
             size: 6,
             sort: ["createdAt,desc"],
           }),
+
           getAdminUserCommentsAction(userId, {
             page: 0,
             size: 8,
@@ -52,40 +68,30 @@ export function UserReportTarget({ userId }: { userId: number }) {
         ])
 
         setData({
+          user,
           posts,
           comments,
         })
       } catch (error) {
-        setError(
-          error instanceof Error ? error.message : "فشل تحميل نشاط المستخدم"
-        )
+        toast.error("فشل تحميل معلومات المستخدم")
       }
     })
   }, [userId])
+
   if (isLoading && !data) {
     return <UserTargetSkeleton />
   }
 
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center text-sm text-destructive">
-          {error}
-        </CardContent>
-      </Card>
-    )
+  if (!data) {
+    return null
   }
 
-  if (!data) return null
+  const { user, posts, comments } = data
 
-  const firstAuthor =
-    data.posts.content[0]?.author ?? data.comments.content[0]?.author
-
-  const name = firstAuthor?.name ?? `المستخدم #${userId}`
-  const picture = firstAuthor?.picture
+  const profileName = user.user?.name ?? user.name ?? "مستخدم"
 
   const initials =
-    name
+    profileName
       .split(" ")
       .map((part) => part[0])
       .join("")
@@ -95,21 +101,33 @@ export function UserReportTarget({ userId }: { userId: number }) {
     <div className="space-y-4">
       <Card className="border-border/60 shadow-sm">
         <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-14 w-14 border border-border/50">
-              <AvatarImage src={picture} />
+          <div className="flex items-start gap-4">
+            <Avatar className="h-16 w-16 border border-border/50">
+              <AvatarImage src={user.user?.picture} />
 
-              <AvatarFallback className="bg-primary/10 font-bold text-primary">
+              <AvatarFallback className="bg-primary/10 text-lg font-bold text-primary">
                 {initials}
               </AvatarFallback>
             </Avatar>
 
-            <div>
-              <h3 className="text-xl font-bold">{name}</h3>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-xl font-bold">{profileName}</h3>
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                معرف المستخدم: #{userId}
-              </p>
+                {user.user?.username && (
+                  <span className="text-sm text-muted-foreground">
+                    @{user.user.username}
+                  </span>
+                )}
+              </div>
+
+              <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                <ProfileField icon={Mail} value={user.email} />
+
+                <ProfileField icon={Phone} value={user.phone} />
+
+                <ProfileField icon={School} value={user.university} />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -119,13 +137,13 @@ export function UserReportTarget({ userId }: { userId: number }) {
         <StatCard
           icon={FileText}
           label="المنشورات"
-          value={data.posts.totalElements}
+          value={posts.totalElements ?? posts.content?.length ?? 0}
         />
 
         <StatCard
           icon={MessageSquareText}
           label="التعليقات"
-          value={data.comments.totalElements}
+          value={comments.totalElements ?? comments.content?.length ?? 0}
         />
       </div>
 
@@ -135,10 +153,8 @@ export function UserReportTarget({ userId }: { userId: number }) {
         </CardHeader>
 
         <CardContent className="space-y-2">
-          {data.posts.content.length === 0 ? (
-            <EmptyState text="لا توجد منشورات" />
-          ) : (
-            data.posts.content.map((post) => (
+          {posts.content?.length ? (
+            posts.content.map((post) => (
               <div
                 key={post.id}
                 className="rounded-lg border border-border/50 p-4"
@@ -147,9 +163,6 @@ export function UserReportTarget({ userId }: { userId: number }) {
                   {post.baseEntity?.createdAt && (
                     <ClientTimeAgo date={post.baseEntity.createdAt} />
                   )}
-
-                  <span>•</span>
-                  <span>#{post.id}</span>
                 </div>
 
                 <h4 className="mt-2 font-bold">{post.title}</h4>
@@ -161,6 +174,8 @@ export function UserReportTarget({ userId }: { userId: number }) {
                 )}
               </div>
             ))
+          ) : (
+            <EmptyState text="لا توجد منشورات" />
           )}
         </CardContent>
       </Card>
@@ -171,10 +186,8 @@ export function UserReportTarget({ userId }: { userId: number }) {
         </CardHeader>
 
         <CardContent className="space-y-2">
-          {data.comments.content.length === 0 ? (
-            <EmptyState text="لا توجد تعليقات" />
-          ) : (
-            data.comments.content.map((comment) => (
+          {comments.content?.length ? (
+            comments.content.map((comment) => (
               <div
                 key={comment.id}
                 className="rounded-lg border border-border/50 p-4"
@@ -183,17 +196,39 @@ export function UserReportTarget({ userId }: { userId: number }) {
                   {comment.baseEntity?.createdAt && (
                     <ClientTimeAgo date={comment.baseEntity.createdAt} />
                   )}
-
-                  <span>•</span>
-                  <span>#{comment.id}</span>
                 </div>
 
                 <p className="mt-2 text-sm leading-6">{comment.content}</p>
               </div>
             ))
+          ) : (
+            <EmptyState text="لا توجد تعليقات" />
           )}
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+function ProfileField({
+  icon: Icon,
+  value,
+}: {
+  icon: typeof Mail
+  value?: string | null
+}) {
+  const displayValue = value?.trim() || "غير متوفر"
+
+  return (
+    <div className="flex min-w-0 items-center gap-2 text-muted-foreground">
+      <Icon className="h-4 w-4 shrink-0" />
+
+      <span
+        className={cn("truncate", !value?.trim() && "text-muted-foreground/70")}
+        dir={!value?.trim() ? "rtl" : undefined}
+      >
+        {displayValue}
+      </span>
     </div>
   )
 }
@@ -203,7 +238,7 @@ function StatCard({
   label,
   value,
 }: {
-  icon: typeof UserRound
+  icon: typeof FileText
   label: string
   value: number
 }) {
@@ -217,6 +252,7 @@ function StatCard({
 
           <div>
             <p className="text-xs text-muted-foreground">{label}</p>
+
             <p className="mt-0.5 text-lg font-bold">{value}</p>
           </div>
         </div>
@@ -236,11 +272,13 @@ function EmptyState({ text }: { text: string }) {
 function UserTargetSkeleton() {
   return (
     <div className="space-y-4">
-      <Skeleton className="h-24 rounded-xl" />
+      <Skeleton className="h-32 rounded-xl" />
+
       <div className="grid grid-cols-2 gap-3">
         <Skeleton className="h-20 rounded-xl" />
         <Skeleton className="h-20 rounded-xl" />
       </div>
+
       <Skeleton className="h-64 rounded-xl" />
       <Skeleton className="h-64 rounded-xl" />
     </div>

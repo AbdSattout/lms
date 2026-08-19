@@ -1,6 +1,6 @@
 "use server"
 
-import { moderators } from "@/lib/api/admin"
+import { moderators, users } from "@/lib/api/admin"
 import type { CreateModeratorRequest } from "@/lib/api/types"
 import type { PageableInput } from "@/lib/validation"
 
@@ -16,4 +16,11 @@ export async function createAdminModeratorAction(
 
 export async function deleteAdminModeratorAction(moderatorId: number) {
   return moderators.remove.delete(moderatorId)
+}
+
+export async function getAdminUserAction(userId: number) {
+  return users.get(userId)
+}
+export async function getCurrentAdminAction() {
+  return moderators.me.get()
 }

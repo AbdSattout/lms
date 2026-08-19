@@ -5,6 +5,7 @@ import { transformTextAction } from "@/lib/actions/ai-actions"
 import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 import type { Editor } from "@tiptap/react"
 import { useCallback, useState } from "react"
+import { toast } from "sonner"
 
 interface UseAiToolsProps {
   editor: Editor | null
@@ -12,7 +13,6 @@ interface UseAiToolsProps {
 
 export function useAiTools({ editor }: UseAiToolsProps) {
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [selectedAction, setSelectedAction] = useState<AiTextAction | null>(
     null
   )
@@ -28,14 +28,13 @@ export function useAiTools({ editor }: UseAiToolsProps) {
         : editor.state.doc.textBetween(from, to)
 
       if (!selectedText.trim()) {
-        setError(
+        toast.error(
           "لم يتم العثور على محتوى. يرجى إدخال نص قبل استخدام أدوات الذكاء الاصطناعي."
         )
         return
       }
 
       setIsLoading(true)
-      setError(null)
       setSelectedAction(action)
       if (tone) setSelectedTone(tone)
 
@@ -75,15 +74,15 @@ export function useAiTools({ editor }: UseAiToolsProps) {
             }
           }
         } else {
-          setError("حدث خطأ أثناء معالجة النص.")
+          toast.error("حدث خطأ أثناء معالجة النص.")
         }
       } catch (err) {
         if (err instanceof TypeError && err.message.includes("fetch")) {
-          setError(
+          toast.error(
             "خطأ في الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
           )
         } else {
-          setError(
+          toast.error(
             err instanceof Error ? err.message : "فشل في معالجة النص المحدد."
           )
         }
@@ -97,14 +96,10 @@ export function useAiTools({ editor }: UseAiToolsProps) {
     [editor]
   )
 
-  const clearError = useCallback(() => setError(null), [])
-
   return {
     isLoading,
-    error,
     selectedAction,
     selectedTone,
     handleAiAction,
-    clearError,
   }
 }

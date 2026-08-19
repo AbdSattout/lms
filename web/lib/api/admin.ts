@@ -18,6 +18,7 @@ import type {
   PageModeratorResponse,
   PageOrganizationVerificationResponse,
   PostResponse,
+  ProfileResponse,
   ReportPageResponse,
   ReportResponse,
   ReportReviewRequest,
@@ -220,6 +221,11 @@ export const comments = {
     }),
 }
 export const users = {
+  get: (userId: number, options?: BackendFetchOptions) =>
+    backend<ProfileResponse>(`/admin/users/${userId}`, {
+      method: "GET",
+      ...options,
+    }),
   posts: defineApiRoute({
     get: (
       userId: number,
@@ -395,6 +401,13 @@ export const moderation = {
   },
 }
 export const moderators = {
+  me: defineApiRoute({
+    get: (options?: BackendFetchOptions) =>
+      backend<AdminResponse>("/admin/moderators/me", {
+        method: "GET",
+        ...options,
+      }),
+  }),
   list: defineApiRoute({
     get: (pageable: PageableInput, options?: BackendFetchOptions) =>
       backend<PageModeratorResponse>(

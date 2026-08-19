@@ -19,6 +19,7 @@ import {
   getAdminOrganizationCoursesAction,
   getAdminOrganizationPostsAction,
 } from "@/lib/actions/admin"
+import { toast } from "sonner"
 
 interface OrganizationTargetData {
   organization: OrganizationResponse
@@ -40,14 +41,11 @@ export function OrganizationReportTarget({
   organizationId: number
 }) {
   const [data, setData] = useState<OrganizationTargetData | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [isLoading, startLoading] = useTransition()
 
   useEffect(() => {
     startLoading(async () => {
       try {
-        setError(null)
-
         const [organization, courses, posts] = await Promise.all([
           getAdminOrganizationAction(organizationId),
 
@@ -70,22 +68,12 @@ export function OrganizationReportTarget({
           posts,
         })
       } catch (error) {
-        setError(error instanceof Error ? error.message : "فشل تحميل المنظمة")
+        toast.error("فشل تحميل المنظمة")
       }
     })
   }, [organizationId])
   if (isLoading && !data) {
     return <OrganizationTargetSkeleton />
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center text-sm text-destructive">
-          {error}
-        </CardContent>
-      </Card>
-    )
   }
 
   if (!data) return null

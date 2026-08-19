@@ -8,7 +8,6 @@ import {
   Ban,
   FileWarning,
   LogOut,
-  Settings,
   ShieldCheck,
   Users,
 } from "lucide-react"
@@ -17,7 +16,11 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { LogoutButton } from "../auth/logout-button"
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  isSuperAdmin: boolean
+}
+
+export function AdminSidebar({ isSuperAdmin }: AdminSidebarProps) {
   const pathname = usePathname()
 
   const isReportsActive = pathname.startsWith("/admin/reports")
@@ -25,6 +28,7 @@ export function AdminSidebar() {
   const isVerificationsActive = pathname.startsWith(
     "/admin/organization-verifications"
   )
+  const isModeratorsActive = pathname.startsWith("/admin/moderators")
 
   return (
     <aside className="hidden w-[250px] shrink-0 border-l bg-card lg:flex">
@@ -72,13 +76,28 @@ export function AdminSidebar() {
             <Ban className="h-4 w-4" />
             الحظر
           </Link>
-          <Link
-            href={"/admin/moderators" as Route}
-            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            <Users className="h-4 w-4" />
-            المشرفون
-          </Link>
+
+          {isSuperAdmin && (
+            <>
+              <p className="px-3 pt-6 pb-2 text-[11px] font-bold tracking-wider text-muted-foreground">
+                الإدارة
+              </p>
+
+              <Link
+                href={"/admin/moderators" as Route}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors",
+                  isModeratorsActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+              >
+                <Users className="h-4 w-4" />
+                المشرفون
+              </Link>
+            </>
+          )}
+
           <Link
             href={"/admin/organization-verifications" as Route}
             className={cn(
