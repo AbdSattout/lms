@@ -219,22 +219,6 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         appBar: AppBar(
           title: Text(widget.title ?? widget.otherUser?.name ?? 'محادثة'),
           centerTitle: true,
-          actions: [
-            if (widget.otherUser != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 12),
-                child: Center(
-                  child: ResilientNetworkAvatar(
-                    radius: 18,
-                    imageUrl: widget.otherUser?.picture,
-                    fallbackLabel: widget.otherUser?.name,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.1),
-                  ),
-                ),
-              ),
-          ],
         ),
         body: BlocBuilder<ChatMessagesBloc, ChatMessagesState>(
           builder: (context, state) {
