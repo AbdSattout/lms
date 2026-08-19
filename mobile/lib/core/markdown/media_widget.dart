@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../core/databases/api/api_consumer.dart';
-import '../../../../core/databases/api/end_points.dart';
-import '../../../../core/services/injection_container.dart';
+import '../databases/api/api_consumer.dart';
+import '../databases/api/end_points.dart';
+import '../services/injection_container.dart';
 import '../media/video_player_widget.dart';
 import 'media_reference.dart';
 import 'package:url_launcher/url_launcher.dart';
