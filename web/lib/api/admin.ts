@@ -222,7 +222,7 @@ export const comments = {
 }
 export const users = {
   get: (userId: number, options?: BackendFetchOptions) =>
-    backend<ProfileResponse>(`/admin/users/${userId}`, {
+    backend<ProfileResponse>(`/admin/admin/users/${userId}`, {
       method: "GET",
       ...options,
     }),
