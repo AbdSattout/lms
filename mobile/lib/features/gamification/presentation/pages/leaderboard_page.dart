@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
+import '../../../friends/domain/entities/friend_user_entity.dart';
+import '../../../friends/presentation/bloc/user_profile_bloc.dart';
+import '../../../friends/presentation/bloc/user_profile_event.dart';
+import '../../../friends/presentation/pages/user_profile_page.dart';
 import '../../domain/entities/leaderboard_entity.dart';
 import '../bloc/gamification_bloc.dart';
 import '../bloc/gamification_event.dart';
@@ -236,60 +240,64 @@ class _PodiumCard extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ResilientNetworkAvatar(
-            radius: 24,
-            imageUrl: entry.picture,
-            fallbackLabel: entry.name,
-            backgroundColor: colors.primary.withValues(alpha: 0.1),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            entry.name,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            '${entry.xp} XP',
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: colors.primary,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () => _openUserProfile(context, entry),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ResilientNetworkAvatar(
+              radius: 24,
+              imageUrl: entry.picture,
+              fallbackLabel: entry.name,
+              backgroundColor: colors.primary.withValues(alpha: 0.1),
             ),
-          ),
-          const SizedBox(height: 8),
-          Container(
-            height: height,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  medalColors[rank - 1].withValues(alpha: 0.8),
-                  medalColors[rank - 1].withValues(alpha: 0.3),
-                ],
-              ),
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(12),
+            const SizedBox(height: 6),
+            Text(
+              entry.name,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${entry.xp} XP',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: colors.primary,
               ),
             ),
-            child: Center(
-              child: Text(
-                '#$rank',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+            const SizedBox(height: 8),
+            Container(
+              height: height,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    medalColors[rank - 1].withValues(alpha: 0.8),
+                    medalColors[rank - 1].withValues(alpha: 0.3),
+                  ],
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(12),
+                ),
+              ),
+              child: Center(
+                child: Text(
+                  '#$rank',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -307,88 +315,92 @@ class _LeaderboardTile extends StatelessWidget {
     final rank = entry.rank;
     final levelLabel = _levelLabel(entry);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: isMe ? colors.primary.withValues(alpha: 0.08) : colors.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isMe
-              ? colors.primary.withValues(alpha: 0.3)
-              : colors.outlineVariant.withValues(alpha: 0.5),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _openUserProfile(context, entry),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isMe ? colors.primary.withValues(alpha: 0.08) : colors.surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isMe
+                ? colors.primary.withValues(alpha: 0.3)
+                : colors.outlineVariant.withValues(alpha: 0.5),
+          ),
         ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 36,
-            child: Text(
-              rank == null ? '-' : '#$rank',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: rank != null && rank <= 3
-                    ? colors.primary
-                    : colors.onSurfaceVariant,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              child: Text(
+                rank == null ? '-' : '#$rank',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: rank != null && rank <= 3
+                      ? colors.primary
+                      : colors.onSurfaceVariant,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          ResilientNetworkAvatar(
-            radius: 20,
-            imageUrl: entry.picture,
-            fallbackLabel: entry.name,
-            backgroundColor: colors.primary.withValues(alpha: 0.1),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.name,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
-                    color: colors.onSurface,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  levelLabel,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
+            const SizedBox(width: 12),
+            ResilientNetworkAvatar(
+              radius: 20,
+              imageUrl: entry.picture,
+              fallbackLabel: entry.name,
+              backgroundColor: colors.primary.withValues(alpha: 0.1),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: isMe
-                  ? colors.primary.withValues(alpha: 0.15)
-                  : colors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              '${entry.xp} XP',
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 13,
-                color: colors.primary,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    entry.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: colors.onSurface,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    levelLabel,
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          if (isMe) ...[
-            const SizedBox(width: 8),
-            Icon(Icons.star, color: Colors.amber.shade600, size: 18),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isMe
+                    ? colors.primary.withValues(alpha: 0.15)
+                    : colors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${entry.xp} XP',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: colors.primary,
+                ),
+              ),
+            ),
+            if (isMe) ...[
+              const SizedBox(width: 8),
+              Icon(Icons.star, color: Colors.amber.shade600, size: 18),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -411,4 +423,24 @@ String _levelLabel(LeaderboardEntryEntity entry) {
   }
 
   return 'المستوى ${entry.levelNumber} · $title';
+}
+
+void _openUserProfile(BuildContext context, LeaderboardEntryEntity entry) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => BlocProvider(
+        create: (_) =>
+            sl<UserProfileBloc>()..add(LoadUserProfileEvent(entry.userId)),
+        child: UserProfilePage(
+          userId: entry.userId,
+          initialUser: FriendUserEntity(
+            id: entry.userId,
+            name: entry.name,
+            picture: entry.picture,
+          ),
+        ),
+      ),
+    ),
+  );
 }
