@@ -142,56 +142,89 @@ export function ReportDetails({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <Textarea
-            value={adminNote}
-            onChange={(event) => setAdminNote(event.target.value)}
-            placeholder="اكتب ملاحظة حول قرارك..."
-            className="min-h-28 resize-y"
-            dir="rtl"
-          />
+          {report.status === "RESOLVED" || report.status === "REJECTED" ? (
+            <div className="space-y-4">
+              <div
+                className={
+                  report.status === "RESOLVED"
+                    ? "rounded-lg border border-emerald-200 bg-emerald-50/60 p-4 dark:border-emerald-900 dark:bg-emerald-950/20"
+                    : "rounded-lg border border-border bg-muted/40 p-4"
+                }
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-bold">
+                    {report.status === "RESOLVED"
+                      ? "تم حل البلاغ"
+                      : "تم رفض البلاغ"}
+                  </p>
 
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              disabled={isSubmitting || report.status === "REJECTED"}
-              onClick={() => updateStatus("REJECTED")}
-            >
-              <XCircle className="ml-2 h-4 w-4" />
-              رفض البلاغ
-            </Button>
+                  <ReportStatusBadge status={report.status} />
+                </div>
 
-            <Button
-              variant="secondary"
-              disabled={isSubmitting || report.status === "UNDER_REVIEW"}
-              onClick={() => updateStatus("UNDER_REVIEW")}
-            >
-              <Clock3 className="ml-2 h-4 w-4" />
-              قيد المراجعة
-            </Button>
+                {report.adminNote && (
+                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                    {report.adminNote}
+                  </p>
+                )}
 
-            <Button
-              disabled={isSubmitting || report.status === "RESOLVED"}
-              onClick={() => updateStatus("RESOLVED")}
-            >
-              <CheckCircle2 className="ml-2 h-4 w-4" />
-              حل البلاغ
-            </Button>
-          </div>
+                {report.adminResponse && (
+                  <div className="mt-4 border-t border-border/50 pt-3">
+                    <p className="text-xs font-bold text-muted-foreground">
+                      تمت المراجعة بواسطة
+                    </p>
 
-          {report.adminResponse && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50/50 p-4 dark:border-emerald-900 dark:bg-emerald-950/20">
-              <p className="text-xs font-bold text-muted-foreground">
-                تمت المراجعة بواسطة
-              </p>
+                    <p className="mt-1 text-sm font-semibold">
+                      {report.adminResponse.name}
+                    </p>
 
-              <p className="mt-1 text-sm font-semibold">
-                {report.adminResponse.name}
-              </p>
-
-              <p className="text-xs text-muted-foreground">
-                {report.adminResponse.email}
-              </p>
+                    {report.reviewedAt && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {new Date(report.reviewedAt).toLocaleString("ar")}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
+          ) : (
+            <>
+              <Textarea
+                value={adminNote}
+                onChange={(event) => setAdminNote(event.target.value)}
+                placeholder="اكتب ملاحظة حول قرارك..."
+                className="min-h-28 resize-y"
+                disabled={isSubmitting}
+                dir="rtl"
+              />
+
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Button
+                  variant="outline"
+                  disabled={isSubmitting || report.status === "UNDER_REVIEW"}
+                  onClick={() => updateStatus("REJECTED")}
+                >
+                  <XCircle className="ml-2 h-4 w-4" />
+                  رفض البلاغ
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  disabled={isSubmitting || report.status === "UNDER_REVIEW"}
+                  onClick={() => updateStatus("UNDER_REVIEW")}
+                >
+                  <Clock3 className="ml-2 h-4 w-4" />
+                  قيد المراجعة
+                </Button>
+
+                <Button
+                  disabled={isSubmitting}
+                  onClick={() => updateStatus("RESOLVED")}
+                >
+                  <CheckCircle2 className="ml-2 h-4 w-4" />
+                  حل البلاغ
+                </Button>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
