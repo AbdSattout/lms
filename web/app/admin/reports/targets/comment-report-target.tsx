@@ -102,7 +102,7 @@ export function CommentReportTarget({ commentId }: CommentReportTargetProps) {
             <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <UserRound className="h-3.5 w-3.5" />
-                التعليق #{comment.id}
+                {comment.author?.name ?? "مستخدم"}
               </span>
 
               {comment.likeCount > 0 && (
