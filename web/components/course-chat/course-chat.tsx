@@ -33,6 +33,7 @@ import {
   chatEditMessage,
   chatGetCourseConversation,
   chatGetMessages,
+  chatGetMutes,
   chatMarkAsRead,
   chatMuteUser,
   chatSendMessage,
@@ -172,6 +173,17 @@ export function CourseChat({
     if (content.length > 0) {
       void chatMarkAsRead(res.data.id, content[0].id)
     }
+    void loadMutes(res.data.id)
+  }
+
+  async function loadMutes(conversationId: number) {
+    const res = await chatGetMutes(conversationId)
+    if (res.error || !res.data) return
+    const next: Record<number, ActiveMute> = {}
+    for (const mute of res.data) {
+      next[mute.userId] = { muteId: mute.id, mutedUntil: mute.mutedUntil }
+    }
+    setMutes(next)
   }
 
   useEffect(() => {

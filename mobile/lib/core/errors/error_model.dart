@@ -1,8 +1,17 @@
+import '../utils/date_time_utils.dart';
+
 class ErrorModel {
   final int status;
   final String errorMessage;
+  final DateTime? mutedUntil;
+  final String? muteReason;
 
-  ErrorModel({required this.status, required this.errorMessage});
+  ErrorModel({
+    required this.status,
+    required this.errorMessage,
+    this.mutedUntil,
+    this.muteReason,
+  });
 
   factory ErrorModel.fromJson(Object? jsonData) {
     if (jsonData is! Map<String, dynamic>) {
@@ -19,9 +28,13 @@ class ErrorModel {
         jsonData["errorMessage"] ??
         jsonData["detail"];
 
+    final reason = jsonData["reason"]?.toString().trim();
+
     return ErrorModel(
       errorMessage: _normalizeMessage(rawMessage?.toString()),
       status: _readStatus(jsonData["status"]),
+      mutedUntil: parseApiDateTime(jsonData["mutedUntil"]),
+      muteReason: (reason == null || reason.isEmpty) ? null : reason,
     );
   }
 

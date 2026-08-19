@@ -1,21 +1,36 @@
 package app.lms.chat.exception;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public class ChatMutedException
         extends RuntimeException {
 
-    private final LocalDateTime mutedUntil;
+    private final Instant mutedUntil;
+
+    private final String reason;
 
     public ChatMutedException(
             String message,
-            LocalDateTime mutedUntil
+            Instant mutedUntil
+    ) {
+        this(message, mutedUntil, null);
+    }
+
+    public ChatMutedException(
+            String message,
+            Instant mutedUntil,
+            String reason
     ) {
         super(message);
         this.mutedUntil = mutedUntil;
+        this.reason = reason;
     }
 
-    public LocalDateTime getMutedUntil() {
+    public Instant getMutedUntil() {
         return mutedUntil;
+    }
+
+    public String getReason() {
+        return reason;
     }
 }

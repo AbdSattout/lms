@@ -35,6 +35,30 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<MessageEntity> editMessage({
+    required int conversationId,
+    required int messageId,
+    required String content,
+  }) {
+    return remote.editMessage(
+      conversationId: conversationId,
+      messageId: messageId,
+      content: content,
+    );
+  }
+
+  @override
+  Future<void> deleteMessage({
+    required int conversationId,
+    required int messageId,
+  }) {
+    return remote.deleteMessage(
+      conversationId: conversationId,
+      messageId: messageId,
+    );
+  }
+
+  @override
   Future<ConversationEntity> createDirectConversation(int targetUserId) {
     return remote.createDirectConversation(targetUserId);
   }

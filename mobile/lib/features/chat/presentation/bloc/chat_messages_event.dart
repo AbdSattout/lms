@@ -18,6 +18,19 @@ class RetryChatMessageEvent extends ChatMessagesEvent {
   RetryChatMessageEvent(this.localId);
 }
 
+class EditChatMessageEvent extends ChatMessagesEvent {
+  final int messageId;
+  final String newText;
+
+  EditChatMessageEvent(this.messageId, this.newText);
+}
+
+class DeleteChatMessageEvent extends ChatMessagesEvent {
+  final int messageId;
+
+  DeleteChatMessageEvent(this.messageId);
+}
+
 class UpdateMessageEvent extends ChatMessagesEvent {
   final MessageEntity message;
 
@@ -34,4 +47,18 @@ class MarkMessagesReadEvent extends ChatMessagesEvent {
   final int lastReadMessageId;
 
   MarkMessagesReadEvent(this.lastReadMessageId);
+}
+
+class MemberMutedEvent extends ChatMessagesEvent {
+  final int userId;
+  final DateTime? mutedUntil;
+  final String? reason;
+
+  MemberMutedEvent(this.userId, this.mutedUntil, this.reason);
+}
+
+class MemberUnmutedEvent extends ChatMessagesEvent {
+  final int userId;
+
+  MemberUnmutedEvent(this.userId);
 }

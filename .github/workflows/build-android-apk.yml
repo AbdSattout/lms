@@ -4,11 +4,14 @@ on:
   push:
     branches:
       - release
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/build-android-apk.yml'
   workflow_dispatch:
 
 jobs:
   build-apk:
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-lms
     timeout-minutes: 30
     env:
       API_URL: ${{ secrets.API_URL }}
@@ -55,17 +58,33 @@ jobs:
         working-directory: mobile
         run: flutter pub get
 
-      - name: Cache Gradle
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: false
+
+      - name: Cache Flutter build outputs
         uses: actions/cache@v5
         with:
           path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('mobile/android/gradle/wrapper/gradle-wrapper.properties', 'mobile/android/build.gradle.kts', 'mobile/android/app/build.gradle.kts', 'mobile/android/settings.gradle.kts', 'mobile/android/gradle.properties') }}
+            mobile/build
+            mobile/android/.gradle
+          key: flutter-build-${{ runner.os }}-${{ hashFiles('mobile/lib/**', 'mobile/assets/**', 'mobile/pubspec.lock', 'mobile/android/**') }}
+          restore-keys: |
+            flutter-build-${{ runner.os }}-
+
+      - name: Pre-install CMake 3.22.1
+        run: |
+          SDK_HOME="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-}}"
+          if [ -n "$SDK_HOME" ] && [ -f "$SDK_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+            yes | "$SDK_HOME/cmdline-tools/latest/bin/sdkmanager" "cmake;3.22.1" || echo "CMake preinstall failed - continuing"
+          else
+            echo "sdkmanager not found - skipping CMake preinstall"
+          fi
 
       - name: Build APK
         working-directory: mobile
-        run: flutter build apk --release --target-platform=android-arm64 --dart-define="BASE_URL=${API_URL:-}" --dart-define="PUSHER_APP_KEY=${PUSHER_APP_KEY:-}" --dart-define="PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER:-mt1}"
+        run: flutter build apk --release --target-platform=android-arm64 --no-pub --dart-define="BASE_URL=${API_URL:-}" --dart-define="PUSHER_APP_KEY=${PUSHER_APP_KEY:-}" --dart-define="PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER:-eu}"
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v5

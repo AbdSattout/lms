@@ -18,7 +18,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,8 @@ public class ChatMuteService {
     private final CourseAccessService courseAccessService;
 
     private final PusherService pusherService;
+
+    private final ConversationAccessService conversationAccessService;
 
 
     @Transactional
@@ -137,7 +142,8 @@ public class ChatMuteService {
         pusherService.publishMute(
                 conversation,
                 user.getId(),
-                saved.getMutedUntil().toString()
+                toInstant(saved.getMutedUntil()).toString(),
+                saved.getReason()
         );
 
 
@@ -176,7 +182,8 @@ public class ChatMuteService {
                     .ifPresent(mute -> {
                         throw new ChatMutedException(
                                 "You are muted in this course",
-                                mute.getMutedUntil()
+                                toInstant(mute.getMutedUntil()),
+                                mute.getReason()
                         );
                     });
         }
@@ -190,9 +197,36 @@ public class ChatMuteService {
                 .ifPresent(mute -> {
                     throw new ChatMutedException(
                             "You are muted in this conversation",
-                            mute.getMutedUntil()
+                            toInstant(mute.getMutedUntil()),
+                            mute.getReason()
                     );
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public List<MuteResponse> listActiveMutes(
+            Long conversationId,
+            User user
+    ) {
+
+        validateAuthenticated(
+                user
+        );
+
+        Conversation conversation =
+                conversationAccessService.getAccessible(
+                        conversationId,
+                        user
+                );
+
+        return chatMuteRepository
+                .findActiveMutesByConversation(
+                        conversation.getId(),
+                        LocalDateTime.now()
+                )
+                .stream()
+                .map(muteMapper::toResponse)
+                .toList();
     }
 
     @Transactional
@@ -243,6 +277,10 @@ public class ChatMuteService {
                 mute.getConversation(),
                 mute.getUser().getId()
         );
+    }
+
+    private static Instant toInstant(LocalDateTime value) {
+        return value.atZone(ZoneId.systemDefault()).toInstant();
     }
 
     private void validateMutePermission(

@@ -110,6 +110,12 @@ public class AdminModeratorService {
 
         adminRepository.delete(moderator);
     }
+    public AdminResponse getModerator(Long adminId){
+        Admin admin =  adminRepository.findById(adminId).orElseThrow(() -> new  NotFoundException(
+                "Admin not found"
+        ));
+        return adminMapper.toResponse(admin);
+    }
 
     private void validateSuperAdmin(
             Long adminId

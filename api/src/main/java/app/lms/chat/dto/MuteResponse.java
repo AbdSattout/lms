@@ -1,7 +1,7 @@
 package app.lms.chat.dto;
 
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record MuteResponse(
 
@@ -13,7 +13,7 @@ public record MuteResponse(
 
         Long conversationId,
 
-        LocalDateTime mutedUntil,
+        Instant mutedUntil,
 
         String reason,
 

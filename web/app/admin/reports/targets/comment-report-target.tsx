@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import type { CommentResponse } from "@/lib/api/types"
 import { getAdminCommentAction } from "@/lib/actions/admin"
 import { ClientTimeAgo } from "@/components/client-time-ago"
+import { toast } from "sonner"
 
 interface CommentReportTargetProps {
   commentId: number
@@ -17,35 +18,22 @@ interface CommentReportTargetProps {
 
 export function CommentReportTarget({ commentId }: CommentReportTargetProps) {
   const [comment, setComment] = useState<CommentResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [isLoading, startLoading] = useTransition()
 
   useEffect(() => {
     startLoading(async () => {
       try {
-        setError(null)
-
         const result = await getAdminCommentAction(commentId)
 
         setComment(result)
-      } catch (error) {
-        setError(error instanceof Error ? error.message : "فشل تحميل التعليق")
+      } catch {
+        toast.error("فشل تحميل التعليق")
       }
     })
   }, [commentId])
 
   if (isLoading && !comment) {
     return <CommentTargetSkeleton />
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center text-sm text-destructive">
-          {error}
-        </CardContent>
-      </Card>
-    )
   }
 
   if (!comment) {
@@ -102,7 +90,7 @@ export function CommentReportTarget({ commentId }: CommentReportTargetProps) {
             <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <UserRound className="h-3.5 w-3.5" />
-                التعليق #{comment.id}
+                {comment.author?.name ?? "مستخدم"}
               </span>
 
               {comment.likeCount > 0 && (

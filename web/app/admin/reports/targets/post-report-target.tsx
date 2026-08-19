@@ -12,6 +12,7 @@ import type { PostResponse } from "@/lib/api/types"
 import { TiptapRenderer } from "@/components/editor/renderer"
 import { ClientTimeAgo } from "@/components/client-time-ago"
 import { getAdminOrganizationPostAction } from "@/lib/actions/admin"
+import { toast } from "sonner"
 
 export function PostReportTarget({
   organizationId,
@@ -21,14 +22,11 @@ export function PostReportTarget({
   postId: number
 }) {
   const [post, setPost] = useState<PostResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
   const [isLoading, startLoading] = useTransition()
 
   useEffect(() => {
     startLoading(async () => {
       try {
-        setError(null)
-
         const result = await getAdminOrganizationPostAction(
           organizationId,
           postId
@@ -36,23 +34,13 @@ export function PostReportTarget({
 
         setPost(result)
       } catch (error) {
-        setError(error instanceof Error ? error.message : "فشل تحميل المنشور")
+        toast.error("فشل تحميل المنشور")
       }
     })
   }, [organizationId, postId])
 
   if (isLoading && !post) {
     return <PostTargetSkeleton />
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center text-sm text-destructive">
-          {error}
-        </CardContent>
-      </Card>
-    )
   }
 
   if (!post) return null

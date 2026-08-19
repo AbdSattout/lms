@@ -24,24 +24,20 @@ export function EditPostForm({ orgSlug, post, course }: Props) {
   const [title, setTitle] = useState(post.title || "")
   const [content, setContent] = useState(post.content || "")
 
-  const [error, setError] = useState<string | null>(null)
-
   const [isSubmitting, startTransition] = useTransition()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
     if (!title.trim()) {
-      setError("العنوان مطلوب")
+      toast.error("العنوان مطلوب")
       return
     }
 
     if (!content.trim()) {
-      setError("المحتوى مطلوب")
+      toast.error("المحتوى مطلوب")
       return
     }
-
-    setError(null)
 
     startTransition(async () => {
       try {
@@ -54,9 +50,8 @@ export function EditPostForm({ orgSlug, post, course }: Props) {
 
         router.push(`/${orgSlug}/posts/${post.id}` as Route)
         router.refresh()
-      } catch (err) {
-        console.error("Failed to update post:", err)
-        setError("فشل تعديل المنشور")
+      } catch {
+        toast.error("فشل تعديل المنشور")
       }
     })
   }
@@ -73,12 +68,6 @@ export function EditPostForm({ orgSlug, post, course }: Props) {
             قم بتعديل محتوى المنشور الحالي
           </p>
         </div>
-
-        {error && (
-          <div className="rounded-md bg-destructive/10 p-3 text-destructive">
-            {error}
-          </div>
-        )}
 
         <div className="flex flex-col gap-3 text-start">
           <label htmlFor="title" className="text-sm font-bold">

@@ -1386,6 +1386,7 @@ class _CourseChatGateState extends State<_CourseChatGate> {
               child: ChatRoomPage(
                 conversationId: conversation.id,
                 title: widget.course.title,
+                isCourseChat: true,
               ),
             ),
           ),
