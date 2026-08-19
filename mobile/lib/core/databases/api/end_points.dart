@@ -206,4 +206,8 @@ class EndPoints {
       'courses?q=$query&page=$page&size=$size';
   static String searchOrganizations(String query, {int page = 0, int size = 10}) =>
       'organizations?q=$query&page=$page&size=$size';
+
+  // Certificates
+  static const String myCertificates = 'certificates/me';
+  static String certificateByCode(String code) => 'certificates/$code';
 }

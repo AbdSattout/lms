@@ -229,6 +229,12 @@ import '../../features/assessments/practice_quiz/domain/usecases/get_practice_qu
 import '../../features/assessments/practice_quiz/domain/usecases/submit_practice_quiz_usecase.dart';
 import '../../features/assessments/practice_quiz/presentation/bloc/practice_quiz_bloc.dart';
 
+// Certificates
+import '../../features/certificates/data/datasources/certificate_remote_datasource.dart';
+import '../../features/certificates/data/repositories/certificate_repository_impl.dart';
+import '../../features/certificates/domain/repositories/certificate_repository.dart';
+import '../../features/certificates/domain/usecases/get_my_certificates_usecase.dart';
+import '../../features/certificates/presentation/bloc/certificate_bloc.dart';
 final sl = GetIt.instance;
 
 Future<void> init() async {
@@ -742,6 +748,12 @@ Future<void> init() async {
       ),
     ),
   );
+
+  //Certificates
+  sl.registerLazySingleton<CertificateRemoteDataSource>(() => CertificateRemoteDataSourceImpl(api: sl()));
+  sl.registerLazySingleton<CertificateRepository>(() => CertificateRepositoryImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton(() => GetMyCertificatesUseCase(sl()));
+  sl.registerFactory(() => CertificateBloc(getMyCertificates: sl()));
 
   //! External
 
