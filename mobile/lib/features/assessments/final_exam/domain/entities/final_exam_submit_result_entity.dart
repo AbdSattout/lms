@@ -1,5 +1,5 @@
 import '../../../core/domain/entities/quiz_question_result_entity.dart';
-import '../../../core/domain/entities/certificate_entity.dart';
+import '../../../../certificates/domain/entities/certificate_entity.dart';
 import '../../../practice_exam/domain/entities/practice_exam_submit_result_entity.dart'
     show GamificationAwardEntity, UserBadgeEntity;
 

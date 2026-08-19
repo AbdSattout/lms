@@ -1,5 +1,5 @@
 import '../../../core/data/models/quiz_question_result_model.dart';
-import '../../../core/data/models/certificate_model.dart';
+import '../../../../certificates/data/models/certificate_model.dart';
 import '../../../practice_exam/data/models/practice_exam_submit_result_model.dart'
     show GamificationAwardModel, UserBadgeModel;
 import '../../domain/entities/final_exam_submit_result_entity.dart';

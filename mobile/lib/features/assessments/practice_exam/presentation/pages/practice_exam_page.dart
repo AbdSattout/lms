@@ -53,7 +53,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
 
         if (!_autoSubmitted) {
           _autoSubmitted = true;
-          _submitExam();
+          context.read<PracticeExamBloc>().add(SubmitPracticeExamRequested());
         }
         return;
       }
@@ -63,10 +63,6 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
 
     tick();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => tick());
-  }
-
-  void _submitExam() {
-    context.read<PracticeExamBloc>().add(SubmitPracticeExamRequested());
   }
 
   @override
@@ -241,7 +237,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
-                _submitExam();
+                context.read<PracticeExamBloc>().add(SubmitPracticeExamRequested());
               },
               style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white),
               child: const Text('إرسال'),

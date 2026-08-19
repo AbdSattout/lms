@@ -128,7 +128,7 @@ class _MyRoadmapCard extends StatelessWidget {
                   ]),
                 ]),
               ),
-              Icon(Icons.arrow_back_ios_rounded, size: 14, color: colors.onSurfaceVariant),
+              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: colors.onSurfaceVariant),
             ]),
           ),
         ),

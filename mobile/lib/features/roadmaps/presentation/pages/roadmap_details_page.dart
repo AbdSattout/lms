@@ -73,7 +73,7 @@ class _RoadmapDetailsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final isFollowing = roadmap.followStatus == 'FOLLOWING';
+    final isFollowing = roadmap.followStatus == 'ACTIVE';
 
     final org = roadmap.organization;
     final isMember = org?.viewerJoined == true;
