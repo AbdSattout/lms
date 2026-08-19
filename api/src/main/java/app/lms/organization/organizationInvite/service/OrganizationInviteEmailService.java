@@ -20,7 +20,7 @@ import java.util.Locale;
 public class OrganizationInviteEmailService {
 
     private static final String DEFAULT_INVITE_URL_TEMPLATE =
-            "https://lmscenter.vercel.app/organizations/{slug}/invites/{inviteId}";
+            "/organizations/{slug}/invites/{inviteId}";
 
     private static final DateTimeFormatter EXPIRY_DATE_FORMATTER =
             DateTimeFormatter.ofPattern(
@@ -33,8 +33,11 @@ public class OrganizationInviteEmailService {
     @Value("${app.email-otp.app-name:MSAR LMS Center}")
     private String appName;
 
-    @Value("${app.organization-invites.url-template:https://lmscenter.vercel.app/organizations/{slug}/invites/{inviteId}}")
+    @Value("${app.organization-invites.url-template:${app.web-app.base-url:https://lmscenter.vercel.app}/organizations/{slug}/invites/{inviteId}}")
     private String inviteUrlTemplate;
+
+    @Value("${app.web-app.base-url:https://lmscenter.vercel.app}")
+    private String webAppBaseUrl;
 
     public void sendPrivateInvite(
             OrganizationInvite invite
@@ -223,6 +226,10 @@ public class OrganizationInviteEmailService {
                         ? inviteUrlTemplate
                         : DEFAULT_INVITE_URL_TEMPLATE;
 
+        if (template.startsWith("/")) {
+            template = stripTrailingSlash(webAppBaseUrl) + template;
+        }
+
         return template
                 .replace(
                         "{slug}",
@@ -338,6 +345,17 @@ public class OrganizationInviteEmailService {
                 .replace("\r", " ")
                 .replace("\n", " ")
                 .trim();
+    }
+
+    private String stripTrailingSlash(
+            String url
+    ) {
+
+        if (url == null) {
+            return "";
+        }
+
+        return url.replaceAll("/+$", "");
     }
 
     private String escapeHtml(
