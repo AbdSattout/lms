@@ -39,7 +39,6 @@ export function CreateModeratorDialog({
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState<string | null>(null)
   const [isSubmitting, startSubmitting] = useTransition()
 
   const isEmailValid = /\S+@\S+\.\S+/.test(email)
@@ -48,7 +47,6 @@ export function CreateModeratorDialog({
     setName("")
     setEmail("")
     setPassword("")
-    setError(null)
   }
 
   function handleOpenChange(nextOpen: boolean) {
@@ -66,8 +64,6 @@ export function CreateModeratorDialog({
 
     startSubmitting(async () => {
       try {
-        setError(null)
-
         const moderator = await createAdminModeratorAction({
           name: name.trim(),
           email: email.trim(),
@@ -80,11 +76,33 @@ export function CreateModeratorDialog({
         reset()
         onOpenChange(false)
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "فشل إنشاء المشرف"
+        let errorMessage = "فشل إنشاء المشرف، يرجى المحاولة لاحقاً."
 
-        setError(message)
-        toast.error(message)
+        if (error instanceof Error) {
+          try {
+            const jsonMatch = error.message.match(/\{.*\}/)
+
+            if (jsonMatch) {
+              const parsedError = JSON.parse(jsonMatch[0])
+
+              if (
+                parsedError.status === 409 ||
+                parsedError.error === "Admin email already exists"
+              ) {
+                errorMessage = "البريد الإلكتروني مسجل مسبقاً لمشرف آخر."
+              } else if (
+                parsedError.status === 400 &&
+                parsedError.errors?.email
+              ) {
+                errorMessage = "صيغة البريد الإلكتروني غير صالحة."
+              }
+            }
+          } catch (e) {
+            console.error("Failed to parse error message:", e)
+          }
+        }
+
+        toast.error(errorMessage)
       }
     })
   }
@@ -101,7 +119,7 @@ export function CreateModeratorDialog({
         </DialogHeader>
 
         <FieldGroup>
-          <Field data-invalid={!!error}>
+          <Field>
             <FieldLabel htmlFor="moderator-name">الاسم</FieldLabel>
 
             <Input
@@ -150,8 +168,6 @@ export function CreateModeratorDialog({
               autoComplete="new-password"
             />
           </Field>
-
-          {error && <FieldError>{error}</FieldError>}
         </FieldGroup>
 
         <DialogFooter>
