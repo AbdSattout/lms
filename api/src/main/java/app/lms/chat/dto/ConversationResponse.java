@@ -1,7 +1,7 @@
 package app.lms.chat.dto;
 
-
 import app.lms.chat.enums.ConversationType;
+import app.lms.user.dto.UserResponse;
 
 import java.time.Instant;
 
@@ -13,9 +13,9 @@ public record ConversationResponse(
 
         Long courseId,
 
-        Long directUserOneId,
+        UserResponse directUserOne,
 
-        Long directUserTwoId,
+        UserResponse directUserTwo,
 
         String lastMessagePreview,
 
