@@ -101,23 +101,25 @@ class MainHomeScreen extends StatelessWidget {
   Widget _buildSnakeBar() {
     return BlocBuilder<NavbarCubit, int>(
       builder: (context, state) {
+        final colors = Theme.of(context).colorScheme;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+
         return Padding(
           padding: const EdgeInsets.only(left: 18, right: 18, bottom: 15),
           child: SnakeNavigationBar.color(
             behaviour: SnakeBarBehaviour.floating,
             snakeShape: SnakeShape.indicator,
-
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(48),
             ),
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            snakeViewColor: AppColors.primary.withValues(alpha: 0.10),
-            height: 70,
-            elevation: 10,
-            selectedItemColor: AppColors.primary,
-            unselectedItemColor: Theme.of(
-              context,
-            ).colorScheme.onSurfaceVariant.withValues(alpha: 0.72),
+            backgroundColor: isDark
+                ? const Color(0xff1E293B)  
+                : AppColors.lavenderLight,
+            snakeViewColor: colors.primary.withValues(alpha: 0.15),
+            height: 68,
+            elevation: 20,
+            selectedItemColor: colors.primary,
+            unselectedItemColor: colors.onSurfaceVariant.withValues(alpha: 0.55),
             showSelectedLabels: true,
             showUnselectedLabels: false,
             currentIndex: state,
@@ -127,7 +129,6 @@ class MainHomeScreen extends StatelessWidget {
                 duration: const Duration(milliseconds: 100),
                 curve: Curves.linear,
               );
-
               context.read<NavbarCubit>().update(index);
             },
             items: [
@@ -241,7 +242,7 @@ class _HomeContentState extends State<_HomeContent> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              if (hasSearchQuery && state is HomeLoaded) {
+              if (hasSearchQuery) {
                 context.read<HomeBloc>().add(SearchQueryChanged(state.searchQuery));
               } else {
                 context.read<HomeBloc>().add(GetHomeDataEvent());
@@ -380,7 +381,7 @@ class _WelcomeHeader extends StatelessWidget {
             isDark
                 ? AppColors.primary.withValues(alpha: 0.20)
                 : AppColors.primaryLight,
-            isDark ? AppColors.primary.withValues(alpha: 0.08) : colors.surface,
+            isDark ? AppColors.primary.withValues(alpha: 0.08) : AppColors.lavenderLight,
           ],
         ),
         borderRadius: const BorderRadius.vertical(bottom: Radius.circular(34)),
@@ -989,10 +990,7 @@ class _HomeOrganizationCard extends StatelessWidget {
   final OrganizationEntity organization;
   final VoidCallback onTap;
 
-  const _HomeOrganizationCard({
-    required this.organization,
-    required this.onTap,
-  });
+  const _HomeOrganizationCard({required this.organization, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1000,9 +998,7 @@ class _HomeOrganizationCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final isPrivate = organization.visibility == OrganizationVisibility.private;
-
-    final hasImage =
-        organization.image != null && organization.image!.isNotEmpty;
+    final hasImage = organization.image != null && organization.image!.isNotEmpty;
 
     final visibilityColor = isPrivate
         ? (isDark ? const Color(0xffFBBF24) : const Color(0xffB4780F))
@@ -1011,7 +1007,7 @@ class _HomeOrganizationCard extends StatelessWidget {
     return SizedBox(
       width: 220,
       child: Material(
-        color: colors.surface,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(22),
         child: InkWell(
           onTap: onTap,
@@ -1019,15 +1015,18 @@ class _HomeOrganizationCard extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
+              color: isDark
+                  ? colors.secondaryContainer.withValues(alpha: 0.3)
+                  : AppColors.lavenderLight.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: colors.outlineVariant.withValues(
-                  alpha: isDark ? 0.35 : 0.55,
-                ),
+                color: isDark
+                    ? colors.secondary.withValues(alpha: 0.3)
+                    : AppColors.lavender.withValues(alpha: 0.15),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.14 : 0.04),
+                  color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.06),
                   blurRadius: 16,
                   offset: const Offset(0, 7),
                 ),
@@ -1046,28 +1045,28 @@ class _HomeOrganizationCard extends StatelessWidget {
                         gradient: hasImage
                             ? null
                             : LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppColors.primary,
-                                  AppColors.primary.withValues(alpha: 0.65),
-                                ],
-                              ),
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary,
+                            AppColors.lavender.withValues(alpha: 0.8),
+                          ],
+                        ),
                       ),
                       clipBehavior: Clip.antiAlias,
                       child: hasImage
                           ? Image.network(
-                              organization.image!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => _initials(),
-                            )
+                        organization.image!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _initials(),
+                      )
                           : _initials(),
                     ),
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.all(7),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.10),
+                        color: AppColors.primary.withValues(alpha: 0.12),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -1078,9 +1077,7 @@ class _HomeOrganizationCard extends StatelessWidget {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 13),
-
                 Text(
                   organization.name,
                   maxLines: 1,
@@ -1091,15 +1088,11 @@ class _HomeOrganizationCard extends StatelessWidget {
                     color: colors.onSurface,
                   ),
                 ),
-
                 const SizedBox(height: 7),
-
                 Row(
                   children: [
                     Icon(
-                      isPrivate
-                          ? Icons.lock_outline_rounded
-                          : Icons.public_rounded,
+                      isPrivate ? Icons.lock_outline_rounded : Icons.public_rounded,
                       size: 13,
                       color: visibilityColor,
                     ),
@@ -1114,11 +1107,7 @@ class _HomeOrganizationCard extends StatelessWidget {
                     ),
                     const Spacer(),
                     if (organization.membersCount > 0) ...[
-                      Icon(
-                        Icons.people_alt_outlined,
-                        size: 13,
-                        color: colors.onSurfaceVariant,
-                      ),
+                      Icon(Icons.people_alt_outlined, size: 13, color: colors.onSurfaceVariant),
                       const SizedBox(width: 4),
                       Text(
                         '${organization.membersCount}',
@@ -1131,9 +1120,7 @@ class _HomeOrganizationCard extends StatelessWidget {
                     ],
                   ],
                 ),
-
-                if (organization.description != null &&
-                    organization.description!.isNotEmpty) ...[
+                if (organization.description != null && organization.description!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Text(
                     organization.description!,
@@ -1157,20 +1144,14 @@ class _HomeOrganizationCard extends StatelessWidget {
   Widget _initials() {
     final name = organization.name.trim();
     final initial = name.isNotEmpty ? name.substring(0, 1).toUpperCase() : '?';
-
     return Center(
       child: Text(
         initial,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-          fontWeight: FontWeight.w900,
-        ),
+        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
       ),
     );
   }
 }
-
 class _HomeCourseCard extends StatelessWidget {
   final CourseEntity course;
   final VoidCallback onTap;
@@ -1180,9 +1161,9 @@ class _HomeCourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final hasCover = course.coverUrl != null && course.coverUrl!.isNotEmpty;
-
     final isEnrolled = course.enrollment != null;
     final isCompleted = course.isCompleted;
     final progress = course.enrollment?.progressPercentage ?? 0;
@@ -1191,20 +1172,25 @@ class _HomeCourseCard extends StatelessWidget {
     return SizedBox(
       width: 235,
       child: Material(
-        color: colors.surface,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(22),
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(22),
           child: Container(
             decoration: BoxDecoration(
+              color: isDark
+                  ? colors.primaryContainer.withValues(alpha: 0.25)
+                  : AppColors.primaryLight.withValues(alpha: 0.45),
               borderRadius: BorderRadius.circular(22),
               border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: 0.5),
+                color: isDark
+                    ? colors.primary.withValues(alpha: 0.25)
+                    : AppColors.primary.withValues(alpha: 0.12),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.045),
+                  color: Colors.black.withValues(alpha: isDark ? 0.20 : 0.06),
                   blurRadius: 16,
                   offset: const Offset(0, 7),
                 ),
@@ -1228,16 +1214,12 @@ class _HomeCourseCard extends StatelessWidget {
                         )
                       else
                         _placeholder(),
-
                       if (isCompleted)
                         Positioned(
                           top: 10,
                           right: 10,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 5,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                             decoration: BoxDecoration(
                               color: const Color(0xff2E7D53),
                               borderRadius: BorderRadius.circular(9),
@@ -1245,20 +1227,9 @@ class _HomeCourseCard extends StatelessWidget {
                             child: const Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  Icons.check_circle_rounded,
-                                  size: 12,
-                                  color: Colors.white,
-                                ),
+                                Icon(Icons.check_circle_rounded, size: 12, color: Colors.white),
                                 SizedBox(width: 3),
-                                Text(
-                                  'مكتملة',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 9.5,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
+                                Text('مكتملة', style: TextStyle(color: Colors.white, fontSize: 9.5, fontWeight: FontWeight.w800)),
                               ],
                             ),
                           ),
@@ -1266,7 +1237,6 @@ class _HomeCourseCard extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(13),
@@ -1284,7 +1254,6 @@ class _HomeCourseCard extends StatelessWidget {
                             color: colors.onSurface,
                           ),
                         ),
-
                         if (organizationName != null) ...[
                           const SizedBox(height: 5),
                           Text(
@@ -1298,9 +1267,7 @@ class _HomeCourseCard extends StatelessWidget {
                             ),
                           ),
                         ],
-
                         const Spacer(),
-
                         if (isEnrolled) ...[
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
@@ -1309,42 +1276,25 @@ class _HomeCourseCard extends StatelessWidget {
                               minHeight: 5,
                               backgroundColor: colors.surfaceContainerHighest,
                               valueColor: AlwaysStoppedAnimation(
-                                isCompleted
-                                    ? const Color(0xff2E7D53)
-                                    : AppColors.primary,
+                                isCompleted ? const Color(0xff2E7D53) : AppColors.primary,
                               ),
                             ),
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            isCompleted
-                                ? 'مكتملة بالكامل'
-                                : '${progress.toStringAsFixed(0)}٪ مكتمل',
+                            isCompleted ? 'مكتملة بالكامل' : '${progress.toStringAsFixed(0)}٪ مكتمل',
                             style: TextStyle(
                               fontSize: 9.5,
                               fontWeight: FontWeight.w700,
-                              color: isCompleted
-                                  ? const Color(0xff2E7D53)
-                                  : colors.onSurfaceVariant,
+                              color: isCompleted ? const Color(0xff2E7D53) : colors.onSurfaceVariant,
                             ),
                           ),
                         ] else
                           Row(
                             children: [
-                              Text(
-                                'استكشف الكورس',
-                                style: TextStyle(
-                                  color: colors.primary,
-                                  fontSize: 10.5,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
+                              Text('استكشف الكورس', style: TextStyle(color: colors.primary, fontSize: 10.5, fontWeight: FontWeight.w800)),
                               const SizedBox(width: 3),
-                              Icon(
-                                Icons.arrow_forward_rounded,
-                                size: 14,
-                                color: colors.primary,
-                              ),
+                              Icon(Icons.arrow_forward_rounded, size: 14, color: colors.primary),
                             ],
                           ),
                       ],
@@ -1377,7 +1327,6 @@ class _HomeCourseCard extends StatelessWidget {
     );
   }
 }
-
 class _EmptyState extends StatelessWidget {
   final IconData icon;
   final String message;
