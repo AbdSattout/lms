@@ -124,7 +124,7 @@ class CourseHeroHeader extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withValues(alpha: 0.85),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -141,7 +141,7 @@ class CourseHeroHeader extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: Colors.white.withValues(alpha: 0.85),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
