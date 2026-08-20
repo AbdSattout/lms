@@ -176,8 +176,10 @@ public class ConversationService {
                         targetUser
                 );
 
-        return conversationMapper
-                .toResponse(conversation);
+        return conversationMapper.toResponse(
+                conversation,
+                currentUser
+        );
 
     }
 
@@ -197,7 +199,12 @@ public class ConversationService {
                         ConversationType.DIRECT,
                         pageable
                 )
-                .map(conversationMapper::toResponse);
+                .map(conversation ->
+                        conversationMapper.toResponse(
+                                conversation,
+                                currentUser
+                        )
+                );
     }
 
     @Transactional
@@ -222,7 +229,8 @@ public class ConversationService {
                 );
 
         return conversationMapper.toResponse(
-                conversation
+                conversation,
+                currentUser
         );
     }
 
