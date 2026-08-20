@@ -2,6 +2,7 @@ package app.lms.friend.service;
 
 import app.lms.badge.dto.UserBadgeResponse;
 import app.lms.badge.service.UserBadgeService;
+import app.lms.chat.exception.ChatAccessDeniedException;
 import app.lms.common.exception.BadRequestException;
 import app.lms.common.exception.NotFoundException;
 import app.lms.friend.dto.FriendActionResponse;
@@ -246,14 +247,21 @@ public class FriendService {
                 });
     }
 
-    public void validateIsFriends(Long user1Id ,Long user2Id){
-        boolean isFriend = friendRepository.existsByUser1IdAndUser2Id(
-                user1Id,
-                user2Id
-        );
+    public void validateIsFriends(
+            Long user1Id,
+            Long user2Id
+    ) {
 
-        if (!isFriend){
-            throw new IllegalStateException("you are not friend");
+        boolean isFriend =
+                friendRepository.existsByUser1IdAndUser2Id(
+                        user1Id,
+                        user2Id
+                );
+
+        if (!isFriend) {
+            throw new ChatAccessDeniedException(
+                    "You can only send messages to friends"
+            );
         }
     }
 
