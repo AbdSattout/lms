@@ -6,7 +6,8 @@ import {
   getAdminJwtFromCookies,
   getBackendJwtFromCookies,
 } from "@/lib/auth/backend-jwt-cookie"
-import { buildLoginPath } from "@/lib/auth/callback-url"
+import { buildLoginErrorPath, buildLoginPath } from "@/lib/auth/callback-url"
+import { USER_BANNED_MESSAGE } from "@/lib/auth/user-banned"
 
 type UnauthorizedBehavior = "throw" | "redirect"
 
@@ -125,8 +126,24 @@ export async function backend<T>(
     handleUnauthorized(unauthorized, callbackUrl)
   }
 
+  let details: Awaited<ReturnType<typeof readResponseDetails>> | undefined
+
+  if (response.status === 403 && requireAuth) {
+    details = await readResponseDetails(response)
+    const isBanned =
+      details.code === "USER_BANNED" ||
+      details.message.includes("User is banned")
+
+    if (isBanned) {
+      handleUnauthorized(unauthorized, callbackUrl, USER_BANNED_MESSAGE)
+    }
+  }
+
   if (!response.ok) {
-    const details = await readResponseDetails(response)
+    if (!details) {
+      details = await readResponseDetails(response)
+    }
+
     console.error("[Backend Error]", {
       url: buildBackendUrl(path),
       method: init.method ?? "GET",
@@ -157,10 +174,15 @@ export async function backend<T>(
 
 function handleUnauthorized(
   behavior: UnauthorizedBehavior,
-  callbackUrl?: string
+  callbackUrl?: string,
+  message?: string
 ): never {
   if (behavior === "redirect") {
-    redirect(buildLoginPath(callbackUrl))
+    redirect(
+      message
+        ? buildLoginErrorPath(message, callbackUrl)
+        : buildLoginPath(callbackUrl)
+    )
   }
 
   throw new BackendUnauthorizedError()
