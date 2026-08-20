@@ -52,6 +52,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(UserBannedException.class)
+    public ResponseEntity<?> handleUserBanned(UserBannedException ex) {
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
+                Map.of(
+                        "status", 403,
+                        "error", ex.getMessage(),
+                        "code", "USER_BANNED"
+                )
+        );
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<?> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex

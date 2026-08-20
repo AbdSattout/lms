@@ -5,6 +5,7 @@ import app.lms.auth.dto.EmailOtpRequest;
 import app.lms.auth.dto.LoginRequest;
 import app.lms.auth.dto.VerifyEmailOtpRequest;
 import app.lms.auth.enums.AuthProvider;
+import app.lms.common.exception.UserBannedException;
 import app.lms.security.JwtService;
 import app.lms.security.UserPrincipal;
 import app.lms.user.mapper.UserMapper;
@@ -132,9 +133,7 @@ public class AuthService {
                         user.getId()
                 )
         ) {
-            throw new BadCredentialsException(
-                    "User is banned"
-            );
+            throw new UserBannedException();
         }
 
         String token =

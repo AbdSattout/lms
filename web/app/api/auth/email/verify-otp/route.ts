@@ -7,6 +7,10 @@ import {
   clearBackendJwtCookie,
   setBackendJwtCookie,
 } from "@/lib/auth/backend-jwt-cookie"
+import {
+  USER_BANNED_ERROR_CODE,
+  USER_BANNED_MESSAGE,
+} from "@/lib/auth/user-banned"
 
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null)
@@ -34,9 +38,16 @@ export async function POST(request: NextRequest) {
     await clearAdminJwtCookie()
 
     const status = error instanceof BackendError ? error.status : 502
+    const isBanned =
+      error instanceof BackendError &&
+      error.code === USER_BANNED_ERROR_CODE
 
     return NextResponse.json(
-      { message: "حدث خطأ ما، حاول مرة أخرى." },
+      {
+        message: isBanned
+          ? USER_BANNED_MESSAGE
+          : "حدث خطأ ما، حاول مرة أخرى.",
+      },
       { status }
     )
   }
