@@ -67,8 +67,25 @@ public class CommentResponseService {
                         user
                 );
 
+        List<Long> postIds =
+                comments.stream()
+                        .map(comment ->
+                                comment.getPost().getId()
+                        )
+                        .distinct()
+                        .toList();
+
+        List<Comment> allPostComments =
+                postIds.isEmpty()
+                        ? List.of()
+                        : commentRepository.findByPostIdIn(
+                        postIds
+                );
+
         Map<Long, Long> repliesCounts =
-                calculateRepliesCounts(comments);
+                calculateRepliesCounts(
+                        allPostComments
+                );
 
         return comments.stream()
                 .map(comment ->
