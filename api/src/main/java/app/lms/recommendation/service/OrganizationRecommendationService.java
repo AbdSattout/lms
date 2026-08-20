@@ -6,8 +6,8 @@ import app.lms.organization.service.OrganizationViewerService;
 import app.lms.recommendation.dto.RecommendationScore;
 import app.lms.recommendation.dto.RecommendedOrganizationResponse;
 import app.lms.recommendation.mapper.RecommendationMapper;
-import app.lms.recommendation.repository.OrganizationRecommendationCandidate;
 import app.lms.recommendation.repository.OrganizationRecommendationRepository;
+import app.lms.recommendation.repository.projection.OrganizationRecommendationProjection;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,7 +37,7 @@ public class OrganizationRecommendationService {
         Instant recentCourseCutoff =
                 recommendationScoringService.recentCutoff();
 
-        Page<OrganizationRecommendationCandidate> candidates =
+        Page<OrganizationRecommendationProjection> candidates =
                 organizationRecommendationRepository.findCandidates(
                         user.getId(),
                         CourseStatus.PUBLISHED,
@@ -51,7 +51,9 @@ public class OrganizationRecommendationService {
                 organizationViewerService.byOrganizationId(
                         candidates.getContent()
                                 .stream()
-                                .map(OrganizationRecommendationCandidate::organization)
+                                .map(
+                                        OrganizationRecommendationProjection::getOrganization
+                                )
                                 .toList(),
                         user
                 );
@@ -66,7 +68,7 @@ public class OrganizationRecommendationService {
     }
 
     private RecommendedOrganizationResponse toRecommendedOrganizationResponse(
-            OrganizationRecommendationCandidate candidate,
+            OrganizationRecommendationProjection candidate,
             Map<Long, OrganizationViewerResponse> organizationViewers,
             Instant recentCourseCutoff
     ) {
