@@ -10,6 +10,7 @@ import '../../domain/entities/user_profile_entity.dart';
 import '../bloc/user_profile_bloc.dart';
 import '../bloc/user_profile_event.dart';
 import '../bloc/user_profile_state.dart';
+import '../widgets/user_badges_section.dart';
 
 class UserProfilePage extends StatefulWidget {
   final int userId;
@@ -169,7 +170,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
           _StatsCard(profile: profile),
           if (profile.badges.isNotEmpty) ...[
             const SizedBox(height: 20),
-            _BadgesSection(badges: profile.badges),
+            UserBadgesSection(badges: profile.badges),
           ],
           if (profile.recentCourses.isNotEmpty) ...[
             const SizedBox(height: 20),
@@ -710,86 +711,6 @@ class _StatCell extends StatelessWidget {
           ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
         ),
       ],
-    );
-  }
-}
-
-class _BadgesSection extends StatelessWidget {
-  final List<UserBadgeEntity> badges;
-
-  const _BadgesSection({required this.badges});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'الشارات',
-          style: Theme.of(
-            context,
-          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-        ),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 108,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: badges.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final badge = badges[index];
-              return _BadgeTile(badge: badge);
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _BadgeTile extends StatelessWidget {
-  final UserBadgeEntity badge;
-
-  const _BadgeTile({required this.badge});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-
-    return SizedBox(
-      width: 84,
-      child: Column(
-        children: [
-          if (badge.iconUrl != null)
-            ResilientNetworkAvatar(
-              radius: 26,
-              imageUrl: badge.iconUrl,
-              fallbackLabel: badge.title,
-              backgroundColor: colors.surfaceContainerHighest,
-            )
-          else
-            CircleAvatar(
-              radius: 26,
-              backgroundColor: colors.surfaceContainerHighest,
-              child: Icon(
-                Icons.emoji_events_rounded,
-                color: colors.primary,
-                size: 26,
-              ),
-            ),
-          const SizedBox(height: 6),
-          Text(
-            badge.title,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w700),
-          ),
-        ],
-      ),
     );
   }
 }
