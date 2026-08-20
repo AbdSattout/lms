@@ -14,7 +14,7 @@ import {
 } from "@/lib/auth/callback-url"
 import { getBetterAuthSession, getOidcIdToken } from "@/lib/auth/session"
 import {
-  USER_BANNED_ERROR_CODE,
+  isUserBannedError,
   USER_BANNED_MESSAGE,
 } from "@/lib/auth/user-banned"
 
@@ -62,9 +62,7 @@ async function exchangeBackendSession(provider: LoginProvider) {
     await clearBackendJwtCookie()
     await clearAdminJwtCookie()
 
-    const isBanned =
-      error instanceof BackendError &&
-      error.code === USER_BANNED_ERROR_CODE
+    const isBanned = isUserBannedError(error)
 
     return {
       redirectToLogin: false as const,
