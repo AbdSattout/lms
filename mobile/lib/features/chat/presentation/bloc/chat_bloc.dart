@@ -4,23 +4,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/chat_updates_notifier.dart';
 import '../../../../core/utils/api_error_resolver.dart';
-import '../../../friends/domain/entities/friend_user_entity.dart';
-import '../../../friends/domain/usecases/get_friends_usecase.dart';
-import '../../domain/entities/conversation_entity.dart';
 import '../../domain/usecases/get_conversations_usecase.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatsState> {
   final GetConversationsUseCase getConversationsUseCase;
-  final GetFriendsUseCase getFriendsUseCase;
   final ChatUpdatesNotifier chatUpdatesNotifier;
 
   StreamSubscription<void>? _updatesSubscription;
 
   ChatBloc({
     required this.getConversationsUseCase,
-    required this.getFriendsUseCase,
     required this.chatUpdatesNotifier,
   }) : super(ChatsInitial()) {
     on<LoadChatsEvent>(_load);
@@ -56,11 +51,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatsState> {
   Future<void> _fetch({required Emitter<ChatsState> emit}) async {
     try {
       final page = await getConversationsUseCase(page: 0);
-      final users = await _resolveUsers(page.content);
       emit(
         ChatsLoaded(
           conversations: page.content,
-          users: users,
           hasMore: !page.last,
           pageNumber: 0,
           isLoadingMore: false,
@@ -105,17 +98,6 @@ class ChatBloc extends Bloc<ChatEvent, ChatsState> {
           clearActionMessage: true,
         ),
       );
-    }
-  }
-
-  Future<Map<int, FriendUserEntity>> _resolveUsers(
-    List<ConversationEntity> conversations,
-  ) async {
-    try {
-      final friends = await getFriendsUseCase();
-      return {for (final friend in friends) friend.user.id: friend.user};
-    } catch (e) {
-      return const {};
     }
   }
 }

@@ -727,7 +727,6 @@ Future<void> init() async {
   sl.registerFactory(
     () => ChatBloc(
       getConversationsUseCase: sl(),
-      getFriendsUseCase: sl(),
       chatUpdatesNotifier: sl(),
     ),
   );
