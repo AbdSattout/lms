@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/utils/api_error_resolver.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_state.dart';
+import '../../../chat/domain/usecases/create_direct_conversation_usecase.dart';
+import '../../../chat/presentation/bloc/chat_messages_bloc.dart';
+import '../../../chat/presentation/bloc/chat_messages_event.dart';
+import '../../../chat/presentation/pages/chat_room_page.dart';
 import '../../../reports/domain/entities/report_target.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/friend_user_entity.dart';
@@ -165,6 +173,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
               );
             },
             onRemoveFriend: () => _confirmRemove(),
+            onOpenChat: () => _openChat(profile),
           ),
           const SizedBox(height: 20),
           _StatsCard(profile: profile),
@@ -182,14 +191,15 @@ class _UserProfilePageState extends State<UserProfilePage> {
   }
 
   Future<void> _confirmRemove() async {
-    final friendshipId = widget.friendshipId;
-    if (friendshipId == null) return;
-
     final bloc = context.read<UserProfileBloc>();
     final currentState = bloc.state;
-    final name = currentState is UserProfileLoaded
-        ? currentState.profile.profile.name
-        : (widget.initialUser?.name ?? '');
+    if (currentState is! UserProfileLoaded) return;
+
+    final friendshipId =
+        currentState.profile.friendship.friendId ?? widget.friendshipId;
+    if (friendshipId == null) return;
+
+    final name = currentState.profile.profile.name;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -213,6 +223,44 @@ class _UserProfilePageState extends State<UserProfilePage> {
 
     setState(() => _removing = true);
     bloc.add(RemoveFriendEvent(friendshipId));
+  }
+
+  Future<void> _openChat(UserProfileEntity profile) async {
+    final user = profile.profile.user;
+    final currentUserId = _currentUserId(context);
+    try {
+      final conversation = await sl<CreateDirectConversationUseCase>().call(
+        user.id,
+      );
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BlocProvider(
+            create: (_) => sl<ChatMessagesBloc>(
+              param1: conversation.id,
+              param2: currentUserId,
+            )..add(OpenChatConversationEvent()),
+            child: ChatRoomPage(
+              conversationId: conversation.id,
+              otherUser: user,
+            ),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(resolveApiErrorMessage(e))));
+    }
+  }
+
+  int _currentUserId(BuildContext context) {
+    final state = context.read<AuthBloc>().state;
+    if (state is Authenticated) return state.authEntity.user.id;
+    if (state is AuthSuccess) return state.authEntity.user.id;
+    return 0;
   }
 }
 
@@ -406,6 +454,7 @@ class _FriendshipActionArea extends StatelessWidget {
   final void Function(int requestId) onRejectRequest;
   final void Function(int requestId) onCancelRequest;
   final VoidCallback onRemoveFriend;
+  final VoidCallback onOpenChat;
 
   const _FriendshipActionArea({
     required this.profile,
@@ -416,23 +465,61 @@ class _FriendshipActionArea extends StatelessWidget {
     required this.onRejectRequest,
     required this.onCancelRequest,
     required this.onRemoveFriend,
+    required this.onOpenChat,
   });
 
   @override
   Widget build(BuildContext context) {
     final friendship = profile.friendship;
     final userId = profile.profile.user.id;
+    final friendId = friendship.friendId ?? friendshipId;
 
+    if (friendship.status == 'SELF') {
+      return _SelfChip();
+    }
+
+    final friendAction = _buildFriendAction(
+      context,
+      friendship: friendship,
+      userId: userId,
+      friendId: friendId,
+    );
+
+    final chatButton = _ChatButton(
+      isEnabled: friendship.status == 'FRIENDS',
+      onPressed: onOpenChat,
+    );
+
+    if (friendship.status == 'REQUEST_RECEIVED') {
+      return Column(
+        children: [
+          friendAction,
+          const SizedBox(height: 10),
+          chatButton,
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: friendAction),
+        const SizedBox(width: 10),
+        Expanded(child: chatButton),
+      ],
+    );
+  }
+
+  Widget _buildFriendAction(
+    BuildContext context, {
+    required UserProfileFriendshipEntity friendship,
+    required int userId,
+    required int? friendId,
+  }) {
     switch (friendship.status) {
-      case 'SELF':
-        return _SelfChip();
       case 'FRIENDS':
-        if (friendshipId == null) {
-          return _FriendsChip();
-        }
         return _RemoveFriendButton(
-          isProcessing: processingId == friendshipId,
-          onPressed: onRemoveFriend,
+          isProcessing: friendId != null && processingId == friendId,
+          onPressed: friendId == null ? null : onRemoveFriend,
         );
       case 'REQUEST_SENT':
         final requestId = friendship.pendingRequestId;
@@ -571,31 +658,35 @@ class _SelfChip extends StatelessWidget {
   }
 }
 
-class _FriendsChip extends StatelessWidget {
+class _ChatButton extends StatelessWidget {
+  final bool isEnabled;
+  final VoidCallback onPressed;
+
+  const _ChatButton({required this.isEnabled, required this.onPressed});
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+    return OutlinedButton.icon(
+      onPressed: isEnabled ? onPressed : null,
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size.fromHeight(52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.how_to_reg_rounded, size: 20, color: colors.primary),
-          const SizedBox(width: 8),
-          Text(
-            'أصدقاء',
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              color: colors.primary,
-            ),
-          ),
-        ],
+      icon: Icon(
+        isEnabled
+            ? Icons.chat_bubble_outline_rounded
+            : Icons.lock_outline_rounded,
+        size: 20,
+        color: isEnabled ? null : colors.onSurfaceVariant,
+      ),
+      label: Text(
+        'محادثة',
+        style: TextStyle(
+          fontWeight: FontWeight.w800,
+          color: isEnabled ? null : colors.onSurfaceVariant,
+        ),
       ),
     );
   }
@@ -603,7 +694,7 @@ class _FriendsChip extends StatelessWidget {
 
 class _RemoveFriendButton extends StatelessWidget {
   final bool isProcessing;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const _RemoveFriendButton({
     required this.isProcessing,
