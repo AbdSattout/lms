@@ -30,6 +30,7 @@ import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
+import '../../features/courses/presentation/bloc/all_courses_bloc.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/data/datasources/home_remote_datasource.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
@@ -358,6 +359,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
   sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
   sl.registerLazySingleton(() => UnenrollFromCourseUseCase(sl()));
+  sl.registerFactory(() => AllCoursesBloc(getAllCoursesUseCase: sl()));
   sl.registerFactory(() => MyCoursesBloc(getMyEnrollmentsUseCase: sl()));
 
   sl.registerFactory(

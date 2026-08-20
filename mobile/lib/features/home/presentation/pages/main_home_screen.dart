@@ -17,6 +17,7 @@ import '../../../courses/presentation/bloc/course_details_bloc.dart';
 import '../../../courses/presentation/bloc/course_details_event.dart';
 import '../../../courses/presentation/bloc/my_courses_bloc.dart';
 import '../../../courses/presentation/bloc/my_courses_event.dart';
+import '../../../courses/presentation/pages/all_courses_page.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
 import '../../../courses/presentation/pages/my_courses_page.dart';
 import '../../../courses/presentation/widgets/course_card.dart';
@@ -558,7 +559,12 @@ class _HomeLoadedContent extends StatelessWidget {
         _SectionHeader(
           title: 'استكشف الكورسات',
           subtitle: 'اختر مهارتك القادمة',
-          onViewAll: null,
+          onViewAll: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const AllCoursesPage()),
+            );
+          },
         ),
 
         const SizedBox(height: 14),
@@ -1075,20 +1081,39 @@ class _HomeOrganizationCard extends StatelessWidget {
                         color: colors.primary,
                       ),
                     ),
+
                   ],
                 ),
                 const SizedBox(height: 13),
-                Text(
-                  organization.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 15.5,
-                    fontWeight: FontWeight.w900,
-                    color: colors.onSurface,
-                  ),
+
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        organization.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w900,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                    if (organization.verified)
+                      const Padding(
+                        padding: EdgeInsets.only(right: 6),
+                        child: Icon(
+                          Icons.verified_rounded,
+                          size: 18,
+                          color: Color(0xff0EA5E9),
+                        ),
+                      ),
+                  ],
                 ),
+
                 const SizedBox(height: 7),
+
                 Row(
                   children: [
                     Icon(

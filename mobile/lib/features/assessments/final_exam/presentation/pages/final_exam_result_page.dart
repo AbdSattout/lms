@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../../core/markdown/markdown_content_view.dart';
+import '../../../../certificates/presentation/pages/certificate_viewer_page.dart';
+import '../../../../certificates/presentation/widgets/certificate_preview_image.dart';
 import '../../../practice_exam/domain/entities/practice_exam_submit_result_entity.dart';
 import '../../domain/entities/final_exam_submit_result_entity.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -48,6 +51,26 @@ class FinalExamResultPage extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               ...result.results.map((r) => _ResultTile(result: r)),
+              if (result.certificate != null) ...[
+                const SizedBox(height: 16),
+                _CertificateSection(
+                  certificate: result.certificate!,
+                  onView: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CertificateViewerPage(certificate: result.certificate!),
+                      ),
+                    );
+                  },
+                  onDownloadPdf: () async {
+                    if (result.certificate!.hasPdf) {
+                      final uri = Uri.parse(result.certificate!.pdfUrl!);
+                      await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    }
+                  },
+                ),
+              ],
             ],
           ),
         ),
@@ -72,6 +95,96 @@ class FinalExamResultPage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _CertificateSection extends StatelessWidget {
+  final dynamic certificate;
+  final VoidCallback onView;
+  final VoidCallback onDownloadPdf;
+
+  const _CertificateSection({
+    required this.certificate,
+    required this.onView,
+    required this.onDownloadPdf,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          colors: [
+            const Color(0xffF2C94C).withOpacity(0.15),
+            const Color(0xff2E7D53).withOpacity(0.08),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xffF2C94C).withOpacity(0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: const Color(0xffF2C94C).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.emoji_events_rounded, color: Color(0xffB7791F), size: 22),
+              ),
+              const SizedBox(width: 10),
+              Text('شهادتك', style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w900, color: colors.onSurface)),
+            ],
+          ),
+          const SizedBox(height: 14),
+          GestureDetector(
+            onTap: onView,
+            child: CertificatePreviewImage(previewUrl: certificate.previewUrl),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onView,
+                  icon: const Icon(Icons.visibility_rounded, size: 16),
+                  label: const Text('عرض الشهادة'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: colors.primary,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ),
+              if (certificate.hasPdf) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: onDownloadPdf,
+                    icon: const Icon(Icons.download_rounded, size: 16),
+                    label: const Text('تحميل PDF'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: const Color(0xff2E7D53),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -384,6 +497,7 @@ class _BadgeTile extends StatelessWidget {
                   ),
                 ],
               ],
+
             ),
           ),
         ],
