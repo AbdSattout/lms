@@ -47,7 +47,6 @@ dependencies:
   equatable: ^2.0.8
   flutter_snake_navigationbar: ^0.6.1
   image_picker: ^1.1.2
-  flutter_markdown: ^0.7.4
   pusher_channels_flutter: ^2.4.0
   google_fonts: ^6.2.1
   firebase_core: ^4.13.0
@@ -57,6 +56,8 @@ dependencies:
   qr_flutter: ^4.1.0
   flutter_markdown_plus: ^1.0.12
   flutter_markdown_plus_latex: ^1.0.5
+  markdown: ^7.3.1
+  flutter_math_fork: ^0.7.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
