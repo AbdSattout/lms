@@ -3,6 +3,7 @@ package app.lms.chat.service;
 import app.lms.chat.dto.EditMessageRequest;
 import app.lms.chat.dto.MessageResponse;
 import app.lms.chat.dto.SendMessageRequest;
+import app.lms.chat.enums.ConversationType;
 import app.lms.chat.enums.MessageType;
 import app.lms.chat.exception.ChatAccessDeniedException;
 import app.lms.chat.mapper.MessageMapper;
@@ -11,6 +12,7 @@ import app.lms.chat.model.ConversationMember;
 import app.lms.chat.model.Message;
 import app.lms.chat.repository.ConversationMemberRepository;
 import app.lms.chat.repository.MessageRepository;
+import app.lms.friend.service.FriendService;
 import app.lms.organization.service.OrganizationMemberAccessService;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +41,8 @@ public class MessageService {
 
     private final OrganizationMemberAccessService organizationMemberAccessService;
 
+    private final FriendService friendService;
+
     @Transactional
     public MessageResponse sendMessage(
             Long conversationId,
@@ -52,6 +56,14 @@ public class MessageService {
                                 conversationId,
                                 user
                         );
+
+        if (conversation.getType() == ConversationType.DIRECT) {
+            Long otherUserId = conversation.getDirectUserOne().getId().equals(user.getId())
+                    ? conversation.getDirectUserTwo().getId()
+                    : conversation.getDirectUserOne().getId();
+
+            friendService.validateIsFriends(user.getId(), otherUserId);
+        }
 
         chatMuteService.validateCanSendMessage(
                 user,
