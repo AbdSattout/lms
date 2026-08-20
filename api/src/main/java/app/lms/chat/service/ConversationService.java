@@ -74,11 +74,6 @@ public class ConversationService {
                         );
                     }
 
-                    friendService.validateIsFriends(
-                            userOneId,
-                            userTwoId
-                    );
-
                     return createDirectConversation(
                             currentUser,
                             targetUser
