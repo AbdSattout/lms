@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { api } from "@/lib/api"
 import { BackendError } from "@/lib/api/backend"
 import {
+  clearAdminJwtCookie,
   clearBackendJwtCookie,
   setBackendJwtCookie,
 } from "@/lib/auth/backend-jwt-cookie"
@@ -30,6 +31,9 @@ async function exchangeBackendSession(provider: LoginProvider) {
   const idToken = await getOidcIdToken(provider)
 
   if (!idToken) {
+    await clearBackendJwtCookie()
+    await clearAdminJwtCookie()
+
     return {
       redirectToLogin: false as const,
       errorStatus: 400,
@@ -44,6 +48,7 @@ async function exchangeBackendSession(provider: LoginProvider) {
     }
 
     await setBackendJwtCookie(backendSession.token)
+    await clearAdminJwtCookie()
 
     return {
       redirectToLogin: false as const,
@@ -51,6 +56,7 @@ async function exchangeBackendSession(provider: LoginProvider) {
     }
   } catch (error) {
     await clearBackendJwtCookie()
+    await clearAdminJwtCookie()
 
     return {
       redirectToLogin: false as const,

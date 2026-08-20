@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { api } from "@/lib/api"
 import { BackendError } from "@/lib/api/backend"
 import {
+  clearAdminJwtCookie,
   clearBackendJwtCookie,
-  setBackendJwtCookie,
+  setAdminJwtCookie,
 } from "@/lib/auth/backend-jwt-cookie"
 
 export async function POST(request: NextRequest) {
@@ -38,7 +39,8 @@ export async function POST(request: NextRequest) {
       throw new Error("رد الخادم لم يحتوي على توكن (token) مصادقة.")
     }
 
-    await setBackendJwtCookie(backendSession.token)
+    await setAdminJwtCookie(backendSession.token)
+    await clearBackendJwtCookie()
 
     return NextResponse.json(
       {
@@ -60,7 +62,7 @@ export async function POST(request: NextRequest) {
       console.error("استثناء مجهول غير مُعالج:", error)
     }
 
-    await clearBackendJwtCookie()
+    await clearAdminJwtCookie()
 
     const status = error instanceof BackendError ? error.status : 502
 
