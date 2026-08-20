@@ -770,11 +770,13 @@ export interface CertificateResponse {
   certificateCode: string
   studentName: string
   courseName: string
-  organizationName: string
+  organization: OrganizationSummaryResponse
   finalQuizScore: number
   finalQuizTotal: number
   finalQuizPercentage: number
   grade: CertificateGrade
+  previewUrl: string
+  pdfUrl: string
   baseEntity?: BaseEntityResponse
 }
 export type ReportStatus = "PENDING" | "UNDER_REVIEW" | "RESOLVED" | "REJECTED"
