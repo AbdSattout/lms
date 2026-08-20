@@ -76,6 +76,13 @@ class _CourseLearningSections extends StatelessWidget {
             state is CourseContentsLoaded && state.course.chapters.isNotEmpty;
         final placementTestCompleted =
             hasStarted || course.enrollment?.placementTestCompleted == true;
+        final solvedBlocksCount = displayCourse.chapters
+            .expand((chapter) => chapter.lessons)
+            .expand((lesson) => lesson.blocks)
+            .where((block) => block.status == ContentStatus.completed)
+            .length;
+        const minAiQuizSolvedBlocks = 10;
+        final aiQuizUnlocked = solvedBlocksCount >= minAiQuizSolvedBlocks;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,16 +139,20 @@ class _CourseLearningSections extends StatelessWidget {
                     iconColor: const Color(0xff0D9488),
                     iconBg: const Color(0xff0D9488).withOpacity(0.1),
                     title: 'اختبار AI',
-                    subtitle: 'مراجعة من البلوكات المحلولة',
-                    badge: 'بدون XP',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => AiQuizPage(courseId: course.id),
-                        ),
-                      );
-                    },
+                    subtitle: aiQuizUnlocked
+                        ? 'مراجعة من البلوكات المحلولة'
+                        : 'يتطلب حل 10 أسئلة',
+                    badge: aiQuizUnlocked ? 'بدون XP' : null,
+                    onTap: aiQuizUnlocked
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AiQuizPage(courseId: course.id),
+                              ),
+                            );
+                          }
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -600,7 +611,7 @@ class _ToolCard extends StatelessWidget {
   final String subtitle;
   final String? badge;
   final Color? badgeColor;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _ToolCard({
     required this.icon,
@@ -610,12 +621,13 @@ class _ToolCard extends StatelessWidget {
     required this.subtitle,
     this.badge,
     this.badgeColor,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isDisabled = onTap == null;
     return Material(
       color: colors.surface,
       borderRadius: BorderRadius.circular(16),
@@ -628,61 +640,72 @@ class _ToolCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: colors.outlineVariant.withOpacity(0.5)),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: iconBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(icon, size: 20, color: iconColor),
-                  ),
-                  if (badge != null)
+          child: Opacity(
+            opacity: isDisabled ? 0.5 : 1,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
-                        color: (badgeColor ?? colors.onSurfaceVariant)
-                            .withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(6),
+                        color: iconBg,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        badge!,
-                        style: TextStyle(
-                          fontSize: 9.5,
-                          fontWeight: FontWeight.w700,
-                          color: badgeColor ?? colors.onSurfaceVariant,
+                      child: Icon(icon, size: 20, color: iconColor),
+                    ),
+                    if (isDisabled)
+                      Icon(
+                        Icons.lock_rounded,
+                        size: 16,
+                        color: colors.onSurfaceVariant,
+                      )
+                    else if (badge != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: (badgeColor ?? colors.onSurfaceVariant)
+                              .withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          badge!,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w700,
+                            color: badgeColor ?? colors.onSurfaceVariant,
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
-                  color: colors.onSurface,
+                  ],
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  fontSize: 10.5,
-                  color: colors.onSurfaceVariant,
+                const SizedBox(height: 10),
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: colors.onSurface,
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
