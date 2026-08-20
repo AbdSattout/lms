@@ -1,5 +1,7 @@
 import '../utils/date_time_utils.dart';
 
+const kUserBannedMessage = 'تم حظر حسابك، لا يمكنك تسجيل الدخول. تواصل مع الدعم إذا كنت تعتقد أن هذا خطأ.';
+
 class ErrorModel {
   final int status;
   final String errorMessage;
@@ -29,6 +31,14 @@ class ErrorModel {
         jsonData["detail"];
 
     final reason = jsonData["reason"]?.toString().trim();
+    final code = jsonData["code"]?.toString();
+
+    if (code == "USER_BANNED") {
+      return ErrorModel(
+        errorMessage: kUserBannedMessage,
+        status: _readStatus(jsonData["status"]),
+      );
+    }
 
     return ErrorModel(
       errorMessage: _normalizeMessage(rawMessage?.toString()),
@@ -55,6 +65,7 @@ class ErrorModel {
         "هذا البريد الإلكتروني مرتبط بحساب آخر",
       "Email is already set and cannot be changed" =>
         "تم ربط بريد تسجيل الدخول مسبقاً ولا يمكن تغييره",
+      "User is banned" => kUserBannedMessage,
       _ => normalized,
     };
   }

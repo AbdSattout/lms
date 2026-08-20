@@ -24,11 +24,13 @@ export interface BackendFetchOptions extends Omit<
 
 export class BackendError extends Error {
   readonly status: number
+  readonly code?: string
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, code?: string) {
     super(message)
     this.name = "BackendError"
     this.status = status
+    this.code = code
   }
 }
 
@@ -124,17 +126,18 @@ export async function backend<T>(
   }
 
   if (!response.ok) {
-    const detailString = await readResponseDetails(response)
+    const details = await readResponseDetails(response)
     console.error("[Backend Error]", {
       url: buildBackendUrl(path),
       method: init.method ?? "GET",
       status: response.status,
       statusText: response.statusText,
-      details: detailString,
+      details: details.message,
     })
     throw new BackendError(
       response.status,
-      `Backend request failed (${response.status}): ${detailString}`
+      `Backend request failed (${response.status}): ${details.message}`,
+      details.code
     )
   }
 
@@ -173,8 +176,10 @@ async function getJwtForPath(path: string) {
 
 async function readResponseDetails(response: Response) {
   try {
-    return JSON.stringify(await response.json())
+    const body = await response.json()
+    const code = typeof body?.code === "string" ? body.code : undefined
+    return { message: JSON.stringify(body), code }
   } catch {
-    return await response.text()
+    return { message: await response.text() }
   }
 }
