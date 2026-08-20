@@ -75,7 +75,7 @@ export default async function VerifyPage({
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt className="text-muted-foreground">الجهة المانحة</dt>
-              <dd className="font-semibold">{cert.organizationName}</dd>
+              <dd className="font-semibold">{cert.organization.name}</dd>
             </div>
             <div className="flex items-center justify-between gap-4">
               <dt className="text-muted-foreground">التقدير</dt>

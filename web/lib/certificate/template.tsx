@@ -134,7 +134,7 @@ export function CertificateTemplate({
                 textAlign: "center",
               }}
             >
-              {cert.organizationName}
+              {cert.organization.name}
             </span>
           </div>
 
