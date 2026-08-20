@@ -124,9 +124,12 @@ public class AdminReportService {
 
             case PENDING -> {
 
-                if (newStatus != ReportStatus.UNDER_REVIEW) {
+                if (newStatus != ReportStatus.UNDER_REVIEW &&
+                        newStatus != ReportStatus.RESOLVED &&
+                        newStatus != ReportStatus.REJECTED) {
+
                     throw new IllegalArgumentException(
-                            "Pending reports can only move to UNDER_REVIEW."
+                            "Pending reports can only move to UNDER_REVIEW, RESOLVED, or REJECTED."
                     );
                 }
 
