@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
+import '../../../assessments/final_exam/presentation/pages/final_exam_page.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
 import '../../../reports/domain/entities/report_target.dart';

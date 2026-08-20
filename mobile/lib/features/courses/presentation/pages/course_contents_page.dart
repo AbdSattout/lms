@@ -16,7 +16,7 @@ import '../../../chat/presentation/bloc/chat_messages_event.dart';
 import '../../../chat/presentation/pages/chat_room_page.dart';
 import '../../../posts/presentation/pages/course_posts_page.dart';
 import '../../../assessments/ai_quiz/presentation/pages/ai_quiz_page.dart';
-import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
+import '../../../assessments/final_exam/presentation/pages/final_exam_page.dart';
 import '../../../assessments/practice_exam/presentation/pages/practice_exam_list_page.dart';
 import '../../../assessments/random_quiz/presentation/pages/random_quiz_config_page.dart';
 import '../../domain/entities/course_entity.dart';

@@ -10,7 +10,7 @@ import '../../features/assessments/final_exam/data/repositories/final_exam_repos
 import '../../features/assessments/final_exam/domain/repositories/final_exam_repository.dart';
 import '../../features/assessments/final_exam/domain/usecases/get_final_exam_usecase.dart';
 import '../../features/assessments/final_exam/domain/usecases/submit_final_exam_usecase.dart';
-import '../../features/assessments/final_exam/presesntation/bloc/final_exam_bloc.dart';
+import '../../features/assessments/final_exam/presentation/bloc/final_exam_bloc.dart';
 import '../../features/assessments/practice_exam/data/datasources/practice_exam_remote_datasource.dart';
 import '../../features/assessments/practice_exam/data/repositories/practice_exam_repository_impl.dart';
 import '../../features/assessments/practice_exam/domain/repositories/practice_exam_repository.dart';

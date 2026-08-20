@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lms/core/markdown/markdown_content_view.dart';
 import '../../domain/entities/practice_exam_submit_result_entity.dart';
 
 class PracticeExamResultPage extends StatelessWidget {
@@ -179,7 +180,7 @@ class _ResultTile extends StatelessWidget {
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(width: 28, height: 28, decoration: BoxDecoration(color: isCorrect ? const Color(0xff2E7D53).withOpacity(0.1) : const Color(0xffD9534F).withOpacity(0.1), shape: BoxShape.circle), child: Icon(isCorrect ? Icons.check_rounded : Icons.close_rounded, size: 16, color: isCorrect ? const Color(0xff2E7D53) : const Color(0xffD9534F))),
           const SizedBox(width: 10),
-          Expanded(child: Text(result.content, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.onSurface, height: 1.4))),
+          Expanded(child: MarkdownContentView(content: result.content)),
         ]),
         const SizedBox(height: 12),
         if (selectedIndex != null) ...[
@@ -204,7 +205,14 @@ class _AnswerRow extends StatelessWidget {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)), child: Text(label, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color))),
       const SizedBox(width: 8),
-      Expanded(child: Text(text, style: TextStyle(fontSize: 13, color: color, fontWeight: FontWeight.w600))),
+      Expanded(child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),),
     ]);
   }
 }
