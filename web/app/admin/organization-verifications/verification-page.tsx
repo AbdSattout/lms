@@ -69,9 +69,7 @@ export function OrganizationVerificationsPage({
         setSelectedId(nextRequests[0]?.id ?? null)
       } catch (error) {
         toast.error(
-          error instanceof Error
-            ? error.message
-            : "تعذر تحميل طلبات التوثيق"
+          error instanceof Error ? error.message : "تعذر تحميل طلبات التوثيق"
         )
       }
     })
@@ -215,9 +213,7 @@ function VerificationDetails({
         toast.success("تم تحديث طلب التوثيق")
       } catch (error) {
         toast.error(
-          error instanceof Error
-            ? error.message
-            : "تعذر تحديث طلب التوثيق"
+          error instanceof Error ? error.message : "تعذر تحديث طلب التوثيق"
         )
       }
     })
@@ -318,7 +314,11 @@ function VerificationDetails({
           <div className="flex flex-wrap items-center justify-end gap-2">
             <Button
               variant="outline"
-              disabled={isSubmitting || request.status === "REJECTED"}
+              disabled={
+                isSubmitting ||
+                request.status === "REJECTED" ||
+                request.status === "APPROVED"
+              }
               onClick={() => review("REJECTED")}
             >
               <XCircle className="ml-2 h-4 w-4" />
@@ -326,7 +326,11 @@ function VerificationDetails({
             </Button>
 
             <Button
-              disabled={isSubmitting || request.status === "APPROVED"}
+              disabled={
+                isSubmitting ||
+                request.status === "APPROVED" ||
+                request.status === "REJECTED"
+              }
               onClick={() => review("APPROVED")}
             >
               <CheckCircle2 className="ml-2 h-4 w-4" />
