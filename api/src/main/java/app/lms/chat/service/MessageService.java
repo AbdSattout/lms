@@ -58,11 +58,11 @@ public class MessageService {
                         );
 
         if (conversation.getType() == ConversationType.DIRECT) {
-            Long otherUserId = conversation.getDirectUserOne().getId().equals(user.getId())
-                    ? conversation.getDirectUserTwo().getId()
-                    : conversation.getDirectUserOne().getId();
 
-            friendService.validateIsFriends(user.getId(), otherUserId);
+            friendService.validateIsFriends(
+                    conversation.getDirectUserOne().getId(),
+                    conversation.getDirectUserTwo().getId()
+            );
         }
 
         chatMuteService.validateCanSendMessage(
@@ -99,6 +99,7 @@ public class MessageService {
 
         return response;
     }
+
 
     @Transactional(readOnly = true)
     public Page<MessageResponse> getMessages(
