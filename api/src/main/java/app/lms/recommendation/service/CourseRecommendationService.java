@@ -9,8 +9,8 @@ import app.lms.organization.service.OrganizationViewerService;
 import app.lms.recommendation.dto.RecommendationScore;
 import app.lms.recommendation.dto.RecommendedCourseResponse;
 import app.lms.recommendation.mapper.RecommendationMapper;
-import app.lms.recommendation.repository.CourseRecommendationCandidate;
 import app.lms.recommendation.repository.CourseRecommendationRepository;
+import app.lms.recommendation.repository.projection.CourseRecommendationProjection;
 import app.lms.user.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +42,7 @@ public class CourseRecommendationService {
         Instant recentCourseCutoff =
                 recommendationScoringService.recentCutoff();
 
-        Page<CourseRecommendationCandidate> candidates =
+        Page<CourseRecommendationProjection> candidates =
                 courseRecommendationRepository.findCandidates(
                         user.getId(),
                         CourseStatus.PUBLISHED,
@@ -59,7 +59,7 @@ public class CourseRecommendationService {
                         candidates.getContent()
                                 .stream()
                                 .map(candidate ->
-                                        candidate.course()
+                                        candidate.getCourse()
                                                 .getOrganization()
                                 )
                                 .toList(),
@@ -76,7 +76,7 @@ public class CourseRecommendationService {
     }
 
     private RecommendedCourseResponse toRecommendedCourseResponse(
-            CourseRecommendationCandidate candidate,
+            CourseRecommendationProjection candidate,
             Map<Long, OrganizationViewerResponse> organizationViewers,
             Instant recentCourseCutoff
     ) {
@@ -89,7 +89,7 @@ public class CourseRecommendationService {
 
         CourseLearningSummary learningSummary =
                 courseLearningSummaryService.summarize(
-                        candidate.course()
+                        candidate.getCourse()
                                 .getId()
                 );
 
