@@ -27,6 +27,16 @@ class CourseDetailsBloc extends Bloc<CourseDetailsEvent, CourseDetailsState> {
     on<GetCourseDetailsEvent>(_getCourseDetails);
     on<EnrollEvent>(_enroll);
     on<StartCourseEvent>(_startCourse);
+    on<RetryCourseDetailsEvent>((event, emit) {
+      if (_lastOrgSlug != null && _lastCourseSlug != null) {
+        add(GetCourseDetailsEvent(
+          orgSlug: _lastOrgSlug!,
+          courseSlug: _lastCourseSlug!,
+        ));
+      } else if (_lastId != null) {
+        add(GetCourseDetailsEvent(id: _lastId));
+      }
+    });
   }
 
   Future<void> _getCourseDetails(
@@ -99,4 +109,5 @@ class CourseDetailsBloc extends Bloc<CourseDetailsEvent, CourseDetailsState> {
 
     return getCourseByIdUseCase(_lastId ?? fallbackId);
   }
+
 }

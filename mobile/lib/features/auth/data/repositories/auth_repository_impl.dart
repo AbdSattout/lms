@@ -27,7 +27,9 @@ class AuthRepositoryImpl extends AuthRepository {
         final remoteAuthData = await remoteDataSource.loginWithTelegram();
         await _cacheAuthData(remoteAuthData);
         return Right(remoteAuthData);
-      } on ServerException catch (e) {
+      } on TooManyRequestsException catch (e) {
+        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      }on ServerException catch (e) {
         return Left(Failure(errMessage: e.errorModel.errorMessage));
       } catch (e) {
         return Left(Failure(errMessage: e.toString()));
@@ -83,7 +85,9 @@ class AuthRepositoryImpl extends AuthRepository {
         );
         await _cacheAuthData(remoteAuthData);
         return Right(remoteAuthData);
-      } on ServerException catch (e) {
+      } on TooManyRequestsException catch (e) {
+        return Left(Failure(errMessage: e.errorModel.errorMessage));
+      }on ServerException catch (e) {
         return Left(Failure(errMessage: e.errorModel.errorMessage));
       } catch (e) {
         return Left(Failure(errMessage: e.toString()));

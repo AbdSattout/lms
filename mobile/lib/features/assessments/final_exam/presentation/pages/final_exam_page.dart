@@ -53,10 +53,11 @@ class _FinalExamPageState extends State<FinalExamPage> {
             },
             builder: (context, state) {
               return switch (state) {
-                FinalExamInitial() || FinalExamLoading() => const Center(
-                  child: CircularProgressIndicator(),
+                FinalExamInitial() || FinalExamLoading() => const Center(child: CircularProgressIndicator()),
+                FinalExamReady() => Scaffold(
+                  body: _buildExam(context, state),
+                  bottomNavigationBar: _buildBottomNavigation(context, state),  // ← Here
                 ),
-                FinalExamReady() => _buildExam(context, state),
                 FinalExamSubmitting() => _buildSubmitting(context),
                 FinalExamCompleted() => const SizedBox(),
                 FinalExamFailed() => _buildError(context, state.message),
@@ -121,7 +122,6 @@ class _FinalExamPageState extends State<FinalExamPage> {
             },
           ),
         ),
-        _buildBottomNavigation(context, state),
       ],
     );
   }
@@ -173,7 +173,7 @@ class _FinalExamPageState extends State<FinalExamPage> {
     final colors = Theme.of(context).colorScheme;
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: colors.surface,
         boxShadow: [
@@ -194,10 +194,13 @@ class _FinalExamPageState extends State<FinalExamPage> {
                   duration: const Duration(milliseconds: 250),
                   curve: Curves.easeOut,
                 ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(80, 44),
+                ),
                 child: const Text('السابق'),
               ),
             const Spacer(),
-            if (_currentIndex < state.totalQuestions - 1)
+if (_currentIndex < state.totalQuestions - 1)
               ElevatedButton(
                 onPressed: _isExpired
                     ? null
@@ -208,6 +211,7 @@ class _FinalExamPageState extends State<FinalExamPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
+                  minimumSize: const Size(100, 44),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
@@ -222,11 +226,12 @@ class _FinalExamPageState extends State<FinalExamPage> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
+                  minimumSize: const Size(140, 44),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                icon: const Icon(Icons.check_rounded),
+                icon: const Icon(Icons.check_rounded, size: 18),
                 label: const Text('إرسال الإجابات'),
               ),
           ],
@@ -234,7 +239,6 @@ class _FinalExamPageState extends State<FinalExamPage> {
       ),
     );
   }
-
   void _showSubmitConfirmation(BuildContext context) {
     showDialog(
       context: context,

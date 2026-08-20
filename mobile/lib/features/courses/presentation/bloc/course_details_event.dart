@@ -21,3 +21,4 @@ class StartCourseEvent extends CourseDetailsEvent {
   final int courseId;
   StartCourseEvent(this.courseId);
 }
+class RetryCourseDetailsEvent extends CourseDetailsEvent {}

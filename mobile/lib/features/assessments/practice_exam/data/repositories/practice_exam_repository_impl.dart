@@ -17,7 +17,9 @@ class PracticeExamRepositoryImpl implements PracticeExamRepository {
     try {
       final list = await remoteDataSource.getList(courseId);
       return Right(list);
-    } on ServerException catch (e) {
+    } on TooManyRequestsException catch (e) {
+      return Left(Failure(errMessage: e.errorModel.errorMessage));
+    }on ServerException catch (e) {
       return Left(Failure(errMessage: e.errorModel.errorMessage));
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));
@@ -32,7 +34,9 @@ class PracticeExamRepositoryImpl implements PracticeExamRepository {
     try {
       final details = await remoteDataSource.getDetails(courseId: courseId, examId: examId);
       return Right(details);
-    } on ServerException catch (e) {
+    } on TooManyRequestsException catch (e) {
+      return Left(Failure(errMessage: e.errorModel.errorMessage));
+    }on ServerException catch (e) {
       return Left(Failure(errMessage: e.errorModel.errorMessage));
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));

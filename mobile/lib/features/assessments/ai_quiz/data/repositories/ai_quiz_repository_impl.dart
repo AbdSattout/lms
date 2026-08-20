@@ -16,7 +16,9 @@ class AiQuizRepositoryImpl implements AiQuizRepository {
     try {
       final session = await remoteDataSource.generate(courseId);
       return Right(session);
-    } on ServerException catch (e) {
+    } on TooManyRequestsException catch (e) {
+      return Left(Failure(errMessage: e.errorModel.errorMessage));
+    }on ServerException catch (e) {
       return Left(Failure(errMessage: e.errorModel.errorMessage));
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));
