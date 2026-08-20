@@ -17,6 +17,7 @@ public class CommentMapper {
         return toResponse(
                 comment,
                 0L,
+                0L,
                 Map.of(),
                 null,
                 false
@@ -25,6 +26,7 @@ public class CommentMapper {
     public CommentResponse toResponse(
             Comment comment,
             Long likeCount,
+            Long repliesCount,
             Map<ReactionType, Long> reactionCounts,
             ReactionType viewerReaction,
             Boolean viewerComment
@@ -45,18 +47,18 @@ public class CommentMapper {
                         : null,
 
                 likeCount,
+                repliesCount,
 
-                completeReactionCounts(
-                        reactionCounts
-                ),
+                completeReactionCounts(reactionCounts),
 
                 viewerReaction,
-
                 viewerComment,
 
                 BaseEntityResponse.from(comment)
         );
     }
+
+
 
     private Map<ReactionType, Long> completeReactionCounts(
             Map<ReactionType, Long> reactionCounts
