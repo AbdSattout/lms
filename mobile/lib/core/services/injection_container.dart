@@ -304,8 +304,8 @@ Future<void> init() async {
 
   sl.registerLazySingleton<ApiConsumer>(() {
     final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
-    consumer.onTokenInvalid = () {
-      sl<AuthBloc>().add(LogoutRequested());
+    consumer.onAuthInvalidated = ({required bool banned}) {
+      sl<AuthBloc>().add(AuthSessionInvalidated(banned: banned));
     };
     return consumer;
   });

@@ -8,12 +8,13 @@ class DioConsumer extends ApiConsumer {
   final Dio dio;
   final AuthLocalDataSource authLocalDataSource;
 
-  void Function()? onTokenInvalid;
+  void Function({required bool banned})? onAuthInvalidated;
+  bool _authInvalidatedNotified = false;
 
   DioConsumer({
     required this.dio,
     required this.authLocalDataSource,
-    this.onTokenInvalid,
+    this.onAuthInvalidated,
   }) {
     dio.options.baseUrl = EndPoints.baseUrl;
 
@@ -32,19 +33,49 @@ class DioConsumer extends ApiConsumer {
 
           handler.next(options);
         },
+        onResponse: (response, handler) {
+          final status = response.statusCode ?? 0;
+          if (status >= 200 &&
+              status < 400 &&
+              response.requestOptions.headers['Authorization'] != null) {
+            _authInvalidatedNotified = false;
+          }
+          handler.next(response);
+        },
         onError: (error, handler) async {
-          if (error.response?.statusCode == 401) {
+          final response = error.response;
+          final status = response?.statusCode;
+          final sentToken =
+              error.requestOptions.headers['Authorization'] != null;
+          final banned = _isUserBanned(response?.data);
+
+          if (sentToken && (status == 401 || (status == 403 && banned))) {
+            if (_authInvalidatedNotified) {
+              handler.next(error);
+              return;
+            }
+            _authInvalidatedNotified = true;
             try {
               await authLocalDataSource.cache.removeData(
                 key: authLocalDataSource.key,
               );
             } catch (_) {}
-            onTokenInvalid?.call();
+            onAuthInvalidated?.call(banned: banned);
           }
           handler.next(error);
         },
       ),
     );
+  }
+
+  bool _isUserBanned(Object? data) {
+    if (data is Map) {
+      final code = data['code'];
+      if (code?.toString() == 'USER_BANNED') return true;
+      final text = data['error']?.toString() ?? data['message']?.toString() ?? '';
+      return text.contains('User is banned');
+    }
+    return data?.toString().contains('User is banned') ?? false;
   }
 
   @override

@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/error_model.dart';
 import '../../domain/usecases/check_cached_auth_usecase.dart';
 import '../../domain/usecases/login_with_google.dart';
 import '../../domain/usecases/login_with_telegram.dart';
@@ -31,6 +32,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<RequestEmailOtpRequested>(_requestEmailOtp);
     on<VerifyEmailOtpRequested>(_verifyEmailOtp);
     on<LogoutRequested>(_logout);
+    on<AuthSessionInvalidated>(_handleSessionInvalidated);
   }
 
   Future<void> _checkAuthStatus(
@@ -124,5 +126,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (_) {
       emit(AuthError('Failed to logout'));
     }
+  }
+
+  Future<void> _handleSessionInvalidated(
+    AuthSessionInvalidated event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      await logout();
+    } catch (_) {}
+
+    if (event.banned) {
+      emit(Unauthenticated());
+      emit(AuthError(kUserBannedMessage));
+      return;
+    }
+
+    emit(Unauthenticated());
   }
 }

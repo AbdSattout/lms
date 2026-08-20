@@ -13,6 +13,10 @@ import {
   readCallbackUrlFromRequest,
 } from "@/lib/auth/callback-url"
 import { getBetterAuthSession, getOidcIdToken } from "@/lib/auth/session"
+import {
+  isUserBannedError,
+  USER_BANNED_MESSAGE,
+} from "@/lib/auth/user-banned"
 
 const loginByProvider = {
   telegram: api.auth.loginWithTelegram,
@@ -58,10 +62,14 @@ async function exchangeBackendSession(provider: LoginProvider) {
     await clearBackendJwtCookie()
     await clearAdminJwtCookie()
 
+    const isBanned = isUserBannedError(error)
+
     return {
       redirectToLogin: false as const,
       errorStatus: error instanceof BackendError ? error.status : 502,
-      message: "حدث خطأ ما، حاول مرة أخرى.",
+      message: isBanned
+        ? USER_BANNED_MESSAGE
+        : "حدث خطأ ما، حاول مرة أخرى.",
     }
   }
 }
