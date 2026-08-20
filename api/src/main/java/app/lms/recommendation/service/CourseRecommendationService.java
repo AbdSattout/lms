@@ -51,9 +51,9 @@ public class CourseRecommendationService {
                                 EnrollmentStatus.COMPLETED
                         ),
                         List.of(
-                                EnrollmentStatus.ACTIVE
+                                EnrollmentStatus.ACTIVE,
+                                EnrollmentStatus.COMPLETED
                         ),
-
                         recentCourseCutoff,
                         recommendationPageableFactory.forRanking(pageable)
                 );
