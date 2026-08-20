@@ -101,15 +101,16 @@ class OrganizationCoursesPage extends StatelessWidget {
                       final course = state.courses[index];
                       return CourseCard(
                         course: course,
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => BlocProvider(
                                 create: (_) => sl<CourseDetailsBloc>()
                                   ..add(
                                     GetCourseDetailsEvent(
-                                      orgSlug: course.organization?.slug ?? '',
+                                      orgSlug: course.organization?.slug ??
+                                          '',
                                       courseSlug: course.slug,
                                     ),
                                   ),
@@ -117,6 +118,11 @@ class OrganizationCoursesPage extends StatelessWidget {
                               ),
                             ),
                           );
+                          if (context.mounted) {
+                            context.read<OrganizationCoursesBloc>().add(
+                              GetOrganizationCoursesEvent(slug),
+                            );
+                          }
                         },
                       );
                     },

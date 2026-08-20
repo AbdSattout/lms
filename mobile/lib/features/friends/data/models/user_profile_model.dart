@@ -80,6 +80,7 @@ class FriendshipModel extends UserProfileFriendshipEntity {
     required super.status,
     required super.canSendFriendRequest,
     super.pendingRequestId,
+    super.friendId,
   });
 
   factory FriendshipModel.fromJson(Object? json) {
@@ -91,6 +92,7 @@ class FriendshipModel extends UserProfileFriendshipEntity {
       pendingRequestId: UserProfileModel._readNullableInt(
         map['pendingRequestId'],
       ),
+      friendId: UserProfileModel._readNullableInt(map['friendId']),
     );
   }
 }
