@@ -121,7 +121,7 @@ export async function backend<T>(
     throw error
   }
 
-  if (response.status === 401) {
+  if (response.status === 401 && requireAuth) {
     handleUnauthorized(unauthorized, callbackUrl)
   }
 
