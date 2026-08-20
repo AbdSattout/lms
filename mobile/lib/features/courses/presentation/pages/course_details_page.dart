@@ -54,7 +54,7 @@ class CourseDetailsPage extends StatelessWidget {
                 child: ErrorRetryCard(
                   message: state.message,
                   onRetry: () => context.read<CourseDetailsBloc>().add(RetryCourseDetailsEvent()),
-                ),t 
+                ),
               );
             }
           },
