@@ -2,8 +2,8 @@ package app.lms.recommendation.service;
 
 import app.lms.recommendation.dto.RecommendationScore;
 import app.lms.recommendation.enums.RecommendationReason;
-import app.lms.recommendation.repository.CourseRecommendationCandidate;
-import app.lms.recommendation.repository.OrganizationRecommendationCandidate;
+import app.lms.recommendation.repository.projection.CourseRecommendationProjection;
+import app.lms.recommendation.repository.projection.OrganizationRecommendationProjection;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -13,10 +13,12 @@ import java.time.temporal.ChronoUnit;
 public class RecommendationScoringService {
 
     private static final int RECENT_DAYS = 30;
+
     private static final int JOINED_ORGANIZATION_COURSE_SCORE = 50;
     private static final int POPULAR_COURSE_SCORE = 25;
     private static final int RECENT_COURSE_SCORE = 15;
     private static final int DISCOVERABLE_COURSE_SCORE = 10;
+
     private static final int MANY_PUBLISHED_COURSES_SCORE = 30;
     private static final int MANY_MEMBERS_SCORE = 25;
     private static final int VERIFIED_ORGANIZATION_SCORE = 40;
@@ -36,24 +38,28 @@ public class RecommendationScoringService {
     }
 
     public RecommendationScore scoreCourse(
-            CourseRecommendationCandidate candidate,
+            CourseRecommendationProjection candidate,
             Instant recentCourseCutoff
     ) {
 
         int score =
                 DISCOVERABLE_COURSE_SCORE;
 
-        if (Boolean.TRUE.equals(candidate.userOrganizationMember())) {
+        if (Boolean.TRUE.equals(
+                candidate.getUserOrganizationMember()
+        )) {
             score += JOINED_ORGANIZATION_COURSE_SCORE;
         }
 
-        if (positive(candidate.enrollmentCount())) {
+        if (positive(
+                candidate.getEnrollmentCount()
+        )) {
             score += POPULAR_COURSE_SCORE;
         }
 
         boolean recent =
                 isRecent(
-                        candidate.course()
+                        candidate.getCourse()
                                 .getCreatedAt(),
                         recentCourseCutoff
                 );
@@ -72,7 +78,7 @@ public class RecommendationScoringService {
     }
 
     public RecommendationScore scoreOrganization(
-            OrganizationRecommendationCandidate candidate,
+            OrganizationRecommendationProjection candidate,
             Instant recentCourseCutoff
     ) {
 
@@ -81,7 +87,7 @@ public class RecommendationScoringService {
 
         boolean hasManyPublishedCourses =
                 atLeast(
-                        candidate.publishedCourseCount(),
+                        candidate.getPublishedCourseCount(),
                         MANY_PUBLISHED_COURSES_THRESHOLD
                 );
 
@@ -91,7 +97,7 @@ public class RecommendationScoringService {
 
         boolean hasManyMembers =
                 atLeast(
-                        candidate.memberCount(),
+                        candidate.getMemberCount(),
                         MANY_MEMBERS_THRESHOLD
                 );
 
@@ -101,7 +107,7 @@ public class RecommendationScoringService {
 
         boolean verifiedOrganization =
                 Boolean.TRUE.equals(
-                        candidate.organization()
+                        candidate.getOrganization()
                                 .getVerified()
                 );
 
@@ -110,9 +116,12 @@ public class RecommendationScoringService {
         }
 
         boolean activeOrganization =
-                positive(candidate.recentPublishedCourseCount())
-                        || isRecent(
-                                candidate.latestPublishedCourseAt(),
+                positive(
+                        candidate.getRecentPublishedCourseCount()
+                )
+                        ||
+                        isRecent(
+                                candidate.getLatestPublishedCourseAt(),
                                 recentCourseCutoff
                         );
 
@@ -132,15 +141,19 @@ public class RecommendationScoringService {
     }
 
     private RecommendationReason courseReason(
-            CourseRecommendationCandidate candidate,
+            CourseRecommendationProjection candidate,
             boolean recent
     ) {
 
-        if (Boolean.TRUE.equals(candidate.userOrganizationMember())) {
+        if (Boolean.TRUE.equals(
+                candidate.getUserOrganizationMember()
+        )) {
             return RecommendationReason.FROM_JOINED_ORGANIZATION;
         }
 
-        if (positive(candidate.enrollmentCount())) {
+        if (positive(
+                candidate.getEnrollmentCount()
+        )) {
             return RecommendationReason.POPULAR_COURSE;
         }
 

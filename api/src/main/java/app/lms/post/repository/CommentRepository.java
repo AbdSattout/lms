@@ -34,4 +34,7 @@ public interface CommentRepository
     List<PostCommentCountProjection> countByPostIds(
             @Param("postIds") Collection<Long> postIds
     );
+    List<Comment> findByPostIdIn(
+            Collection<Long> postIds
+    );
 }

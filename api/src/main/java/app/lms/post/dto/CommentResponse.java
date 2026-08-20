@@ -17,7 +17,7 @@ public record CommentResponse(
         Long parentCommentId,
 
         Long likeCount,
-
+        Long repliesCount,
         Map<ReactionType, Long> reactionCounts,
 
         @JsonInclude(JsonInclude.Include.NON_NULL)

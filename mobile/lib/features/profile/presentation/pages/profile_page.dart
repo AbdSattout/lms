@@ -16,6 +16,10 @@ import '../../../certificates/presentation/pages/my_certificates_page.dart';
 import '../../../friends/presentation/bloc/friends_bloc.dart';
 import '../../../friends/presentation/bloc/friends_event.dart';
 import '../../../friends/presentation/pages/friends_page.dart';
+import '../../../friends/presentation/bloc/user_profile_bloc.dart';
+import '../../../friends/presentation/bloc/user_profile_event.dart';
+import '../../../friends/presentation/bloc/user_profile_state.dart';
+import '../../../friends/presentation/widgets/user_badges_section.dart';
 import '../../../gamification/presentation/widgets/gamification_card.dart';
 import '../../domain/entities/profile_entity.dart';
 import '../bloc/profile_bloc.dart';
@@ -245,6 +249,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       value: _displayValue(profile.university, fallback: ""),
                       icon: Icons.school_outlined,
                     ),
+
+                    const SizedBox(height: 30),
+
+                    _MyBadgesSection(userId: profile.user.id),
 
                     const SizedBox(height: 30),
 
@@ -965,6 +973,28 @@ void _showEditProfileSheet(BuildContext context, ProfileEntity profile) {
       );
     },
   );
+}
+
+class _MyBadgesSection extends StatelessWidget {
+  final int userId;
+
+  const _MyBadgesSection({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider<UserProfileBloc>(
+      create: (_) =>
+          sl<UserProfileBloc>()..add(LoadUserProfileEvent(userId)),
+      child: BlocBuilder<UserProfileBloc, UserProfileState>(
+        builder: (context, state) {
+          if (state is UserProfileLoaded && state.profile.badges.isNotEmpty) {
+            return UserBadgesSection(badges: state.profile.badges);
+          }
+          return const SizedBox.shrink();
+        },
+      ),
+    );
+  }
 }
 
 Future<void> _pickImage(BuildContext context) async {

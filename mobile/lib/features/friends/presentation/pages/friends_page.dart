@@ -34,22 +34,55 @@ class FriendsPage extends StatelessWidget {
                 onPressed: () => _openAddFriend(context),
               ),
             ],
-            bottom: TabBar(
-              indicatorColor: Theme.of(context).colorScheme.primary,
-              labelColor: Theme.of(context).colorScheme.primary,
-              unselectedLabelColor: Theme.of(
-                context,
-              ).colorScheme.onSurfaceVariant,
-              labelStyle: const TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 14,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: BlocBuilder<FriendsBloc, FriendsState>(
+                builder: (context, state) {
+                  final friendsCount =
+                      state is FriendsLoaded ? state.friends.length : 0;
+                  final receivedCount = state is FriendsLoaded
+                      ? state.receivedRequests.length
+                      : 0;
+                  final sentCount = state is FriendsLoaded
+                      ? state.sentRequests.length
+                      : 0;
+
+                  return TabBar(
+                    dividerColor: Colors.transparent,
+                    dividerHeight: 0,
+                    indicatorColor: Theme.of(context).colorScheme.primary,
+                    labelColor: Theme.of(context).colorScheme.primary,
+                    unselectedLabelColor: Theme.of(
+                      context,
+                    ).colorScheme.onSurfaceVariant,
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
+                    indicatorWeight: 3,
+                    tabs: [
+                      Tab(
+                        child: _BadgeTab(
+                          label: 'الأصدقاء',
+                          count: friendsCount,
+                        ),
+                      ),
+                      Tab(
+                        child: _BadgeTab(
+                          label: 'الطلبات',
+                          count: receivedCount,
+                        ),
+                      ),
+                      Tab(
+                        child: _BadgeTab(
+                          label: 'المرسلة',
+                          count: sentCount,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-              indicatorWeight: 3,
-              tabs: [
-                Tab(text: 'الأصدقاء'),
-                Tab(text: 'الطلبات'),
-                Tab(text: 'المرسلة'),
-              ],
             ),
           ),
           body: BlocConsumer<FriendsBloc, FriendsState>(
@@ -568,6 +601,57 @@ class _FriendsErrorView extends StatelessWidget {
               child: const Text('إعادة المحاولة'),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BadgeTab extends StatelessWidget {
+  final String label;
+  final int count;
+
+  const _BadgeTab({required this.label, required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label),
+        if (count > 0) ...[
+          const SizedBox(width: 6),
+          _CountBadge(count: count),
+        ],
+      ],
+    );
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  final int count;
+
+  const _CountBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        height: 18,
+        constraints: const BoxConstraints(minWidth: 18),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: Text(
+          count > 99 ? '99+' : '$count',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+            fontSize: 10,
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );

@@ -881,73 +881,41 @@ class _FeaturedCourseCard extends StatelessWidget {
 
                     const Spacer(),
 
-                    if (organizationName != null)
-                      Text(
-                        organizationName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.78),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-
-                    const SizedBox(height: 5),
-
-                    Text(
-                      course.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        height: 1.15,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
                     Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        if (isEnrolled)
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: LinearProgressIndicator(
-                                    value: (progress / 100).clamp(0, 1),
-                                    minHeight: 5,
-                                    backgroundColor: Colors.white.withValues(
-                                      alpha: 0.22,
-                                    ),
-                                    valueColor: const AlwaysStoppedAnimation(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 5),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (organizationName != null) ...[
                                 Text(
-                                  isCompleted
-                                      ? 'مكتملة بالكامل'
-                                      : '${progress.toStringAsFixed(0)}٪ مكتمل',
+                                  organizationName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.8),
-                                    fontSize: 10.5,
+                                    color: Colors.white.withValues(alpha: 0.78),
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
+                                const SizedBox(height: 5),
                               ],
-                            ),
-                          )
-                        else
-                          const Spacer(),
-
+                              Text(
+                                course.title,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  height: 1.15,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(width: 12),
-
                         Container(
                           width: 42,
                           height: 42,
@@ -964,6 +932,30 @@ class _FeaturedCourseCard extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                    if (isEnrolled) ...[
+                      const SizedBox(height: 12),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: (progress / 100).clamp(0, 1),
+                          minHeight: 5,
+                          backgroundColor: Colors.white.withValues(alpha: 0.22),
+                          valueColor: const AlwaysStoppedAnimation(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        isCompleted
+                            ? 'مكتملة بالكامل'
+                            : '${progress.toStringAsFixed(0)}٪ مكتمل',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

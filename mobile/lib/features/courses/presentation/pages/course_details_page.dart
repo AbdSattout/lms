@@ -17,8 +17,8 @@ import '../widgets/course_organization_card.dart';
 import '../widgets/course_progress_bar.dart';
 import '../widgets/course_section_header.dart';
 import '../widgets/course_state_row.dart';
-import 'course_contents_page.dart';
 import '../../../organizations/presentation/pages/organization_details_page.dart';
+import '../widgets/course_learning_content.dart';
 
 class CourseDetailsPage extends StatelessWidget {
   const CourseDetailsPage({super.key});
@@ -31,7 +31,6 @@ class CourseDetailsPage extends StatelessWidget {
         body: BlocConsumer<CourseDetailsBloc, CourseDetailsState>(
           listenWhen: (previous, current) =>
               current is CourseEnrollSuccess ||
-              current is CourseStartSuccess ||
               current is CourseDetailsActionError ||
               (current is CourseDetailsError &&
                   previous is CourseDetailsLoading),
@@ -42,26 +41,6 @@ class CourseDetailsPage extends StatelessWidget {
                   content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
                 ),
               );
-            }
-            if (state is CourseStartSuccess) {
-              await Navigator.push<bool>(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => CourseContentsPage(course: state.course),
-                ),
-              );
-              if (context.mounted) {
-                final orgSlug = state.course.organization?.slug;
-                context.read<CourseDetailsBloc>().add(
-                  orgSlug != null && orgSlug.isNotEmpty
-                      ? GetCourseDetailsEvent(
-                          orgSlug: orgSlug,
-                          courseSlug: state.course.slug,
-                        )
-                      : GetCourseDetailsEvent(id: state.course.id),
-                );
-              }
-              return;
             }
             if (state is CourseDetailsActionError) {
               ScaffoldMessenger.of(
@@ -91,13 +70,10 @@ class CourseDetailsPage extends StatelessWidget {
             }
             if (state is CourseDetailsLoaded) {
               return _CourseDetailsContent(
+                key: ValueKey(state.course.id),
                 course: state.course,
-                isStartingCourse: state.isStartingCourse,
                 onEnroll: () => context.read<CourseDetailsBloc>().add(
                   EnrollEvent(state.course.id),
-                ),
-                onStartCourse: () => context.read<CourseDetailsBloc>().add(
-                  StartCourseEvent(state.course.id),
                 ),
               );
             }
@@ -109,18 +85,26 @@ class CourseDetailsPage extends StatelessWidget {
   }
 }
 
-class _CourseDetailsContent extends StatelessWidget {
+class _CourseDetailsContent extends StatefulWidget {
   final CourseEntity course;
   final VoidCallback onEnroll;
-  final VoidCallback onStartCourse;
-  final bool isStartingCourse;
 
   const _CourseDetailsContent({
+    super.key,
     required this.course,
     required this.onEnroll,
-    required this.onStartCourse,
-    required this.isStartingCourse,
   });
+
+  @override
+  State<_CourseDetailsContent> createState() => _CourseDetailsContentState();
+}
+
+class _CourseDetailsContentState extends State<_CourseDetailsContent> {
+  final GlobalKey _learningSectionKey = GlobalKey();
+
+  CourseEntity get course => widget.course;
+
+  VoidCallback get onEnroll => widget.onEnroll;
 
   @override
   Widget build(BuildContext context) {
@@ -170,23 +154,8 @@ class _CourseDetailsContent extends StatelessWidget {
                       CourseProgressCard(
                         progress: progressPercentage,
                         isCompleted: isCompleted,
-                        onContinue: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) =>
-                                  CourseContentsPage(course: course),
-                            ),
-                          );
-                          if (context.mounted) {
-                            context.read<CourseDetailsBloc>().add(
-                              GetCourseDetailsEvent(
-                                orgSlug: course.organization?.slug ?? '',
-                                courseSlug: course.slug,
-                              ),
-                            );
-                          }
-                        },
+                        onContinue: () =>
+                            _scrollToLearningSection(context),
                       ),
                       const SizedBox(height: 24),
                     ],
@@ -240,6 +209,17 @@ class _CourseDetailsContent extends StatelessWidget {
                       ),
                       const SizedBox(height: 24),
                     ],
+                    if (isEnrolled) ...[
+                      KeyedSubtree(
+                        key: _learningSectionKey,
+                        child: CourseLearningContent(
+                          key: ValueKey(
+                            'learning-${course.enrollment?.placementTestCompleted ?? false}',
+                          ),
+                          course: course,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -276,11 +256,25 @@ class _CourseDetailsContent extends StatelessWidget {
     );
   }
 
+  void _scrollToLearningSection(BuildContext context) {
+    final target = _learningSectionKey.currentContext;
+    if (target == null) return;
+    Scrollable.ensureVisible(
+      target,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+      alignment: 0.1,
+    );
+  }
+
   Widget _buildCta(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isEnrolled = course.enrollment != null;
     final placementTestCompleted =
         course.enrollment?.placementTestCompleted ?? false;
+    final detailsState = context.read<CourseDetailsBloc>().state;
+    final isStartingCourse =
+        detailsState is CourseDetailsLoaded && detailsState.isStartingCourse;
     final viewerRole = course.organization?.viewerRole;
     final isOwner = viewerRole == 'OWNER';
     final viewerJoined = course.organization?.viewerJoined;
@@ -340,34 +334,6 @@ class _CourseDetailsContent extends StatelessWidget {
       );
     }
 
-    if (!placementTestCompleted) {
-      return ElevatedButton.icon(
-        onPressed: isStartingCourse ? null : onStartCourse,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: colors.primary,
-          foregroundColor: colors.onPrimary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          elevation: 0,
-        ),
-        icon: isStartingCourse
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2.2,
-                ),
-              )
-            : const Icon(Icons.play_circle_fill_rounded, size: 18),
-        label: Text(
-          isStartingCourse ? 'جارٍ بدء الكورس...' : 'ابدأ الكورس',
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-      );
-    }
-
     if (isCompleted) {
       return ElevatedButton.icon(
         onPressed: null,
@@ -389,41 +355,78 @@ class _CourseDetailsContent extends StatelessWidget {
       );
     }
 
-    return ElevatedButton.icon(
-      onPressed: () async {
-        await Navigator.push<bool>(
-          context,
-          MaterialPageRoute(
-            builder: (_) => isReadyForFinalQuiz
-                ? FinalExamPage(courseId: course.id)
-                : CourseContentsPage(course: course),
-          ),
-        );
-        if (context.mounted) {
-          context.read<CourseDetailsBloc>().add(
-            GetCourseDetailsEvent(
-              orgSlug: course.organization?.slug ?? '',
-              courseSlug: course.slug,
+    if (isReadyForFinalQuiz) {
+      return ElevatedButton.icon(
+        onPressed: () async {
+          await Navigator.push<bool>(
+            context,
+            MaterialPageRoute(
+              builder: (_) => FinalExamPage(courseId: course.id),
             ),
           );
-        }
-      },
+          if (context.mounted) {
+            context.read<CourseDetailsBloc>().add(
+              GetCourseDetailsEvent(
+                orgSlug: course.organization?.slug ?? '',
+                courseSlug: course.slug,
+              ),
+            );
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.primary,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        icon: const Icon(Icons.emoji_events_rounded, size: 18),
+        label: const Text(
+          'الذهاب للاختبار النهائي',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+      );
+    }
+
+    return ElevatedButton.icon(
+      onPressed: isStartingCourse
+          ? null
+          : placementTestCompleted
+          ? () => _scrollToLearningSection(context)
+          : () {
+              context.read<CourseDetailsBloc>().add(
+                StartCourseEvent(course.id),
+              );
+              _scrollToLearningSection(context);
+            },
       style: ElevatedButton.styleFrom(
         backgroundColor: colors.primary,
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
       ),
-      icon: Icon(
-        isReadyForFinalQuiz
-            ? Icons.emoji_events_rounded
-            : Icons.play_circle_fill_rounded,
-        size: 18,
-      ),
+      icon: isStartingCourse
+          ? const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 2.2,
+              ),
+            )
+          : Icon(
+              placementTestCompleted
+                  ? Icons.menu_book_rounded
+                  : Icons.play_circle_fill_rounded,
+              size: 18,
+            ),
       label: Text(
-        isReadyForFinalQuiz
-            ? 'الذهاب للاختبار النهائي'
-            : 'متابعة التعلم • ${progressPercentage.toStringAsFixed(0)}٪',
+        isStartingCourse
+            ? 'جارٍ بدء الكورس...'
+            : placementTestCompleted
+            ? 'متابعة التعلم • ${progressPercentage.toStringAsFixed(0)}٪'
+            : 'ابدأ الكورس',
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
       ),
     );

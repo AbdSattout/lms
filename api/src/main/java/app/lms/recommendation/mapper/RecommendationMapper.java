@@ -9,8 +9,8 @@ import app.lms.organization.model.Organization;
 import app.lms.recommendation.dto.RecommendationScore;
 import app.lms.recommendation.dto.RecommendedCourseResponse;
 import app.lms.recommendation.dto.RecommendedOrganizationResponse;
-import app.lms.recommendation.repository.CourseRecommendationCandidate;
-import app.lms.recommendation.repository.OrganizationRecommendationCandidate;
+import app.lms.recommendation.repository.projection.CourseRecommendationProjection;
+import app.lms.recommendation.repository.projection.OrganizationRecommendationProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,14 +24,14 @@ public class RecommendationMapper {
     private final OrganizationMapper organizationMapper;
 
     public RecommendedCourseResponse toCourseResponse(
-            CourseRecommendationCandidate candidate,
+            CourseRecommendationProjection candidate,
             RecommendationScore score,
             Map<Long, OrganizationViewerResponse> organizationViewers,
             CourseLearningSummary learningSummary
     ) {
 
         Course course =
-                candidate.course();
+                candidate.getCourse();
 
         return new RecommendedCourseResponse(
                 courseMapper.toResponse(
@@ -49,13 +49,13 @@ public class RecommendationMapper {
     }
 
     public RecommendedOrganizationResponse toOrganizationResponse(
-            OrganizationRecommendationCandidate candidate,
+            OrganizationRecommendationProjection candidate,
             RecommendationScore score,
             Map<Long, OrganizationViewerResponse> organizationViewers
     ) {
 
         Organization organization =
-                candidate.organization();
+                candidate.getOrganization();
 
         return new RecommendedOrganizationResponse(
                 organizationMapper.ToResponse(
@@ -64,7 +64,7 @@ public class RecommendationMapper {
                                 organization,
                                 organizationViewers
                         ),
-                        candidate.publishedCourseCount()
+                        candidate.getPublishedCourseCount()
                 ),
                 score.score(),
                 score.reason()

@@ -146,6 +146,249 @@ public class BanNotificationEmailService {
             );
         }
     }
+    public void sendUserUnban(
+            User user
+    ) {
+
+        sendUnbanEmail(
+                user,
+                "Your account ban has been removed",
+                "Your account ban on " + appName + " has been removed.",
+                null
+        );
+    }
+
+    public void sendOrganizationUnban(
+            Organization organization
+    ) {
+
+        User owner =
+                organization.getOwner();
+
+        String organizationName =
+                organizationName(
+                        organization
+                );
+
+        sendUnbanEmail(
+                owner,
+                organizationName + " ban has been removed",
+                "The ban on " + organizationName +
+                        " has been removed on " + appName + ".",
+                organizationName
+        );
+    }
+    private void sendUnbanEmail(
+            User recipient,
+            String subject,
+            String message,
+            String organizationName
+    ) {
+
+        if (recipient == null) {
+            return;
+        }
+
+        if (!StringUtils.hasText(
+                recipient.getEmail()
+        )) {
+
+            log.info(
+                    "Skipping unban notification email because user has no email. userId={}",
+                    recipient.getId()
+            );
+
+            return;
+        }
+
+        if (!emailDeliveryService.isConfigured()) {
+
+            log.warn(
+                    "Skipping unban notification email because email is not configured. userId={}",
+                    recipient.getId()
+            );
+
+            return;
+        }
+
+        try {
+
+            emailDeliveryService.sendHtml(
+                    recipient.getEmail().trim(),
+                    subjectText(subject),
+                    unbanPlainTextEmail(
+                            recipient,
+                            message,
+                            organizationName
+                    ),
+                    unbanHtmlEmail(
+                            recipient,
+                            message,
+                            organizationName
+                    )
+            );
+
+        } catch (RuntimeException ex) {
+
+            log.warn(
+                    "Failed to send unban notification email. userId={}",
+                    recipient.getId(),
+                    ex
+            );
+        }
+    }
+    private String unbanPlainTextEmail(
+            User user,
+            String message,
+            String organizationName
+    ) {
+
+        return """
+            %s
+
+            %s
+
+            %sYour access has been restored.
+
+            You can now use the affected services normally again.
+
+            %s
+            """
+                .formatted(
+                        greeting(user),
+                        message,
+                        organizationNameLine(
+                                organizationName
+                        ),
+                        appName
+                );
+    }
+    private String unbanHtmlEmail(
+            User user,
+            String message,
+            String organizationName
+    ) {
+
+        String safeAppName =
+                escapeHtml(
+                        appName
+                );
+
+        String safeMessage =
+                escapeHtml(
+                        message
+                );
+
+        String safeGreeting =
+                escapeHtml(
+                        greeting(user)
+                );
+
+        String safeOrganizationName =
+                escapeHtml(
+                        organizationName
+                );
+
+        String organizationBlock =
+                StringUtils.hasText(
+                        organizationName
+                )
+                        ? """
+                      <tr>
+                        <td style="padding:0 28px 12px;">
+                          <div style="font-size:13px;color:#64748b;margin-bottom:6px;">
+                            Organization
+                          </div>
+                          <div style="font-size:15px;color:#111827;font-weight:700;">
+                            %s
+                          </div>
+                        </td>
+                      </tr>
+                      """
+                          .formatted(
+                                  safeOrganizationName
+                          )
+                        : "";
+
+        return """
+            <!doctype html>
+            <html>
+            <body style="margin:0;padding:0;background:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#172033;">
+              <table role="presentation"
+                     width="100%%"
+                     cellspacing="0"
+                     cellpadding="0"
+                     style="background:#f4f7fb;padding:32px 12px;">
+                <tr>
+                  <td align="center">
+
+                    <table role="presentation"
+                           width="100%%"
+                           cellspacing="0"
+                           cellpadding="0"
+                           style="max-width:560px;background:#ffffff;border:1px solid #e1e7f0;border-radius:8px;overflow:hidden;">
+
+                      <tr>
+                        <td style="padding:28px 28px 12px;">
+
+                          <div style="font-size:14px;font-weight:700;color:#16a34a;text-transform:uppercase;letter-spacing:0.04em;">
+                            %s
+                          </div>
+
+                          <h1 style="margin:14px 0 10px;font-size:24px;line-height:32px;color:#111827;">
+                            Access restored
+                          </h1>
+
+                          <p style="margin:0 0 8px;color:#111827;font-size:15px;line-height:24px;font-weight:700;">
+                            %s
+                          </p>
+
+                          <p style="margin:0;color:#4b5563;font-size:15px;line-height:24px;">
+                            %s
+                          </p>
+
+                        </td>
+                      </tr>
+
+                      %s
+
+                      <tr>
+                        <td style="padding:18px 28px 28px;">
+
+                          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;">
+
+                            <div style="font-size:13px;color:#166534;margin-bottom:8px;">
+                              Status
+                            </div>
+
+                            <div style="font-size:16px;line-height:24px;color:#166534;font-weight:700;">
+                              Ban removed
+                            </div>
+
+                          </div>
+
+                          <p style="margin:14px 0 0;color:#64748b;font-size:13px;line-height:20px;">
+                            You can now use the affected services normally again.
+                          </p>
+
+                        </td>
+                      </tr>
+
+                    </table>
+
+                  </td>
+                </tr>
+              </table>
+            </body>
+            </html>
+            """
+                .formatted(
+                        safeAppName,
+                        safeGreeting,
+                        safeMessage,
+                        organizationBlock
+                );
+    }
 
     private String plainTextEmail(
             User user,

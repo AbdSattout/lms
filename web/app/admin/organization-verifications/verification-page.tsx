@@ -69,9 +69,7 @@ export function OrganizationVerificationsPage({
         setSelectedId(nextRequests[0]?.id ?? null)
       } catch (error) {
         toast.error(
-          error instanceof Error
-            ? error.message
-            : "تعذر تحميل طلبات التوثيق"
+          error instanceof Error ? error.message : "تعذر تحميل طلبات التوثيق"
         )
       }
     })
@@ -211,17 +209,23 @@ function VerificationDetails({
           status,
           adminNote: adminNote.trim() || null,
         })
+
         onUpdated(updated)
-        toast.success("تم تحديث طلب التوثيق")
+
+        toast.success(
+          status === "APPROVED"
+            ? "تمت الموافقة على توثيق المنظمة"
+            : "تم رفض طلب التوثيق"
+        )
       } catch (error) {
         toast.error(
-          error instanceof Error
-            ? error.message
-            : "تعذر تحديث طلب التوثيق"
+          error instanceof Error ? error.message : "تعذر تحديث طلب التوثيق"
         )
       }
     })
   }
+
+  const isFinal = request.status === "APPROVED" || request.status === "REJECTED"
 
   return (
     <div className="flex min-w-0 flex-col gap-5 p-4 md:p-6 lg:p-8">
@@ -229,9 +233,11 @@ function VerificationDetails({
         <div>
           <div className="flex items-center gap-2">
             <BadgeCheck className="h-5 w-5 text-sky-600" />
+
             <p className="text-sm font-semibold text-muted-foreground">
-              طلب رقم {request.id}
+              مراجعة طلب التوثيق
             </p>
+
             <VerificationStatusBadge status={request.status} />
           </div>
 
@@ -245,6 +251,7 @@ function VerificationDetails({
         <CardHeader>
           <CardTitle className="text-base">المنظمة</CardTitle>
         </CardHeader>
+
         <CardContent className="space-y-5">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12 rounded-lg">
@@ -252,13 +259,16 @@ function VerificationDetails({
                 {request.organization.name.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
+
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="truncate text-sm font-bold">
                   {request.organization.name}
                 </p>
+
                 {request.organization.verified && <OrganizationVerifiedBadge />}
               </div>
+
               <p className="truncate text-xs text-muted-foreground">
                 @{request.organization.slug}
               </p>
@@ -269,12 +279,15 @@ function VerificationDetails({
 
           <div className="grid gap-4 text-sm sm:grid-cols-2">
             <InfoRow label="مقدم الطلب">{request.requestedBy.name}</InfoRow>
+
             <InfoRow label="الأعضاء">
               {request.organization.membersCount ?? 0}
             </InfoRow>
+
             <InfoRow label="الكورسات">
               {request.organization.coursesCount ?? 0}
             </InfoRow>
+
             <InfoRow label="الحالة الحالية">
               <VerificationStatusBadge status={request.status} />
             </InfoRow>
@@ -283,6 +296,7 @@ function VerificationDetails({
           {request.note && (
             <div>
               <p className="text-xs font-bold text-muted-foreground">ملاحظة</p>
+
               <p className="mt-2 rounded-lg bg-muted/50 p-4 text-sm leading-6">
                 {request.note}
               </p>
@@ -308,31 +322,84 @@ function VerificationDetails({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <Textarea
-            value={adminNote}
-            onChange={(event) => setAdminNote(event.target.value)}
-            placeholder="أضف ملاحظة إدارية اختيارية..."
-            className="min-h-28 resize-y"
-          />
-
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              disabled={isSubmitting || request.status === "REJECTED"}
-              onClick={() => review("REJECTED")}
+          {isFinal ? (
+            <div
+              className={
+                request.status === "APPROVED"
+                  ? "rounded-lg border border-emerald-500/20 bg-emerald-500/[0.06] p-4"
+                  : "rounded-lg border border-destructive/20 bg-destructive/[0.05] p-4"
+              }
             >
-              <XCircle className="ml-2 h-4 w-4" />
-              رفض
-            </Button>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  {request.status === "APPROVED" ? (
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-destructive" />
+                  )}
 
-            <Button
-              disabled={isSubmitting || request.status === "APPROVED"}
-              onClick={() => review("APPROVED")}
-            >
-              <CheckCircle2 className="ml-2 h-4 w-4" />
-              الموافقة والتوثيق
-            </Button>
-          </div>
+                  <p className="text-sm font-bold">
+                    {request.status === "APPROVED"
+                      ? "تمت الموافقة والتوثيق"
+                      : "تم رفض طلب التوثيق"}
+                  </p>
+                </div>
+
+                <VerificationStatusBadge status={request.status} />
+              </div>
+
+              {request.adminNote && (
+                <div className="mt-4 border-t border-border/50 pt-4">
+                  <p className="text-xs font-bold text-muted-foreground">
+                    ملاحظة المشرف
+                  </p>
+
+                  <p className="mt-2 text-sm leading-6">{request.adminNote}</p>
+                </div>
+              )}
+
+              {request.reviewedAt && (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  تمت المراجعة في{" "}
+                  {new Date(request.reviewedAt).toLocaleString("ar")}
+                </p>
+              )}
+            </div>
+          ) : (
+            <>
+              <Textarea
+                value={adminNote}
+                onChange={(event) => setAdminNote(event.target.value)}
+                placeholder="أضف ملاحظة إدارية اختيارية..."
+                className="min-h-28 resize-y"
+                disabled={isSubmitting}
+                dir="rtl"
+              />
+
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <Button
+                  variant="outline"
+                  disabled={isSubmitting}
+                  onClick={() => review("REJECTED")}
+                >
+                  <XCircle className="ml-2 h-4 w-4" />
+                  رفض
+                </Button>
+
+                <Button
+                  disabled={isSubmitting}
+                  onClick={() => review("APPROVED")}
+                >
+                  {isSubmitting ? (
+                    <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="ml-2 h-4 w-4" />
+                  )}
+                  الموافقة والتوثيق
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

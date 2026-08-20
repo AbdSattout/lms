@@ -186,6 +186,24 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     );
   }
 
+  void _openOtherUserProfile() {
+    final user = widget.otherUser;
+    if (user == null || widget.isCourseChat) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) =>
+              sl<UserProfileBloc>()..add(LoadUserProfileEvent(user.id)),
+          child: UserProfilePage(
+            userId: user.id,
+            initialUser: user,
+          ),
+        ),
+      ),
+    );
+  }
+
   int _currentUserId(BuildContext context) {
     final state = context.read<AuthBloc>().state;
     if (state is Authenticated) return state.authEntity.user.id;
@@ -217,7 +235,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.title ?? widget.otherUser?.name ?? 'محادثة'),
+          title: widget.isCourseChat
+              ? Text(widget.title ?? 'محادثة')
+              : _DirectChatTitle(
+                  otherUser: widget.otherUser,
+                  onTap: _openOtherUserProfile,
+                ),
           centerTitle: true,
         ),
         body: BlocBuilder<ChatMessagesBloc, ChatMessagesState>(
@@ -383,6 +406,29 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     }
 
     return result;
+  }
+}
+
+class _DirectChatTitle extends StatelessWidget {
+  final FriendUserEntity? otherUser;
+  final VoidCallback onTap;
+
+  const _DirectChatTitle({required this.otherUser, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = otherUser?.name.trim().isNotEmpty == true
+        ? otherUser!.name
+        : 'محادثة';
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+    );
   }
 }
 
