@@ -155,7 +155,7 @@ class _FriendPickTile extends StatelessWidget {
                   ),
                 ),
                 Icon(
-                  Icons.chevron_left_rounded,
+                  Icons.chevron_right_sharp,
                   color: colors.onSurfaceVariant,
                 ),
               ],

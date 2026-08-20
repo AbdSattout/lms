@@ -1,4 +1,10 @@
+import '../errors/exceptions.dart';
+
 String resolveApiErrorMessage(Object error) {
+  if (error is TooManyRequestsException) {
+    return 'لقد وصلت إلى الحد الأقصى المسموح به لهذه الميزة. يرجى ترقية خطتك للمتابعة.';
+  }
+
   final raw = error.toString();
   if (!raw.startsWith('Instance of')) return raw;
 

@@ -18,7 +18,9 @@ class CertificateRepositoryImpl implements CertificateRepository {
     try {
       final result = await remoteDataSource.getMyCertificates(page: page, size: size);
       return Right(result);
-    } on ServerException catch (e) {
+    } on TooManyRequestsException catch (e) {
+      return Left(Failure(errMessage: e.errorModel.errorMessage));
+    }on ServerException catch (e) {
       return Left(Failure(errMessage: e.errorModel.errorMessage));
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));
