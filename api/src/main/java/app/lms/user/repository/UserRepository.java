@@ -52,93 +52,173 @@ public interface UserRepository extends JpaRepository<User, Long> {
             @Param("usernameQ") String usernameQ
     );
 
+
     @Query(
             value = """
-                    select u.*
-                    from users u
-                    left join profiles p
-                        on p.user_id = u.id
-                    where
-                        lower(coalesce(u.name, '')) like lower(concat('%', :q, '%'))
-                        or (
-                            :usernameQ <> ''
-                            and lower(coalesce(u.username, '')) like lower(concat('%', :usernameQ, '%'))
-                        )
-                        or lower(coalesce(u.email, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(p.email, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(p.phone, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(p.university, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(u.name, '')) % lower(:q)
-                        or (
-                            :usernameQ <> ''
-                            and lower(coalesce(u.username, '')) % lower(:usernameQ)
-                        )
-                        or lower(coalesce(u.email, '')) % lower(:q)
-                        or lower(coalesce(p.email, '')) % lower(:q)
-                        or lower(coalesce(p.phone, '')) % lower(:q)
-                        or lower(coalesce(p.university, '')) % lower(:q)
-                        or similarity(lower(coalesce(u.name, '')), lower(:q)) >= :threshold
-                        or (
-                            :usernameQ <> ''
-                            and similarity(lower(coalesce(u.username, '')), lower(:usernameQ)) >= :threshold
-                        )
-                        or similarity(lower(coalesce(u.email, '')), lower(:q)) >= :threshold
-                        or similarity(lower(coalesce(p.email, '')), lower(:q)) >= :threshold
-                        or similarity(lower(coalesce(p.phone, '')), lower(:q)) >= :threshold
-                        or similarity(lower(coalesce(p.university, '')), lower(:q)) >= :threshold
-                    order by greatest(
-                        similarity(lower(coalesce(u.name, '')), lower(:q)),
-                        case
-                            when :usernameQ <> ''
-                                then similarity(lower(coalesce(u.username, '')), lower(:usernameQ))
-                            else 0
-                        end,
-                        similarity(lower(coalesce(u.email, '')), lower(:q)),
-                        similarity(lower(coalesce(p.email, '')), lower(:q)),
-                        similarity(lower(coalesce(p.phone, '')), lower(:q)),
-                        similarity(lower(coalesce(p.university, '')), lower(:q))
-                    ) desc, u.id desc
-                    """,
+                select u
+                from User u
+                left join Profile p
+                    on p.user = u
+                where not exists (
+                    select moderation.id
+                    from UserModeration moderation
+                    where moderation.user.id = u.id
+                    and (
+                        moderation.expiresAt is null
+                        or moderation.expiresAt > CURRENT_TIMESTAMP
+                    )
+                )
+                and (
+                    lower(coalesce(u.name, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or (
+                        :usernameQ <> ''
+                        and lower(coalesce(u.username, ''))
+                            like lower(concat('%', :usernameQ, '%'))
+                    )
+
+                    or lower(coalesce(u.email, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or lower(coalesce(p.email, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or lower(coalesce(p.phone, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or lower(coalesce(p.university, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(u.name, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or (
+                        :usernameQ <> ''
+                        and function(
+                            'similarity',
+                            lower(coalesce(u.username, '')),
+                            lower(:usernameQ)
+                        ) >= :threshold
+                    )
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(u.email, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(p.email, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(p.phone, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(p.university, '')),
+                        lower(:q)
+                    ) >= :threshold
+                )
+                order by u.id desc
+                """,
+
             countQuery = """
-                    select count(*)
-                    from users u
-                    left join profiles p
-                        on p.user_id = u.id
-                    where
-                        lower(coalesce(u.name, '')) like lower(concat('%', :q, '%'))
-                        or (
-                            :usernameQ <> ''
-                            and lower(coalesce(u.username, '')) like lower(concat('%', :usernameQ, '%'))
-                        )
-                        or lower(coalesce(u.email, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(p.email, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(p.phone, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(p.university, '')) like lower(concat('%', :q, '%'))
-                        or lower(coalesce(u.name, '')) % lower(:q)
-                        or (
-                            :usernameQ <> ''
-                            and lower(coalesce(u.username, '')) % lower(:usernameQ)
-                        )
-                        or lower(coalesce(u.email, '')) % lower(:q)
-                        or lower(coalesce(p.email, '')) % lower(:q)
-                        or lower(coalesce(p.phone, '')) % lower(:q)
-                        or lower(coalesce(p.university, '')) % lower(:q)
-                        or similarity(lower(coalesce(u.name, '')), lower(:q)) >= :threshold
-                        or (
-                            :usernameQ <> ''
-                            and similarity(lower(coalesce(u.username, '')), lower(:usernameQ)) >= :threshold
-                        )
-                        or similarity(lower(coalesce(u.email, '')), lower(:q)) >= :threshold
-                        or similarity(lower(coalesce(p.email, '')), lower(:q)) >= :threshold
-                        or similarity(lower(coalesce(p.phone, '')), lower(:q)) >= :threshold
-                        or similarity(lower(coalesce(p.university, '')), lower(:q)) >= :threshold
-                    """,
-            nativeQuery = true
+                select count(u)
+                from User u
+                left join Profile p
+                    on p.user = u
+                where not exists (
+                    select moderation.id
+                    from UserModeration moderation
+                    where moderation.user.id = u.id
+                    and (
+                        moderation.expiresAt is null
+                        or moderation.expiresAt > CURRENT_TIMESTAMP
+                    )
+                )
+                and (
+                    lower(coalesce(u.name, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or (
+                        :usernameQ <> ''
+                        and lower(coalesce(u.username, ''))
+                            like lower(concat('%', :usernameQ, '%'))
+                    )
+
+                    or lower(coalesce(u.email, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or lower(coalesce(p.email, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or lower(coalesce(p.phone, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or lower(coalesce(p.university, ''))
+                        like lower(concat('%', :q, '%'))
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(u.name, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or (
+                        :usernameQ <> ''
+                        and function(
+                            'similarity',
+                            lower(coalesce(u.username, '')),
+                            lower(:usernameQ)
+                        ) >= :threshold
+                    )
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(u.email, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(p.email, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(p.phone, '')),
+                        lower(:q)
+                    ) >= :threshold
+
+                    or function(
+                        'similarity',
+                        lower(coalesce(p.university, '')),
+                        lower(:q)
+                    ) >= :threshold
+                )
+                """
     )
     Page<User> searchForAdmin(
-            @Param("q") String q,
-            @Param("usernameQ") String usernameQ,
-            @Param("threshold") double threshold,
+            @Param("q")
+            String q,
+
+            @Param("usernameQ")
+            String usernameQ,
+
+            @Param("threshold")
+            double threshold,
+
             Pageable pageable
     );
     @Query("""
@@ -150,5 +230,21 @@ public interface UserRepository extends JpaRepository<User, Long> {
 """)
     Optional<UserSearchRow> findUserWithProfileById(
             @Param("id") Long id
+    );
+    @Query("""
+        select u
+        from User u
+        where not exists (
+            select moderation.id
+            from UserModeration moderation
+            where moderation.user.id = u.id
+            and (
+                moderation.expiresAt is null
+                or moderation.expiresAt > CURRENT_TIMESTAMP
+            )
+        )
+        """)
+    Page<User> findAllNotBanned(
+            Pageable pageable
     );
 }

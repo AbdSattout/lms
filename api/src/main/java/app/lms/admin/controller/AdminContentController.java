@@ -218,7 +218,7 @@ public class AdminContentController {
                 )
         );
     }
-    @GetMapping("/admin/users/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<ProfileResponse> getUser(
 
             @PathVariable
