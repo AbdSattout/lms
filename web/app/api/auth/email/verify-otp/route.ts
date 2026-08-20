@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { api } from "@/lib/api"
 import { BackendError } from "@/lib/api/backend"
 import {
+  clearAdminJwtCookie,
   clearBackendJwtCookie,
   setBackendJwtCookie,
 } from "@/lib/auth/backend-jwt-cookie"
@@ -27,8 +28,10 @@ export async function POST(request: NextRequest) {
     }
 
     await setBackendJwtCookie(backendSession.token)
+    await clearAdminJwtCookie()
   } catch (error) {
     await clearBackendJwtCookie()
+    await clearAdminJwtCookie()
 
     const status = error instanceof BackendError ? error.status : 502
 

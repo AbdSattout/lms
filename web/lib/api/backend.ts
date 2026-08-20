@@ -2,7 +2,10 @@ import "server-only"
 
 import { redirect } from "next/navigation"
 
-import { getBackendJwtFromCookies } from "@/lib/auth/backend-jwt-cookie"
+import {
+  getAdminJwtFromCookies,
+  getBackendJwtFromCookies,
+} from "@/lib/auth/backend-jwt-cookie"
 import { buildLoginPath } from "@/lib/auth/callback-url"
 
 type UnauthorizedBehavior = "throw" | "redirect"
@@ -76,7 +79,7 @@ export async function backend<T>(
   const requestHeaders = new Headers(headers)
 
   if (requireAuth) {
-    const token = await getBackendJwtFromCookies()
+    const token = await getJwtForPath(path)
 
     if (!token) {
       handleUnauthorized(unauthorized, callbackUrl)
@@ -158,6 +161,14 @@ function handleUnauthorized(
   }
 
   throw new BackendUnauthorizedError()
+}
+
+async function getJwtForPath(path: string) {
+  if (path.startsWith("/admin/")) {
+    return getAdminJwtFromCookies()
+  }
+
+  return getBackendJwtFromCookies()
 }
 
 async function readResponseDetails(response: Response) {
