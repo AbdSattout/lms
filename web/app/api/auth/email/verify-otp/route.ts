@@ -8,7 +8,7 @@ import {
   setBackendJwtCookie,
 } from "@/lib/auth/backend-jwt-cookie"
 import {
-  USER_BANNED_ERROR_CODE,
+  isUserBannedError,
   USER_BANNED_MESSAGE,
 } from "@/lib/auth/user-banned"
 
@@ -38,9 +38,7 @@ export async function POST(request: NextRequest) {
     await clearAdminJwtCookie()
 
     const status = error instanceof BackendError ? error.status : 502
-    const isBanned =
-      error instanceof BackendError &&
-      error.code === USER_BANNED_ERROR_CODE
+    const isBanned = isUserBannedError(error)
 
     return NextResponse.json(
       {
