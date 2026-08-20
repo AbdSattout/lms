@@ -50,6 +50,10 @@ public class CourseRecommendationService {
                                 EnrollmentStatus.ACTIVE,
                                 EnrollmentStatus.COMPLETED
                         ),
+                        List.of(
+                                EnrollmentStatus.ACTIVE
+                        ),
+
                         recentCourseCutoff,
                         recommendationPageableFactory.forRanking(pageable)
                 );

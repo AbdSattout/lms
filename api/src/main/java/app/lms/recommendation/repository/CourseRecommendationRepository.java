@@ -28,13 +28,25 @@ public interface CourseRecommendationRepository
                         end as userOrganizationMember
                     from Course c
                     join c.organization org
+
                     left join CourseEnrollment popularityEnrollment
                         on popularityEnrollment.course.id = c.id
                         and popularityEnrollment.status in :countedEnrollmentStatuses
+
                     left join OrganizationMember organizationMember
                         on organizationMember.organization.id = org.id
                         and organizationMember.user.id = :userId
+
                     where c.status = :publishedStatus
+
+                    and not exists (
+                        select enrollment.id
+                        from CourseEnrollment enrollment
+                        where enrollment.course.id = c.id
+                        and enrollment.user.id = :userId
+                        and enrollment.status in :excludedUserEnrollmentStatuses
+                    )
+
                     and not exists (
                         select moderation.id
                         from OrganizationModeration moderation
@@ -44,6 +56,7 @@ public interface CourseRecommendationRepository
                             or moderation.expiresAt > CURRENT_TIMESTAMP
                         )
                     )
+
                     and not exists (
                         select ban.id
                         from OrganizationBan ban
@@ -54,7 +67,9 @@ public interface CourseRecommendationRepository
                             or ban.expiresAt > CURRENT_TIMESTAMP
                         )
                     )
+
                     group by c
+
                     order by
                         (
                             case
@@ -79,11 +94,22 @@ public interface CourseRecommendationRepository
                         c.createdAt desc,
                         c.id desc
                     """,
+
             countQuery = """
                     select count(c)
                     from Course c
                     join c.organization org
+
                     where c.status = :publishedStatus
+
+                    and not exists (
+                        select enrollment.id
+                        from CourseEnrollment enrollment
+                        where enrollment.course.id = c.id
+                        and enrollment.user.id = :userId
+                        and enrollment.status in :excludedUserEnrollmentStatuses
+                    )
+
                     and not exists (
                         select moderation.id
                         from OrganizationModeration moderation
@@ -93,6 +119,7 @@ public interface CourseRecommendationRepository
                             or moderation.expiresAt > CURRENT_TIMESTAMP
                         )
                     )
+
                     and not exists (
                         select ban.id
                         from OrganizationBan ban
@@ -114,6 +141,9 @@ public interface CourseRecommendationRepository
 
             @Param("countedEnrollmentStatuses")
             Collection<EnrollmentStatus> countedEnrollmentStatuses,
+
+            @Param("excludedUserEnrollmentStatuses")
+            Collection<EnrollmentStatus> excludedUserEnrollmentStatuses,
 
             @Param("recentCourseCutoff")
             Instant recentCourseCutoff,
