@@ -68,19 +68,27 @@ jobs:
             echo "KEYSTORE_BASE64 or KEYSTORE_PASSWORD not set - skipping keystore setup"
           fi
 
-      - name: Get dependencies
-        working-directory: mobile
-        run: flutter pub get
-
       - name: Cache Flutter pub cache
         uses: namespacelabs/nscloud-cache-action@v1
         with:
           path: ~/.pub-cache
 
+      - name: Get dependencies
+        working-directory: mobile
+        run: flutter pub get
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-disabled: true
+
+      - name: Cache Gradle home and Flutter build outputs
+        uses: namespacelabs/nscloud-cache-action@v1
+        with:
+          cache: gradle
+          path: |
+            mobile/build
+            mobile/android/.gradle
 
       - name: Pre-install CMake 3.22.1
         run: |
@@ -96,14 +104,6 @@ jobs:
       - name: Build APK
         working-directory: mobile
         run: flutter build apk --release --target-platform=android-arm64 --no-pub --dart-define="BASE_URL=${API_URL:-}" --dart-define="PUSHER_APP_KEY=${PUSHER_APP_KEY:-}" --dart-define="PUSHER_APP_CLUSTER=${PUSHER_APP_CLUSTER:-eu}"
-
-      - name: Cache Gradle home and Flutter build outputs
-        uses: namespacelabs/nscloud-cache-action@v1
-        with:
-          cache: gradle
-          path: |
-            mobile/build
-            mobile/android/.gradle
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v5
