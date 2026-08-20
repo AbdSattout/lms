@@ -84,7 +84,7 @@ public class AdminContentService {
                         )
                 )
                 .orElseGet(() ->
-                        userRepository.findAll(
+                        userRepository.findAllNotBanned(
                                 listPageRequest
                         )
                 )

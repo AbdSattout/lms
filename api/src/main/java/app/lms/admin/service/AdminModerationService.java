@@ -112,7 +112,9 @@ public class AdminModerationService {
                         adminId
                 );
 
-        accessService.validateAdmin(admin);
+        accessService.validateAdmin(
+                admin
+        );
 
         User user =
                 accessService.getUser(
@@ -128,6 +130,9 @@ public class AdminModerationService {
                 ban
         );
 
+        banNotificationEmailService.sendUserUnban(
+                user
+        );
     }
 
     public void banOrganization(
@@ -224,7 +229,9 @@ public class AdminModerationService {
                         adminId
                 );
 
-        accessService.validateAdmin(admin);
+        accessService.validateAdmin(
+                admin
+        );
 
         Organization organization =
                 accessService.getOrganization(
@@ -238,6 +245,10 @@ public class AdminModerationService {
 
         organizationModerationRepository.delete(
                 ban
+        );
+
+        banNotificationEmailService.sendOrganizationUnban(
+                organization
         );
     }
 
