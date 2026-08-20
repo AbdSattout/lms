@@ -6,7 +6,7 @@ import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/api_error_resolver.dart';
 import '../../../assessments/ai_quiz/presentation/pages/ai_quiz_page.dart';
-import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
+import '../../../assessments/final_exam/presentation/pages/final_exam_page.dart';
 import '../../../assessments/practice_exam/presentation/pages/practice_exam_list_page.dart';
 import '../../../assessments/practice_quiz/presentation/pages/practice_quiz_list_page.dart';
 import '../../../assessments/random_quiz/presentation/pages/random_quiz_config_page.dart';
@@ -28,9 +28,7 @@ import '../pages/lesson_content_page.dart';
 import '../pages/placement_test_page.dart';
 import 'course_feature_card.dart';
 
-/// The enrolled-only sections of a course (community, tools, content,
-/// final quiz, unenroll). Embedded inside the single course screen when the
-/// user is enrolled.
+
 class CourseLearningContent extends StatelessWidget {
   final CourseEntity course;
 

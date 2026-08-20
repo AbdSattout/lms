@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/errors/error_retry_card.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../assessments/final_exam/presesntation/pages/final_exam_page.dart';
+import '../../../assessments/final_exam/presentation/pages/final_exam_page.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
 import '../../../reports/domain/entities/report_target.dart';
@@ -48,9 +49,13 @@ class CourseDetailsPage extends StatelessWidget {
               ).showSnackBar(SnackBar(content: Text(state.message)));
             }
             if (state is CourseDetailsError) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+               Padding(
+                padding: const EdgeInsets.all(24),
+                child: ErrorRetryCard(
+                  message: state.message,
+                  onRetry: () => context.read<CourseDetailsBloc>().add(RetryCourseDetailsEvent()),
+                ),
+              );
             }
           },
           buildWhen: (previous, current) =>
