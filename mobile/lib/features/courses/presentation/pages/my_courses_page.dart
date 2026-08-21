@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
 import '../bloc/my_courses_bloc.dart';
@@ -91,7 +92,12 @@ class _CoursesTab extends StatelessWidget {
       listenWhen: (previous, current) => current is MyCoursesError,
       listener: (context, state) {
         if (state is MyCoursesError) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+          AppToast.show(
+            context,
+            type: ToastType.error,
+            title: 'تعذر تحميل الكورسات',
+            message: state.message,
+          );
         }
       },
       builder: (context, state) {

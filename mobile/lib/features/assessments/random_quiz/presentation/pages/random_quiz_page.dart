@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/markdown/markdown_content_view.dart';
+import '../../../../../core/widgets/app_toast.dart';
 import '../../../core/presentation/widgets/quiz_option_tile.dart';
 import '../bloc/random_quiz_bloc.dart';
 import '../bloc/random_quiz_event.dart';
@@ -40,8 +41,10 @@ class _RandomQuizPageState extends State<RandomQuizPage> {
               );
             }
             if (state is RandomQuizFailed) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(state.message)),
+              AppToast.show(
+                context,
+                type: ToastType.error,
+                message: state.message,
               );
             }
           },

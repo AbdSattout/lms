@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/report_target.dart';
 import '../../domain/usecases/create_report_params.dart';
 import '../../domain/usecases/create_report_usecase.dart';
@@ -10,7 +11,6 @@ Future<void> showReportBottomSheet(
   BuildContext context,
   ReportTarget target,
 ) async {
-  final messenger = ScaffoldMessenger.of(context);
   final result = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
@@ -30,9 +30,9 @@ Future<void> showReportBottomSheet(
   );
 
   if (result == true && context.mounted) {
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(const SnackBar(content: Text('تم إرسال البلاغ للمراجعة')));
+    if (result == true && context.mounted) {
+      AppToast.success(context, message: 'تم إرسال البلاغ للمراجعة');
+    }
   }
 }
 

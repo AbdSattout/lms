@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/utils/date_time_utils.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -93,12 +94,9 @@ class _ChatsPageState extends State<ChatsPage> {
           },
           listener: (context, state) {
             if (state is! ChatsLoaded) return;
-            final messenger = ScaffoldMessenger.of(context);
             final message = state.actionMessage ?? state.errorMessage;
             if (message == null) return;
-            messenger
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(message)));
+            AppToast.error(context, message: message);
           },
           builder: (context, state) {
             if (state is ChatsInitial) {

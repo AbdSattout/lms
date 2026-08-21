@@ -5,6 +5,7 @@ import '../../../../core/errors/error_retry_card.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../assessments/ai_quiz/presentation/pages/ai_quiz_page.dart';
 import '../../../assessments/final_exam/presentation/pages/final_exam_page.dart';
 import '../../../assessments/practice_exam/presentation/pages/practice_exam_list_page.dart';
@@ -56,8 +57,10 @@ class _CourseLearningSections extends StatelessWidget {
       listenWhen: (previous, current) => current is CourseUnenrolled,
       listener: (context, state) {
         if (state is CourseUnenrolled) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
+          AppToast.show(
+            context,
+            type: ToastType.error,
+            message: state.message,
           );
           Navigator.pop(context, true);
         }
@@ -877,9 +880,11 @@ class _ChapterCardState extends State<_ChapterCard> {
           InkWell(
             borderRadius: BorderRadius.circular(18),
             onTap: isLocked
-                ? () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('أكمل الفصل السابق أولاً')),
-                  )
+                ? () => AppToast.show(
+              context,
+              type: ToastType.info,
+              message: 'أكمل الفصل السابق أولاً',
+            )
                 : () => setState(() => _expanded = !_expanded),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -994,9 +999,11 @@ class _LessonRow extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: isLocked
-            ? () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('أكمل الدرس السابق أولاً')),
-              )
+            ? () => AppToast.show(
+          context,
+          type: ToastType.info,
+          message: 'يجب أن تكمل الدرس السابق أولاً!',
+        )
             : () async {
                 final currentBlocks = lesson.blocks.where(
                   (b) => b.status == ContentStatus.current,
@@ -1246,18 +1253,21 @@ void _showUnenrollConfirmation(BuildContext context, CourseEntity course) {
             onPressed: () => Navigator.pop(dialogContext),
             child: const Text('تراجع'),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xffD9534F),
-              foregroundColor: Colors.white,
+          SizedBox(
+            width: 100,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xffD9534F),
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                context.read<CourseContentsBloc>().add(
+                  UnenrollFromCourseEvent(course.id),
+                );
+              },
+              child: const Text('تأكيد الإلغاء'),
             ),
-            onPressed: () {
-              Navigator.pop(dialogContext);
-              context.read<CourseContentsBloc>().add(
-                UnenrollFromCourseEvent(course.id),
-              );
-            },
-            child: const Text('تأكيد الإلغاء'),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../domain/usecases/update_name_usecase.dart';
 import '../../domain/usecases/get_current_account_email_usecase.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
 import '../../domain/usecases/request_account_email_otp_usecase.dart';
@@ -44,7 +45,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final UpdateProfileUseCase updateProfileUseCase;
   final RequestAccountEmailOtpUseCase requestAccountEmailOtpUseCase;
   final VerifyAccountEmailOtpUseCase verifyAccountEmailOtpUseCase;
-
+  final UpdateNameUseCase updateNameUseCase;
   ProfileBloc({
     required this.getProfileUseCase,
     required this.getCurrentAccountEmailUseCase,
@@ -52,6 +53,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     required this.updateProfileUseCase,
     required this.requestAccountEmailOtpUseCase,
     required this.verifyAccountEmailOtpUseCase,
+    required this.updateNameUseCase,
   }) : super(ProfileInitial()) {
     on<GetProfileEvent>(_getProfile);
 
@@ -63,6 +65,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<VerifyAccountEmailOtpEvent>(_verifyAccountEmailOtp);
 
     on<CancelAccountEmailOtpEvent>(_cancelAccountEmailOtp);
+    on<UpdateNameEvent>(_updateName);
   }
 
   Future<void> _getProfile(
@@ -108,6 +111,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(ProfileUpdated());
 
+      emit(await _loadProfile());
+    } catch (e) {
+      emit(ProfileError(describeProfileError(e)));
+    }
+  }
+
+  Future<void> _updateName(
+      UpdateNameEvent event,
+      Emitter<ProfileState> emit,
+      ) async {
+    try {
+      await updateNameUseCase(event.name);
+      emit(ProfileUpdated());
       emit(await _loadProfile());
     } catch (e) {
       emit(ProfileError(describeProfileError(e)));

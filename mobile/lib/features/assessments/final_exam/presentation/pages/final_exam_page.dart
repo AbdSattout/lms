@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/markdown/markdown_content_view.dart';
 import '../../../../../core/services/injection_container.dart';
+import '../../../../../core/widgets/app_toast.dart';
 import '../../../core/presentation/widgets/quiz_option_tile.dart';
 import '../bloc/final_exam_bloc.dart';
 import '../bloc/final_exam_event.dart';
@@ -46,9 +47,11 @@ class _FinalExamPageState extends State<FinalExamPage> {
                 );
               }
               if (state is FinalExamFailed) {
-                ScaffoldMessenger.of(
+                AppToast.show(
                   context,
-                ).showSnackBar(SnackBar(content: Text(state.message)));
+                  type: ToastType.error,
+                  message: state.message,
+                );
               }
             },
             builder: (context, state) {

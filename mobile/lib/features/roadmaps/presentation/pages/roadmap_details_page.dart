@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../courses/presentation/bloc/course_details_bloc.dart';
 import '../../../courses/presentation/bloc/course_details_event.dart';
 import '../../../courses/presentation/pages/course_details_page.dart';
@@ -28,8 +29,12 @@ class RoadmapDetailsPage extends StatelessWidget {
           body: BlocConsumer<RoadmapBloc, RoadmapState>(
             listener: (context, state) {
               if (state is RoadmapError) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
-              }
+                AppToast.show(
+                  context,
+                  type: ToastType.error,
+                  title: 'تعذر تحميل تفاصيل المسار',
+                  message: state.message,
+                );              }
             },
             builder: (context, state) {
               if (state is RoadmapLoading || state is RoadmapInitial) {
@@ -227,7 +232,7 @@ class _RoadmapCourseTile extends StatelessWidget {
               child: Center(
                 child: isEnrolled
                     ? const Icon(Icons.check_rounded, color: Color(0xff2E7D53), size: 22)
-                    : Text('${position.toString().padLeft(2, '0')}', style: TextStyle(fontWeight: FontWeight.w800, color: colors.primary, fontSize: 15)),
+                    : Text(position.toString().padLeft(2, '0'), style: TextStyle(fontWeight: FontWeight.w800, color: colors.primary, fontSize: 15)),
               ),
             ),
             const SizedBox(width: 12),

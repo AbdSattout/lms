@@ -19,6 +19,9 @@ class PracticeExamResultPage extends StatelessWidget {
             if (result.totalXpEarned > 0) ...[
               const SizedBox(height: 16),
               _XpRewardCard(totalXp: result.totalXpEarned, hasLeveledUp: result.hasLeveledUp),
+            ] else if (result.rewards.isNotEmpty && result.rewards.any((r) => !r.awarded)) ...[
+              const SizedBox(height: 12),
+              _NoXpNotice(),
             ],
             if (result.badges.isNotEmpty) ...[
               const SizedBox(height: 16),
@@ -42,6 +45,39 @@ class PracticeExamResultPage extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _NoXpNotice extends StatelessWidget {
+  const _NoXpNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withOpacity(0.5),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline_rounded, size: 18, color: colors.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'أعدت الامتحان — لا توجد مكافأة XP هذه المرة',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

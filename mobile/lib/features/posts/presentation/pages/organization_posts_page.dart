@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
+import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
+import '../../../organizations/presentation/bloc/organization_details_event.dart';
+import '../../../organizations/presentation/pages/organization_details_page.dart';
 import '../../domain/entities/post_entity.dart';
 import '../bloc/posts_bloc.dart';
 import '../bloc/posts_event.dart';
@@ -10,7 +13,13 @@ import 'post_details_page.dart';
 
 class OrganizationPostsPage extends StatelessWidget {
   final String orgSlug;
-  const OrganizationPostsPage({super.key, required this.orgSlug});
+  final bool isMember;
+
+  const OrganizationPostsPage({
+    super.key,
+    required this.orgSlug,
+    required this.isMember,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +72,10 @@ class OrganizationPostsPage extends StatelessWidget {
                       return PostCard(
                         post: post,
                         onTap: () async {
+                          if (!isMember) {
+                            _showMembershipRequiredDialog(context);
+                            return;
+                          }
                           final updatedPost = await Navigator.push<PostEntity>(
                             context,
                             MaterialPageRoute(builder: (_) => PostDetailsPage(post: post)),
@@ -72,6 +85,10 @@ class OrganizationPostsPage extends StatelessWidget {
                           }
                         },
                         onCommentTap: () async {
+                          if (!isMember) {
+                            _showMembershipRequiredDialog(context);
+                            return;
+                          }
                           final updatedPost = await Navigator.push<PostEntity>(
                             context,
                             MaterialPageRoute(builder: (_) => PostDetailsPage(post: post, openComments: true)),
@@ -88,6 +105,56 @@ class OrganizationPostsPage extends StatelessWidget {
               return const SizedBox();
             },
           ),
+        ),
+      ),
+    );
+  }
+  void _showMembershipRequiredDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.lock_rounded, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('انضم إلى المنظمة'),
+            ],
+          ),
+          content: const Text(
+            'لرؤية تفاصيل المنشورات والتفاعل معها، يجب أن تكون عضواً في هذه المنظمة.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('إلغاء'),
+            ),
+            SizedBox(
+              width: 180,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => BlocProvider(
+                        create: (_) => sl<OrganizationDetailsBloc>()
+                          ..add(GetOrganizationDetailsEvent(orgSlug)),
+                        child: OrganizationDetailsPage(slug: orgSlug),
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('الانضمام إلى المنظمة'),
+              ),
+            ),
+          ],
         ),
       ),
     );

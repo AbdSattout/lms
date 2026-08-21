@@ -7,6 +7,7 @@ import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../billing/presentation/bloc/billing_bloc.dart';
@@ -49,35 +50,43 @@ class _ProfilePageState extends State<ProfilePage> {
                     current.accountEmailError != null)),
         listener: (context, state) {
           if (state is ProfileUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تم تحديث البيانات بنجاح')),
+            AppToast.show(
+              context,
+              title: 'تم التحديث',
+              message: 'تم تحديث البيانات بنجاح',
             );
           }
 
           if (state is ProfilePictureUpdated) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('تم تحديث الصورة بنجاح')),
+            AppToast.show(
+              context,
+              title: 'تم التحديث',
+              message: 'تم تحديث الصورة بنجاح',
             );
           }
 
           if (state is ProfileError) {
-            ScaffoldMessenger.of(
+            AppToast.show(
               context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+              type: ToastType.error,
+              title: 'تعذر تحميل الملف الشخصي',
+              message: state.message,
+            );
           }
 
           if (state is ProfileLoaded && state.accountEmailMessage != null) {
-            ScaffoldMessenger.of(
+            AppToast.show(
               context,
-            ).showSnackBar(SnackBar(content: Text(state.accountEmailMessage!)));
+              type: ToastType.error,
+              message: state.accountEmailMessage!,
+            );
           }
 
           if (state is ProfileLoaded && state.accountEmailError != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.accountEmailError!),
-                backgroundColor: Colors.red,
-              ),
+            AppToast.show(
+              context,
+              type: ToastType.error,
+              message: state.accountEmailError!,
             );
           }
         },
@@ -335,14 +344,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                 },
                                 child: const Text('إلغاء'),
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  context.read<AuthBloc>().add(
-                                    LogoutRequested(),
-                                  );
-                                },
-                                child: const Text('خروج'),
+                              SizedBox(
+                                width:100,
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    context.read<AuthBloc>().add(
+                                      LogoutRequested(),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.logout),
+                                  label: const Text('خروج'),
+                                ),
                               ),
                             ],
                           ),
@@ -888,16 +901,11 @@ Widget _buildInfoCard({
 }
 
 void _showEditProfileSheet(BuildContext context, ProfileEntity profile) {
+  final nameController = TextEditingController(text: profile.name ?? '');
   final emailController = TextEditingController(text: profile.email ?? '');
-
   final phoneController = TextEditingController(text: profile.phone ?? '');
+  final universityController = TextEditingController(text: profile.university ?? '');
 
-  final universityController = TextEditingController(
-    text: profile.university ?? '',
-  );
-
-  // capture the ProfileBloc BEFORE opening the bottom sheet, since the
-  // sheet's own builder context is a different subtree.
   final profileBloc = context.read<ProfileBloc>();
 
   showModalBottomSheet(
@@ -921,8 +929,17 @@ void _showEditProfileSheet(BuildContext context, ProfileEntity profile) {
               "تعديل الملف الشخصي",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-
             const SizedBox(height: 20),
+
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(
+                labelText: "الاسم",
+                hintText: "أدخل اسمك",
+              ),
+            ),
+
+            const SizedBox(height: 12),
 
             TextField(
               controller: emailController,
@@ -955,16 +972,23 @@ void _showEditProfileSheet(BuildContext context, ProfileEntity profile) {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                if (nameController.text.trim().isNotEmpty && nameController.text.trim() != profile.name) {
                   profileBloc.add(
-                    UpdateProfileEvent(
-                      email: emailController.text,
-                      phone: phoneController.text,
-                      university: universityController.text,
-                    ),
+                      UpdateNameEvent(
+                          name: nameController.text
+                      )
                   );
+                }
+                profileBloc.add(
+                  UpdateProfileEvent(
+                    email: emailController.text,
+                    phone: phoneController.text,
+                    university: universityController.text,
+                  ),
+                );
 
-                  Navigator.pop(sheetContext);
-                },
+                Navigator.pop(sheetContext);
+              },
                 child: const Text("حفظ التعديلات"),
               ),
             ),
@@ -974,7 +998,6 @@ void _showEditProfileSheet(BuildContext context, ProfileEntity profile) {
     },
   );
 }
-
 class _MyBadgesSection extends StatelessWidget {
   final int userId;
 
@@ -1021,9 +1044,11 @@ Future<void> _pickImage(BuildContext context) async {
   } catch (e) {
     debugPrint('Image picker failed: $e');
     if (context.mounted) {
-      ScaffoldMessenger.of(
+      AppToast.show(
         context,
-      ).showSnackBar(SnackBar(content: Text('تعذر اختيار الصورة: $e')));
+        type: ToastType.error,
+        message: 'تعذر اختيار الصورة',
+      );
     }
   }
 }

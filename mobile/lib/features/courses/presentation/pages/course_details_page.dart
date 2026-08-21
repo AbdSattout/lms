@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/errors/error_retry_card.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../assessments/final_exam/presentation/pages/final_exam_page.dart';
 import '../../../organizations/presentation/bloc/organization_details_bloc.dart';
 import '../../../organizations/presentation/bloc/organization_details_event.dart';
@@ -37,24 +38,22 @@ class CourseDetailsPage extends StatelessWidget {
                   previous is CourseDetailsLoading),
           listener: (context, state) async {
             if (state is CourseEnrollSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('تم تسجيلك في "${state.result.courseTitle}"'),
-                ),
+              AppToast.success(
+                context,
+                title: 'تم التسجيل',
+                message: 'تم تسجيلك في "${state.result.courseTitle}"',
               );
             }
             if (state is CourseDetailsActionError) {
-              ScaffoldMessenger.of(
+              AppToast.error(
                 context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+                message: state.message,
+              );
             }
             if (state is CourseDetailsError) {
-               Padding(
-                padding: const EdgeInsets.all(24),
-                child: ErrorRetryCard(
-                  message: state.message,
-                  onRetry: () => context.read<CourseDetailsBloc>().add(RetryCourseDetailsEvent()),
-                ),
+              AppToast.error(
+                context,
+                message: state.message,
               );
             }
           },
@@ -126,7 +125,7 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 110),
+          padding: const EdgeInsets.only(bottom: 80),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -236,7 +235,7 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
           right: 0,
           bottom: 0,
           child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
             decoration: BoxDecoration(
               color: colors.surface,
               boxShadow: [
@@ -249,9 +248,10 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
             ),
             child: SafeArea(
               top: false,
+              bottom: true,
               child: SizedBox(
                 width: double.infinity,
-                height: 54,
+                height: 50,
                 child: _buildCta(context),
               ),
             ),

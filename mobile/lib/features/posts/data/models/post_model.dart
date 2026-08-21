@@ -36,12 +36,12 @@ class PostModel extends PostEntity {
       updatedAt: baseEntity?['updatedAt'] as String?,
     );
   }
-
   PostModel copyWith({
     ReactionCountsEntity? reactionCounts,
     int? commentCount,
     int? likeCount,
     String? viewerReaction,
+    bool clearViewerReaction = false,
   }) {
     return PostModel(
       id: id,
@@ -53,7 +53,7 @@ class PostModel extends PostEntity {
       commentCount: commentCount ?? this.commentCount,
       likeCount: likeCount ?? this.likeCount,
       reactionCounts: reactionCounts ?? this.reactionCounts,
-      viewerReaction: viewerReaction ?? this.viewerReaction,
+      viewerReaction: clearViewerReaction ? null : (viewerReaction ?? this.viewerReaction),
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

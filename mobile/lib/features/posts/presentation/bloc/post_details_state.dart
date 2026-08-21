@@ -29,3 +29,8 @@ class PostDetailsError extends PostDetailsState {
   final String message;
   PostDetailsError(this.message);
 }
+class CommentSubmitting extends PostDetailsState {
+  final List<CommentEntity> comments;
+  final PostEntity post;
+  CommentSubmitting({required this.comments, required this.post});
+}

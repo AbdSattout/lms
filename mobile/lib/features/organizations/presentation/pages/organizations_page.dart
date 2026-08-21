@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/external_url_launcher.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/organization_invite_entity.dart';
 import '../bloc/organization_bloc.dart';
 import '../bloc/organization_details_bloc.dart';
@@ -58,9 +59,12 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
           listenWhen: (previous, current) => current is OrganizationError,
           listener: (context, state) {
             if (state is OrganizationError) {
-              ScaffoldMessenger.of(
+              AppToast.show(
                 context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+                type: ToastType.error,
+                title: 'تعذر تحميل المنظمة',
+                message: state.message,
+              );
             }
           },
           builder: (context, state) {
@@ -116,22 +120,25 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
                           bottom: Radius.circular(34),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          if (!widget.showOnlyMine)
-                            IconButton(
-                              icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                              color: colors.primary,
-                              onPressed: () => Navigator.pop(context),
+                      child: SafeArea(
+                        bottom: false,
+                        child: Row(
+                          children: [
+                            if (!widget.showOnlyMine)
+                              IconButton(
+                                icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                                color: colors.primary,
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            Text(
+                              widget.showOnlyMine ? 'منظماتي' : 'المنظمات',
+                              style: textTheme.displayLarge?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: colors.primary,
+                              ),
                             ),
-                          Text(
-                            widget.showOnlyMine ? 'منظماتي' : 'المنظمات',
-                            style: textTheme.displayLarge?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: colors.primary,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     Expanded(
