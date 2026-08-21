@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import {
   AlertDialog,
@@ -15,7 +14,18 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { BanDuration, OrganizationMemberResponse } from "@/lib/api/types"
-import { Plus, ArrowRight } from "lucide-react"
+import { Plus, ArrowRight, UsersRound } from "lucide-react"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import { Label } from "@/components/ui/label"
 import {
   getMembers,
@@ -197,16 +207,16 @@ export function MembersDialog({
             ) : (
               <div className="custom-scrollbar h-full space-y-1 overflow-y-auto p-3">
                 {members.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center space-y-2 text-sm font-medium text-muted-foreground opacity-70">
-                    <Image
-                      src="/no-results.png"
-                      alt="No Result"
-                      width={100}
-                      height={100}
-                      className="block hidden opacity-40 mix-blend-luminosity grayscale invert dark:invert-0"
-                    />
-                    <span>لا يوجد اعضاء بعد, قم بالاضافة .</span>
-                  </div>
+                  <Empty className="h-full justify-center">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <UsersRound />
+                      </EmptyMedia>
+                      <EmptyTitle>
+                        لا يوجد اعضاء بعد, قم بالاضافة .
+                      </EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 ) : (
                   members.map((member) => {
                     const isTheOwnerRow =
@@ -224,13 +234,19 @@ export function MembersDialog({
                         onClick={() => handleMemberClick(member)}
                         className="group flex cursor-pointer items-center gap-3 rounded-lg border-b border-muted/20 bg-background/60 p-3 transition-all duration-150 hover:bg-muted/40 hover:shadow-sm active:scale-[0.98]"
                       >
-                        <Image
-                          src={member.user.picture || "/default-avatar.png"}
-                          alt={member.user.name || "User avatar"}
-                          width={38}
-                          height={38}
-                          className="shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-hover:ring-border/40"
-                        />
+                        <Avatar className="size-[38px] shrink-0 ring-2 ring-transparent transition-all group-hover:ring-border/40">
+                          <AvatarImage
+                            src={member.user.picture}
+                            alt={member.user.name || "User avatar"}
+                          />
+                          <AvatarFallback className="text-xs font-semibold">
+                            {(member.user.name || "؟")
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
                         <div className="flex flex-1 flex-col truncate">
                           <span className="truncate text-sm font-semibold tracking-tight text-foreground">
                             {member.user.name}

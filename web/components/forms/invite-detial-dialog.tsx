@@ -30,6 +30,12 @@ import {
   DialogDescription,
   DialogHeader,
 } from "@/components/ui/dialog"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
+import { OrgAvatar } from "@/components/org-avatar"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -55,12 +61,10 @@ export function InviteDetailDialog({
   )
 
   const [coverError, setCoverError] = useState(false)
-  const [logoError, setLogoError] = useState(false)
   const router = useRouter()
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setCoverError(false)
-      setLogoError(false)
       onClose()
     }
   }
@@ -214,10 +218,6 @@ export function InviteDetailDialog({
     },
   ]
 
-  const firstLetter = organization?.name
-    ? organization.name.charAt(0).toUpperCase()
-    : "O"
-
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="flex max-h-[85vh] max-w-[34rem] flex-col gap-0 overflow-hidden bg-background p-0 shadow-2xl outline-none sm:rounded-2xl [&>button]:hidden">
@@ -250,21 +250,12 @@ export function InviteDetailDialog({
           </div>
 
           <div className="relative z-10 -mt-[44px] mb-4 flex w-full shrink-0 flex-col items-center justify-center px-6">
-            <div className="relative z-10 mx-auto flex h-[88px] w-[88px] items-center justify-center overflow-hidden rounded-full border border-border bg-muted shadow-lg ring-4 ring-background">
-              {organization?.imageUrl && !logoError ? (
-                <Image
-                  src={organization.imageUrl}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="90px"
-                  onError={() => setLogoError(true)}
-                />
-              ) : (
-                <span className="text-3xl font-extrabold text-foreground uppercase">
-                  {firstLetter}
-                </span>
-              )}
+            <div className="relative z-10 mx-auto">
+              <OrgAvatar
+                src={organization?.imageUrl}
+                name={organization?.name}
+                className="size-[88px] border-border shadow-lg ring-4 ring-background"
+              />
             </div>
 
             <h2 className="mt-4 line-clamp-1 w-full max-w-[85%] text-center text-xl font-bold tracking-tight text-foreground sm:text-2xl">
@@ -361,18 +352,16 @@ export function InviteDetailDialog({
 
             {organization?.owner && (
               <div className="flex min-w-[200px] flex-1 shrink-0 items-center gap-3 overflow-hidden rounded-2xl border border-border/80 bg-muted/15 p-3 px-4 text-start">
-                <div className="relative z-10 flex h-[46px] w-[46px] shrink-0 items-center justify-center overflow-hidden rounded-full border bg-zinc-800 shadow-sm ring-[2.5px] ring-muted-foreground/20">
-                  {organization.owner.picture ? (
-                    <Image
-                      src={organization.owner.picture}
-                      alt=""
-                      fill
-                      className="z-20 object-cover"
-                    />
-                  ) : (
-                    <User className="z-20 h-5 w-5 text-muted-foreground" />
-                  )}
-                </div>
+                <Avatar className="size-[46px] shrink-0 border shadow-sm ring-[2.5px] ring-muted-foreground/20">
+                  <AvatarImage
+                    src={organization.owner.picture}
+                    alt={organization.owner.name ?? ""}
+                    className="z-20"
+                  />
+                  <AvatarFallback className="z-20">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex w-full min-w-[50px] flex-shrink flex-col truncate text-start text-clip">
                   <p className="mb-[3px] truncate overflow-hidden text-[11px] leading-none font-semibold whitespace-nowrap text-muted-foreground uppercase opacity-80">
                     المالك

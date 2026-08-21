@@ -1,14 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Bell, Check, Loader2, UserRound, X } from "lucide-react"
+import { Bell, Check, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 
 import type { JoinRequestResponse } from "@/lib/api/types"
 
 import { usePendingJoinRequests } from "@/hooks/use-pending-join-requests"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import {
   acceptJoinRequestAction,
   rejectJoinRequestAction,
@@ -198,17 +202,19 @@ export function JoinRequestsNotification({
                         className="rounded-xl border border-transparent bg-background p-3 transition-colors hover:border-border hover:bg-muted/40 sm:p-4"
                       >
                         <div className="flex items-start gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
-                            {request.user.picture ? (
-                              <Image
-                                src={request.user.picture}
-                                alt={request.user.name ?? "User"}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              <UserRound className="h-5 w-5 text-muted-foreground" />
-                            )}
-                          </div>
+                          <Avatar className="size-10 shrink-0">
+                            <AvatarImage
+                              src={request.user.picture}
+                              alt={request.user.name ?? "User"}
+                            />
+                            <AvatarFallback className="text-xs font-semibold">
+                              {(request.user.name || "؟")
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
 
                           <div className="min-w-0 flex-1">
                             <p className="truncate text-sm font-semibold text-foreground">
