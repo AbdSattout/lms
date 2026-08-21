@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lms/core/markdown/markdown_content_view.dart';
+import '../../../../../core/markdown/markdown_content_view.dart';
 import '../../domain/entities/practice_exam_submit_result_entity.dart';
 
 class PracticeExamResultPage extends StatelessWidget {
@@ -40,7 +40,11 @@ class PracticeExamResultPage extends StatelessWidget {
             height: 52,
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
               child: const Text('العودة', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
@@ -60,7 +64,7 @@ class _NoXpNotice extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withOpacity(0.5),
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -95,19 +99,27 @@ class _XpRewardCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xffF2C94C).withOpacity(0.1),
+        color: const Color(0xffF2C94C).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xffF2C94C).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xffF2C94C).withValues(alpha: 0.3)),
       ),
       child: Row(children: [
-        Container(width: 40, height: 40, decoration: BoxDecoration(color: const Color(0xffF2C94C).withOpacity(0.2), borderRadius: BorderRadius.circular(12)), child: const Icon(Icons.bolt_rounded, color: Color(0xffB7791F), size: 24)),
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: const Color(0xffF2C94C).withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Icon(Icons.bolt_rounded, color: Color(0xffB7791F), size: 24),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('+$totalXp XP', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: const Color(0xffB7791F))),
+            Text('+$totalXp XP', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Color(0xffB7791F))),
             if (hasLeveledUp) ...[
               const SizedBox(height: 2),
-              Text('لقد ارتقيت إلى مستوى جديد! ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: const Color(0xffB7791F))),
+              const Text('لقد ارتقيت إلى مستوى جديد! ', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xffB7791F))),
             ],
           ]),
         ),
@@ -117,7 +129,7 @@ class _XpRewardCard extends StatelessWidget {
 }
 
 class _BadgesSection extends StatelessWidget {
-  final List<UserBadgeEntity> badges;
+  final List<dynamic> badges;
 
   const _BadgesSection({required this.badges});
 
@@ -128,7 +140,11 @@ class _BadgesSection extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: colors.outlineVariant.withOpacity(0.5))),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text('شارات جديدة', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, color: colors.onSurface)),
         const SizedBox(height: 12),
@@ -139,7 +155,7 @@ class _BadgesSection extends StatelessWidget {
 }
 
 class _BadgeTile extends StatelessWidget {
-  final UserBadgeEntity badge;
+  final dynamic badge;
 
   const _BadgeTile({required this.badge});
 
@@ -150,9 +166,14 @@ class _BadgeTile extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: colors.primary.withOpacity(0.05), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
       child: Row(children: [
-        Container(width: 36, height: 36, decoration: BoxDecoration(color: colors.primary.withOpacity(0.1), borderRadius: BorderRadius.circular(10)), child: Icon(Icons.emoji_events_rounded, color: colors.primary, size: 20)),
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+          child: Icon(Icons.emoji_events_rounded, color: colors.primary, size: 20),
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -168,7 +189,6 @@ class _BadgeTile extends StatelessWidget {
   }
 }
 
-// _ScoreCard and _ResultTile same as Practice Quiz
 class _ScoreCard extends StatelessWidget {
   final int score;
   final int total;
@@ -184,9 +204,25 @@ class _ScoreCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(20), border: Border.all(color: passed ? const Color(0xff2E7D53).withOpacity(0.3) : colors.outlineVariant)),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: passed ? const Color(0xff2E7D53).withValues(alpha: 0.3) : colors.outlineVariant),
+      ),
       child: Column(children: [
-        Container(width: 80, height: 80, decoration: BoxDecoration(color: passed ? const Color(0xff2E7D53).withOpacity(0.1) : colors.primary.withOpacity(0.1), shape: BoxShape.circle), child: Icon(passed ? Icons.check_circle_rounded : Icons.school_rounded, size: 40, color: passed ? const Color(0xff2E7D53) : colors.primary)),
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: passed ? const Color(0xff2E7D53).withValues(alpha: 0.1) : colors.primary.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            passed ? Icons.check_circle_rounded : Icons.school_rounded,
+            size: 40,
+            color: passed ? const Color(0xff2E7D53) : colors.primary,
+          ),
+        ),
         const SizedBox(height: 16),
         Text('$score من $total', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w900, color: colors.onSurface)),
         const SizedBox(height: 4),
@@ -205,25 +241,69 @@ class _ResultTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isCorrect = result.correct == true;
-    final selectedIndex = result.selectedAnswerIndex;
-    final correctIndex = result.correctAnswerIndex;
+    final selectedIndex = result.selectedAnswerIndex as int?;
+    final correctIndex = result.correctAnswerIndex as int?;
+    final List<dynamic> options = result.options ?? [];
+
+    final bool isUnanswered = selectedIndex == null || selectedIndex < 0;
+
+    String userSelectedText = 'لم يتم الإجابة';
+    if (!isUnanswered && selectedIndex < options.length) {
+      userSelectedText = options[selectedIndex].toString();
+    }
+
+    String correctAnswerText = '';
+    if (correctIndex != null && correctIndex >= 0 && correctIndex < options.length) {
+      correctAnswerText = options[correctIndex].toString();
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(16), border: Border.all(color: isCorrect ? const Color(0xff2E7D53).withOpacity(0.3) : const Color(0xffD9534F).withOpacity(0.3))),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isCorrect ? const Color(0xff2E7D53).withValues(alpha: 0.3) : const Color(0xffD9534F).withValues(alpha: 0.3)),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Container(width: 28, height: 28, decoration: BoxDecoration(color: isCorrect ? const Color(0xff2E7D53).withOpacity(0.1) : const Color(0xffD9534F).withOpacity(0.1), shape: BoxShape.circle), child: Icon(isCorrect ? Icons.check_rounded : Icons.close_rounded, size: 16, color: isCorrect ? const Color(0xff2E7D53) : const Color(0xffD9534F))),
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: isCorrect ? const Color(0xff2E7D53).withValues(alpha: 0.1) : const Color(0xffD9534F).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              isCorrect ? Icons.check_rounded : Icons.close_rounded,
+              size: 16,
+              color: isCorrect ? const Color(0xff2E7D53) : const Color(0xffD9534F),
+            ),
+          ),
           const SizedBox(width: 10),
           Expanded(child: MarkdownContentView(content: result.content)),
         ]),
         const SizedBox(height: 12),
-        if (selectedIndex != null) ...[
-          _AnswerRow(label: 'إجابتك', text: result.options[selectedIndex], color: isCorrect ? const Color(0xff2E7D53) : const Color(0xffD9534F)),
+
+        // Display user answer or skipped status
+        _AnswerRow(
+          label: 'إجابتك',
+          text: userSelectedText,
+          color: isCorrect
+              ? const Color(0xff2E7D53)
+              : isUnanswered
+              ? colors.onSurfaceVariant
+              : const Color(0xffD9534F),
+        ),
+
+        if (!isCorrect && correctAnswerText.isNotEmpty) ...[
           const SizedBox(height: 6),
+          _AnswerRow(
+            label: 'الإجابة الصحيحة',
+            text: correctAnswerText,
+            color: const Color(0xff2E7D53),
+          ),
         ],
-        if (!isCorrect) _AnswerRow(label: 'الإجابة الصحيحة', text: result.options[correctIndex], color: const Color(0xff2E7D53)),
       ]),
     );
   }
@@ -239,16 +319,22 @@ class _AnswerRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3), decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(6)), child: Text(label, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color))),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(6)),
+        child: Text(label, style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, color: color)),
+      ),
       const SizedBox(width: 8),
-      Expanded(child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 13,
-          color: color,
-          fontWeight: FontWeight.w600,
+      Expanded(
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: 13,
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-      ),),
+      ),
     ]);
   }
 }

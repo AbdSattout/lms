@@ -83,11 +83,16 @@ class PracticeExamBloc extends Bloc<PracticeExamEvent, PracticeExamState> {
 
     emit(PracticeExamSubmitting(current));
 
+    final Map<int, int> finalAnswers = {};
+    for (final question in current.exam.questions) {
+      finalAnswers[question.id] = current.selectedAnswers[question.id] ?? -1;
+    }
+
     final result = await submit(
       courseId: _courseId!,
       examId: _examId!,
       attemptId: current.exam.attemptId,
-      answers: current.selectedAnswers,
+      answers: finalAnswers,
     );
 
     result.fold(

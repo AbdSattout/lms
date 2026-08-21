@@ -125,7 +125,6 @@ class OrganizationRoadmapsPage extends StatelessWidget {
                             final roadmap = state.roadmaps[index];
                             return RoadmapCard(
                               roadmap: roadmap,
-                              showProgress: true,
                               onTap: () {
                                 Navigator.push(
                                   context,

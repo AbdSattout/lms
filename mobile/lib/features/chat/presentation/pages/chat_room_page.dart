@@ -196,13 +196,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
               onPressed: () => Navigator.pop(dialogContext, false),
               child: const Text('إلغاء'),
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Colors.white,
+            SizedBox(
+              width: 100,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('حذف'),
               ),
-              child: const Text('حذف'),
             ),
           ],
         ),
