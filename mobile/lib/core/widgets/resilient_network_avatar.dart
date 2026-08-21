@@ -69,18 +69,29 @@ class _ResilientNetworkAvatarState extends State<ResilientNetworkAvatar>
   @override
   Widget build(BuildContext context) {
     final url = _normalizedUrl(widget.imageUrl);
-    final avatar = Container(
+
+    final innerAvatar = Container(
       width: widget.radius * 2,
       height: widget.radius * 2,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color:
-            widget.backgroundColor ??
+        color: widget.backgroundColor ??
             Theme.of(context).colorScheme.surfaceContainerHighest,
-        border: widget.border,
       ),
       clipBehavior: Clip.antiAlias,
       child: url == null ? _fallbackImage() : _networkImage(url),
+    );
+
+    final avatar = widget.border == null
+        ? innerAvatar
+        : Container(
+      width: widget.radius * 2,
+      height: widget.radius * 2,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: widget.border,
+      ),
+      child: ClipOval(child: innerAvatar),
     );
 
     if (widget.onTap == null) return avatar;

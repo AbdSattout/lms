@@ -117,7 +117,7 @@ class MainHomeScreen extends StatelessWidget {
             backgroundColor: isDark
                 ? const Color(0xff1E293B)  
                 : AppColors.lavenderLight,
-            snakeViewColor: colors.primary.withValues(alpha: 0.15),
+            snakeViewColor: Colors.transparent,
             height: 68,
             elevation: 20,
             selectedItemColor: colors.primary,

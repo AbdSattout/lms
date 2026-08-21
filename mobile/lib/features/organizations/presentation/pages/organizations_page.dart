@@ -169,14 +169,8 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
                               ),
                             ] else
                               ...state.organizations.map((organization) {
-                                final isOwnedByMe =
-                                    widget.currentUserName != null &&
-                                    organization.ownerName != null &&
-                                    organization.ownerName == widget.currentUserName;
-
                                 return OrganizationCard(
                                   organization: organization,
-                                  isOwnedByMe: isOwnedByMe,
                                   onTap: () {
                                     Navigator.push(
                                       context,

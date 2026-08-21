@@ -290,6 +290,7 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
         detailsState is CourseDetailsLoaded && detailsState.isStartingCourse;
     final viewerRole = course.organization?.viewerRole;
     final isOwner = viewerRole == 'OWNER';
+    final isAdmin= viewerRole=='ADMIN';
     final viewerJoined = course.organization?.viewerJoined;
     final isBlockedByMembership =
         !isEnrolled && viewerJoined == false && !isOwner;
@@ -312,6 +313,23 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
         ),
         icon: const Icon(Icons.admin_panel_settings_rounded),
         label: const Text('أنت مالك المنظمة'),
+      );
+    }
+    if (isAdmin) {
+      return ElevatedButton.icon(
+        onPressed: null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.surfaceContainerHighest,
+          foregroundColor: colors.onSurfaceVariant,
+          disabledBackgroundColor: colors.surfaceContainerHighest,
+          disabledForegroundColor: colors.onSurfaceVariant,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        icon: const Icon(Icons.admin_panel_settings_rounded),
+        label: const Text('أنت مشرف في المنظمة'),
       );
     }
 

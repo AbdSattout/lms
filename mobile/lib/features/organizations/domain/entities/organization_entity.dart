@@ -65,4 +65,5 @@ class OrganizationEntity {
     this.member,
   });
   bool get isOwner => viewerRole?.toUpperCase() == 'OWNER';
+  bool get isAdmin => viewerRole?.toUpperCase() == 'ADMIN';
 }
