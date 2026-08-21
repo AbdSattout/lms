@@ -200,14 +200,16 @@ class _FinalExamPageState extends State<FinalExamPage> {
                 child: const Text('السابق'),
               ),
             const Spacer(),
-if (_currentIndex < state.totalQuestions - 1)
+            if (_currentIndex < state.totalQuestions - 1)
               ElevatedButton(
-                onPressed: _isExpired
-                    ? null
-                    : () => _pageController.nextPage(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeOut,
-                      ),
+                onPressed: state.selectedAnswers.containsKey(
+                  state.exam.questions[_currentIndex].id,
+                )
+                    ? () => _pageController.nextPage(
+                  duration: const Duration(milliseconds: 250),
+                  curve: Curves.easeOut,
+                )
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: colors.primary,
                   foregroundColor: colors.onPrimary,
