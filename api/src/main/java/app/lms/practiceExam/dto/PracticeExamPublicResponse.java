@@ -15,6 +15,7 @@ public record PracticeExamPublicResponse(
         Integer timeLimitMinutes,
         PracticeExamStatus status,
         Long attemptId,
+        boolean hasStarted,
         LocalDateTime startedAt,
         LocalDateTime expiresAt,
         LocalDateTime serverTime,
