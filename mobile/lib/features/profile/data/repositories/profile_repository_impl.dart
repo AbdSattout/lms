@@ -27,6 +27,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<void> updateName(String name) async {
+    await remote.updateName(name);
+  }
+
+  @override
   Future<UserPictureModel> updateProfilePicture(String imagePath) {
     return remote.updateProfilePicture(imagePath);
   }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -102,9 +103,7 @@ class NewChatPage extends StatelessWidget {
       );
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(resolveApiErrorMessage(e))));
+      AppToast.error(context, message: resolveApiErrorMessage(e));
     }
   }
 
