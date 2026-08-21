@@ -10,6 +10,7 @@ public record PracticeExamSummaryResponse(
         String description,
         Integer timeLimitMinutes,
         PracticeExamStatus status,
+        boolean hasStarted,
         Long courseId,
         QuestionDifficulty difficulty,
         Integer questionCount,

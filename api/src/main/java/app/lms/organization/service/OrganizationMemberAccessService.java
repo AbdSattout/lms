@@ -107,6 +107,23 @@ public class OrganizationMemberAccessService {
         }
     }
 
+    public void validateOwner(
+            Long organizationId,
+            Long userId
+    ) {
+
+        OrganizationMember member = getMember(
+                organizationId,
+                userId
+        );
+
+        if (member.getRole() != Role.OWNER) {
+            throw new ForbiddenException(
+                    "Only the organization owner can perform this action"
+            );
+        }
+    }
+
     public void validateCanRemoveMember(
             OrganizationMember actor,
             OrganizationMember target

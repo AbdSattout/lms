@@ -73,7 +73,8 @@ public class PracticeExamMapper {
     public PracticeExamPublicResponse toPublicResponse(
             PracticeExam practiceExam,
             PracticeExamAttempt attempt,
-            LocalDateTime serverTime
+            LocalDateTime serverTime,
+            boolean hasStarted
     ) {
 
         return new PracticeExamPublicResponse(
@@ -83,6 +84,7 @@ public class PracticeExamMapper {
                 practiceExam.getTimeLimitMinutes(),
                 practiceExam.getStatus(),
                 attempt.getId(),
+                hasStarted,
                 attempt.getStartedAt(),
                 attempt.getExpiresAt(),
                 serverTime,
@@ -99,7 +101,8 @@ public class PracticeExamMapper {
     }
 
     public PracticeExamSummaryResponse toSummaryResponse(
-            PracticeExam practiceExam
+            PracticeExam practiceExam,
+            boolean hasStarted
     ) {
 
         return new PracticeExamSummaryResponse(
@@ -108,6 +111,7 @@ public class PracticeExamMapper {
                 practiceExam.getDescription(),
                 practiceExam.getTimeLimitMinutes(),
                 practiceExam.getStatus(),
+                hasStarted,
                 practiceExam.getCourse().getId(),
                 quizDifficultyService.calculate(
                         practiceExam.getQuestions()

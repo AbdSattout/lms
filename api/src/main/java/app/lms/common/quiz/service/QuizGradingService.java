@@ -59,7 +59,7 @@ public class QuizGradingService {
             }
 
             if (
-                    selectedAnswerIndex < 0
+                    selectedAnswerIndex < -1
                             ||
                             selectedAnswerIndex >= question.getOptions().size()
             ) {
@@ -69,10 +69,12 @@ public class QuizGradingService {
             }
 
             boolean correct =
-                    question.getCorrectAnswerIndex()
-                            .equals(
-                                    selectedAnswerIndex
-                            );
+                    selectedAnswerIndex != -1
+                            &&
+                            question.getCorrectAnswerIndex()
+                                    .equals(
+                                            selectedAnswerIndex
+                                    );
 
             question.setSelectedAnswerIndex(
                     selectedAnswerIndex
