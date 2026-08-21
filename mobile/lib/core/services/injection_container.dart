@@ -10,7 +10,7 @@ import '../../features/assessments/final_exam/data/repositories/final_exam_repos
 import '../../features/assessments/final_exam/domain/repositories/final_exam_repository.dart';
 import '../../features/assessments/final_exam/domain/usecases/get_final_exam_usecase.dart';
 import '../../features/assessments/final_exam/domain/usecases/submit_final_exam_usecase.dart';
-import '../../features/assessments/final_exam/presesntation/bloc/final_exam_bloc.dart';
+import '../../features/assessments/final_exam/presentation/bloc/final_exam_bloc.dart';
 import '../../features/assessments/practice_exam/data/datasources/practice_exam_remote_datasource.dart';
 import '../../features/assessments/practice_exam/data/repositories/practice_exam_repository_impl.dart';
 import '../../features/assessments/practice_exam/domain/repositories/practice_exam_repository.dart';
@@ -30,6 +30,7 @@ import '../../features/courses/domain/usecases/get_course_by_id_usecase.dart';
 import '../../features/courses/domain/usecases/get_course_by_slug_usecase.dart';
 import '../../features/courses/domain/usecases/submit_block_answer_usecase.dart';
 import '../../features/courses/domain/usecases/unenroll_from_course_usecase.dart';
+import '../../features/courses/presentation/bloc/all_courses_bloc.dart';
 import '../../features/courses/presentation/bloc/block_content_bloc.dart';
 import '../../features/home/data/datasources/home_remote_datasource.dart';
 import '../../features/home/data/repositories/home_repository_impl.dart';
@@ -303,8 +304,8 @@ Future<void> init() async {
 
   sl.registerLazySingleton<ApiConsumer>(() {
     final consumer = DioConsumer(dio: sl(), authLocalDataSource: sl());
-    consumer.onTokenInvalid = () {
-      sl<AuthBloc>().add(LogoutRequested());
+    consumer.onAuthInvalidated = ({required bool banned}) {
+      sl<AuthBloc>().add(AuthSessionInvalidated(banned: banned));
     };
     return consumer;
   });
@@ -358,6 +359,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetCourseBySlugUseCase(sl()));
   sl.registerLazySingleton(() => EnrollInCourseUseCase(sl()));
   sl.registerLazySingleton(() => UnenrollFromCourseUseCase(sl()));
+  sl.registerFactory(() => AllCoursesBloc(getAllCoursesUseCase: sl()));
   sl.registerFactory(() => MyCoursesBloc(getMyEnrollmentsUseCase: sl()));
 
   sl.registerFactory(
@@ -727,7 +729,6 @@ Future<void> init() async {
   sl.registerFactory(
     () => ChatBloc(
       getConversationsUseCase: sl(),
-      getFriendsUseCase: sl(),
       chatUpdatesNotifier: sl(),
     ),
   );

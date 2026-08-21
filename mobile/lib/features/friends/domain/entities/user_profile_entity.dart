@@ -39,11 +39,13 @@ class UserProfileFriendshipEntity {
   final String status;
   final bool canSendFriendRequest;
   final int? pendingRequestId;
+  final int? friendId;
 
   const UserProfileFriendshipEntity({
     required this.status,
     required this.canSendFriendRequest,
     this.pendingRequestId,
+    this.friendId,
   });
 }
 

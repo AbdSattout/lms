@@ -9,6 +9,7 @@ import app.lms.enrollment.enums.EnrollmentStatus;
 import app.lms.enrollment.repository.CourseEnrollmentRepository;
 import app.lms.friend.enums.FriendRequestStatus;
 import app.lms.friend.enums.FriendshipStatus;
+import app.lms.friend.model.Friend;
 import app.lms.friend.model.FriendRequest;
 import app.lms.friend.repository.FriendRepository;
 import app.lms.friend.repository.FriendRequestRepository;
@@ -113,6 +114,7 @@ public class PublicUserProfileService {
             return new UserProfileFriendshipResponse(
                     FriendshipStatus.SELF,
                     false,
+                    null,
                     null
             );
         }
@@ -133,10 +135,20 @@ public class PublicUserProfileService {
                 user1,
                 user2
         )) {
+            Long friendId =
+                    friendRepository
+                            .findByUser1IdAndUser2Id(
+                                    user1,
+                                    user2
+                            )
+                            .map(Friend::getId)
+                            .orElse(null);
+
             return new UserProfileFriendshipResponse(
                     FriendshipStatus.FRIENDS,
                     false,
-                    null
+                    null,
+                    friendId
             );
         }
 
@@ -153,6 +165,7 @@ public class PublicUserProfileService {
             return new UserProfileFriendshipResponse(
                     FriendshipStatus.NONE,
                     true,
+                    null,
                     null
             );
         }
@@ -168,7 +181,8 @@ public class PublicUserProfileService {
         return new UserProfileFriendshipResponse(
                 status,
                 false,
-                pendingRequest.getId()
+                pendingRequest.getId(),
+                null
         );
     }
 

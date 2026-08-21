@@ -157,8 +157,7 @@ class _ChatsPageState extends State<ChatsPage> {
                           }
 
                           final conversation = state.conversations[index];
-                          final otherUser = state
-                              .users[conversation.otherUserId(currentUserId)];
+                          final otherUser = conversation.otherUser(currentUserId);
 
                           return _ConversationTile(
                             conversation: conversation,

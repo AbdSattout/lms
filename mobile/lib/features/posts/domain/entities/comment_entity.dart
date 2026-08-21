@@ -7,6 +7,7 @@ class CommentEntity {
   final PostAuthorEntity author;
   final int? parentCommentId;
   final int likeCount;
+  final int repliesCount;
   final ReactionCountsEntity reactionCounts;
   final String? viewerReaction;
   final bool viewerComment;
@@ -19,6 +20,7 @@ class CommentEntity {
     required this.author,
     this.parentCommentId,
     required this.likeCount,
+    this.repliesCount = 0,
     required this.reactionCounts,
     this.viewerReaction,
     this.viewerComment = false,
