@@ -27,6 +27,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +66,7 @@ public class MobilePracticeExamService {
         LocalDateTime now =
                 LocalDateTime.now();
 
-        PracticeExamAttempt attempt =
+        ActiveAttempt activeAttempt =
                 getOrCreateActiveAttempt(
                         practiceExam,
                         user,
@@ -73,8 +75,9 @@ public class MobilePracticeExamService {
 
         return practiceExamMapper.toPublicResponse(
                 practiceExam,
-                attempt,
-                now
+                activeAttempt.attempt(),
+                now,
+                activeAttempt.isNew()
         );
     }
 
@@ -89,14 +92,52 @@ public class MobilePracticeExamService {
                 user
         );
 
+        Set<Long> activeAttemptExamIds =
+                findActiveAttemptExamIds(
+                        courseId,
+                        user
+                );
+
         return practiceExamRepository
                 .findAllByCourseIdAndStatusOrderByCreatedAtDesc(
                         courseId,
                         PracticeExamStatus.PUBLISHED
                 )
                 .stream()
-                .map(practiceExamMapper::toSummaryResponse)
+                .map(practiceExam ->
+                        practiceExamMapper.toSummaryResponse(
+                                practiceExam,
+                                activeAttemptExamIds.contains(
+                                        practiceExam.getId()
+                                )
+                        )
+                )
                 .toList();
+    }
+
+    private Set<Long> findActiveAttemptExamIds(
+            Long courseId,
+            User user
+    ) {
+
+        LocalDateTime now =
+                LocalDateTime.now();
+
+        return practiceExamAttemptRepository
+                .findAllByCourseIdAndUserIdAndCompletedFalse(
+                        courseId,
+                        user.getId()
+                )
+                .stream()
+                .filter(attempt ->
+                        attempt.getExpiresAt() == null
+                                ||
+                                attempt.getExpiresAt().isAfter(now)
+                )
+                .map(attempt ->
+                        attempt.getPracticeExam().getId()
+                )
+                .collect(Collectors.toSet());
     }
 
     @Transactional
@@ -209,7 +250,7 @@ public class MobilePracticeExamService {
         );
     }
 
-    private PracticeExamAttempt getOrCreateActiveAttempt(
+    private ActiveAttempt getOrCreateActiveAttempt(
             PracticeExam practiceExam,
             User user,
             LocalDateTime now
@@ -231,22 +272,37 @@ public class MobilePracticeExamService {
                                 attempt
                         );
 
-                        return createAttempt(
-                                practiceExam,
-                                user,
-                                now
+                        return new ActiveAttempt(
+                                createAttempt(
+                                        practiceExam,
+                                        user,
+                                        now
+                                ),
+                                true
                         );
                     }
 
-                    return attempt;
+                    return new ActiveAttempt(
+                            attempt,
+                            false
+                    );
                 })
                 .orElseGet(() ->
-                        createAttempt(
-                                practiceExam,
-                                user,
-                                now
+                        new ActiveAttempt(
+                                createAttempt(
+                                        practiceExam,
+                                        user,
+                                        now
+                                ),
+                                true
                         )
                 );
+    }
+
+    private record ActiveAttempt(
+            PracticeExamAttempt attempt,
+            boolean isNew
+    ) {
     }
 
     private PracticeExamAttempt createAttempt(

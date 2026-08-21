@@ -12,6 +12,11 @@ public interface PracticeExamAttemptRepository extends JpaRepository<PracticeExa
 
     List<PracticeExamAttempt> findAllByPracticeExamId(Long practiceExamId);
 
+    List<PracticeExamAttempt> findAllByCourseIdAndUserIdAndCompletedFalse(
+            Long courseId,
+            Long userId
+    );
+
     Optional<PracticeExamAttempt> findFirstByPracticeExamIdAndCourseIdAndUserIdAndCompletedFalseOrderByStartedAtDesc(
             Long practiceExamId,
             Long courseId,
