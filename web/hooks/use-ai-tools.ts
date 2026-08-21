@@ -1,7 +1,7 @@
-// hooks/use-ai-tools.ts
 "use client"
 
 import { transformTextAction } from "@/lib/actions/ai-actions"
+import { SubscriptionLimitError } from "@/lib/api/backend"
 import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 import type { Editor } from "@tiptap/react"
 import { useCallback, useState } from "react"
@@ -81,6 +81,10 @@ export function useAiTools({ editor }: UseAiToolsProps) {
           toast.error(
             "خطأ في الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
           )
+        } else if (err instanceof SubscriptionLimitError) {
+          return {
+            error: err.message,
+          }
         } else {
           toast.error(
             err instanceof Error ? err.message : "فشل في معالجة النص المحدد."

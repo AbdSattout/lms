@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import type { OrganizationOverviewResponse } from "../api/types"
 import type { PageableInput } from "../validation"
+import { SubscriptionLimitError } from "../api/backend"
 
 type OrganizationVerificationFormState = {
   error?: string
@@ -58,10 +59,7 @@ export async function submitOrganizationVerificationAction(
   } catch (error) {
     console.error("Submit organization verification failed:", error)
     return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "تعذر إرسال طلب التوثيق.",
+      error: error instanceof Error ? error.message : "تعذر إرسال طلب التوثيق.",
     }
   }
 
@@ -97,10 +95,27 @@ export async function createOrganization(
     .post({ name, slug, description, visibility }, imageFile)
     .catch(() => null)
 
-  if (!org) return { error: "حدث خطأ أثناء إنشاء المنظمة." }
+  try {
+    const org = await api.dashboard.organizations.create.post(
+      { name, slug, description, visibility },
+      imageFile
+    )
 
-  revalidatePath("/")
-  redirect(`/${org.slug}`)
+    revalidatePath("/")
+    redirect(`/${org.slug}`)
+  } catch (error) {
+    if (error instanceof SubscriptionLimitError) {
+      return {
+        error: error.message,
+      }
+    }
+
+    console.error("Create organization failed:", error)
+
+    return {
+      error: "حدث خطأ أثناء إنشاء المنظمة.",
+    }
+  }
 }
 export async function leaveOrganizationAction(slug: string) {
   try {
