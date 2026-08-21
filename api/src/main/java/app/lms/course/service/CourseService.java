@@ -10,6 +10,7 @@ import app.lms.course.enums.CourseStatus;
 import app.lms.course.mapper.CourseMapper;
 import app.lms.course.model.Course;
 import app.lms.course.repository.CourseRepository;
+import app.lms.faq.service.CourseFaqProvider;
 import app.lms.organization.dto.OrganizationViewerResponse;
 import app.lms.organization.model.Organization;
 import app.lms.organization.service.OrganizationAccessService;
@@ -47,6 +48,7 @@ public class CourseService {
     private final CoursePlacementTestAccessService placementTestAccessService;
     private final OrganizationViewerService organizationViewerService;
     private final CourseLearningSummaryService courseLearningSummaryService;
+    private final CourseFaqProvider courseFaqProvider;
 
     @Value("${app.search.course-similarity-threshold:0.2}")
     private double courseSearchSimilarityThreshold;
@@ -89,7 +91,8 @@ public class CourseService {
                 organizationViewer,
                 courseLearningSummaryService.summarize(
                         course.getId()
-                )
+                ),
+                courseFaqProvider.getOrGenerate(course)
         );
     }
 

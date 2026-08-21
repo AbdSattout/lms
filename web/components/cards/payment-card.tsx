@@ -138,7 +138,10 @@ export default function PaymentCards({
               text="2 تسجيل في الدورات أسبوعياً"
             />
             <FeatureItem icon={Route} text="متابعة خريطة تعليمية واحدة" />
-            <FeatureItem icon={Shuffle} text="اختبار عشوائي واحد لكل دورة" />
+            <FeatureItem
+              icon={Shuffle}
+              text="اختبار عشوائي واحد لكل دورة كل 7 أيام"
+            />
             <FeatureItem icon={Building2} text="منظمة واحدة" />
             <FeatureItem icon={BookOpen} text="3 دورات في المنظمة" />
             <FeatureItem
