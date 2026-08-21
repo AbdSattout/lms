@@ -106,40 +106,50 @@ class _OrganizationsPageState extends State<OrganizationsPage> {
                 textDirection: TextDirection.rtl,
                 child: Column(
                   children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.only(
-                        top: 28,
-                        left: 22,
-                        right: 22,
-                        bottom: 24,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.primary.withValues(alpha: 0.08),
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(34),
-                        ),
-                      ),
-                      child: SafeArea(
-                        bottom: false,
-                        child: Row(
-                          children: [
-                            if (!widget.showOnlyMine)
-                              IconButton(
-                                icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                                color: colors.primary,
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            Text(
-                              widget.showOnlyMine ? 'منظماتي' : 'المنظمات',
-                              style: textTheme.displayLarge?.copyWith(
-                                fontWeight: FontWeight.w900,
-                                color: colors.primary,
-                              ),
+                    Column(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.only(
+                            top: 28,
+                            left: 22,
+                            right: 22,
+                            bottom: 24,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.08),
+                            borderRadius: const BorderRadius.vertical(
+                              bottom: Radius.circular(34),
                             ),
-                          ],
+                          ),
+                          child: SafeArea(
+                            bottom: false,
+                            child: Row(
+                              children: [
+                                if (!widget.showOnlyMine)
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                                    color: colors.primary,
+                                    onPressed: () => Navigator.pop(context),
+                                  )
+                                else
+                                  const SizedBox(width: 48),
+                                Expanded(
+                                  child: Text(
+                                    widget.showOnlyMine ? 'منظماتي' : 'المنظمات',
+                                    textAlign: TextAlign.center, // توسيط النص أفقياً
+                                    style: textTheme.displayLarge?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: colors.primary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 48),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                     Expanded(
                       child: RefreshIndicator(
