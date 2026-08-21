@@ -28,7 +28,14 @@ export class BackendError extends Error {
     this.status = status
   }
 }
-
+export class SubscriptionLimitError extends BackendError {
+  constructor(
+    message = "لقد وصلت إلى الحد المسموح به في خطتك المجانية. اشترك الآن لفتح حسابك بالكامل والاستفادة من جميع الميزات."
+  ) {
+    super(429, message)
+    this.name = "SubscriptionLimitError"
+  }
+}
 export class BackendUnauthorizedError extends BackendError {
   constructor(message = "Backend authentication required.") {
     super(401, message)
@@ -122,6 +129,7 @@ export async function backend<T>(
 
   if (!response.ok) {
     const detailString = await readResponseDetails(response)
+
     console.error("[Backend Error]", {
       url: buildBackendUrl(path),
       method: init.method ?? "GET",
@@ -129,6 +137,11 @@ export async function backend<T>(
       statusText: response.statusText,
       details: detailString,
     })
+
+    if (response.status === 429) {
+      throw new SubscriptionLimitError()
+    }
+
     throw new BackendError(
       response.status,
       `Backend request failed (${response.status}): ${detailString}`
