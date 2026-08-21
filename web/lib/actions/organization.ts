@@ -11,7 +11,7 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import type { OrganizationOverviewResponse } from "../api/types"
 import type { PageableInput } from "../validation"
-import { BackendError, SubscriptionLimitError } from "../api/backend"
+import { SubscriptionLimitError } from "../api/backend"
 
 type OrganizationVerificationFormState = {
   error?: string
@@ -144,10 +144,7 @@ export async function deleteOrganizationAction(slug: string) {
 
     return {
       success: false,
-      error:
-        error instanceof BackendError
-          ? error.message
-          : "تعذر حذف المنظمة. قد تكون مرتبطة ببيانات موجودة.",
+      error: "تعذر حذف المنظمة. قد تكون مرتبطة ببيانات موجودة.",
     }
   }
 }
