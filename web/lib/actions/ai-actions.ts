@@ -1,5 +1,6 @@
 "use server"
 
+import { SubscriptionLimitError } from "@/lib/api/backend"
 import { transformText } from "@/lib/api/ai"
 import type { AiTextAction, AiTextTone } from "@/lib/api/types"
 
@@ -7,7 +8,7 @@ export async function transformTextAction(
   text: string,
   action: AiTextAction,
   tone?: AiTextTone
-) {
+): Promise<{ result?: string; limitReached?: boolean }> {
   try {
     const response = await transformText.post({
       text,
@@ -16,8 +17,9 @@ export async function transformTextAction(
     })
     return { result: response.result }
   } catch (error) {
-    throw new Error(
-      error instanceof Error ? error.message : "Failed to process text"
-    )
+    if (error instanceof SubscriptionLimitError) {
+      return { limitReached: true }
+    }
+    return {}
   }
 }
