@@ -153,7 +153,16 @@ export function MembersDialog({
         >
           <div className="flex h-14 shrink-0 items-center justify-between border-b bg-muted/30 p-4 pb-3">
             <div className="flex justify-start">
-              {!showAddForm ? (
+              {showAddForm ? (
+                <Button
+                  onClick={() => setShowAddForm(false)}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                >
+                  <ArrowRight className="h-5 w-5" />
+                </Button>
+              ) : (type === "students" || isOwner) && (
                 <Button
                   onClick={() => setShowAddForm(true)}
                   size="sm"
@@ -162,15 +171,6 @@ export function MembersDialog({
                 >
                   <Plus className="h-3 w-3" />
                   اضافة
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => setShowAddForm(false)}
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowRight className="h-5 w-5" />
                 </Button>
               )}
             </div>
