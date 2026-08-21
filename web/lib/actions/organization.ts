@@ -90,11 +90,6 @@ export async function createOrganization(
   const imageError = getImageUploadError(image)
   if (imageError) return { error: imageError }
   const imageFile = image && image.size > 0 ? image : undefined
-
-  const org = await api.dashboard.organizations.create
-    .post({ name, slug, description, visibility }, imageFile)
-    .catch(() => null)
-
   try {
     const org = await api.dashboard.organizations.create.post(
       { name, slug, description, visibility },
