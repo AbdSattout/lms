@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../core/databases/cache/cache_helper.dart';
 import '../../../../core/services/injection_container.dart';
+import '../../../../core/services/user_picture_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_cubit.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
@@ -55,15 +56,16 @@ class _ProfilePageState extends State<ProfilePage> {
               title: 'تم التحديث',
               message: 'تم تحديث البيانات بنجاح',
             );
-            context.read<AuthBloc>().add(CheckAuthStatus());
           }
-
           if (state is ProfilePictureUpdated) {
             AppToast.show(
               context,
               title: 'تم التحديث',
               message: 'تم تحديث الصورة بنجاح',
             );
+          }
+          if (state is ProfileLoaded && state.profile.user.picture.isNotEmpty) {
+            UserPictureNotifier.pictureUrl.value = state.profile.user.picture;
           }
 
           if (state is ProfileError) {

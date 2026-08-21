@@ -80,7 +80,6 @@ class MyRoadmapsPage extends StatelessWidget {
                       final orgSlug = roadmap.organization?.slug ?? '';
                       return RoadmapCard(
                         roadmap: roadmap,
-                        showProgress: true,
                         onTap: () {
                           Navigator.push(
                             context,

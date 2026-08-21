@@ -9,6 +9,7 @@ class PracticeExamSummaryModel extends PracticeExamSummaryEntity {
     required super.courseId,
     super.difficulty,
     required super.questionCount,
+    required super.hasStarted,
   });
 
   factory PracticeExamSummaryModel.fromJson(Map<String, dynamic> json) {
@@ -20,6 +21,7 @@ class PracticeExamSummaryModel extends PracticeExamSummaryEntity {
       courseId: json['courseId'] as int? ?? 0,
       difficulty: json['difficulty'] as String?,
       questionCount: json['questionCount'] as int? ?? 0,
+      hasStarted: json['hasStarted'] as bool? ?? false,
     );
   }
 }

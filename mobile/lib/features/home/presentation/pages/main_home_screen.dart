@@ -6,6 +6,7 @@ import 'package:flutter_snake_navigationbar/flutter_snake_navigationbar.dart';
 
 import '../../../../core/services/firebase_messaging_service.dart';
 import '../../../../core/services/injection_container.dart';
+import '../../../../core/services/user_picture_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/domain/entities/auth_entity.dart';
@@ -160,18 +161,19 @@ class MainHomeScreen extends StatelessWidget {
   }
 
   static Widget buildAvatar(
-    dynamic user, {
-    required BuildContext context,
-    required double radius,
-    bool isHome = false,
-    VoidCallback? onTap,
-  }) {
+      dynamic user, {
+        required BuildContext context,
+        required double radius,
+        bool isHome = false,
+        VoidCallback? onTap,
+        String? imageUrlOverride,
+      }) {
     final colors = Theme.of(context).colorScheme;
 
     return ResilientNetworkAvatar(
       onTap: onTap,
       radius: radius,
-      imageUrl: user.picture?.toString(),
+      imageUrl: imageUrlOverride ?? user.picture?.toString(),
       fallbackLabel: user.name?.toString(),
       backgroundColor: colors.surfaceContainerHighest,
       border: Border.all(
@@ -391,18 +393,24 @@ class _WelcomeHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              MainHomeScreen.buildAvatar(
-                user,
-                context: context,
-                radius: 25,
-                isHome: true,
-                onTap: () {
-                  navbarCubit.controller.animateToPage(
-                    3,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
+              ValueListenableBuilder<String?>(
+                valueListenable: UserPictureNotifier.pictureUrl,
+                builder: (context, picture, _) {
+                  return MainHomeScreen.buildAvatar(
+                    user,
+                    context: context,
+                    radius: 25,
+                    isHome: true,
+                    imageUrlOverride: picture,
+                    onTap: () {
+                      navbarCubit.controller.animateToPage(
+                        3,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
+                      );
+                      navbarCubit.update(3);
+                    },
                   );
-                  navbarCubit.update(3);
                 },
               ),
               const SizedBox(width: 14),

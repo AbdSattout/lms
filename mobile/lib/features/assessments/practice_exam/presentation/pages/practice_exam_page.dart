@@ -37,10 +37,11 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
     super.dispose();
   }
 
-  void _startTimer(DateTime? expiresAt, DateTime? serverTime) {
+  void _startTimer(BuildContext blocContext, DateTime? expiresAt, DateTime? serverTime) {
     if (expiresAt == null || serverTime == null) return;
 
     final offset = serverTime.difference(DateTime.now());
+    final bloc = blocContext.read<PracticeExamBloc>();
 
     void tick() {
       final effectiveNow = DateTime.now().add(offset);
@@ -58,7 +59,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
 
         if (!_autoSubmitted && !_isSubmitting) {
           _autoSubmitted = true;
-          _submitExam();
+          _submitExamWithBloc(bloc);
         }
         return;
       }
@@ -70,10 +71,14 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
     _timer = Timer.periodic(const Duration(seconds: 1), (_) => tick());
   }
 
-  void _submitExam() {
+  void _submitExamWithBloc(PracticeExamBloc bloc) {
     if (_isSubmitting) return;
-    _isSubmitting = true;
-    context.read<PracticeExamBloc>().add(SubmitPracticeExamRequested());
+    setState(() => _isSubmitting = true);
+    bloc.add(SubmitPracticeExamRequested());
+  }
+
+  void _submitExam(BuildContext context) {
+    _submitExamWithBloc(context.read<PracticeExamBloc>());
   }
 
   Future<bool> _showBackWarning() async {
@@ -89,13 +94,16 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
               onPressed: () => Navigator.pop(dialogContext, false),
               child: const Text('البقاء'),
             ),
-            ElevatedButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.error,
-                foregroundColor: Colors.white,
+            SizedBox(
+              width: 100,
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(dialogContext, true),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  foregroundColor: Colors.white,
+                ),
+                child: const Text('المغادرة'),
               ),
-              child: const Text('المغادرة'),
             ),
           ],
         ),
@@ -137,7 +145,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
             body: BlocConsumer<PracticeExamBloc, PracticeExamState>(
               listener: (context, state) {
                 if (state is PracticeExamDetailsReady && _timer == null) {
-                  _startTimer(state.exam.expiresAt, state.exam.serverTime);
+                  _startTimer(context, state.exam.expiresAt, state.exam.serverTime);
                 }
                 if (state is PracticeExamCompleted) {
                   _timer?.cancel();
@@ -147,7 +155,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
                   );
                 }
                 if (state is PracticeExamFailed) {
-                  _isSubmitting = false;
+                  setState(() => _isSubmitting = false);
                   AppToast.show(
                     context,
                     type: ToastType.error,
@@ -174,7 +182,6 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
 
   Widget _buildExam(BuildContext context, PracticeExamDetailsReady state) {
     final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
     return Column(
       children: [
@@ -228,7 +235,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      color: isUrgent ? const Color(0xffD9534F).withOpacity(0.1) : colors.surface,
+      color: isUrgent ? const Color(0xffD9534F).withValues(alpha: 0.1) : colors.surface,
       child: Column(
         children: [
           Row(
@@ -252,12 +259,12 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
           ),
           if (isUrgent && !_isExpired) ...[
             const SizedBox(height: 4),
-            Text(
+            const Text(
               'سيتم إرسال الإجابات تلقائياً قريباً',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xffD9534F),
+                color: Color(0xffD9534F),
               ),
             ),
           ],
@@ -271,20 +278,23 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-      decoration: BoxDecoration(color: colors.surface, boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))]),
+      decoration: BoxDecoration(color: colors.surface, boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))]),
       child: SafeArea(
         top: false,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (_currentIndex > 0)
               OutlinedButton(
                 onPressed: _isSubmitting ? null : () => _pageController.previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut),
                 child: const Text('السابق'),
-              ),
-            const Spacer(),
+              )
+            else
+              const SizedBox.shrink(),
+
             if (_currentIndex < state.totalQuestions - 1)
               ElevatedButton(
-                onPressed: state.selectedAnswers.containsKey(state.exam.questions[_currentIndex].id) && !_isExpired && !_isSubmitting
+                onPressed: !_isExpired && !_isSubmitting
                     ? () => _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut)
                     : null,
                 style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
@@ -292,7 +302,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
               )
             else
               ElevatedButton.icon(
-                onPressed: (state.allAnswered || _isExpired) && !_isSubmitting
+                onPressed: !_isSubmitting
                     ? () => _showSubmitConfirmation(context)
                     : null,
                 style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
@@ -318,7 +328,7 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
-                _submitExam();
+                _submitExam(context);
               },
               style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary, foregroundColor: Colors.white),
               child: const Text('إرسال'),

@@ -11,6 +11,26 @@ class PracticeExamListPage extends StatelessWidget {
   final int courseId;
   const PracticeExamListPage({super.key, required this.courseId});
 
+  void _navigateToExam(BuildContext context, int examId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PracticeExamPage(
+          courseId: courseId,
+          examId: examId,
+        ),
+      ),
+    );
+  }
+
+  void _handleExamTap(BuildContext context, PracticeExamSummaryEntity exam) {
+    if (exam.hasStarted) {
+      _navigateToExam(context, exam.id);
+    } else {
+      _showStartExamDialog(context, exam);
+    }
+  }
+
   void _showStartExamDialog(
       BuildContext context,
       PracticeExamSummaryEntity exam,
@@ -51,9 +71,9 @@ class PracticeExamListPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: colors.error.withOpacity(0.05),
+                  color: colors.error.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colors.error.withOpacity(0.15)),
+                  border: Border.all(color: colors.error.withValues(alpha: 0.15)),
                 ),
                 child: Row(
                   children: [
@@ -75,24 +95,19 @@ class PracticeExamListPage extends StatelessWidget {
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('إلغاء'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PracticeExamPage(
-                      courseId: courseId,
-                      examId: exam.id,
-                    ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.onPrimary,
+            SizedBox(
+              width: 140,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  _navigateToExam(context, exam.id);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                ),
+                child: const Text('بدء الامتحان'),
               ),
-              child: const Text('بدء الامتحان'),
             ),
           ],
         ),
@@ -121,7 +136,7 @@ class PracticeExamListPage extends StatelessWidget {
                       final exam = state.exams[index];
                       return _PracticeExamCard(
                         exam: exam,
-                        onTap: () => _showStartExamDialog(context, exam),
+                        onTap: () => _handleExamTap(context, exam),
                       );
                     },
                   ),
@@ -171,7 +186,7 @@ class _InfoChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: colors.primary.withOpacity(0.08),
+        color: colors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -207,7 +222,7 @@ class _PracticeExamCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: colors.outlineVariant.withOpacity(0.5)),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Material(
         color: Colors.transparent,
@@ -219,9 +234,10 @@ class _PracticeExamCard extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             child: Row(children: [
               Container(
-                width: 48, height: 48,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: colors.primary.withOpacity(0.1),
+                  color: colors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(Icons.assignment_rounded, color: colors.primary, size: 24),

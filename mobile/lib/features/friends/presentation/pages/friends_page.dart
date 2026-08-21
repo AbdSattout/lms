@@ -99,7 +99,15 @@ class FriendsPage extends StatelessWidget {
               final message = state.actionMessage ?? state.errorMessage;
               if (message == null) return;
 
-              AppToast.error(context, message: message);
+              if (state.errorMessage != null) {
+                AppToast.error(context, message: state.errorMessage!);
+                return;
+              }
+
+              if (state.actionMessage != null) {
+                AppToast.success(context, message: state.actionMessage!);
+                return;
+              }
             },
             builder: (context, state) {
               if (state is FriendsInitial) {
