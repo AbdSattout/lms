@@ -66,12 +66,6 @@ public class PostMediaAccessService {
                         organizationId
                 );
 
-        organizationMemberAccessService
-                .getMember(
-                        organizationId,
-                        user.getId()
-                );
-
         return getByIdAndOrganizationId(
                 mediaId,
                 organizationId
