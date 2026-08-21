@@ -7,7 +7,10 @@ import {
   getBackendJwtFromCookies,
 } from "@/lib/auth/backend-jwt-cookie"
 import { buildLoginErrorPath, buildLoginPath } from "@/lib/auth/callback-url"
-import { USER_BANNED_MESSAGE } from "@/lib/auth/user-banned"
+import {
+  USER_BANNED_ERROR_CODE,
+  USER_BANNED_MESSAGE,
+} from "@/lib/auth/user-banned"
 
 type UnauthorizedBehavior = "throw" | "redirect"
 
@@ -133,38 +136,33 @@ export async function backend<T>(
     handleUnauthorized(unauthorized, callbackUrl)
   }
 
-  let details: Awaited<ReturnType<typeof readResponseDetails>> | undefined
-
-  if (response.status === 403 && requireAuth) {
-    details = await readResponseDetails(response)
-    const isBanned =
-      details.code === "USER_BANNED" ||
-      details.message.includes("User is banned")
-
-    if (isBanned) {
-      handleUnauthorized(unauthorized, callbackUrl, USER_BANNED_MESSAGE)
-    }
-  }
-
   if (!response.ok) {
-    const detailString = await readResponseDetails(response)
-
+    const details = await readResponseDetails(response)
 
     console.error("[Backend Error]", {
       url: buildBackendUrl(path),
       method: init.method ?? "GET",
       status: response.status,
       statusText: response.statusText,
-      details: details.message,
+      details: details.error,
     })
 
+    if (
+      response.status === 403 &&
+      requireAuth &&
+      (details.code === USER_BANNED_ERROR_CODE ||
+        (details.error?.includes("User is banned") ?? false))
+    ) {
+      handleUnauthorized(unauthorized, callbackUrl, USER_BANNED_MESSAGE)
+    }
+
     if (response.status === 429) {
-      throw new SubscriptionLimitError()
+      throw new SubscriptionLimitError(details.error)
     }
 
     throw new BackendError(
       response.status,
-      `Backend request failed (${response.status}): ${details.message}`,
+      `Backend request failed (${response.status}): ${details.error ?? response.statusText}`,
       details.code
     )
   }
@@ -207,13 +205,51 @@ async function getJwtForPath(path: string) {
   return getBackendJwtFromCookies()
 }
 
-async function readResponseDetails(response: Response) {
+interface BackendErrorDetails {
+  status?: number
+  error?: string
+  code?: string
+}
+
+/**
+ * Reads an error response body exactly once (a Response body cannot be
+ * consumed twice) and normalizes it. The backend returns
+ * `{ status, error, code? }`; non-JSON bodies fall back to raw text.
+ */
+async function readResponseDetails(
+  response: Response
+): Promise<BackendErrorDetails> {
+  let raw = ""
+
   try {
-    const data = await response.json()
-
-    return JSON.stringify(data) ?? ""
-
+    raw = await response.text()
   } catch {
-    return { message: await response.text() }
+    return {}
+  }
+
+  if (!raw) {
+    return {}
+  }
+
+  try {
+    const data: unknown = JSON.parse(raw)
+
+    if (typeof data === "string") {
+      return { error: data }
+    }
+
+    if (data !== null && typeof data === "object") {
+      const record = data as Record<string, unknown>
+
+      return {
+        status: typeof record.status === "number" ? record.status : undefined,
+        error: typeof record.error === "string" ? record.error : undefined,
+        code: typeof record.code === "string" ? record.code : undefined,
+      }
+    }
+
+    return {}
+  } catch {
+    return { error: raw }
   }
 }

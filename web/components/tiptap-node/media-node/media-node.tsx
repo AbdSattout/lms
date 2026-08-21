@@ -16,7 +16,7 @@ import {
 } from "@/lib/actions/media"
 import type { NodeViewProps } from "@tiptap/react"
 import { NodeViewWrapper } from "@tiptap/react"
-import { FileTextIcon } from "lucide-react"
+import { Download, FileTextIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 
 function formatSize(bytes?: number): string {
@@ -24,6 +24,21 @@ function formatSize(bytes?: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function DownloadOverlay({ url, name }: { url: string; name: string }) {
+  return (
+    <a
+      href={url}
+      download={name}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`تحميل ${name}`}
+      className="absolute end-3 top-3 z-10 rounded-full bg-background/80 p-2 text-foreground opacity-0 backdrop-blur transition-opacity group-hover/figure:opacity-100 focus-visible:opacity-100 hover:bg-muted"
+    >
+      <Download className="size-4" />
+    </a>
+  )
 }
 
 export function MediaNodeComponent({ node, editor }: NodeViewProps) {
@@ -83,67 +98,42 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
       )}
 
       {!loading && !error && media?.type === "IMAGE" && (
-        <figure className="not-prose">
-          {editor.isEditable ? (
-            <a
-              href={media.url}
-              download={media.name}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img
-                src={media.url}
-                alt={media.name}
-                className="w-full rounded-3xl border object-cover"
-              />
-            </a>
-          ) : (
-            <img
-              src={media.url}
-              alt={media.name}
-              className="w-full rounded-3xl border object-cover"
-            />
-          )}
+        <figure className="group/figure not-prose relative">
+          <img
+            src={media.url}
+            alt={media.name}
+            className="w-full rounded-3xl border object-cover"
+          />
+          <DownloadOverlay url={media.url} name={media.name} />
         </figure>
       )}
 
       {!loading && !error && media?.type === "VIDEO" && (
-        <figure className="not-prose">
-          {editor.isEditable ? (
-            <a
-              href={media.url}
-              download={media.name}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <video
-                src={media.url}
-                controls
-                className="w-full rounded-3xl border"
-              >
-                Your browser does not support the video element.
-              </video>
-            </a>
-          ) : (
-            <video src={media.url} className="w-full rounded-3xl border" />
-          )}
+        <figure className="group/figure not-prose relative">
+          <video
+            src={media.url}
+            controls
+            preload="metadata"
+            className="w-full rounded-3xl border"
+          >
+            Your browser does not support the video element.
+          </video>
+          <DownloadOverlay url={media.url} name={media.name} />
         </figure>
       )}
 
       {!loading && !error && media?.type === "FILE" && (
         <Attachment state="done" orientation="horizontal" size="default">
-          {editor.isEditable && (
-            <AttachmentTrigger
-              render={
-                <a
-                  href={media.url}
-                  download={media.name}
-                  target="_blank"
-                  rel="noreferrer"
-                />
-              }
-            />
-          )}
+          <AttachmentTrigger
+            render={
+              <a
+                href={media.url}
+                download={media.name}
+                target="_blank"
+                rel="noreferrer"
+              />
+            }
+          />
           <AttachmentMedia variant="icon">
             <FileTextIcon className="size-4" />
           </AttachmentMedia>
