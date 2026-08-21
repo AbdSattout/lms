@@ -1,4 +1,3 @@
-// hooks/use-ai-tools.ts
 "use client"
 
 import { transformTextAction } from "@/lib/actions/ai-actions"
@@ -73,20 +72,15 @@ export function useAiTools({ editor }: UseAiToolsProps) {
                 .run()
             }
           }
+        } else if (response.limitReached) {
+          toast.error("لقد وصلت إلى الحد اليومي لأدوات الذكاء الاصطناعي.")
         } else {
-          toast.error("حدث خطأ أثناء معالجة النص.")
+          toast.error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.")
         }
-      } catch (err) {
-        if (err instanceof TypeError && err.message.includes("fetch")) {
-          toast.error(
-            "خطأ في الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
-          )
-        } else {
-          toast.error(
-            err instanceof Error ? err.message : "فشل في معالجة النص المحدد."
-          )
-        }
-        console.error("AI transformation error:", err)
+      } catch {
+        toast.error(
+          "خطأ في الاتصال بالشبكة. يرجى التحقق من اتصال الإنترنت وإعادة المحاولة."
+        )
       } finally {
         setIsLoading(false)
         setSelectedAction(null)

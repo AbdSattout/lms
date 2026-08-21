@@ -83,6 +83,15 @@ public class OrganizationInviteService {
                 request.getRole()
         );
 
+
+        if (request.getRole() == Role.ADMIN) {
+            if (!organization.getOwner().getId().equals(currentUser.getId())) {
+                throw new BadRequestException(
+                        "Only owner can invite admin"
+                );
+            }
+        }
+
         OrganizationInvite invite =
                 OrganizationInvite.builder()
                         .organization(organization)

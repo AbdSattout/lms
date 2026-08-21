@@ -1,7 +1,11 @@
 "use client"
 
-import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import type { UserResponse } from "@/lib/api/types"
 import { Shield, User, AtSign, Mail, Phone } from "lucide-react"
 export type OwnerResponse = UserResponse & {
@@ -24,13 +28,19 @@ export function OwnerDialog({ open, onOpenChange, owner }: OwnerDialogProps) {
 
         <div className="flex flex-col items-center space-y-6 p-6">
           <div className="relative">
-            <Image
-              src={owner.picture || "/default-avatar.png"}
-              alt={owner.name || "Owner"}
-              width={100}
-              height={100}
-              className="rounded-full object-cover ring-4 ring-muted"
-            />
+            <Avatar className="size-[100px] ring-4 ring-muted">
+              <AvatarImage
+                src={owner.picture}
+                alt={owner.name || "Owner"}
+              />
+              <AvatarFallback className="text-2xl font-semibold">
+                {(owner.name || "؟")
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
             <div className="absolute -right-1 -bottom-1 rounded-full bg-primary p-1.5 text-primary-foreground">
               <Shield className="h-4 w-4" />
             </div>

@@ -1,6 +1,7 @@
 "use server"
 
 import { api } from "@/lib/api"
+import { SubscriptionLimitError } from "@/lib/api/backend"
 import type {
   BlockResponse,
   ChapterResponse,
@@ -282,7 +283,11 @@ export async function generateQuestionFromBlockContentAction(
   blockContent: string,
   orgSlug: string,
   courseSlug: string
-): Promise<{ error?: string; question?: QuestionResponse }> {
+): Promise<{
+  error?: string
+  limitReached?: boolean
+  question?: QuestionResponse
+}> {
   const parsed = generateQuestionFromBlockContentSchema.safeParse({
     blockContent,
   })
@@ -290,17 +295,21 @@ export async function generateQuestionFromBlockContentAction(
     return { error: parsed.error.issues[0]?.message || "بيانات غير صالحة" }
   }
 
-  const generated = await api.dashboard.ai.generateQuestionFromBlock
-    .post(parsed.data)
-    .catch(() => null)
+  try {
+    const generated = await api.dashboard.ai.generateQuestionFromBlock.post(
+      parsed.data
+    )
 
-  if (!generated)
+    if (!generated.content.trim() || generated.options.length < 2)
+      return { error: "السؤال المُولد غير صالح. حاول مرة أخرى." }
+
+    return createQuestionAction(courseId, generated, orgSlug, courseSlug)
+  } catch (error) {
+    if (error instanceof SubscriptionLimitError) {
+      return { limitReached: true }
+    }
     return { error: "حدث خطأ أثناء توليد السؤال بالذكاء الاصطناعي" }
-
-  if (!generated.content.trim() || generated.options.length < 2)
-    return { error: "السؤال المُولد غير صالح. حاول مرة أخرى." }
-
-  return createQuestionAction(courseId, generated, orgSlug, courseSlug)
+  }
 }
 
 export async function updateQuestionAction(

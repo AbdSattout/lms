@@ -1,7 +1,11 @@
 "use client"
 
-import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
 import { Shield, User, AtSign, Mail, Phone, GraduationCap } from "lucide-react"
 import type { OrganizationMemberResponse } from "@/lib/api/types"
 
@@ -30,13 +34,19 @@ export function MemberDetailDialog({
 
         <div className="flex flex-col items-center space-y-6 p-6">
           <div className="relative">
-            <Image
-              src={userData.picture || "/default-avatar.png"}
-              alt={userData.name || "Member"}
-              width={100}
-              height={100}
-              className="rounded-full object-cover ring-4 ring-muted"
-            />
+            <Avatar className="size-[100px] ring-4 ring-muted">
+              <AvatarImage
+                src={userData.picture}
+                alt={userData.name || "Member"}
+              />
+              <AvatarFallback className="text-2xl font-semibold">
+                {(userData.name || "؟")
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
             <div className="absolute -right-1 -bottom-1 rounded-full bg-primary p-1.5 text-primary-foreground">
               {isAdmin ? (
                 <Shield className="h-4 w-4" />

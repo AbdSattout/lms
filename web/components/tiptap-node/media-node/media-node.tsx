@@ -84,66 +84,39 @@ export function MediaNodeComponent({ node, editor }: NodeViewProps) {
 
       {!loading && !error && media?.type === "IMAGE" && (
         <figure className="not-prose">
-          {editor.isEditable ? (
-            <a
-              href={media.url}
-              download={media.name}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <img
-                src={media.url}
-                alt={media.name}
-                className="w-full rounded-3xl border object-cover"
-              />
-            </a>
-          ) : (
-            <img
-              src={media.url}
-              alt={media.name}
-              className="w-full rounded-3xl border object-cover"
-            />
-          )}
+          <img
+            src={media.url}
+            alt={media.name}
+            className="w-full rounded-3xl border object-cover"
+          />
         </figure>
       )}
 
       {!loading && !error && media?.type === "VIDEO" && (
         <figure className="not-prose">
-          {editor.isEditable ? (
-            <a
-              href={media.url}
-              download={media.name}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <video
-                src={media.url}
-                controls
-                className="w-full rounded-3xl border"
-              >
-                Your browser does not support the video element.
-              </video>
-            </a>
-          ) : (
-            <video src={media.url} className="w-full rounded-3xl border" />
-          )}
+          <video
+            src={media.url}
+            controls
+            preload="metadata"
+            className="w-full rounded-3xl border"
+          >
+            Your browser does not support the video element.
+          </video>
         </figure>
       )}
 
       {!loading && !error && media?.type === "FILE" && (
         <Attachment state="done" orientation="horizontal" size="default">
-          {editor.isEditable && (
-            <AttachmentTrigger
-              render={
-                <a
-                  href={media.url}
-                  download={media.name}
-                  target="_blank"
-                  rel="noreferrer"
-                />
-              }
-            />
-          )}
+          <AttachmentTrigger
+            render={
+              <a
+                href={media.url}
+                download={media.name}
+                target="_blank"
+                rel="noreferrer"
+              />
+            }
+          />
           <AttachmentMedia variant="icon">
             <FileTextIcon className="size-4" />
           </AttachmentMedia>

@@ -49,7 +49,6 @@ import { SigmaIcon } from "@/components/tiptap-icons/sigma-icon"
 import { useAiTools } from "@/hooks/use-ai-tools"
 import { useIsBreakpoint } from "@/hooks/use-is-breakpoint"
 import type { AiTextAction, AiTextTone } from "@/lib/api/types"
-import { toast } from "sonner"
 
 import "./editor.scss"
 import { AiToolsDropdown } from "../tiptap-ui/ai-tool-dropdown/ai-tool-dropdown"
@@ -236,17 +235,6 @@ export function Editor({
   const { isLoading, handleAiAction } = useAiTools({
     editor,
   })
-
-  // Tracks active loading cycles to notify successful completion
-  const wasLoading = useRef(false)
-  useEffect(() => {
-    if (isLoading) {
-      wasLoading.current = true
-    } else if (wasLoading.current && !isLoading) {
-      wasLoading.current = false
-      toast.success(<span dir="rtl">تم تحديث المحتوى بنجاح!</span>)
-    }
-  }, [isLoading])
 
   return (
     <div className="editor-wrapper">
