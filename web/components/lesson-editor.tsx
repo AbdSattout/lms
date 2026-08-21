@@ -377,6 +377,10 @@ function BlockEditorPanel({
       courseSlug
     )
     setGenerating(false)
+    if (result.limitReached) {
+      toast.error("لقد وصلت إلى الحد اليومي لأدوات الذكاء الاصطناعي.")
+      return
+    }
     if (result.error) {
       toast.error(result.error)
       return
