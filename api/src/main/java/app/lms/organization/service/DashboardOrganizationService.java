@@ -29,6 +29,8 @@ import app.lms.organization.organizationInvite.repository.OrganizationInviteRepo
 import app.lms.organization.organizationJoinRequest.repository.OrganizationJoinRequestRepository;
 import app.lms.organization.repository.OrganizationMemberRepository;
 import app.lms.organization.repository.OrganizationRepository;
+import app.lms.organization.verification.model.OrganizationVerificationRequest;
+import app.lms.organization.verification.repository.OrganizationVerificationRequestRepository;
 import app.lms.plan.service.PlanQuotaService;
 import app.lms.post.repository.PostRepository;
 import app.lms.roadmap.repository.RoadmapRepository;
@@ -76,6 +78,7 @@ public class DashboardOrganizationService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final BanNotificationEmailService banNotificationEmailService;
+    private final OrganizationVerificationRequestRepository verificationRequestRepository;
 
     private static final Logger log =
             LoggerFactory.getLogger(
@@ -243,14 +246,39 @@ public class DashboardOrganizationService {
     ) {
 
         Organization organization =
+                organizationAccessService.getBySlug(slug);
 
-                organizationAccessService.getManageableOrganization(
-                        slug,
-                        user
-                );
+        organizationMemberAccessService.validateOwner(
+                organization.getId(),
+                user.getId()
+        );
 
         Long organizationId =
                 organization.getId();
+
+        List<OrganizationVerificationRequest> verificationRequests =
+                verificationRequestRepository.findAllByOrganizationId(
+                        organizationId
+                );
+
+        verificationRequests.stream()
+                .map(OrganizationVerificationRequest::getProofFileId)
+                .filter(Objects::nonNull)
+                .forEach(fileId -> {
+                    try {
+                        mediaService.delete(fileId);
+                    } catch (ImageDeleteException ex) {
+                        log.error(
+                                "Failed to delete verification proof {}",
+                                fileId,
+                                ex
+                        );
+                    }
+                });
+
+        verificationRequestRepository.deleteByOrganizationId(
+                organizationId
+        );
 
         organizationInviteRepository.deleteByOrganizationId(
                 organizationId
