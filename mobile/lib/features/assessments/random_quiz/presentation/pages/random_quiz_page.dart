@@ -54,7 +54,7 @@ class _RandomQuizPageState extends State<RandomQuizPage> {
               RandomQuizSessionReady() => _buildQuiz(context, state),
               RandomQuizSubmitting() => _buildSubmitting(context),
               RandomQuizCompleted() => const SizedBox(),
-              RandomQuizFailed() => _buildError(context, state.message),
+              RandomQuizFailed() => _buildError(context, "لا يوجد أسئلة كافية في بنك الأسئلة"),
             };
           },
         ),

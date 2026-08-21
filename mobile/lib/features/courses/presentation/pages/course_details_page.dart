@@ -290,6 +290,7 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
         detailsState is CourseDetailsLoaded && detailsState.isStartingCourse;
     final viewerRole = course.organization?.viewerRole;
     final isOwner = viewerRole == 'OWNER';
+    final isAdmin= viewerRole=='ADMIN';
     final viewerJoined = course.organization?.viewerJoined;
     final isBlockedByMembership =
         !isEnrolled && viewerJoined == false && !isOwner;
