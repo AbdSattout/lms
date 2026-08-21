@@ -175,7 +175,9 @@ function handleUnauthorized(
 
 async function readResponseDetails(response: Response) {
   try {
-    return JSON.stringify(await response.json())
+    const data = await response.json()
+
+    return JSON.stringify(data) ?? ""
   } catch {
     return await response.text()
   }
