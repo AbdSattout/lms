@@ -3,6 +3,7 @@ import "server-only"
 import { cookies } from "next/headers"
 
 export const BACKEND_JWT_COOKIE_NAME = "backend_jwt"
+export const ADMIN_JWT_COOKIE_NAME = "admin_jwt"
 
 const isProduction = process.env.NODE_ENV === "production"
 
@@ -30,4 +31,22 @@ export async function clearBackendJwtCookie() {
 export async function getBackendJwtFromCookies() {
   const cookieStore = await cookies()
   return cookieStore.get(BACKEND_JWT_COOKIE_NAME)?.value ?? null
+}
+
+export async function setAdminJwtCookie(token: string) {
+  const cookieStore = await cookies()
+  cookieStore.set(ADMIN_JWT_COOKIE_NAME, token, backendJwtCookieOptions)
+}
+
+export async function clearAdminJwtCookie() {
+  const cookieStore = await cookies()
+  cookieStore.set(ADMIN_JWT_COOKIE_NAME, "", {
+    ...backendJwtCookieOptions,
+    maxAge: 0,
+  })
+}
+
+export async function getAdminJwtFromCookies() {
+  const cookieStore = await cookies()
+  return cookieStore.get(ADMIN_JWT_COOKIE_NAME)?.value ?? null
 }

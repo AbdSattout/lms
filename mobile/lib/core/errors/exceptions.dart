@@ -10,6 +10,9 @@ class CacheException implements Exception {
   final String errorMessage;
   CacheException({required this.errorMessage});
 }
+class TooManyRequestsException extends ServerException {
+  TooManyRequestsException(super.errorModel);
+}
 
 class BadCertificateException extends ServerException {
   BadCertificateException(super.errorModel);
@@ -113,6 +116,8 @@ void _handleBadResponse(DioException e) {
       throw NotFoundException(ErrorModel.fromJson(response.data));
     case 409: // Conflict
       throw ConflictException(ErrorModel.fromJson(response.data));
+    case 429: // Too many requests / Paywalled
+      throw TooManyRequestsException(ErrorModel.fromJson(response.data));
     case 504: // Bad reponse
       throw BadResponseException(
         ErrorModel(

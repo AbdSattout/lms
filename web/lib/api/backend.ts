@@ -2,8 +2,12 @@ import "server-only"
 
 import { redirect } from "next/navigation"
 
-import { getBackendJwtFromCookies } from "@/lib/auth/backend-jwt-cookie"
-import { buildLoginPath } from "@/lib/auth/callback-url"
+import {
+  getAdminJwtFromCookies,
+  getBackendJwtFromCookies,
+} from "@/lib/auth/backend-jwt-cookie"
+import { buildLoginErrorPath, buildLoginPath } from "@/lib/auth/callback-url"
+import { USER_BANNED_MESSAGE } from "@/lib/auth/user-banned"
 
 type UnauthorizedBehavior = "throw" | "redirect"
 
@@ -21,11 +25,13 @@ export interface BackendFetchOptions extends Omit<
 
 export class BackendError extends Error {
   readonly status: number
+  readonly code?: string
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, code?: string) {
     super(message)
     this.name = "BackendError"
     this.status = status
+    this.code = code
   }
 }
 export class SubscriptionLimitError extends BackendError {
@@ -83,7 +89,7 @@ export async function backend<T>(
   const requestHeaders = new Headers(headers)
 
   if (requireAuth) {
-    const token = await getBackendJwtFromCookies()
+    const token = await getJwtForPath(path)
 
     if (!token) {
       handleUnauthorized(unauthorized, callbackUrl)
@@ -123,19 +129,33 @@ export async function backend<T>(
     throw error
   }
 
-  if (response.status === 401) {
+  if (response.status === 401 && requireAuth) {
     handleUnauthorized(unauthorized, callbackUrl)
+  }
+
+  let details: Awaited<ReturnType<typeof readResponseDetails>> | undefined
+
+  if (response.status === 403 && requireAuth) {
+    details = await readResponseDetails(response)
+    const isBanned =
+      details.code === "USER_BANNED" ||
+      details.message.includes("User is banned")
+
+    if (isBanned) {
+      handleUnauthorized(unauthorized, callbackUrl, USER_BANNED_MESSAGE)
+    }
   }
 
   if (!response.ok) {
     const detailString = await readResponseDetails(response)
+
 
     console.error("[Backend Error]", {
       url: buildBackendUrl(path),
       method: init.method ?? "GET",
       status: response.status,
       statusText: response.statusText,
-      details: detailString,
+      details: details.message,
     })
 
     if (response.status === 429) {
@@ -144,7 +164,8 @@ export async function backend<T>(
 
     throw new BackendError(
       response.status,
-      `Backend request failed (${response.status}): ${detailString}`
+      `Backend request failed (${response.status}): ${details.message}`,
+      details.code
     )
   }
 
@@ -164,19 +185,34 @@ export async function backend<T>(
 
 function handleUnauthorized(
   behavior: UnauthorizedBehavior,
-  callbackUrl?: string
+  callbackUrl?: string,
+  message?: string
 ): never {
   if (behavior === "redirect") {
-    redirect(buildLoginPath(callbackUrl))
+    redirect(
+      message
+        ? buildLoginErrorPath(message, callbackUrl)
+        : buildLoginPath(callbackUrl)
+    )
   }
 
   throw new BackendUnauthorizedError()
 }
 
+async function getJwtForPath(path: string) {
+  if (path.startsWith("/admin/")) {
+    return getAdminJwtFromCookies()
+  }
+
+  return getBackendJwtFromCookies()
+}
+
 async function readResponseDetails(response: Response) {
   try {
-    return JSON.stringify(await response.json())
+    const body = await response.json()
+    const code = typeof body?.code === "string" ? body.code : undefined
+    return { message: JSON.stringify(body), code }
   } catch {
-    return await response.text()
+    return { message: await response.text() }
   }
 }

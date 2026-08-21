@@ -165,7 +165,7 @@ export function LoginForm({
 
       console.log("Admin login successful:", data)
       toast.success("تم تسجيل دخول المشرف بنجاح")
-      router.replace("/admin/reports")
+      router.replace("/admin/reports" as never)
     } catch (error) {
       console.error("Admin login error:", error)
       toast.error("حدث خطأ ما، حاول مرة أخرى")
@@ -238,10 +238,15 @@ export function LoginForm({
         }
 
         setAttempts(nextAttempts)
+
+        const data = await response.json().catch(() => null)
+
         throw new Error(
           response.status === 400
             ? "رمز التحقق غير صحيح أو منتهي."
-            : GENERIC_ERROR_MESSAGE
+            : typeof data?.message === "string" && data.message
+              ? data.message
+              : GENERIC_ERROR_MESSAGE
         )
       }
 

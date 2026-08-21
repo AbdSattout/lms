@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/markdown/markdown_content_view.dart';
 import '../../domain/entities/practice_quiz_submit_result_entity.dart';
 
 class PracticeQuizResultPage extends StatelessWidget {
@@ -137,15 +138,7 @@ class _ResultTile extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: Text(
-                  result.content,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colors.onSurface,
-                    height: 1.4,
-                  ),
-                ),
+                child: MarkdownContentView(content: result.content),
               ),
             ],
           ),

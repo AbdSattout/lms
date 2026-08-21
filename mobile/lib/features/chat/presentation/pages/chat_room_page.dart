@@ -108,6 +108,35 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     );
   }
 
+  void _showFailedMessageActions(BuildContext context, String localId) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.refresh_rounded,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: const Text('إعادة إرسال الرسالة'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  context.read<ChatMessagesBloc>().add(
+                    RetryChatMessageEvent(localId),
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _showEditMessageDialog(
     BuildContext context,
     MessageEntity message,
@@ -186,6 +215,24 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
     );
   }
 
+  void _openOtherUserProfile() {
+    final user = widget.otherUser;
+    if (user == null || widget.isCourseChat) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (_) =>
+              sl<UserProfileBloc>()..add(LoadUserProfileEvent(user.id)),
+          child: UserProfilePage(
+            userId: user.id,
+            initialUser: user,
+          ),
+        ),
+      ),
+    );
+  }
+
   int _currentUserId(BuildContext context) {
     final state = context.read<AuthBloc>().state;
     if (state is Authenticated) return state.authEntity.user.id;
@@ -217,7 +264,12 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(widget.title ?? widget.otherUser?.name ?? 'محادثة'),
+          title: widget.isCourseChat
+              ? Text(widget.title ?? 'محادثة')
+              : _DirectChatTitle(
+                  otherUser: widget.otherUser,
+                  onTap: _openOtherUserProfile,
+                ),
           centerTitle: true,
         ),
         body: BlocBuilder<ChatMessagesBloc, ChatMessagesState>(
@@ -312,6 +364,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           onLongPress: (message) {
             _showMessageActions(context, message);
           },
+          onLongPressFailed: (localId) {
+            _showFailedMessageActions(context, localId);
+          },
         );
       },
     );
@@ -386,6 +441,29 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
   }
 }
 
+class _DirectChatTitle extends StatelessWidget {
+  final FriendUserEntity? otherUser;
+  final VoidCallback onTap;
+
+  const _DirectChatTitle({required this.otherUser, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final name = otherUser?.name.trim().isNotEmpty == true
+        ? otherUser!.name
+        : 'محادثة';
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Text(name, maxLines: 1, overflow: TextOverflow.ellipsis),
+      ),
+    );
+  }
+}
+
 class _ChatItem {
   final MessageEntity? message;
   final String? localId;
@@ -420,6 +498,7 @@ class _MessageBubble extends StatelessWidget {
   final ValueChanged<MessageEntity> onEdit;
   final ValueChanged<MessageEntity> onDelete;
   final ValueChanged<MessageEntity> onLongPress;
+  final ValueChanged<String> onLongPressFailed;
 
   const _MessageBubble({
     required this.item,
@@ -431,6 +510,7 @@ class _MessageBubble extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onLongPress,
+    required this.onLongPressFailed,
   });
 
   @override
@@ -452,6 +532,7 @@ class _MessageBubble extends StatelessWidget {
         onEdit: onEdit,
         onDelete: onDelete,
         onLongPress: onLongPress,
+        onLongPressFailed: onLongPressFailed,
       ),
     );
   }
@@ -468,6 +549,7 @@ class _BubbleBody extends StatelessWidget {
   final ValueChanged<MessageEntity> onEdit;
   final ValueChanged<MessageEntity> onDelete;
   final ValueChanged<MessageEntity> onLongPress;
+  final ValueChanged<String> onLongPressFailed;
 
   const _BubbleBody({
     required this.item,
@@ -480,6 +562,7 @@ class _BubbleBody extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     required this.onLongPress,
+    required this.onLongPressFailed,
   });
 
   @override
@@ -596,7 +679,12 @@ class _BubbleBody extends StatelessWidget {
     const double avatarRadius = 15;
     const double avatarSlotWidth = avatarRadius * 2 + 8;
 
-    final Widget interactive = isMine && !isDeleted
+    final Widget interactive = item.isFailed
+        ? GestureDetector(
+            onLongPress: () => onLongPressFailed(item.localId!),
+            child: bubble,
+          )
+        : isMine && !isDeleted
         ? GestureDetector(
             onLongPress: () => onLongPress(item.message!),
             child: bubble,

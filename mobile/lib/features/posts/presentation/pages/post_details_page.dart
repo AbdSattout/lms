@@ -789,7 +789,7 @@ class _CommentNodeState extends State<_CommentNode> {
                   Text(
                     _repliesExpanded
                         ? 'إخفاء الردود'
-                        : 'عرض ${_children.length} ${_children.length == 1 ? 'رد' : 'ردود'}',
+                        : 'عرض ${widget.comment.repliesCount} ${widget.comment.repliesCount == 1 ? 'رد' : 'ردود'}',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

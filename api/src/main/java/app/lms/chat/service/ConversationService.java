@@ -11,7 +11,6 @@ import app.lms.chat.repository.ConversationMemberRepository;
 import app.lms.chat.repository.ConversationRepository;
 import app.lms.course.model.Course;
 import app.lms.course.service.CourseAccessService;
-import app.lms.friend.service.FriendService;
 import app.lms.user.model.User;
 import app.lms.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +33,6 @@ public class ConversationService {
     private final UserRepository userRepository;
 
     private final ConversationMapper conversationMapper;
-
-    private final FriendService friendService;
 
     private final CourseAccessService courseAccessService;
 
@@ -73,11 +70,6 @@ public class ConversationService {
                                 "You cannot chat with yourself"
                         );
                     }
-
-                    friendService.validateIsFriends(
-                            userOneId,
-                            userTwoId
-                    );
 
                     return createDirectConversation(
                             currentUser,

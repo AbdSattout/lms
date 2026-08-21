@@ -20,3 +20,9 @@ class VerifyEmailOtpRequested extends AuthEvent {
 class CheckAuthStatus extends AuthEvent {}
 
 class LogoutRequested extends AuthEvent {}
+
+class AuthSessionInvalidated extends AuthEvent {
+  final bool banned;
+
+  AuthSessionInvalidated({this.banned = false});
+}

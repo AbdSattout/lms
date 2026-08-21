@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/services/injection_container.dart';
+import '../bloc/course_details_bloc.dart';
+import '../bloc/course_details_event.dart';
 import '../bloc/my_courses_bloc.dart';
 import '../bloc/my_courses_event.dart';
 import '../bloc/my_courses_state.dart';
 import '../widgets/course_card.dart';
-import 'course_contents_page.dart';
+import 'course_details_page.dart';
 import '../../../roadmaps/presentation/pages/my_roadmaps_page.dart';
 
 class MyCoursesPage extends StatelessWidget {
@@ -133,7 +135,21 @@ class _CoursesTab extends StatelessWidget {
                 return CourseCard(
                   course: course,
                   onTap: () async {
-                    await Navigator.push(context, MaterialPageRoute(builder: (_) => CourseContentsPage(course: course)));
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BlocProvider(
+                          create: (_) => sl<CourseDetailsBloc>()
+                            ..add(
+                              GetCourseDetailsEvent(
+                                orgSlug: course.organization?.slug ?? '',
+                                courseSlug: course.slug,
+                              ),
+                            ),
+                          child: const CourseDetailsPage(),
+                        ),
+                      ),
+                    );
                     if (context.mounted) {
                       context.read<MyCoursesBloc>().add(GetMyEnrollmentsEvent());
                     }

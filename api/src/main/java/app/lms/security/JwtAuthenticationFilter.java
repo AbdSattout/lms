@@ -2,6 +2,7 @@ package app.lms.security;
 
 
 import app.lms.common.exception.CustomAuthenticationEntryPoint;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,11 +13,13 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.http.MediaType;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -69,6 +72,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 principalType,
                                 username
                         );
+                if (userDetails instanceof UserPrincipal principal && !principal.isAccountNonLocked()) {
+                    writeUserBannedResponse(response);
+                    return;
+                }
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities()
@@ -95,6 +102,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         filterChain.doFilter(request, response);
 
+    }
+
+    private void writeUserBannedResponse(HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        new ObjectMapper().writeValue(
+                response.getOutputStream(),
+                Map.of(
+                        "status", 403,
+                        "error", "User is banned",
+                        "code", "USER_BANNED"
+                )
+        );
     }
 }
 

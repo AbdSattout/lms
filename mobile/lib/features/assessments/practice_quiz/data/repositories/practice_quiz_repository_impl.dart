@@ -17,7 +17,9 @@ class PracticeQuizRepositoryImpl implements PracticeQuizRepository {
     try {
       final list = await remoteDataSource.getList(courseId);
       return Right(list);
-    } on ServerException catch (e) {
+    } on TooManyRequestsException catch (e) {
+      return Left(Failure(errMessage: e.errorModel.errorMessage));
+    }on ServerException catch (e) {
       return Left(Failure(errMessage: e.errorModel.errorMessage));
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));
@@ -52,7 +54,9 @@ class PracticeQuizRepositoryImpl implements PracticeQuizRepository {
         answers: answers,
       );
       return Right(result);
-    } on ServerException catch (e) {
+    } on TooManyRequestsException catch (e) {
+      return Left(Failure(errMessage: e.errorModel.errorMessage));
+    }on ServerException catch (e) {
       return Left(Failure(errMessage: e.errorModel.errorMessage));
     } catch (e) {
       return Left(Failure(errMessage: e.toString()));
