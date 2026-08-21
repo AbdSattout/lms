@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../posts/presentation/pages/organization_posts_page.dart';
 import '../../../reports/domain/entities/report_target.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
@@ -27,14 +28,20 @@ class OrganizationDetailsPage extends StatelessWidget {
               current is OrganizationDeleted,
           listener: (context, state) {
             if (state is OrganizationDetailsError) {
-              ScaffoldMessenger.of(
+              AppToast.show(
                 context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+                type: ToastType.error,
+                title: 'تعذر تحميل تفاصيل المنظمة',
+                message: state.message,
+              );
             }
             if (state is OrganizationDeleted) {
-              ScaffoldMessenger.of(
+              AppToast.show(
                 context,
-              ).showSnackBar(const SnackBar(content: Text('تم حذف المنظمة')));
+                type: ToastType.success,
+                title: 'تم الحذف',
+                message: 'تم حذف المنظمة بنجاح',
+              );
               Navigator.pop(context, true);
             }
           },
@@ -524,8 +531,10 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
-                                OrganizationPostsPage(orgSlug: slug),
-                          ),
+                                OrganizationPostsPage(
+                                  orgSlug: slug,
+                                  isMember: organization.viewerJoined,
+                                )                          ),
                         );
                       },
                     ),
@@ -642,8 +651,10 @@ class _OrganizationDetailsContent extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
-                                OrganizationPostsPage(orgSlug: slug),
-                          ),
+                                OrganizationPostsPage(
+                                  orgSlug: slug,
+                                  isMember: organization.viewerJoined,
+                                )                          ),
                         );
                       },
                       style: OutlinedButton.styleFrom(

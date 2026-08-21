@@ -59,6 +59,7 @@ import '../../features/profile/domain/repositories/profile_repository.dart';
 import '../../features/profile/domain/usecases/get_current_account_email_usecase.dart';
 import '../../features/profile/domain/usecases/get_profile_usecase.dart';
 import '../../features/profile/domain/usecases/request_account_email_otp_usecase.dart';
+import '../../features/profile/domain/usecases/update_name_usecase.dart';
 import '../../features/profile/domain/usecases/update_profile_picture_usecase.dart';
 import '../../features/profile/domain/usecases/update_profile_usecase.dart';
 import '../../features/profile/domain/usecases/verify_account_email_otp_usecase.dart';
@@ -328,6 +329,7 @@ Future<void> init() async {
     () => ProfileRepositoryImpl(sl()),
   );
 
+  sl.registerLazySingleton(() => UpdateNameUseCase(sl()));
   sl.registerLazySingleton(() => GetProfileUseCase(sl()));
   sl.registerLazySingleton(() => GetCurrentAccountEmailUseCase(sl()));
   sl.registerLazySingleton(() => UpdateProfilePictureUseCase(sl()));
@@ -343,6 +345,7 @@ Future<void> init() async {
       updateProfileUseCase: sl(),
       requestAccountEmailOtpUseCase: sl(),
       verifyAccountEmailOtpUseCase: sl(),
+      updateNameUseCase: sl(),
     ),
   );
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/markdown/markdown_content_view.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/block_content_entity.dart'
     show BlockQuestionEntity;
 import '../../domain/entities/course_entity.dart' show RewardEntity;
@@ -80,16 +81,22 @@ class _LessonContentPageState extends State<LessonContentPage> {
                 }
 
                 if (state is BlockContentFinished) {
-                  ScaffoldMessenger.of(
+                  AppToast.show(
                     context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                    type: ToastType.success,
+                    title: 'تم إنهاء الدرس',
+                    message: state.message,
+                  );
                   Navigator.pop(context, _progressChanged);
                 }
 
                 if (state is BlockContentError) {
-                  ScaffoldMessenger.of(
+                  AppToast.show(
                     context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                    type: ToastType.error,
+                    title: 'تعذر تحميل الدرس',
+                    message: state.message,
+                  );
                 }
               },
               builder: (context, state) {

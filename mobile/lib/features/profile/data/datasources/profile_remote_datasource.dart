@@ -17,6 +17,8 @@ abstract class ProfileRemoteDataSource {
 
   Future<void> requestAccountEmailOtp(String email);
 
+  Future<CurrentUserModel> updateName(String name);
+
   Future<CurrentUserModel> verifyAccountEmailOtp({
     required String email,
     required String otp,
@@ -44,9 +46,19 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
 
   @override
   Future<ProfileModel> updateProfile(UpdateProfileParams params) async {
+    print('📦 UPDATE PROFILE PARAMS: ${params.toJson()}');
     final response = await api.patch(EndPoints.profile, data: params.toJson());
-
+    print('📦 UPDATE PROFILE RESPONSE: $response');
     return ProfileModel.fromJson(response);
+  }
+
+  @override
+  Future<CurrentUserModel> updateName(String name) async {
+    final response = await api.patch(
+      EndPoints.currentUser,
+      data: {'name': name},
+    );
+    return CurrentUserModel.fromJson(response);
   }
 
   @override

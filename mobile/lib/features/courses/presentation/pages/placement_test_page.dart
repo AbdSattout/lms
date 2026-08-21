@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/markdown/markdown_content_view.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/entities/course_entity.dart';
 import '../../domain/entities/placement_test_entity.dart';
 import '../bloc/placement_test_bloc.dart';
@@ -44,9 +45,12 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
       body: BlocConsumer<PlacementTestBloc, PlacementTestState>(
         listener: (context, state) {
           if (state is PlacementTestError) {
-            ScaffoldMessenger.of(
+            AppToast.show(
               context,
-            ).showSnackBar(SnackBar(content: Text(state.message)));
+              type: ToastType.error,
+              title: 'تعذر تحميل اختبار تحديد المستوى',
+              message: state.message,
+            );
           }
         },
         builder: (context, state) {
@@ -75,35 +79,10 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      for (int i = 0; i < _heartCount; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6),
-                          child: SizedBox(
-                            width: 26,
-                            height: 26,
-                            child: AnimatedOpacity(
-                              opacity: i < heartsRemaining ? 1 : 0,
-                              duration: const Duration(milliseconds: 240),
-                              curve: Curves.easeOut,
-                              child: const Icon(
-                                Icons.favorite_rounded,
-                                color: Color(0xffE0577B),
-                                size: 26,
-                              ),
-                            ),
-                          ),
-                        ),
-                      const Spacer(),
-                      Text(
-                        '${state.data.correctAnswers}/${state.data.totalAnswers}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                  _buildHeartsAndProgress(
+                    context,
+                    heartsRemaining,
+                    state.data,
                   ),
 
                   const SizedBox(height: 24),
@@ -144,12 +123,8 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                           if (hasFeedback) {
                             final correct = state.lastAnswerCorrect == true;
                             tileColor = correct
-                                ? const Color(
-                                    0xff2E7D53,
-                                  ).withValues(alpha: 0.12)
-                                : const Color(
-                                    0xffD9534F,
-                                  ).withValues(alpha: 0.12);
+                                ? const Color(0xff2E7D53).withValues(alpha: 0.12)
+                                : const Color(0xffD9534F).withValues(alpha: 0.12);
                             borderColor = correct
                                 ? const Color(0xff2E7D53)
                                 : const Color(0xffD9534F);
@@ -176,9 +151,9 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
 
                           final disabled =
                               state.isSubmitting ||
-                              state.data.completed ||
-                              state.lastAnswerCorrect == true ||
-                              (state.lastAnswerCorrect == false && isSubmitted);
+                                  state.data.completed ||
+                                  state.lastAnswerCorrect == true ||
+                                  (state.lastAnswerCorrect == false && isSubmitted);
 
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
@@ -190,10 +165,10 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                                 onTap: disabled
                                     ? null
                                     : () {
-                                        context.read<PlacementTestBloc>().add(
-                                          SubmitPlacementAnswerEvent(index),
-                                        );
-                                      },
+                                  context.read<PlacementTestBloc>().add(
+                                    SubmitPlacementAnswerEvent(index),
+                                  );
+                                },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -232,15 +207,15 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
                       alignment: Alignment.center,
                       child: TextButton(
                         onPressed:
-                            state.isSubmitting ||
-                                state.data.completed ||
-                                state.lastAnswerCorrect == true
+                        state.isSubmitting ||
+                            state.data.completed ||
+                            state.lastAnswerCorrect == true
                             ? null
                             : () {
-                                context.read<PlacementTestBloc>().add(
-                                  SkipPlacementTestEvent(),
-                                );
-                              },
+                          context.read<PlacementTestBloc>().add(
+                            SkipPlacementTestEvent(),
+                          );
+                        },
                         child: Text(
                           'تخطي الاختبار',
                           style: TextStyle(color: colors.onSurfaceVariant),
@@ -255,6 +230,124 @@ class _PlacementTestPageState extends State<PlacementTestPage> {
 
           return const SizedBox();
         },
+      ),
+    );
+  }
+
+  Widget _buildHeartsAndProgress(
+      BuildContext context,
+      int heartsRemaining,
+      PlacementTestStateEntity data,
+      ) {
+    final colors = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final hasProgress = data.totalAnswers > 0;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            // Hearts
+            for (int i = 0; i < _heartCount; i++)
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: _HeartWidget(
+                  isActive: i < heartsRemaining,
+                  size: 32,
+                ),
+              ),
+            const Spacer(),
+            // Progress counter (only when meaningful)
+            if (hasProgress)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${data.correctAnswers} / ${data.totalAnswers}',
+                  style: textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: colors.primary,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        if (hasProgress && data.totalAnswers > 0) ...[
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: data.correctAnswers / data.totalAnswers,
+              minHeight: 6,
+              backgroundColor: colors.surfaceContainerHighest,
+              valueColor: AlwaysStoppedAnimation(colors.primary),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _HeartWidget extends StatelessWidget {
+  final bool isActive;
+  final double size;
+
+  const _HeartWidget({
+    required this.isActive,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final heartColor = const Color(0xffE0577B);
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      transitionBuilder: (child, animation) {
+        return ScaleTransition(
+          scale: animation,
+          child: FadeTransition(opacity: animation, child: child),
+        );
+      },
+      child: Container(
+        key: ValueKey(isActive),
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: isActive
+              ? heartColor.withValues(alpha: 0.15)
+              : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: isActive
+                ? heartColor.withValues(alpha: 0.3)
+                : Colors.transparent,
+            width: 1.5,
+          ),
+          boxShadow: isActive
+              ? [
+            BoxShadow(
+              color: heartColor.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ]
+              : null,
+        ),
+        child: Icon(
+          isActive ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+          size: size * 0.55,
+          color: isActive ? heartColor : colors.onSurfaceVariant,
+        ),
       ),
     );
   }
@@ -287,9 +380,7 @@ class _CompletedView extends StatelessWidget {
               color: Color(0xff2E7D53),
             ),
           ),
-
           const SizedBox(height: 20),
-
           Text(
             'أحسنت! تم تحديد نقطة بدايتك',
             style: TextStyle(
@@ -298,16 +389,12 @@ class _CompletedView extends StatelessWidget {
               color: colors.onSurface,
             ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
-            'أجبت بشكل صحيح على ${data.correctAnswers}أسئلة',
+            'أجبت بشكل صحيح على ${data.correctAnswers} أسئلة',
             style: TextStyle(color: colors.onSurfaceVariant),
           ),
-
           const SizedBox(height: 30),
-
           SizedBox(
             width: double.infinity,
             height: 54,

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/api_error_resolver.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
@@ -76,13 +77,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
               return;
             }
 
-            final messenger = ScaffoldMessenger.of(context);
             final message = state.actionMessage ?? state.errorMessage;
             if (message == null) return;
 
-            messenger
-              ..hideCurrentSnackBar()
-              ..showSnackBar(SnackBar(content: Text(message)));
+            AppToast.error(context, message: message);
+
           },
           builder: (context, state) {
             if (state is UserProfileLoading) {
@@ -250,9 +249,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(resolveApiErrorMessage(e))));
+      AppToast.error(context, message: resolveApiErrorMessage(e));
     }
   }
 
