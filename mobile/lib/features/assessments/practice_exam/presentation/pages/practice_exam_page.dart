@@ -201,12 +201,10 @@ class _PracticeExamPageState extends State<PracticeExamPage> {
                 child: const Text('السابق'),
               ),
             const Spacer(),
-            if (_currentIndex < state.totalQuestions - 1)
+if (_currentIndex < state.totalQuestions - 1)
               ElevatedButton(
-                onPressed: state.selectedAnswers.containsKey(state.exam.questions[_currentIndex].id) && !_isExpired
-                    ? () => _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut)
-                    : null,
-                style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14))),
+                onPressed: !_isExpired ? () => _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut) : null,
+                style: ElevatedButton.styleFrom(backgroundColor: colors.primary, foregroundColor: colors.onPrimary, shape: RoundedRectangleBorder(borderRadius: Radius.circular(14))),
                 child: const Text('التالي'),
               )
             else
