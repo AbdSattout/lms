@@ -209,9 +209,10 @@ async function getJwtForPath(path: string) {
 
 async function readResponseDetails(response: Response) {
   try {
-    const body = await response.json()
-    const code = typeof body?.code === "string" ? body.code : undefined
-    return { message: JSON.stringify(body), code }
+    const data = await response.json()
+
+    return JSON.stringify(data) ?? ""
+
   } catch {
     return { message: await response.text() }
   }
