@@ -188,15 +188,17 @@ class _OrganizationDetailsContent extends StatelessWidget {
         organization.image != null && organization.image!.isNotEmpty;
     final isMember = organization.viewerJoined;
     final isOwner = organization.viewerRole == 'OWNER';
+    final isAdmin = organization.viewerRole == 'ADMIN';
+
     final isPrivate = organization.visibility == OrganizationVisibility.private;
     final isPending = organization.joinRequestStatus == 'PENDING';
     final hasPendingInvite =
         organization.inviteStatus == 'PENDING' &&
         organization.inviteId != null &&
         !isMember &&
-        !isOwner;
+        !isOwner && !isAdmin;
     final showsCancelRequest =
-        isPending && !hasPendingInvite && !isMember && !isOwner;
+        isPending && !hasPendingInvite && !isMember && !isOwner && !isAdmin;
     final bottomContentPadding = showsCancelRequest || hasPendingInvite
         ? 230.0
         : 180.0;
@@ -383,6 +385,27 @@ class _OrganizationDetailsContent extends StatelessWidget {
                             ),
                             child: Text(
                               'منظمتك',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: colors.primary,
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (isAdmin) ...[
+                          const SizedBox(width: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colors.primary.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'مشرف في المنظمة',
                               style: TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
@@ -610,6 +633,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
                   _membershipButton(
                     isMember: isMember,
                     isOwner: isOwner,
+                    isAdmin: isAdmin,
                     isPrivate: isPrivate,
                     isPending: isPending,
                     hasPendingInvite: hasPendingInvite,
@@ -680,6 +704,7 @@ class _OrganizationDetailsContent extends StatelessWidget {
   Widget _membershipButton({
     required bool isMember,
     required bool isOwner,
+    required bool isAdmin,
     required bool isPrivate,
     required bool isPending,
     required bool hasPendingInvite,
@@ -699,7 +724,12 @@ class _OrganizationDetailsContent extends StatelessWidget {
       icon = Icons.delete_outline_rounded;
       backgroundColor = const Color(0xffD9534F);
       onPressed = isProcessing ? null : onDelete;
-    } else if (isMember) {
+    }else if(isAdmin){
+      label = "غادر المنظمة";
+      icon = Icons.logout_rounded;
+      backgroundColor = const Color(0xffD9534F);
+      onPressed = isProcessing ? null : onLeave;
+    }else if (isMember) {
       label = "غادر المنظمة";
       icon = Icons.logout_rounded;
       backgroundColor = const Color(0xffD9534F);

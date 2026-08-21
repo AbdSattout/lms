@@ -5,14 +5,12 @@ import '../../domain/entities/organization_entity.dart';
 
 class OrganizationCard extends StatelessWidget {
   final OrganizationEntity organization;
-  final bool isOwnedByMe;
   final VoidCallback onTap;
 
   const OrganizationCard({
     super.key,
     required this.organization,
     required this.onTap,
-    this.isOwnedByMe = false,
   });
 
   @override
@@ -20,7 +18,15 @@ class OrganizationCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isPrivate = organization.visibility == OrganizationVisibility.private;
+    final isAdmin = organization.viewerRole == 'ADMIN';
+    final isOwnedByMe = organization.viewerRole == 'OWNER';
+
     final ownerAccent = isDark ? const Color(0xffC4B5FD) : AppColors.lavender;
+    final adminAccent = isDark ? const Color(0xff34D399) : const Color(0xff059669);
+
+    final Color? cardAccent = isOwnedByMe
+        ? ownerAccent
+        : (isAdmin ? adminAccent : null);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
@@ -36,14 +42,14 @@ class OrganizationCard extends StatelessWidget {
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              color: isOwnedByMe
-                  ? ownerAccent.withValues(alpha: isDark ? 0.10 : 0.08)
+              color: cardAccent != null
+                  ? cardAccent.withValues(alpha: isDark ? 0.10 : 0.08)
                   : colors.surface,
               border: Border.all(
-                color: isOwnedByMe
-                    ? ownerAccent.withValues(alpha: isDark ? 0.46 : 1)
+                color: cardAccent != null
+                    ? cardAccent.withValues(alpha: isDark ? 0.46 : 0.8)
                     : Theme.of(context).dividerColor,
-                width: isOwnedByMe ? 1.4 : 1,
+                width: cardAccent != null ? 1.4 : 1,
               ),
               boxShadow: [
                 BoxShadow(
@@ -99,6 +105,15 @@ class OrganizationCard extends StatelessWidget {
                                     size: 18,
                                     color: ownerAccent,
                                   ),
+                                )
+                              else if (isAdmin)
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  child: Icon(
+                                    Icons.admin_panel_settings_rounded,
+                                    size: 18,
+                                    color: adminAccent,
+                                  ),
                                 ),
                             ],
                           ),
@@ -112,7 +127,10 @@ class OrganizationCard extends StatelessWidget {
                               _VisibilityBadge(isPrivate: isPrivate),
                               if (organization.verified)
                                 const _VerifiedBadge(),
-                              if (isOwnedByMe) const _OwnerBadge(),
+                              if (isOwnedByMe)
+                                const _OwnerBadge()
+                              else if (isAdmin)
+                                const _AdminBadge(),
                             ],
                           ),
                         ],
@@ -175,13 +193,15 @@ class OrganizationCard extends StatelessWidget {
                           child: Text(
                             isOwnedByMe
                                 ? 'أنت (المالك)'
-                                : organization.ownerName!,
+                                : (isAdmin
+                                ? '${organization.ownerName!} • أنت مشرف'
+                                : organization.ownerName!),
                             style: TextStyle(
                               fontSize: 12.5,
                               fontWeight: FontWeight.w600,
                               color: isOwnedByMe
                                   ? ownerAccent
-                                  : colors.onSurfaceVariant,
+                                  : (isAdmin ? adminAccent : colors.onSurfaceVariant),
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -241,37 +261,37 @@ class _OrgLogo extends StatelessWidget {
         gradient: hasImage
             ? null
             : LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.primary,
-                  AppColors.primary.withValues(alpha: 0.70),
-                ],
-              ),
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primary,
+            AppColors.primary.withValues(alpha: 0.70),
+          ],
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: hasImage
           ? Image.network(
-              organization.image!,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _initials(),
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return Container(
-                  color: AppColors.primary.withValues(alpha: 0.12),
-                  child: const Center(
-                    child: SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                );
-              },
-            )
+        organization.image!,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _initials(),
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+          return Container(
+            color: AppColors.primary.withValues(alpha: 0.12),
+            child: const Center(
+              child: SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          );
+        },
+      )
           : _initials(),
     );
   }
@@ -308,8 +328,8 @@ class _VisibilityBadge extends StatelessWidget {
     final backgroundColor = isDark
         ? badgeColor.withValues(alpha: 0.12)
         : (isPrivate
-              ? AppColors.peach.withValues(alpha: 0.50)
-              : AppColors.mint.withValues(alpha: 0.50));
+        ? AppColors.peach.withValues(alpha: 0.50)
+        : AppColors.mint.withValues(alpha: 0.50));
     final label = isPrivate ? 'خاصة' : 'عامة';
     final icon = isPrivate ? Icons.lock_outline_rounded : Icons.public_rounded;
 
@@ -406,6 +426,45 @@ class _OwnerBadge extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             'منظمتي',
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: accent,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AdminBadge extends StatelessWidget {
+  const _AdminBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final accent = isDark ? const Color(0xff34D399) : const Color(0xff059669);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: accent.withValues(alpha: isDark ? 0.15 : 0.12),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: isDark
+              ? accent.withValues(alpha: 0.30)
+              : colors.outlineVariant.withValues(alpha: 0.18),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.admin_panel_settings_rounded, size: 12, color: accent),
+          const SizedBox(width: 4),
+          Text(
+            'مشرف',
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,

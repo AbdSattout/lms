@@ -315,6 +315,23 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
         label: const Text('أنت مالك المنظمة'),
       );
     }
+    if (isAdmin) {
+      return ElevatedButton.icon(
+        onPressed: null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.surfaceContainerHighest,
+          foregroundColor: colors.onSurfaceVariant,
+          disabledBackgroundColor: colors.surfaceContainerHighest,
+          disabledForegroundColor: colors.onSurfaceVariant,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          elevation: 0,
+        ),
+        icon: const Icon(Icons.admin_panel_settings_rounded),
+        label: const Text('أنت مشرف في المنظمة'),
+      );
+    }
 
     if (isBlockedByMembership) {
       return ElevatedButton.icon(
