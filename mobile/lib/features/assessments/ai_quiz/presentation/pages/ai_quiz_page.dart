@@ -46,8 +46,12 @@ class _AiQuizPageState extends State<AiQuizPage> {
                 );
               }
               if (state is AiQuizFailed) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text(state.message)),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: ErrorRetryCard(
+                    message: state.message,
+                    onRetry: () => context.read<GenerateAiQuizRequested>(),
+                  ),
                 );
               }
             },

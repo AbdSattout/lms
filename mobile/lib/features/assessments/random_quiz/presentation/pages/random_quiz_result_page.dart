@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/markdown/markdown_content_view.dart';
 import '../../domain/entities/random_quiz_submit_result_entity.dart';
 
 class RandomQuizResultPage extends StatelessWidget {
@@ -120,10 +121,7 @@ class _ResultTile extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              result.content,
-              style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: colors.onSurface),
-            ),
+            child: MarkdownContentView(content: result.content),
           ),
         ],
       ),
