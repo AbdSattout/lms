@@ -48,8 +48,9 @@ class _PracticeQuizPageState extends State<PracticeQuizPage> {
               if (state is PracticeQuizFailed) {
                 AppToast.show(
                   context,
+                  title: 'أسئلة غير كافية',
                   type: ToastType.error,
-                  message: state.message,
+                  message: 'لا يوجد أسئلة كافية في بنك الأسئلة',
                 );
               }
             },
