@@ -55,6 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
               title: 'تم التحديث',
               message: 'تم تحديث البيانات بنجاح',
             );
+            context.read<AuthBloc>().add(CheckAuthStatus());
           }
 
           if (state is ProfilePictureUpdated) {

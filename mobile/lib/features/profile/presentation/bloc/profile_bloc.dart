@@ -1,4 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/services/injection_container.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
+import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../domain/usecases/update_name_usecase.dart';
 import '../../domain/usecases/get_current_account_email_usecase.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
@@ -82,14 +85,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> _updatePicture(
-    UpdateProfilePictureEvent event,
-    Emitter<ProfileState> emit,
-  ) async {
+      UpdateProfilePictureEvent event,
+      Emitter<ProfileState> emit,
+      ) async {
     try {
       await updatePictureUseCase(event.imagePath);
+      final authBloc = sl<AuthBloc>();
+      authBloc.add(CheckAuthStatus());
 
       emit(ProfilePictureUpdated());
-
       emit(await _loadProfile());
     } catch (e) {
       emit(ProfileError(describeProfileError(e)));
