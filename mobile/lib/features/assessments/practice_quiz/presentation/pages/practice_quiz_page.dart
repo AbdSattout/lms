@@ -71,7 +71,6 @@ class _PracticeQuizPageState extends State<PracticeQuizPage> {
 
   Widget _buildQuiz(BuildContext context, PracticeQuizDetailsReady state) {
     final colors = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
 
     return Column(
       children: [
@@ -159,18 +158,21 @@ class _PracticeQuizPageState extends State<PracticeQuizPage> {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       decoration: BoxDecoration(
         color: colors.surface,
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -2))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, -2))],
       ),
       child: SafeArea(
         top: false,
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             if (_currentIndex > 0)
               OutlinedButton(
                 onPressed: () => _pageController.previousPage(duration: const Duration(milliseconds: 250), curve: Curves.easeOut),
                 child: const Text('السابق'),
-              ),
-            const Spacer(),
+              )
+            else
+              const SizedBox.shrink(),
+
             if (_currentIndex < state.totalQuestions - 1)
               ElevatedButton(
                 onPressed: state.selectedAnswers.containsKey(state.quiz.questions[_currentIndex].id)
@@ -203,6 +205,7 @@ class _PracticeQuizPageState extends State<PracticeQuizPage> {
   }
 
   void _showSubmitConfirmation(BuildContext context) {
+    final bloc = context.read<PracticeQuizBloc>();
     showDialog(
       context: context,
       builder: (dialogContext) => Directionality(
@@ -215,7 +218,7 @@ class _PracticeQuizPageState extends State<PracticeQuizPage> {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(dialogContext);
-                context.read<PracticeQuizBloc>().add(SubmitPracticeQuizRequested());
+                bloc.add(SubmitPracticeQuizRequested());
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Theme.of(context).colorScheme.primary,

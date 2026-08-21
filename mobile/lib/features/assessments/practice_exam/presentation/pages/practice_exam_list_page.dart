@@ -75,24 +75,27 @@ class PracticeExamListPage extends StatelessWidget {
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('إلغاء'),
             ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PracticeExamPage(
-                      courseId: courseId,
-                      examId: exam.id,
+            SizedBox(
+              width: 140,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PracticeExamPage(
+                        courseId: courseId,
+                        examId: exam.id,
+                      ),
                     ),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.onPrimary,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                ),
+                child: const Text('بدء الامتحان'),
               ),
-              child: const Text('بدء الامتحان'),
             ),
           ],
         ),

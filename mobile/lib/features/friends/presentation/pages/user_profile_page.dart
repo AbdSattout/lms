@@ -80,7 +80,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             final message = state.actionMessage ?? state.errorMessage;
             if (message == null) return;
 
-            AppToast.error(context, message: message);
+            AppToast.success(context, message: message);
 
           },
           builder: (context, state) {
