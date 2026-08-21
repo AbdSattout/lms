@@ -14,6 +14,7 @@ import app.lms.course.dto.CourseLessonMapResponse;
 import app.lms.course.dto.CourseResponse;
 import app.lms.course.enums.CourseNodeStatus;
 import app.lms.course.model.Course;
+import app.lms.faq.dto.CourseFaqResponse;
 import app.lms.lesson.model.Lesson;
 import app.lms.organization.mapper.OrganizationMapper;
 import app.lms.organization.dto.OrganizationViewerResponse;
@@ -77,6 +78,23 @@ public class CourseMapper {
             CourseLearningSummary learningSummary
     ) {
 
+        return toResponse(
+                course,
+                enrollment,
+                organizationViewer,
+                learningSummary,
+                null
+        );
+    }
+
+    public CourseResponse toResponse(
+            Course course,
+            CourseEnrollment enrollment,
+            OrganizationViewerResponse organizationViewer,
+            CourseLearningSummary learningSummary,
+            List<CourseFaqResponse> faqs
+    ) {
+
         return CourseResponse.builder()
                 .id(course.getId())
                 .title(course.getTitle())
@@ -115,6 +133,7 @@ public class CourseMapper {
                                 ? organizationViewer.joinRequestStatus()
                                 : null
                 )
+                .faqs(faqs)
                 .baseEntity(BaseEntityResponse.from(course))
                 .build();
     }

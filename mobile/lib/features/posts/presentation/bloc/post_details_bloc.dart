@@ -53,6 +53,8 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
   }
 
   Future<void> _onAddComment(AddCommentRequested event, Emitter<PostDetailsState> emit) async {
+    emit(CommentSubmitting(comments: _comments, post: _currentPost!));
+
     try {
       await addComment(event.postId, event.content, parentCommentId: event.parentCommentId);
       _comments = await getComments(event.postId);
@@ -64,7 +66,6 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       emit(PostDetailsError(resolveApiErrorMessage(e)));
     }
   }
-
   Future<void> _onDeleteComment(DeleteCommentRequested event, Emitter<PostDetailsState> emit) async {
     try {
       await deleteComment(event.commentId);
@@ -128,6 +129,7 @@ class PostDetailsBloc extends Bloc<PostDetailsEvent, PostDetailsState> {
       if (_currentPost is PostModel) {
         _currentPost = (_currentPost as PostModel).copyWith(
           viewerReaction: newViewerReaction,
+          clearViewerReaction: isRemoving,
           reactionCounts: newCounts,
         );
       }

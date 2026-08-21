@@ -20,6 +20,11 @@ class UpdateProfileEvent extends ProfileEvent {
   });
 }
 
+class UpdateNameEvent extends ProfileEvent {
+  final String name;
+  UpdateNameEvent({required this.name});
+}
+
 class RequestAccountEmailOtpEvent extends ProfileEvent {
   final String email;
 

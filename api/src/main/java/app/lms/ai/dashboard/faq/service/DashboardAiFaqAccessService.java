@@ -33,6 +33,10 @@ public class DashboardAiFaqAccessService {
         );
     }
 
+    public boolean hasFaqs(Long courseId) {
+        return courseFaqRepository.existsByCourseId(courseId);
+    }
+
     private List<CourseFaqResponse> getStoredFaqs(
             Long courseId
     ) {

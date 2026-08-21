@@ -164,6 +164,24 @@ class CourseEnrollmentDetailsModel extends CourseEnrollmentDetailsEntity {
   }
 }
 
+class CourseFaqModel extends CourseFaqEntity {
+  const CourseFaqModel({
+    required super.id,
+    required super.question,
+    required super.answer,
+    required super.position,
+  });
+
+  factory CourseFaqModel.fromJson(Map<String, dynamic> json) {
+    return CourseFaqModel(
+      id: json['id'] ?? 0,
+      question: json['question'] ?? '',
+      answer: json['answer'] ?? '',
+      position: json['position'] ?? 0,
+    );
+  }
+}
+
 class CourseModel extends CourseEntity {
   const CourseModel({
     required super.id,
@@ -180,6 +198,7 @@ class CourseModel extends CourseEntity {
     super.enrollment,
     super.chapters,
     super.progressSnapshot,
+    super.faqs,
   });
 
   factory CourseModel.fromJson(Map<String, dynamic> json) {
@@ -211,6 +230,11 @@ class CourseModel extends CourseEntity {
           ? CourseProgressSnapshotModel.fromJson(
               json['progress'] as Map<String, dynamic>,
             )
+          : null,
+      faqs: json['faqs'] != null
+          ? (json['faqs'] as List)
+                .map((f) => CourseFaqModel.fromJson(f as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }

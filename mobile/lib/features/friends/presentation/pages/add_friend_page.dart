@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/injection_container.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/resilient_network_avatar.dart';
 import '../../domain/entities/friend_user_entity.dart';
 import '../../domain/entities/search_user_entity.dart';
@@ -65,13 +66,11 @@ class _AddFriendPageState extends State<AddFriendPage> {
             listener: (context, state) {
               if (state is! AddFriendLoaded) return;
 
-              final messenger = ScaffoldMessenger.of(context);
               final message = state.actionMessage ?? state.errorMessage;
               if (message == null) return;
 
-              messenger
-                ..hideCurrentSnackBar()
-                ..showSnackBar(SnackBar(content: Text(message)));
+              AppToast.error(context, message: message);
+
             },
             builder: (context, state) {
               return Column(

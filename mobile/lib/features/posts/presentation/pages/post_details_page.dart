@@ -5,6 +5,7 @@ import '../../../../core/markdown/markdown_content_view.dart';
 import '../../../../core/services/injection_container.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/relative_time.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../reports/domain/entities/report_target.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/comment_entity.dart';
@@ -76,6 +77,10 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   void _sendComment(BuildContext context) {
     final text = _commentController.text.trim();
     if (text.isEmpty) return;
+
+    final state = context.read<PostDetailsBloc>().state;
+    if (state is CommentSubmitting) return;
+
     _hasChanges = true;
     context.read<PostDetailsBloc>().add(
       AddCommentRequested(
@@ -134,9 +139,8 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PostDetailsBloc>(
-      create: (_) =>
-          sl<PostDetailsBloc>()
-            ..add(LoadComments(postId: widget.post.id, post: widget.post)),
+      create: (_) => sl<PostDetailsBloc>()
+        ..add(LoadComments(postId: widget.post.id, post: widget.post)),
       child: Builder(
         builder: (context) => Directionality(
           textDirection: TextDirection.rtl,
@@ -207,39 +211,43 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
             body: BlocConsumer<PostDetailsBloc, PostDetailsState>(
               listener: (context, state) {
                 if (state is PostDetailsError) {
-                  ScaffoldMessenger.of(
+                  AppToast.show(
                     context,
-                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                    type: ToastType.error,
+                    title: 'تعذر تحميل تفاصيل المنشور',
+                    message: state.message,
+                  );
                 }
                 if (state is CommentAdded) {
                   _commentController.clear();
                   _cancelReply();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم إضافة التعليق')),
+                  AppToast.show(
+                    context,
+                    type: ToastType.success,
+                    message: 'تمت إضافة تعليق',
                   );
                 }
                 if (state is CommentDeleted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('تم حذف التعليق')),
+                  AppToast.show(
+                    context,
+                    type: ToastType.success,
+                    message: 'تم حذف التعليق',
                   );
                 }
               },
               builder: (context, state) {
                 final comments = _getCommentsFromState(state);
                 final currentPost = _getPostFromState(state) ?? widget.post;
-                final isLoading =
-                    state is CommentsLoading || state is PostDetailsInitial;
+                final isLoading = state is CommentsLoading || state is PostDetailsInitial;
                 final hasError = state is PostDetailsError && comments == null;
+                final isSendingComment = state is CommentSubmitting;
 
                 return Stack(
                   children: [
                     RefreshIndicator(
                       onRefresh: () async {
                         context.read<PostDetailsBloc>().add(
-                          LoadComments(
-                            postId: currentPost.id,
-                            post: currentPost,
-                          ),
+                          LoadComments(postId: currentPost.id, post: currentPost),
                         );
                       },
                       child: SingleChildScrollView(
@@ -265,47 +273,38 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                             ),
                             const SizedBox(height: 24),
                             _CommentsSectionHeader(
-                              count:
-                                  comments?.length ?? currentPost.commentCount,
+                              count: comments?.length ?? currentPost.commentCount,
                             ),
                             const SizedBox(height: 16),
                             if (isLoading)
                               _CommentsLoading()
                             else if (hasError)
                               _CommentsError(
-                                message: state.message,
-                                onRetry: () =>
-                                    context.read<PostDetailsBloc>().add(
-                                      LoadComments(
-                                        postId: currentPost.id,
-                                        post: currentPost,
-                                      ),
-                                    ),
+                                message: (state).message,
+                                onRetry: () => context.read<PostDetailsBloc>().add(
+                                  LoadComments(postId: currentPost.id, post: currentPost),
+                                ),
                               )
                             else if (comments != null)
-                              _CommentsList(
-                                comments: comments,
-                                post: currentPost,
-                                onReply: _startReply,
-                                onToggleLike: (id) => context
-                                    .read<PostDetailsBloc>()
-                                    .add(ToggleCommentLike(id)),
-                                onDelete: (id) =>
-                                    _confirmDeleteComment(context, id),
-                                onReport: (comment) {
-                                  showReportBottomSheet(
-                                    context,
-                                    ReportTarget.comment(
-                                      commentId: comment.id,
-                                      postId: currentPost.id,
-                                      organizationId:
-                                          currentPost.organizationId,
-                                      userId: comment.author.id,
-                                      title: 'تعليق ${comment.author.name}',
-                                    ),
-                                  );
-                                },
-                              ),
+                                _CommentsList(
+                                  comments: comments,
+                                  post: currentPost,
+                                  onReply: _startReply,
+                                  onToggleLike: (id) => context.read<PostDetailsBloc>().add(ToggleCommentLike(id)),
+                                  onDelete: (id) => _confirmDeleteComment(context, id),
+                                  onReport: (comment) {
+                                    showReportBottomSheet(
+                                      context,
+                                      ReportTarget.comment(
+                                        commentId: comment.id,
+                                        postId: currentPost.id,
+                                        organizationId: currentPost.organizationId,
+                                        userId: comment.author.id,
+                                        title: 'تعليق ${comment.author.name}',
+                                      ),
+                                    );
+                                  },
+                                ),
                             const SizedBox(height: 16),
                           ],
                         ),
@@ -314,6 +313,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
                     _CommentComposer(
                       controller: _commentController,
                       replyingTo: _replyingToAuthorName,
+                      isSubmitting: isSendingComment,
                       onCancelReply: _cancelReply,
                       onSend: () => _sendComment(context),
                     ),
@@ -331,6 +331,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     if (state is CommentsLoaded) return state.comments;
     if (state is CommentAdded) return state.comments;
     if (state is CommentDeleted) return state.comments;
+    if (state is CommentSubmitting) return state.comments;
     return null;
   }
 
@@ -338,6 +339,7 @@ class _PostDetailsPageState extends State<PostDetailsPage> {
     if (state is CommentsLoaded) return state.post;
     if (state is CommentAdded) return state.post;
     if (state is CommentDeleted) return state.post;
+    if (state is CommentSubmitting) return state.post;
     return null;
   }
 }
@@ -422,6 +424,39 @@ class _PostReactionBar extends StatelessWidget {
 
   const _PostReactionBar({required this.post, required this.onReaction});
 
+  IconData _getIconForReaction(String? type) {
+    return switch (type) {
+      'LIKE' => Icons.thumb_up_alt_rounded,
+      'LOVE' => Icons.favorite_rounded,
+      'SUPPORT' => Icons.handshake_rounded,
+      'CELEBRATE' => Icons.celebration_rounded,
+      'INSIGHTFUL' => Icons.lightbulb_rounded,
+      _ => Icons.thumb_up_alt_outlined,
+    };
+  }
+
+  String _getLabelForReaction(String? type) {
+    return switch (type) {
+      'LIKE' => 'إعجاب',
+      'LOVE' => 'حب',
+      'SUPPORT' => 'دعم',
+      'CELEBRATE' => 'احتفال',
+      'INSIGHTFUL' => 'مفيد',
+      _ => 'إعجاب',
+    };
+  }
+
+  Color _getColorForReaction(String? type) {
+    return switch (type) {
+      'LIKE' => const Color(0xff2563EB),
+      'LOVE' => const Color(0xffD9534F),
+      'SUPPORT' => const Color(0xff2E7D53),
+      'CELEBRATE' => const Color(0xffF2C94C),
+      'INSIGHTFUL' => const Color(0xff9B51E0),
+      _ => const Color(0xff2563EB),
+    };
+  }
+
   void _showReactionPicker(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -444,8 +479,9 @@ class _PostReactionBar extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _PickerReaction(
-                      emoji: '👍',
+                      icon: Icons.thumb_up_alt_rounded,
                       label: 'إعجاب',
+                      color: const Color(0xff2563EB),
                       isSelected: post.viewerReaction == 'LIKE',
                       onTap: () {
                         Navigator.pop(sheetContext);
@@ -453,8 +489,9 @@ class _PostReactionBar extends StatelessWidget {
                       },
                     ),
                     _PickerReaction(
-                      emoji: '❤️',
+                      icon: Icons.favorite_rounded,
                       label: 'حب',
+                      color: const Color(0xffD9534F),
                       isSelected: post.viewerReaction == 'LOVE',
                       onTap: () {
                         Navigator.pop(sheetContext);
@@ -462,8 +499,9 @@ class _PostReactionBar extends StatelessWidget {
                       },
                     ),
                     _PickerReaction(
-                      emoji: '🤝',
+                      icon: Icons.handshake_rounded,
                       label: 'دعم',
+                      color: const Color(0xff2E7D53),
                       isSelected: post.viewerReaction == 'SUPPORT',
                       onTap: () {
                         Navigator.pop(sheetContext);
@@ -471,8 +509,9 @@ class _PostReactionBar extends StatelessWidget {
                       },
                     ),
                     _PickerReaction(
-                      emoji: '🎉',
+                      icon: Icons.celebration_rounded,
                       label: 'احتفال',
+                      color: const Color(0xffF2C94C),
                       isSelected: post.viewerReaction == 'CELEBRATE',
                       onTap: () {
                         Navigator.pop(sheetContext);
@@ -480,8 +519,9 @@ class _PostReactionBar extends StatelessWidget {
                       },
                     ),
                     _PickerReaction(
-                      emoji: '💡',
+                      icon: Icons.lightbulb_rounded,
                       label: 'مفيد',
+                      color: const Color(0xff9B51E0),
                       isSelected: post.viewerReaction == 'INSIGHTFUL',
                       onTap: () {
                         Navigator.pop(sheetContext);
@@ -502,46 +542,39 @@ class _PostReactionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewerReaction = post.viewerReaction;
     final totalReactions = post.reactionCounts.total;
-
-    final currentEmoji = switch (viewerReaction) {
-      'LIKE' => '👍',
-      'LOVE' => '❤️',
-      'SUPPORT' => '🤝',
-      'CELEBRATE' => '🎉',
-      'INSIGHTFUL' => '💡',
-      _ => '👍',
-    };
-
-    final currentLabel = switch (viewerReaction) {
-      'LIKE' => 'إعجاب',
-      'LOVE' => 'حب',
-      'SUPPORT' => 'دعم',
-      'CELEBRATE' => 'احتفال',
-      'INSIGHTFUL' => 'مفيد',
-      _ => 'إعجاب',
-    };
+    final currentIcon = _getIconForReaction(viewerReaction);
+    final currentLabel = _getLabelForReaction(viewerReaction);
+    final currentColor = _getColorForReaction(viewerReaction);
 
     return GestureDetector(
+      onTap: () {
+        final type = viewerReaction ?? 'LIKE';
+        onReaction(type);
+      },
       onLongPress: () => _showReactionPicker(context),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
           color: viewerReaction != null
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
-              : Theme.of(
-                  context,
-                ).colorScheme.surfaceContainerHighest.withOpacity(0.4),
+              ? currentColor.withOpacity(0.1)
+              : Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.4),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: viewerReaction != null
-                ? Theme.of(context).colorScheme.primary.withOpacity(0.35)
+                ? currentColor.withOpacity(0.35)
                 : Colors.transparent,
           ),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(currentEmoji, style: const TextStyle(fontSize: 20)),
+            Icon(
+              currentIcon,
+              size: 20,
+              color: viewerReaction != null
+                  ? currentColor
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(width: 8),
             Text(
               currentLabel,
@@ -570,14 +603,16 @@ class _PostReactionBar extends StatelessWidget {
 }
 
 class _PickerReaction extends StatelessWidget {
-  final String emoji;
+  final IconData icon;
   final String label;
+  final Color color;
   final bool isSelected;
   final VoidCallback onTap;
 
   const _PickerReaction({
-    required this.emoji,
+    required this.icon,
     required this.label,
+    required this.color,
     required this.isSelected,
     required this.onTap,
   });
@@ -594,18 +629,20 @@ class _PickerReaction extends StatelessWidget {
             height: 52,
             decoration: BoxDecoration(
               color: isSelected
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+                  ? color.withOpacity(0.15)
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Colors.transparent,
+                color: isSelected ? color : Colors.transparent,
                 width: isSelected ? 1.5 : 0,
               ),
             ),
-            child: Center(
-              child: Text(emoji, style: const TextStyle(fontSize: 24)),
+            child: Icon(
+              icon,
+              size: 24,
+              color: isSelected
+                  ? color
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: 6),
@@ -615,7 +652,7 @@ class _PickerReaction extends StatelessWidget {
               fontSize: 10,
               fontWeight: FontWeight.w700,
               color: isSelected
-                  ? Theme.of(context).colorScheme.primary
+                  ? color
                   : Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
@@ -624,6 +661,7 @@ class _PickerReaction extends StatelessWidget {
     );
   }
 }
+
 
 class _CommentsSectionHeader extends StatelessWidget {
   final int count;
@@ -1132,12 +1170,14 @@ class _EmptyComments extends StatelessWidget {
 class _CommentComposer extends StatelessWidget {
   final TextEditingController controller;
   final String? replyingTo;
+  final bool isSubmitting;
   final VoidCallback onCancelReply;
   final VoidCallback onSend;
 
   const _CommentComposer({
     required this.controller,
     required this.replyingTo,
+    required this.isSubmitting,
     required this.onCancelReply,
     required this.onSend,
   });
@@ -1254,13 +1294,22 @@ class _CommentComposer extends StatelessWidget {
                         return AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           child: IconButton.filled(
-                            onPressed: hasText ? onSend : null,
-                            icon: const Icon(Icons.send_rounded, size: 18),
+                            onPressed: hasText && !isSubmitting ? onSend : null,
+                            icon: isSubmitting
+                                ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                                : const Icon(Icons.send_rounded, size: 18),
                             style: IconButton.styleFrom(
-                              backgroundColor: hasText
+                              backgroundColor: hasText && !isSubmitting
                                   ? colors.primary
                                   : colors.surfaceContainerHighest,
-                              foregroundColor: hasText
+                              foregroundColor: hasText && !isSubmitting
                                   ? colors.onPrimary
                                   : colors.onSurfaceVariant,
                               minimumSize: const Size(44, 44),

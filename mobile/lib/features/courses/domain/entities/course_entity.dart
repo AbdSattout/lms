@@ -145,6 +145,20 @@ class CourseEnrollmentDetailsEntity {
       status.toUpperCase() == 'COMPLETED' || completedAt != null;
 }
 
+class CourseFaqEntity {
+  final int id;
+  final String question;
+  final String answer;
+  final int position;
+
+  const CourseFaqEntity({
+    required this.id,
+    required this.question,
+    required this.answer,
+    required this.position,
+  });
+}
+
 class CourseEntity {
   final int id;
   final String title;
@@ -161,6 +175,7 @@ class CourseEntity {
   final CourseEnrollmentDetailsEntity? enrollment;
   final List<ChapterEntity> chapters;
   final CourseProgressSnapshotEntity? progressSnapshot;
+  final List<CourseFaqEntity>? faqs;
 
   const CourseEntity({
     required this.id,
@@ -177,6 +192,7 @@ class CourseEntity {
     this.enrollment,
     this.chapters = const [],
     this.progressSnapshot,
+    this.faqs,
   });
 
   String? get organizationDisplayName => organization?.name ?? organizationName;

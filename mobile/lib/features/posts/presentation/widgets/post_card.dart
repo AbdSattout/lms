@@ -5,6 +5,7 @@ import '../../../../core/utils/relative_time.dart';
 import '../../../reports/domain/entities/report_target.dart';
 import '../../../reports/presentation/widgets/report_bottom_sheet.dart';
 import '../../domain/entities/post_entity.dart';
+import '../../domain/entities/reaction_counts_entity.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity post;
@@ -54,13 +55,13 @@ class PostCard extends StatelessWidget {
                       radius: 20,
                       backgroundColor: AppColors.primaryLight,
                       backgroundImage:
-                          post.author.picture != null &&
-                              post.author.picture!.isNotEmpty
+                      post.author.picture != null &&
+                          post.author.picture!.isNotEmpty
                           ? NetworkImage(post.author.picture!)
                           : null,
                       child:
-                          post.author.picture == null ||
-                              post.author.picture!.isEmpty
+                      post.author.picture == null ||
+                          post.author.picture!.isEmpty
                           ? Icon(Icons.person, color: colors.primary, size: 20)
                           : null,
                     ),
@@ -214,58 +215,142 @@ class PostCard extends StatelessWidget {
 enum _PostReportAction { post, author }
 
 class _ReactionSummary extends StatelessWidget {
-  final dynamic reactionCounts;
+  final ReactionCountsEntity reactionCounts;
   final String? viewerReaction;
 
-  const _ReactionSummary({required this.reactionCounts, this.viewerReaction});
+  const _ReactionSummary({
+    required this.reactionCounts,
+    this.viewerReaction,
+  });
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final total = reactionCounts.total as int;
-
-    final (emoji, label, color) = switch (viewerReaction) {
-      'LIKE' => ('👍', 'إعجاب', const Color(0xff2563EB)),
-      'LOVE' => ('❤️', 'حب', const Color(0xffD9534F)),
-      'SUPPORT' => ('🤝', 'دعم', const Color(0xff2E7D53)),
-      'CELEBRATE' => ('🎉', 'احتفال', const Color(0xffF2C94C)),
-      'INSIGHTFUL' => ('💡', 'مفيد', const Color(0xff9B51E0)),
-      _ => (null, null, null),
-    };
+    final total = reactionCounts.total;
 
     if (total == 0 && viewerReaction == null) return const SizedBox();
+
+    final reactionTypes = [
+      _ReactionType(
+        type: 'LIKE',
+        icon: Icons.thumb_up_alt_rounded,
+        color: const Color(0xff2563EB),
+        count: reactionCounts.like,
+      ),
+      _ReactionType(
+        type: 'LOVE',
+        icon: Icons.favorite_rounded,
+        color: const Color(0xffD9534F),
+        count: reactionCounts.love,
+      ),
+      _ReactionType(
+        type: 'SUPPORT',
+        icon: Icons.handshake_rounded,
+        color: const Color(0xff2E7D53),
+        count: reactionCounts.support,
+      ),
+      _ReactionType(
+        type: 'CELEBRATE',
+        icon: Icons.celebration_rounded,
+        color: const Color(0xffF2C94C),
+        count: reactionCounts.celebrate,
+      ),
+      _ReactionType(
+        type: 'INSIGHTFUL',
+        icon: Icons.lightbulb_rounded,
+        color: const Color(0xff9B51E0),
+        count: reactionCounts.insightful,
+      ),
+    ];
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: viewerReaction != null
-            ? color!.withOpacity(0.1)
+            ? _getColorForReaction(viewerReaction!).withOpacity(0.1)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (emoji != null)
-            Text(emoji, style: const TextStyle(fontSize: 14))
-          else
-            Icon(
-              Icons.favorite_border_rounded,
-              size: 16,
-              color: colors.onSurfaceVariant,
-            ),
+          for (final reaction in reactionTypes)
+            if (reaction.count > 0) ...[
+              _ReactionIcon(
+                icon: reaction.icon,
+                color: reaction.color,
+                isActive: viewerReaction == reaction.type,
+              ),
+              const SizedBox(width: 6),
+            ],
           if (total > 0) ...[
-            const SizedBox(width: 5),
+            const SizedBox(width: 2),
             Text(
               '$total',
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
-                color: viewerReaction != null ? color : colors.onSurfaceVariant,
+                color: colors.onSurfaceVariant,
               ),
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  Color _getColorForReaction(String type) {
+    return switch (type) {
+      'LIKE' => const Color(0xff2563EB),
+      'LOVE' => const Color(0xffD9534F),
+      'SUPPORT' => const Color(0xff2E7D53),
+      'CELEBRATE' => const Color(0xffF2C94C),
+      'INSIGHTFUL' => const Color(0xff9B51E0),
+      _ => const Color(0xff2563EB),
+    };
+  }
+}
+
+class _ReactionType {
+  final String type;
+  final IconData icon;
+  final Color color;
+  final int count;
+
+  const _ReactionType({
+    required this.type,
+    required this.icon,
+    required this.color,
+    required this.count,
+  });
+}
+
+class _ReactionIcon extends StatelessWidget {
+  final IconData icon;
+  final Color color;
+  final bool isActive;
+
+  const _ReactionIcon({
+    required this.icon,
+    required this.color,
+    required this.isActive,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: isActive ? color.withOpacity(0.15) : Colors.transparent,
+        shape: BoxShape.circle,
+        border: isActive
+            ? Border.all(color: color.withOpacity(0.3), width: 1)
+            : null,
+      ),
+      child: Icon(
+        icon,
+        size: 14,
+        color: isActive ? color : color.withOpacity(0.5),
       ),
     );
   }
