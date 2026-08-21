@@ -471,10 +471,10 @@ class _OrganizationDetailsContent extends StatelessWidget {
                                 : Icons.public_rounded,
                             iconColor: isPrivate
                                 ? const Color(0xffB4780F)
-                                : const Color(0xff2E7D53),
+                                : colors.primary,
                             iconBg: isPrivate
-                                ? AppColors.peach.withValues(alpha: .45)
-                                : AppColors.mint.withValues(alpha: .45),
+                                ? AppColors.peach.withValues(alpha: 0.45)
+                                :colors.primary.withValues(alpha: 0.1),
                             label: "النوع",
                             value: visibility,
                           ),
