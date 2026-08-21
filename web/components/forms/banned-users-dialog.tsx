@@ -1,8 +1,18 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Image from "next/image"
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,13 +124,16 @@ function BannedUserDetailDialog({
 
         <div className="flex flex-col items-center space-y-6 p-6 pb-2">
           <div className="relative">
-            <Image
-              src={user.picture || "/default-avatar.png"}
-              alt={displayName}
-              width={100}
-              height={100}
-              className="rounded-full object-cover ring-4 ring-muted"
-            />
+            <Avatar className="size-[100px] ring-4 ring-muted">
+              <AvatarImage src={user.picture} alt={displayName} />
+              <AvatarFallback className="text-2xl font-semibold">
+                {displayName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .slice(0, 2)}
+              </AvatarFallback>
+            </Avatar>
 
             <div className="text-destructive-foreground absolute -right-1 -bottom-1 rounded-full bg-destructive p-1.5 shadow-sm">
               <UserX className="h-4 w-4" />
@@ -373,17 +386,14 @@ export function BannedUsersDialog({
             ) : (
               <div className="custom-scrollbar h-full space-y-1 overflow-y-auto p-3">
                 {bannedUsers.length === 0 ? (
-                  <div className="flex h-full flex-col items-center justify-center space-y-2 text-sm font-medium text-muted-foreground opacity-70">
-                    <Image
-                      src="/no-results.png"
-                      alt="No Result"
-                      width={100}
-                      height={100}
-                      className="hidden opacity-40 mix-blend-luminosity grayscale invert dark:invert-0"
-                    />
-
-                    <span>لا يوجد مستخدمون محظورون.</span>
-                  </div>
+                  <Empty className="h-full justify-center">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <UserX />
+                      </EmptyMedia>
+                      <EmptyTitle>لا يوجد مستخدمون محظورون.</EmptyTitle>
+                    </EmptyHeader>
+                  </Empty>
                 ) : (
                   bannedUsers.map((ban) => {
                     const user = ban.user
@@ -395,13 +405,19 @@ export function BannedUsersDialog({
                         onClick={() => setSelectedBannedUser(ban)}
                         className="group flex cursor-pointer items-center gap-3 rounded-lg border-b border-muted/20 bg-background/60 p-3 transition-all duration-150 hover:bg-muted/40 hover:shadow-sm active:scale-[0.98]"
                       >
-                        <Image
-                          src={user.picture || "/default-avatar.png"}
-                          alt={displayName}
-                          width={38}
-                          height={38}
-                          className="shrink-0 rounded-full object-cover ring-2 ring-transparent transition-all group-hover:ring-border/40"
-                        />
+                        <Avatar className="size-[38px] shrink-0 ring-2 ring-transparent transition-all group-hover:ring-border/40">
+                          <AvatarImage
+                            src={user.picture}
+                            alt={displayName}
+                          />
+                          <AvatarFallback className="text-xs font-semibold">
+                            {displayName
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
 
                         <div className="flex min-w-0 flex-1 flex-col">
                           <span className="truncate text-sm font-semibold tracking-tight text-foreground">
