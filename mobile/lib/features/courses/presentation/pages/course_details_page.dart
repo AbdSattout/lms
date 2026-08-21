@@ -15,6 +15,7 @@ import '../bloc/course_details_bloc.dart';
 import '../bloc/course_details_event.dart';
 import '../bloc/course_details_state.dart';
 import '../widgets/course_hero_header.dart';
+import '../widgets/course_faq_section.dart';
 import '../widgets/course_organization_card.dart';
 import '../widgets/course_progress_bar.dart';
 import '../widgets/course_section_header.dart';
@@ -182,6 +183,15 @@ class _CourseDetailsContentState extends State<_CourseDetailsContent> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 24),
+                    ],
+                    if (course.faqs != null && course.faqs!.isNotEmpty) ...[
+                      const CourseSectionHeader(
+                        icon: Icons.help_outline_rounded,
+                        title: 'الأسئلة الشائعة',
+                      ),
+                      const SizedBox(height: 10),
+                      CourseFaqSection(faqs: course.faqs!),
                       const SizedBox(height: 24),
                     ],
                     if (course.organization != null) ...[
