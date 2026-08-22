@@ -36,7 +36,7 @@ public class DashboardCourseMediaService {
 
         Course course =
                 courseAccessService
-                        .getEditableCourse(
+                        .getManageableCourse(
                                 courseId,
                                 user
                         );
