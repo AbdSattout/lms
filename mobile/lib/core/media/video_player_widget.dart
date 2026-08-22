@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -19,6 +21,8 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   VideoPlayerController? _controller;
   bool _hasError = false;
   bool _isFullscreenOpen = false;
+  bool _disposed = false;
+  Timer? _resumeTimer;
 
   @override
   void initState() {
@@ -27,40 +31,87 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   }
 
   Future<void> _initializePlayer() async {
+    final controller = VideoPlayerController.networkUrl(
+      Uri.parse(widget.url),
+    );
+
+    if (_disposed) {
+      await _disposeController(controller);
+      return;
+    }
+    _controller = controller;
+
     try {
-      final controller = VideoPlayerController.networkUrl(
-        Uri.parse(widget.url),
-      );
-      _controller = controller;
-
       await controller.initialize();
+    } catch (e) {
+      debugPrint('[VideoPlayer] initialize failed: $e');
+      if (mounted && !_disposed) setState(() => _hasError = true);
+      return;
+    }
 
-      if (!mounted) {
-        await controller.dispose();
+    if (_disposed || !mounted) {
+      await _disposeController(controller);
+      return;
+    }
+
+    debugPrint(
+      '[VideoPlayer] initialized: duration=${controller.value.duration} '
+      'aspectRatio=${controller.value.aspectRatio}',
+    );
+
+    final saved = _sessionPositions[widget.url];
+    final durationMs = controller.value.duration.inMilliseconds;
+    if (saved != null &&
+        saved.inMilliseconds > 0 &&
+        durationMs > 0 &&
+        saved.inMilliseconds < durationMs) {
+      _scheduleResume(controller, saved);
+    }
+
+    controller.addListener(() {
+      final value = controller.value;
+      if (!value.isInitialized) return;
+      if (value.isCompleted) {
+        _sessionPositions.remove(widget.url);
+      } else if (value.position > Duration.zero) {
+        _sessionPositions[widget.url] = value.position;
+      }
+    });
+
+    setState(() {});
+  }
+
+  void _scheduleResume(VideoPlayerController controller, Duration saved) {
+    void resumeWhenReady() {
+      final value = controller.value;
+      if (!value.isInitialized ||
+          value.duration <= Duration.zero ||
+          value.isBuffering) {
         return;
       }
-
-      final saved = _sessionPositions[widget.url];
-      final durationMs = controller.value.duration.inMilliseconds;
-      if (saved != null &&
-          saved.inMilliseconds > 0 &&
-          saved.inMilliseconds < durationMs) {
-        await controller.seekTo(saved);
+      controller.removeListener(resumeWhenReady);
+      _resumeTimer?.cancel();
+      if (_disposed) return;
+      debugPrint('[VideoPlayer] resuming from $saved');
+      try {
+        controller.seekTo(saved);
+      } catch (e) {
+        debugPrint('[VideoPlayer] resume seek failed: $e');
       }
+    }
 
-      controller.addListener(() {
-        final value = controller.value;
-        if (!value.isInitialized) return;
-        if (value.isCompleted) {
-          _sessionPositions.remove(widget.url);
-        } else if (value.position > Duration.zero) {
-          _sessionPositions[widget.url] = value.position;
-        }
-      });
+    controller.addListener(resumeWhenReady);
+    resumeWhenReady();
+    _resumeTimer = Timer(const Duration(seconds: 8), () {
+      controller.removeListener(resumeWhenReady);
+    });
+  }
 
-      setState(() {});
-    } catch (_) {
-      if (mounted) setState(() => _hasError = true);
+  Future<void> _disposeController(VideoPlayerController controller) async {
+    try {
+      await controller.dispose();
+    } catch (e) {
+      debugPrint('[VideoPlayer] dispose failed: $e');
     }
   }
 
@@ -99,7 +150,16 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _disposed = true;
+    _resumeTimer?.cancel();
+    final controller = _controller;
+    _controller = null;
+    if (controller != null) {
+      debugPrint(
+        '[VideoPlayer] disposing at position=${controller.value.position}',
+      );
+      _disposeController(controller);
+    }
     super.dispose();
   }
 

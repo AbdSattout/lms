@@ -37,9 +37,6 @@ class _VideoControlsOverlayState extends State<VideoControlsOverlay> {
   Timer? _hideTimer;
   Timer? _flashTimer;
   bool _visible = true;
-  bool _wasPlaying = false;
-  bool _wasMuted = false;
-  bool _wasCompleted = false;
   _SeekDirection? _flash;
   int _flashTick = 0;
 
@@ -48,11 +45,13 @@ class _VideoControlsOverlayState extends State<VideoControlsOverlay> {
   @override
   void initState() {
     super.initState();
-    _wasPlaying = _controller.value.isPlaying;
-    _wasMuted = _controller.value.volume <= 0;
-    _wasCompleted = _controller.value.isCompleted;
     _controller.addListener(_onValueChanged);
     _scheduleHide();
+    final value = _controller.value;
+    debugPrint(
+      '[VideoPlayer] controls attached: '
+      'initialized=${value.isInitialized} duration=${value.duration}',
+    );
   }
 
   @override
@@ -64,23 +63,15 @@ class _VideoControlsOverlayState extends State<VideoControlsOverlay> {
   }
 
   void _onValueChanged() {
-    final value = _controller.value;
-    final muted = value.volume <= 0;
-    if (value.isPlaying == _wasPlaying &&
-        muted == _wasMuted &&
-        value.isCompleted == _wasCompleted) {
-      return;
-    }
-    _wasPlaying = value.isPlaying;
-    _wasMuted = muted;
-    _wasCompleted = value.isCompleted;
     if (!mounted) return;
-    setState(() {});
-    if (value.isPlaying) {
+    final playing = _controller.value.isPlaying;
+    setState(() {
+      if (!playing && !_visible) _visible = true;
+    });
+    if (playing) {
       _scheduleHide();
     } else {
       _hideTimer?.cancel();
-      if (!_visible) setState(() => _visible = true);
     }
   }
 
@@ -102,14 +93,22 @@ class _VideoControlsOverlayState extends State<VideoControlsOverlay> {
 
   Future<void> _togglePlayPause() async {
     final value = _controller.value;
-    if (!value.isInitialized) return;
-    if (value.isPlaying) {
-      await _controller.pause();
-    } else {
-      if (value.duration > Duration.zero && value.position >= value.duration) {
-        await _controller.seekTo(Duration.zero);
+    try {
+      if (value.isPlaying) {
+        await _controller.pause();
+      } else {
+        if (value.duration > Duration.zero &&
+            value.position >= value.duration) {
+          await _controller.seekTo(Duration.zero);
+        }
+        await _controller.play();
       }
-      await _controller.play();
+      debugPrint(
+        '[VideoPlayer] play/pause -> playing=${_controller.value.isPlaying} '
+        'position=${_controller.value.position}',
+      );
+    } catch (e) {
+      debugPrint('[VideoPlayer] play/pause failed: $e');
     }
     if (!mounted) return;
     _revealControls();
@@ -117,16 +116,30 @@ class _VideoControlsOverlayState extends State<VideoControlsOverlay> {
 
   Future<void> _seekBy(int seconds) async {
     final value = _controller.value;
-    if (!value.isInitialized || value.duration <= Duration.zero) return;
-    final targetMs = (value.position.inMilliseconds + seconds * 1000)
-        .clamp(0, value.duration.inMilliseconds)
-        .toInt();
-    await _controller.seekTo(Duration(milliseconds: targetMs));
+    var targetMs = value.position.inMilliseconds + seconds * 1000;
+    final durationMs = value.duration.inMilliseconds;
+    if (durationMs > 0) {
+      targetMs = targetMs.clamp(0, durationMs).toInt();
+    } else if (targetMs < 0) {
+      targetMs = 0;
+    }
+    try {
+      await _controller.seekTo(Duration(milliseconds: targetMs));
+      debugPrint(
+        '[VideoPlayer] skip ${seconds}s -> position=${_controller.value.position}',
+      );
+    } catch (e) {
+      debugPrint('[VideoPlayer] skip ${seconds}s failed: $e');
+    }
   }
 
   void _toggleMute() {
     final value = _controller.value;
-    _controller.setVolume(value.volume > 0 ? 0 : 1);
+    try {
+      _controller.setVolume(value.volume > 0 ? 0 : 1);
+    } catch (e) {
+      debugPrint('[VideoPlayer] mute toggle failed: $e');
+    }
     _revealControls();
   }
 
@@ -174,7 +187,11 @@ class _VideoControlsOverlayState extends State<VideoControlsOverlay> {
       },
     );
     if (selected != null) {
-      _controller.setPlaybackSpeed(selected);
+      try {
+        _controller.setPlaybackSpeed(selected);
+      } catch (e) {
+        debugPrint('[VideoPlayer] speed change failed: $e');
+      }
     }
   }
 
@@ -518,6 +535,14 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
         .toDouble();
   }
 
+  Future<void> _safeSeek(Duration target) async {
+    try {
+      await _controller.seekTo(target);
+    } catch (e) {
+      debugPrint('[VideoPlayer] scrub seek failed: $e');
+    }
+  }
+
   void _scrubTo(double fraction, {bool force = false}) {
     final target = fraction.clamp(0.0, 1.0).toDouble();
     if (_dragging) {
@@ -527,9 +552,11 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
     if (!force && now.difference(_lastSeekTime) < _throttle) return;
     _lastSeekTime = now;
     final durationMs = _controller.value.duration.inMilliseconds;
-    if (durationMs > 0) {
-      _controller.seekTo(Duration(milliseconds: (target * durationMs).round()));
+    if (durationMs <= 0) {
+      debugPrint('[VideoPlayer] scrub skipped: duration not available yet');
+      return;
     }
+    _safeSeek(Duration(milliseconds: (target * durationMs).round()));
   }
 
   void _onDragStart(double fraction) {
