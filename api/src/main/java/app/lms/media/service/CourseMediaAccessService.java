@@ -34,6 +34,40 @@ public class CourseMediaAccessService {
                 );
     }
 
+    public CourseMedia getManageableMedia(
+            Long organizationId,
+            Long courseId,
+            Long mediaId,
+            User user
+    ) {
+
+        Course course =
+                courseAccessService.getManageableCourse(
+                        courseId,
+                        user
+                );
+
+        if (
+                !course.getOrganization()
+                        .getId()
+                        .equals(organizationId)
+        ) {
+            throw new NotFoundException(
+                    "Course not found"
+            );
+        }
+
+        return courseMediaRepository
+                .findByIdAndCourseId(
+                        mediaId,
+                        courseId
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(
+                                "Media not found"
+                        )
+                );
+    }
     public CourseMedia getEditableMedia(
             Long organizationId,
             Long courseId,
