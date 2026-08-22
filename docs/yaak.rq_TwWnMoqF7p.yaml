@@ -1,21 +1,21 @@
 type: http_request
 model: http_request
-id: rq_VnRP2dzsVP
-createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-08-18T18:34:43.077312400
+id: rq_TwWnMoqF7p
+createdAt: 2026-08-11T17:00:10.658394500
+updatedAt: 2026-08-11T17:20:49.101757
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bcxgeqLASJ
+folderId: fl_Fw4aDnUEpa
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjEwIiwiaWF0IjoxNzg3MDQxNjYzLCJleHAiOjE3ODc2NDY0NjN9.GAtw8utb0-uo_k74bEVQU5O1uYRGtCJYJxE_hi5D6GI
+  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjIiLCJpYXQiOjE3ODYyMzAxNjMsImV4cCI6MTc4NjgzNDk2M30.js9gs_uyA5kb2a7H-dwqwNiLnqI-b4dPxu2w9QvsenI
 authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
 method: GET
-name: get all organizations
-sortPriority: 1000.0
-url: https://masarapi.up.railway.app/organizations
+name: get media for post
+sortPriority: 3000.001
+url: https://masarapi.up.railway.app/mobile/organizations/2/post-media/9
 urlParameters: []
 settingSendCookies:
   enabled: false
