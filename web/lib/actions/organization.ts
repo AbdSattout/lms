@@ -90,14 +90,13 @@ export async function createOrganization(
   const imageError = getImageUploadError(image)
   if (imageError) return { error: imageError }
   const imageFile = image && image.size > 0 ? image : undefined
+  let newSlug: string
   try {
     const org = await api.dashboard.organizations.create.post(
       { name, slug, description, visibility },
       imageFile
     )
-
-    revalidatePath("/")
-    redirect(`/${org.slug}`)
+    newSlug = org.slug
   } catch (error) {
     if (error instanceof SubscriptionLimitError) {
       return {
@@ -111,6 +110,9 @@ export async function createOrganization(
       error: "حدث خطأ أثناء إنشاء المنظمة.",
     }
   }
+
+  revalidatePath("/")
+  redirect(`/${newSlug}`)
 }
 export async function leaveOrganizationAction(slug: string) {
   try {
