@@ -69,7 +69,7 @@ public class DashboardCourseMediaService {
 
         CourseMedia media =
                 courseMediaAccessService
-                        .getEditableMedia(
+                        .getManageableMedia(
                                 organizationId,
                                 courseId,
                                 mediaId,
@@ -134,14 +134,16 @@ public class DashboardCourseMediaService {
 
         CourseMedia media =
                 courseMediaAccessService
-                        .getEditableMedia(
+                        .getManageableMedia(
                                 organizationId,
                                 courseId,
                                 mediaId,
                                 user
                         );
 
-        return courseMediaMapper.toResponse(media);
+        return courseMediaMapper.toResponse(
+                media
+        );
     }
 
     public Page<CourseMediaResponse> list(
