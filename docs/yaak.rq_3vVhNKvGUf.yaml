@@ -1,21 +1,20 @@
 type: http_request
 model: http_request
-id: rq_VnRP2dzsVP
-createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-08-18T18:34:43.077312400
+id: rq_3vVhNKvGUf
+createdAt: 2026-08-11T16:21:27.260086600
+updatedAt: 2026-08-18T18:07:43.695442400
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bcxgeqLASJ
-authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjEwIiwiaWF0IjoxNzg3MDQxNjYzLCJleHAiOjE3ODc2NDY0NjN9.GAtw8utb0-uo_k74bEVQU5O1uYRGtCJYJxE_hi5D6GI
+folderId: fl_2ZuvTcuNYq
+authentication: {}
 authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
 method: GET
-name: get all organizations
-sortPriority: 1000.0
-url: https://masarapi.up.railway.app/organizations
+name: get final quiz
+sortPriority: 0.0
+url: https://masarapi.up.railway.app/mobile/courses/{course-id}/quiz
 urlParameters: []
 settingSendCookies:
   enabled: false

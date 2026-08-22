@@ -1,22 +1,26 @@
 type: http_request
 model: http_request
-id: rq_VnRP2dzsVP
-createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-08-18T18:34:43.077312400
+id: rq_6UtNCLyudW
+createdAt: 2026-08-02T21:53:02.775859400
+updatedAt: 2026-08-02T21:54:45.773498100
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bcxgeqLASJ
+folderId: fl_LGcrV62umX
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjEwIiwiaWF0IjoxNzg3MDQxNjYzLCJleHAiOjE3ODc2NDY0NjN9.GAtw8utb0-uo_k74bEVQU5O1uYRGtCJYJxE_hi5D6GI
+  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjIiLCJpYXQiOjE3ODU2MDQzMzksImV4cCI6MTc4NjIwOTEzOX0.l07lK0U8ozaBAI-Yj2lYAvSiAUjXbVheUpaaOBNQPF0
 authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
 method: GET
-name: get all organizations
-sortPriority: 1000.0
-url: https://masarapi.up.railway.app/organizations
-urlParameters: []
+name: search for orgs
+sortPriority: 0.0
+url: https://lms.koyeb.app/organizations
+urlParameters:
+- enabled: true
+  name: q
+  value: flutter
+  id: 8YvTnkPuJQ
 settingSendCookies:
   enabled: false
   value: true

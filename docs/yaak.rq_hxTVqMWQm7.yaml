@@ -1,10 +1,10 @@
 type: http_request
 model: http_request
-id: rq_VnRP2dzsVP
-createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-08-18T18:34:43.077312400
+id: rq_hxTVqMWQm7
+createdAt: 2026-08-18T18:07:55.376237100
+updatedAt: 2026-08-18T18:36:12.491379600
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bcxgeqLASJ
+folderId: fl_7RPYX3oMSW
 authentication:
   token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjEwIiwiaWF0IjoxNzg3MDQxNjYzLCJleHAiOjE3ODc2NDY0NjN9.GAtw8utb0-uo_k74bEVQU5O1uYRGtCJYJxE_hi5D6GI
 authenticationType: bearer
@@ -13,9 +13,9 @@ bodyType: null
 description: ''
 headers: []
 method: GET
-name: get all organizations
+name: ''
 sortPriority: 1000.0
-url: https://masarapi.up.railway.app/organizations
+url: https://masarapi.up.railway.app/mobile/organizations/org-1786911200065/roadmaps/1
 urlParameters: []
 settingSendCookies:
   enabled: false

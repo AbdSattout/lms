@@ -80,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
           if (state is ProfileLoaded && state.accountEmailMessage != null) {
             AppToast.show(
               context,
-              type: ToastType.error,
+              type: ToastType.success,
               message: state.accountEmailMessage!,
             );
           }
