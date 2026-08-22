@@ -1,0 +1,28 @@
+type: folder
+model: folder
+id: fl_oYBQyu35Np
+createdAt: 2026-08-11T16:20:58.326384
+updatedAt: 2026-08-11T16:21:22.671563500
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_RzR3iA2rrn
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: quiz
+sortPriority: 8000.0
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0

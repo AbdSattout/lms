@@ -1,21 +1,21 @@
 type: http_request
 model: http_request
-id: rq_VnRP2dzsVP
-createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-08-18T18:34:43.077312400
+id: rq_Xr93cg2imV
+createdAt: 2026-08-01T02:31:00.618485900
+updatedAt: 2026-08-01T18:13:38.513520
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bcxgeqLASJ
+folderId: fl_x2sJUXGYsL
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjEwIiwiaWF0IjoxNzg3MDQxNjYzLCJleHAiOjE3ODc2NDY0NjN9.GAtw8utb0-uo_k74bEVQU5O1uYRGtCJYJxE_hi5D6GI
+  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjIiLCJpYXQiOjE3ODU2MDQzMzksImV4cCI6MTc4NjIwOTEzOX0.l07lK0U8ozaBAI-Yj2lYAvSiAUjXbVheUpaaOBNQPF0
 authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
-method: GET
-name: get all organizations
-sortPriority: 1000.0
-url: https://masarapi.up.railway.app/organizations
+method: POST
+name: join org
+sortPriority: 0.001
+url: https://lms.koyeb.app/organizations/org-1784214779695/join
 urlParameters: []
 settingSendCookies:
   enabled: false

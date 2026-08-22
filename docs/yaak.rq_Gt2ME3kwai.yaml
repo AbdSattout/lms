@@ -1,21 +1,21 @@
 type: http_request
 model: http_request
-id: rq_VnRP2dzsVP
-createdAt: 2026-06-05T14:06:26.938226500
-updatedAt: 2026-08-18T18:34:43.077312400
+id: rq_Gt2ME3kwai
+createdAt: 2026-08-13T23:25:04.608284
+updatedAt: 2026-08-18T18:07:43.707694
 workspaceId: wk_LvqrSfWmRY
-folderId: fl_bcxgeqLASJ
+folderId: fl_2ZuvTcuNYq
 authentication:
-  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjEwIiwiaWF0IjoxNzg3MDQxNjYzLCJleHAiOjE3ODc2NDY0NjN9.GAtw8utb0-uo_k74bEVQU5O1uYRGtCJYJxE_hi5D6GI
+  token: eyJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiVVNFUiIsInN1YiI6IjIiLCJpYXQiOjE3ODYyMzAxNjMsImV4cCI6MTc4NjgzNDk2M30.js9gs_uyA5kb2a7H-dwqwNiLnqI-b4dPxu2w9QvsenI
 authenticationType: bearer
 body: {}
 bodyType: null
 description: ''
 headers: []
-method: GET
-name: get all organizations
+method: POST
+name: generate ai quiz
 sortPriority: 1000.0
-url: https://masarapi.up.railway.app/organizations
+url: https://masarapi.up.railway.app/mobile/ai/courses/7/random-quiz
 urlParameters: []
 settingSendCookies:
   enabled: false

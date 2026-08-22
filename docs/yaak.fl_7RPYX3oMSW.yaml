@@ -1,0 +1,28 @@
+type: folder
+model: folder
+id: fl_7RPYX3oMSW
+createdAt: 2026-08-18T18:07:33.662334
+updatedAt: 2026-08-18T18:07:43.718476200
+workspaceId: wk_LvqrSfWmRY
+folderId: fl_2ZuvTcuNYq
+authentication: {}
+authenticationType: null
+description: ''
+headers: []
+name: Roadmaps
+sortPriority: 2000.0
+settingSendCookies:
+  enabled: false
+  value: true
+settingStoreCookies:
+  enabled: false
+  value: true
+settingValidateCertificates:
+  enabled: false
+  value: true
+settingFollowRedirects:
+  enabled: false
+  value: true
+settingRequestTimeout:
+  enabled: false
+  value: 0
